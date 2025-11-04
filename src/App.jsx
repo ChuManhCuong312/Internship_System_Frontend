@@ -5,16 +5,19 @@ import HRDashboard from "./pages/HR/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Mặc định chuyển hướng về /Intern/Dashboard */}
+        {/* Mặc định chuyển hướng về /login */}
         <Route path="/" element={<Navigate to="/login" />} />
 
+        {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Trang dành cho Admin */}
         <Route path="/Admin/Dashboard" element={<AdminDashboard />} />
