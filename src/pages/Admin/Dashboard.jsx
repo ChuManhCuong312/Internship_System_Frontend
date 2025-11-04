@@ -1,12 +1,12 @@
 import React from "react";
-import HRSidebar from "../../components/Layout/AdminSidebar";
+import AdminSidebar from "../../components/Layout/AdminSidebar";
 import "../../styles/dashBoard.css";
 
 const UserManagement = () => {
   return (
     <div className="dashboard-layout">
       {/* Sidebar bên trái */}
-      <HRSidebar />
+      <AdminSidebar />
 
       {/* Nội dung bên phải */}
       <div className="dashboard-content">

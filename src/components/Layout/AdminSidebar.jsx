@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
+import { useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaUsersCog,
@@ -16,6 +17,7 @@ import "../../styles/sideBar.css";
 
 const AdminSidebar = () => {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
 
   const sidebarStyle = useSpring({
     width: expanded ? 250 : 60,
@@ -47,10 +49,10 @@ const AdminSidebar = () => {
 
       {/* Menu chính */}
       <ul className="sidebar-menu">
-        <li>
+        <li onClick={() => navigate("/Admin/Dashboard")}>
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
-        <li>
+        <li onClick={() => navigate("/Admin/UserRegister")}>
           <FaUsersCog /> {expanded && <span>Quản trị người dùng</span>}
         </li>
         <li>
@@ -69,7 +71,7 @@ const AdminSidebar = () => {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        <button>
+        <button onClick={() => navigate("/login")}>
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>
