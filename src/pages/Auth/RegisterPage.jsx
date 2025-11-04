@@ -11,11 +11,12 @@ const RegisterPage = () => {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
+    phone: "",          // ✅ thêm phone
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // ✅ success message
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -28,7 +29,6 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ basic frontend validation
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -42,22 +42,17 @@ const RegisterPage = () => {
     const requestData = {
       fullName: form.fullName,
       email: form.email,
+      phone: form.phone,        // ✅ gửi phone
       password: form.password,
     };
 
     try {
       setLoading(true);
-
-      const res = await authService.register(requestData);
-
-      // Spring backend returns a string message
+      const res = await authService.registerIntern(requestData); // sử dụng endpoint intern
       setSuccess(res);
       setError("");
-
-      // Optional: redirect to login after a short delay
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      // Backend might return { message: "..."} or a string
       setError(err.response?.data?.message || err.message || "Registration failed");
       setSuccess("");
     } finally {
@@ -99,6 +94,19 @@ const RegisterPage = () => {
               disabled={loading}
               className="form-input"
               placeholder="you@example.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone">Phone</label>
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              value={form.phone}
+              onChange={handleChange}
+              className="form-input"
+              placeholder="0123456789"
             />
           </div>
 
