@@ -31,7 +31,7 @@ const HRSidebar = () => {
           {expanded && (
             <div className="avatar-info">
               <h4>Andrew Smith</h4>
-              <p>PRODUCT DESIGNER</p>
+              <p>Human Resource</p>
             </div>
           )}
         </div>

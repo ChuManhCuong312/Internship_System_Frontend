@@ -12,7 +12,7 @@ const Sidebar = () => {
 
   // Animation cho width
   const sidebarStyle = useSpring({
-    width: expanded ? 250 : 55,
+    width: expanded ? 250 : 60,
     config: { tension: 220, friction: 20 }
   });
 
