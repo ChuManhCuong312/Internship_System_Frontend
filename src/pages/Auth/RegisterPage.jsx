@@ -1,5 +1,7 @@
+// src/pages/Auth/RegisterPage.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { authService } from "../../services/authService";
 import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthCard from "../../components/Auth/AuthCard";
 import SocialLoginButtons from "../../components/Auth/SocialLoginButtons";
@@ -13,18 +15,20 @@ const RegisterPage = () => {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // ✅ success message
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+    setSuccess("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
-    // Validation
+    // ✅ basic frontend validation
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -35,19 +39,27 @@ const RegisterPage = () => {
       return;
     }
 
-    setLoading(true);
+    const requestData = {
+      fullName: form.fullName,
+      email: form.email,
+      password: form.password,
+    };
 
     try {
-      // TODO: Implement actual registration logic
-      console.log("Register:", form);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Navigate to login after successful registration
-      // navigate("/login");
+      setLoading(true);
+
+      const res = await authService.register(requestData);
+
+      // Spring backend returns a string message
+      setSuccess(res);
+      setError("");
+
+      // Optional: redirect to login after a short delay
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.message || "Registration failed. Please try again.");
+      // Backend might return { message: "..."} or a string
+      setError(err.response?.data?.message || err.message || "Registration failed");
+      setSuccess("");
     } finally {
       setLoading(false);
     }
@@ -58,19 +70,20 @@ const RegisterPage = () => {
       <AuthCard title="Register">
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="error-message">{error}</div>}
-          
+          {success && <div className="success-message">{success}</div>}
+
           <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
             <input
               id="fullName"
-              type="text"
               name="fullName"
-              className="form-input"
-              placeholder="John Doe"
+              type="text"
               value={form.fullName}
               onChange={handleChange}
               required
               disabled={loading}
+              className="form-input"
+              placeholder="John Doe"
             />
           </div>
 
@@ -78,14 +91,14 @@ const RegisterPage = () => {
             <label htmlFor="email">Email</label>
             <input
               id="email"
-              type="email"
               name="email"
-              className="form-input"
-              placeholder="yourname@gmail.com"
+              type="email"
               value={form.email}
               onChange={handleChange}
               required
               disabled={loading}
+              className="form-input"
+              placeholder="you@example.com"
             />
           </div>
 
@@ -93,14 +106,14 @@ const RegisterPage = () => {
             <label htmlFor="password">Password</label>
             <input
               id="password"
-              type="password"
               name="password"
-              className="form-input"
-              placeholder="••••••••"
+              type="password"
               value={form.password}
               onChange={handleChange}
               required
               disabled={loading}
+              className="form-input"
+              placeholder="••••••"
             />
           </div>
 
@@ -108,14 +121,14 @@ const RegisterPage = () => {
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               id="confirmPassword"
-              type="password"
               name="confirmPassword"
-              className="form-input"
-              placeholder="••••••••"
+              type="password"
               value={form.confirmPassword}
               onChange={handleChange}
               required
               disabled={loading}
+              className="form-input"
+              placeholder="••••••"
             />
           </div>
 

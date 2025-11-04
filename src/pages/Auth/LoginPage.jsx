@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+// src/pages/Auth/LoginPage.jsx
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthCard from "../../components/Auth/AuthCard";
 import SocialLoginButtons from "../../components/Auth/SocialLoginButtons";
 import "../../styles/auth.css";
 
 const LoginPage = () => {
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,14 +21,13 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // TODO: Implement actual login logic
-      console.log("Login:", { email, password });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Navigate to dashboard after successful login
-      // navigate("/dashboard");
+      // Call login from AuthContext
+      const loggedInUser = await login(email, password);
+
+      // Redirect based on role
+      if (loggedInUser.role === "ADMIN") navigate("/Admin/Dashboard");
+      else if (loggedInUser.role === "HR") navigate("/HR/Dashboard");
+      else navigate("/Intern/Dashboard");
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
     } finally {
@@ -38,7 +40,7 @@ const LoginPage = () => {
       <AuthCard title="Login">
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
