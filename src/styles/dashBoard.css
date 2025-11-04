@@ -1,0 +1,68 @@
+.dashboard {
+  flex: 1;
+  background-color: #e0f2f1;
+  padding: 20px;
+}
+
+.header-grid, .main-grid, .bottom-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.header-grid {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 20px;
+}
+
+.main-grid {
+  grid-template-columns: 2fr 1fr;
+  margin-bottom: 20px;
+}
+
+.bottom-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.task-table th, .task-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.status.doing { color: orange; }
+.status.pending { color: red; }
+.status.done { color: green; }
+
+.mentor-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mentor-info img {
+  border-radius: 50%;
+}
+
+.checkin-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.checkin-btn:hover {
+  background-color: #0056b3;
+}
