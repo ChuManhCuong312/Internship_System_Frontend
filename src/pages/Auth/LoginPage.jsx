@@ -1,13 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import "../../styles/auth.css";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login:", { email, password });
+    try {
+      const loggedInUser = await login(email, password);
+
+      // Redirect based on role
+      if (loggedInUser.role === "ADMIN") navigate("/Admin/Dashboard");
+      else if (loggedInUser.role === "HR") navigate("/HR/Dashboard");
+      else navigate("/Intern/Dashboard");
+    } catch (err) {
+      setError(err.message || "Login failed");
+    }
   };
 
   return (
@@ -36,6 +50,8 @@ const LoginPage = () => {
               required
             />
           </div>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <button type="submit" className="auth-btn">Đăng nhập</button>
         </form>

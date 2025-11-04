@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../../styles/auth.css";
+import { authService } from "../../services/authService"; // <-- connect to backend
 
 const RegisterPage = () => {
   const [form, setForm] = useState({
@@ -8,20 +9,43 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: "",
   });
+  const [message, setMessage] = useState(""); // for success/error message
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register:", form);
+
+    // ✅ basic validation before sending
+    if (form.password !== form.confirmPassword) {
+      setMessage("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+
+    const requestData = {
+      fullName: form.fullName,
+      email: form.email,
+      password: form.password,
+    };
+
+    try {
+      setLoading(true);
+      const res = await authService.register(requestData);
+      setMessage(res); // backend returns message like “Registration successful. Verification email sent.”
+    } catch (error) {
+      setMessage(error || "Đăng ký thất bại, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>Đăng ký tài khoản</h2>
+        <h2>Đăng ký tài khoản thực tập sinh</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Họ và tên</label>
@@ -71,8 +95,12 @@ const RegisterPage = () => {
             />
           </div>
 
-          <button type="submit" className="auth-btn">Đăng ký</button>
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? "Đang xử lý..." : "Đăng ký"}
+          </button>
         </form>
+
+        {message && <p className="message">{message}</p>}
 
         <div className="auth-footer">
           <p>Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
