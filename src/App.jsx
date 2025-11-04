@@ -5,6 +5,7 @@ import { AuthContext } from "./context/AuthContext.jsx";
 import Dashboard from "./pages/Intern/Dashboard";
 import HRDashboard from "./pages/HR/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
+import UserRegister from "./pages/Admin/UserRegister";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
 import VerifyEmailPage from "./pages/Auth/VerifyEmailPage";
@@ -44,6 +45,14 @@ function App() {
           element={
             <PrivateRoute allowedRoles={["ADMIN"]}>
               <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/Admin/UserRegister"
+          element={
+            <PrivateRoute allowedRoles={["ADMIN"]}>
+              <UserRegister />
             </PrivateRoute>
           }
         />
