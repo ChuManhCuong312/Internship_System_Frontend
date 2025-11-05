@@ -30,12 +30,12 @@ const RegisterPage = () => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Mật khẩu không trùng với xác nhận mật khẩu");
       return;
     }
 
     if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("Mật khẩu ko được ngắn hơn 6 ký tự");
       return;
     }
 
@@ -53,7 +53,7 @@ const RegisterPage = () => {
       setError("");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Registration failed");
+      setError(err.response?.data?.message || err.message || "Đăng ký không thành công");
       setSuccess("");
     } finally {
       setLoading(false);
@@ -62,13 +62,13 @@ const RegisterPage = () => {
 
   return (
     <AuthLayout>
-      <AuthCard title="Register">
+      <AuthCard title="Đăng ký">
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
 
           <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="fullName">Họ và tên</label>
             <input
               id="fullName"
               name="fullName"
@@ -98,7 +98,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="phone">Phone</label>
+            <label htmlFor="phone">SĐT</label>
             <input
               id="phone"
               name="phone"
@@ -111,7 +111,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mật khẩu</label>
             <input
               id="password"
               name="password"
@@ -126,7 +126,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
             <input
               id="confirmPassword"
               name="confirmPassword"
@@ -141,7 +141,7 @@ const RegisterPage = () => {
           </div>
 
           <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? "Creating account..." : "Sign up"}
+            {loading ? "Đang tạo tài khoản..." : "Đăng ký"}
           </button>
         </form>
 
@@ -149,9 +149,9 @@ const RegisterPage = () => {
 
         <div className="auth-footer">
           <p className="auth-footer-text">
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <Link to="/login" className="auth-footer-link">
-              Sign in
+             Đăng nhập
             </Link>
           </p>
         </div>
