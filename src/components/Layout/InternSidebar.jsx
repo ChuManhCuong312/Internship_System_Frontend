@@ -7,7 +7,7 @@ import {
 import avatar from "../../assets/avatar.png";
 import '../../styles/sideBar.css';
 
-const Sidebar = () => {
+const InternSidebar = () => {
   const [expanded, setExpanded] = useState(false);
 
   // Animation cho width
@@ -17,12 +17,7 @@ const Sidebar = () => {
   });
 
   return (
-    <animated.div
-      className="sidebar"
-      style={sidebarStyle}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
-    >
+    <animated.div className="sidebar" style={sidebarStyle}>
       <div className="sidebar-header">
         <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
           <FaBars />
@@ -54,4 +49,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default InternSidebar;

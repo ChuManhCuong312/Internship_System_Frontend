@@ -1,12 +1,12 @@
 import React from 'react';
-import Sidebar from '../../components/Layout/Sidebar'; // Import Sidebar
+import InternSidebar from '../../components/Layout/InternSidebar'; // Import Sidebar
 import '../../styles/dashBoard.css';
 import avatar from "../../assets/avatar.png";
 
 const Dashboard = () => {
   return (
     <div className="dashboard-layout">
-      <Sidebar />
+      <InternSidebar/>
       <div className="dashboard-content">
         {/* Header Info */}
         <div className="header-grid">
