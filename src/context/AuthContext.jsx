@@ -9,6 +9,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => Cookies.get("token") || null);
+  const [loading, setLoading] = useState(true); // ✅ Add loading state
 
   // Restore user from token on page load
   useEffect(() => {
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }) => {
         Cookies.remove("token");
       }
     }
+setLoading(false); // ✅ Done checking
   }, []);
 
   const login = async (email, password) => {
@@ -55,9 +57,11 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout, setUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+
+return (
+  <AuthContext.Provider value={{ user, token, login, logout, setUser, loading }}>
+    {children}
+  </AuthContext.Provider>
+);
+
 };
