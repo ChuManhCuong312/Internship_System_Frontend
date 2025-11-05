@@ -37,7 +37,7 @@ const LoginPage = () => {
 
   return (
     <AuthLayout>
-      <AuthCard title="Login">
+      <AuthCard title="Đăng nhập">
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="error-message">{error}</div>}
 
@@ -56,7 +56,7 @@ const LoginPage = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mật khẩu</label>
             <input
               id="password"
               type="password"
@@ -70,11 +70,11 @@ const LoginPage = () => {
           </div>
 
           <Link to="/forgot-password" className="auth-link">
-            Forgot Password?
+            Quên mật khẩu?
           </Link>
 
           <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Đăng đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 
@@ -82,9 +82,9 @@ const LoginPage = () => {
 
         <div className="auth-footer">
           <p className="auth-footer-text">
-            Don't have an account yet?{" "}
+            Chưa có tài khoản?{" "}
             <Link to="/register" className="auth-footer-link">
-              Register for free
+              Đăng ký ngay
             </Link>
           </p>
         </div>

@@ -9,7 +9,7 @@ const SocialLoginButtons = () => {
 
   return (
     <div className="social-login">
-      <p className="social-divider">or continue with</p>
+      <p className="social-divider">Hoặc đăng nhập bằng</p>
       <div className="social-buttons">
         <button 
           className="social-btn google-btn"

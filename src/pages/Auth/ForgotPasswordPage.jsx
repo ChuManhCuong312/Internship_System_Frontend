@@ -33,17 +33,17 @@ const ForgotPasswordPage = () => {
 
   return (
     <AuthLayout>
-      <AuthCard title="Forgot Password">
+      <AuthCard title="Quên mật khẩu">
         {success ? (
           <div className="success-message">
-            Password reset link has been sent to your email. Please check your inbox.
+            Link reset mật khẩu đã đươc gửi tới email của bạn. Hãy xem tin nhắn.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="auth-form">
             {error && <div className="error-message">{error}</div>}
             
             <p className="auth-footer-text" style={{ marginBottom: "20px", textAlign: "left" }}>
-              Enter your email address and we'll send you a link to reset your password.
+              Nhập địa chỉ email của bạn và hệ thống sẽ gửi link reset mật khẩu đên bạn.
             </p>
 
             <div className="form-group">
@@ -61,16 +61,16 @@ const ForgotPasswordPage = () => {
             </div>
 
             <button type="submit" className="auth-btn" disabled={loading}>
-              {loading ? "Sending..." : "Send Reset Link"}
+              {loading ? "Đang gửi..." : "Gửi link reset"}
             </button>
           </form>
         )}
 
         <div className="auth-footer">
           <p className="auth-footer-text">
-            Remember your password?{" "}
+            Nhớ mật khẩu của bạn?{" "}
             <Link to="/login" className="auth-footer-link">
-              Back to login
+              Quay lại đăng nhập
             </Link>
           </p>
         </div>
