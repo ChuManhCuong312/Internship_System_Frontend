@@ -13,18 +13,17 @@ import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 
 // 🔹 PrivateRoute component
 const PrivateRoute = ({ children, allowedRoles }) => {
-  const { user, token } = useContext(AuthContext);
+  const { user, token, loading } = useContext(AuthContext);
 
-  // Not logged in
+  if (loading) return <div>Loading...</div>; // ✅ Wait for token check
   if (!token || !user) return <Navigate to="/login" replace />;
-
-  // Role check
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" replace />; // Or a 403 page
+    return <Navigate to="/login" replace />;
   }
 
   return children;
 };
+
 
 function App() {
   return (
