@@ -28,8 +28,6 @@ const AdminSidebar = () => {
     <animated.div
       className="sidebar"
       style={sidebarStyle}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
     >
       {/* Header */}
       <div className="sidebar-header">
