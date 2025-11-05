@@ -19,13 +19,7 @@ const UserRegister = () => {
     password: "",
     confirmPassword: "",
     phone: "",
-    position: "",      // ADMIN
-    department: "",    // HR, Mentor
-    expertise: "",     // Mentor
-    school: "",        // Intern
-    major: "",         // Intern
-    dob: "",           // Intern
-    address: "",       // Intern
+
   });
 
   const [roles, setRoles] = useState([]);
@@ -95,13 +89,6 @@ const isAdmin = loggedInUser?.role === "ADMIN";
         password: "",
         confirmPassword: "",
         phone: "",
-        position: "",
-        department: "",
-        expertise: "",
-        school: "",
-        major: "",
-        dob: "",
-        address: "",
       });
       setSelectedRole("");
     } catch (err) {
@@ -170,57 +157,7 @@ const isAdmin = loggedInUser?.role === "ADMIN";
               </select>
             </label>
 
-            {/* ADMIN fields */}
-            {selectedRole === "ADMIN" && (
-              <label>
-                Position
-                <input type="text" name="position" value={form.position} onChange={handleChange} placeholder="System Administrator" className="form-input" />
-              </label>
-            )}
 
-            {/* HR fields */}
-            {selectedRole === "HR" && (
-              <label>
-                Department
-                <input type="text" name="department" value={form.department} onChange={handleChange} placeholder="Human Resources" className="form-input" />
-              </label>
-            )}
-
-            {/* Mentor fields */}
-            {selectedRole === "Mentor" && (
-              <>
-                <label>
-                  Department
-                  <input type="text" name="department" value={form.department} onChange={handleChange} placeholder="IT Department" className="form-input" />
-                </label>
-                <label>
-                  Expertise
-                  <input type="text" name="expertise" value={form.expertise} onChange={handleChange} placeholder="React, Java" className="form-input" />
-                </label>
-              </>
-            )}
-
-            {/* Intern fields */}
-            {selectedRole === "Intern" && (
-              <>
-                <label>
-                  School
-                  <input type="text" name="school" value={form.school} onChange={handleChange} placeholder="Example University" className="form-input" />
-                </label>
-                <label>
-                  Major
-                  <input type="text" name="major" value={form.major} onChange={handleChange} placeholder="Computer Science" className="form-input" />
-                </label>
-                <label>
-                  Date of Birth
-                  <input type="date" name="dob" value={form.dob} onChange={handleChange} className="form-input" />
-                </label>
-                <label>
-                  Address
-                  <input type="text" name="address" value={form.address} onChange={handleChange} placeholder="123 Main St" className="form-input" />
-                </label>
-              </>
-            )}
 
             <button type="submit" className="checkin-btn" disabled={loading}>
               {loading ? "Creating..." : "Create User"}
