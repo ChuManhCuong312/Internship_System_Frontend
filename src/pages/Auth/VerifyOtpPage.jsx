@@ -14,18 +14,14 @@ const VerifyOtpPage = () => {
   const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Cooldown timer effect
+  // 🔹 Countdown effect for resend timer
   useEffect(() => {
-    if (cooldown === 0) return;
-
-    const interval = setInterval(() => {
-      setCooldown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
   }, [cooldown]);
 
-  // 🔹 Verify OTP
   const handleVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -34,31 +30,31 @@ const VerifyOtpPage = () => {
     try {
       const res = await authService.verifyOtp(email, otp);
       setMessage({ type: "success", text: res });
-      // Navigate to login after a short delay
       setTimeout(() => navigate("/login"), 4000);
     } catch (err) {
       setMessage({
         type: "error",
-        text: err?.response?.data || "OTP verification failed",
+        text: err?.response?.data || "Xác thực OTP không thành công",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Resend OTP
   const handleResend = async () => {
     setLoading(true);
-    setMessage(null);
+    setMessage(null); // clear any previous messages
 
     try {
       const res = await authService.resendOtp(email);
-      setMessage({ type: "info", text: res });
+
+      // Start the countdown when OTP is successfully sent
       setCooldown(60); // 60-second cooldown
+
     } catch (err) {
       setMessage({
         type: "error",
-        text: err?.response?.data || "Failed to resend OTP",
+        text: err?.response?.data || "Lỗi gửi lại OTP",
       });
     } finally {
       setLoading(false);
@@ -68,12 +64,11 @@ const VerifyOtpPage = () => {
   return (
     <div className="auth-layout">
       <div className="auth-card">
-        <h2 className="auth-title">Verify Your Email</h2>
+        <h2 className="auth-title">Xác thực email</h2>
         <p className="auth-subtitle">
-          Enter the OTP sent to <strong>{email}</strong>
+          Nhập mã OTP gửi đến <strong>{email}</strong>
         </p>
 
-        {/* 🔹 Messages */}
         {message && (
           <div
             className={
@@ -88,7 +83,6 @@ const VerifyOtpPage = () => {
           </div>
         )}
 
-        {/* 🔹 OTP Form */}
         <form onSubmit={handleVerify} className="auth-form">
           <div className="form-group">
             <label htmlFor="otp">One-Time Password (OTP)</label>
@@ -97,10 +91,9 @@ const VerifyOtpPage = () => {
               type="text"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              placeholder="Enter the 6-digit code"
+              placeholder="Nhập mã 6 chữ số"
               className="form-input"
               required
-              disabled={loading}
             />
           </div>
 
@@ -109,11 +102,10 @@ const VerifyOtpPage = () => {
             className={`auth-btn ${loading ? "loading" : ""}`}
             disabled={loading}
           >
-            {loading ? "Verifying..." : "Verify OTP"}
+            {loading ? "Đang xác thực..." : "Xác thực OTP"}
           </button>
         </form>
 
-        {/* 🔹 Resend OTP Button */}
         <button
           onClick={handleResend}
           className="auth-btn"
@@ -123,7 +115,7 @@ const VerifyOtpPage = () => {
             background: cooldown > 0 ? "#94a3b8" : "#475569",
           }}
         >
-          {cooldown > 0 ? `Resend OTP in ${cooldown}s` : "Resend OTP"}
+          {cooldown > 0 ? `Gửi lại OTP (${cooldown}s)` : "Gửi lại OTP"}
         </button>
 
         <div className="auth-footer">

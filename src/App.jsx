@@ -7,7 +7,7 @@ import HRDashboard from "./pages/HR/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
-import VerifyEmailPage from "./pages/Auth/VerifyEmailPage";
+import VerifyOtpPage from "./pages/Auth/VerifyOtpPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ManageUsers from "./pages/Admin/ManageUsers";
 
@@ -34,7 +34,7 @@ function App() {
         {/* Auth routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify" element={<VerifyEmailPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Admin routes */}
