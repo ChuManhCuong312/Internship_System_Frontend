@@ -52,7 +52,7 @@ const RegisterPage = () => {
       const res = await authService.registerIntern(requestData); // sử dụng endpoint intern
       setSuccess(res);
       setError("");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`), 5000);
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Đăng ký không thành công");
       setSuccess("");
