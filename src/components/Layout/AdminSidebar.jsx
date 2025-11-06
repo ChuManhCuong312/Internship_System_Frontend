@@ -50,7 +50,7 @@ const AdminSidebar = () => {
         <li onClick={() => navigate("/Admin/Dashboard")}>
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
-        <li onClick={() => navigate("/Admin/UserRegister")}>
+        <li onClick={() => navigate("/Admin/ManageUsers")}>
           <FaUsersCog /> {expanded && <span>Quản trị người dùng</span>}
         </li>
         <li>

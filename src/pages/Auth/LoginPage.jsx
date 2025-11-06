@@ -29,8 +29,20 @@ const LoginPage = () => {
       else if (loggedInUser.role === "HR") navigate("/HR/Dashboard");
       else navigate("/Intern/Dashboard");
     } catch (err) {
-      setError(err.message || "Login failed. Please try again.");
-    } finally {
+        if (err.response) {
+          if (err.response.status === 401) {
+            // Nếu backend trả về thông báo cụ thể
+            const message = err.response.data?.message || "Email hoặc mật khẩu không đúng.";
+            setError(message);
+          } else {
+            setError("Đăng nhập thất bại. Vui lòng thử lại.");
+          }
+        } else if (err.request) {
+          setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng.");
+        } else {
+          setError("Đã xảy ra lỗi không xác định.");
+        }
+      } finally {
       setLoading(false);
     }
   };

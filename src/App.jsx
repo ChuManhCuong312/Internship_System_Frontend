@@ -5,25 +5,24 @@ import { AuthContext } from "./context/AuthContext.jsx";
 import Dashboard from "./pages/Intern/Dashboard";
 import HRDashboard from "./pages/HR/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
-import UserRegister from "./pages/Admin/UserRegister";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
 import VerifyEmailPage from "./pages/Auth/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
+import ManageUsers from "./pages/Admin/ManageUsers";
 
 // 🔹 PrivateRoute component
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
 
-  if (loading) return <div>Loading...</div>; // ✅ Wait for token check
+  if (loading) return <div>Loading...</div>;
   if (!token || !user) return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.role?.toUpperCase())) {
     return <Navigate to="/login" replace />;
   }
 
   return children;
 };
-
 
 function App() {
   return (
@@ -32,15 +31,15 @@ function App() {
         {/* Default route */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Public pages */}
+        {/* Auth routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify" element={<VerifyEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        {/* Protected dashboard routes */}
+        {/* Admin routes */}
         <Route
-          path="/Admin/Dashboard"
+          path="/admin/dashboard"
           element={
             <PrivateRoute allowedRoles={["ADMIN"]}>
               <AdminDashboard />
@@ -48,16 +47,17 @@ function App() {
           }
         />
         <Route
-          path="/Admin/UserRegister"
+          path="/admin/manageusers"
           element={
             <PrivateRoute allowedRoles={["ADMIN"]}>
-              <UserRegister />
+              <ManageUsers />
             </PrivateRoute>
           }
         />
 
+        {/* HR routes */}
         <Route
-          path="/HR/Dashboard"
+          path="/hr/dashboard"
           element={
             <PrivateRoute allowedRoles={["HR"]}>
               <HRDashboard />
@@ -65,8 +65,9 @@ function App() {
           }
         />
 
+        {/* Intern routes */}
         <Route
-          path="/Intern/Dashboard"
+          path="/intern/dashboard"
           element={
             <PrivateRoute allowedRoles={["INTERN"]}>
               <Dashboard />
