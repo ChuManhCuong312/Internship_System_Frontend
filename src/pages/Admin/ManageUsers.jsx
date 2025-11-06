@@ -108,11 +108,11 @@ const [formErrors, setFormErrors] = useState({});
     setTimeout(() => setSuccess(""), 3000);
   };
 
-  const handleUnlock = (userId) => {
-    setUsers(users.map(u => u.id === userId ? { ...u, status: "Đã duyệt" } : u));
-    setSuccess("Đã mở khóa tài khoản");
-    setTimeout(() => setSuccess(""), 3000);
-  };
+    const handleUnlock = (userId) => {
+      setUsers(users.map(u => u.id === userId ? { ...u, status: "Chờ duyệt" } : u));
+      setSuccess("Tài khoản đã được mở khóa và chuyển về trạng thái chờ duyệt");
+      setTimeout(() => setSuccess(""), 3000);
+    };
 
   const handleDelete = (userId) => {
     if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
@@ -344,7 +344,15 @@ const handleFormChange = (e) => {
                         </button>
                       </>
                     )}
-                    {user.status === "Bị từ chối" && null}
+                    {user.status === "Bị từ chối" && (
+                      <button
+                        className="btn-unlock"
+                        onClick={() => handleUnlock(user.id)}
+                      >
+                        🔓 Mở khóa
+                      </button>
+                    )}
+
                   </td>
                 </tr>
               ))}

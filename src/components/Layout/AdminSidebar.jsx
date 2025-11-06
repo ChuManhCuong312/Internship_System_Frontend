@@ -21,6 +21,7 @@ const AdminSidebar = () => {
 
   const sidebarStyle = useSpring({
     width: expanded ? 250 : 60,
+    height: "100vh",
     config: { tension: 220, friction: 20 },
   });
 
