@@ -2,8 +2,8 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080/api", // backend base URL
-  withCredentials: true, // ✅ this tells the browser to send cookies automatically
+  baseURL: "http://localhost:8080/api",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
