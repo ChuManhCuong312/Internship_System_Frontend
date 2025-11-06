@@ -10,7 +10,7 @@
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .auth-layout::before {
