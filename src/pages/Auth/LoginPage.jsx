@@ -74,7 +74,7 @@ const LoginPage = () => {
           </Link>
 
           <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? "Đăng đăng nhập..." : "Đăng nhập"}
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 
