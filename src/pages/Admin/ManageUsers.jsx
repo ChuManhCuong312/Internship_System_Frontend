@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import AdminSidebar from "../../components/Layout/AdminSidebar";
-import { authService } from "../../services/authService";
+import Modal from "../../components/Layout/Modal";
+import StatusBadge from "../../components/Common/StatusBadge";
+import ActionButtons from "../../components/Common/ActionButtons";
+import Pagination from "../../components/Common/Pagination";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/manageUsers.css";
+import "../../styles/modal.css";
+import "../../styles/table.css";
+import PasswordInput from "../../components/Common/PasswordInput";
 
 const mockRoles = [
   { roleId: 1, name: "Admin" },
@@ -11,13 +17,12 @@ const mockRoles = [
   { roleId: 4, name: "Intern" },
 ];
 
-// Mock data for users
 const mockUsers = [
-  { id: 1, fullName: "Nguyễn Văn A", email: "a@example.com", phone: '09877654431',role: "HR", status: "Chờ duyệt", createdAt: "2024-01-15" },
-  { id: 2, fullName: "Trần Thị B", email: "b@example.com", phone: '09877654431',role: "Mentor", status: "Đã duyệt", createdAt: "2024-02-20" },
-  { id: 3, fullName: "Lê Văn C", email: "c@example.com",phone: '09877654431', role: "Intern", status: "Bị từ chối", createdAt: "2024-03-10" },
-  { id: 4, fullName: "Phạm Thị D", email: "d@example.com", phone: '09877654431',role: "HR", status: "Đã duyệt", createdAt: "2024-03-25" },
-  { id: 5, fullName: "Hoàng Văn E", email: "e@example.com", phone: '09877654431',role: "Intern", status: "Chờ duyệt", createdAt: "2024-04-01" },
+  { id: 1, fullName: "Nguyễn Văn A", email: "a@example.com", phone: '09877654431', role: "HR", status: "Chờ duyệt", createdAt: "2024-01-15" },
+  { id: 2, fullName: "Trần Thị B", email: "b@example.com", phone: '09877654431', role: "Mentor", status: "Đã duyệt", createdAt: "2024-02-20" },
+  { id: 3, fullName: "Lê Văn C", email: "c@example.com", phone: '09877654431', role: "Intern", status: "Bị từ chối", createdAt: "2024-03-10" },
+  { id: 4, fullName: "Phạm Thị D", email: "d@example.com", phone: '09877654431', role: "HR", status: "Đã duyệt", createdAt: "2024-03-25" },
+  { id: 5, fullName: "Hoàng Văn E", email: "e@example.com", phone: '09877654431', role: "Intern", status: "Chờ duyệt", createdAt: "2024-04-01" },
 ];
 
 const ManageUsers = () => {
@@ -32,17 +37,13 @@ const ManageUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
-  const [showReasonModal, setShowReasonModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-    const [modalError, setModalError] = useState("");
-    const [modalSuccess, setModalSuccess] = useState("");
+  const [modalSuccess, setModalSuccess] = useState("");
 
-  // Form state for creating user
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -50,17 +51,13 @@ const ManageUsers = () => {
     phone: "",
     role: "",
   });
-const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
 
-  // Permission state
   const [permissions, setPermissions] = useState({
     HR: ["Quản lý hồ sơ", "Tạo báo cáo", "Xem dashboard"],
     Mentor: ["Hướng dẫn intern", "Đánh giá", "Xem báo cáo"],
     Intern: ["Xem tài liệu", "Nộp báo cáo", "Check-in"],
   });
-
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   // Filter and search logic
   useEffect(() => {
@@ -95,49 +92,39 @@ const [formErrors, setFormErrors] = useState({});
     setCurrentPage(pageNumber);
   };
 
-  // CRUD operations
   const handleApprove = (userId) => {
     setUsers(users.map(u => u.id === userId ? { ...u, status: "Đã duyệt" } : u));
-    setSuccess("Đã duyệt tài khoản thành công");
-    setTimeout(() => setSuccess(""), 3000);
+    setModalSuccess("Đã duyệt tài khoản thành công");
+    setTimeout(() => setModalSuccess(""), 3000);
   };
 
   const handleReject = (userId) => {
     setUsers(users.map(u => u.id === userId ? { ...u, status: "Bị từ chối" } : u));
-    setSuccess("Đã từ chối tài khoản");
-    setTimeout(() => setSuccess(""), 3000);
+    setModalSuccess("Đã từ chối tài khoản");
+    setTimeout(() => setModalSuccess(""), 3000);
   };
 
-    const handleUnlock = (userId) => {
-      setUsers(users.map(u => u.id === userId ? { ...u, status: "Chờ duyệt" } : u));
-      setSuccess("Tài khoản đã được mở khóa và chuyển về trạng thái chờ duyệt");
-      setTimeout(() => setSuccess(""), 3000);
-    };
+  const handleUnlock = (userId) => {
+    setUsers(users.map(u => u.id === userId ? { ...u, status: "Chờ duyệt" } : u));
+    setModalSuccess("Tài khoản đã được mở khóa và chuyển về trạng thái chờ duyệt");
+    setTimeout(() => setModalSuccess(""), 3000);
+  };
 
   const handleDelete = (userId) => {
     if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
       setUsers(users.filter(u => u.id !== userId));
-      setSuccess("Đã xóa người dùng thành công");
-      setTimeout(() => setSuccess(""), 3000);
+      setModalSuccess("Đã xóa người dùng thành công");
+      setTimeout(() => setModalSuccess(""), 3000);
     }
   };
 
-  const handleViewReason = (user) => {
-    setSelectedUser(user);
-    setShowReasonModal(true);
-  };
+  const handleSubmitUser = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
 
-  // Create user
+    if (!form.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ tên";
 
-const handleSubmitUser = async (e) => {
-  e.preventDefault();
-  const newErrors = {};
-
-  // Họ tên
-  if (!form.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ tên";
-
-  // Email
-  if (!form.email.trim()) {
+    if (!form.email.trim()) {
       newErrors.email = "Vui lòng nhập email";
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -149,59 +136,79 @@ const handleSubmitUser = async (e) => {
       if (emailExists) newErrors.email = "Email này đã tồn tại trong hệ thống";
     }
 
-  // Mật khẩu
-  if (!isEditing) {
-    if (!form.password.trim()) newErrors.password = "Vui lòng nhập mật khẩu";
-    else if (form.password.length < 6)
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-  }
+    if (!isEditing) {
+      if (!form.password.trim()) newErrors.password = "Vui lòng nhập mật khẩu";
+      else if (form.password.length < 6) newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
 
-  // Số điện thoại
-  if (!form.phone.trim()) {
+    if (!form.phone.trim()) {
       newErrors.phone = "Vui lòng nhập số điện thoại";
     } else {
       const phoneRegex = /^0[0-9]{9}$/;
       if (!phoneRegex.test(form.phone)) newErrors.phone = "Số điện thoại phải gồm đúng 10 chữ số";
     }
 
-  // Vai trò
-  if (!form.role) newErrors.role = "Vui lòng chọn vai trò";
+    if (!form.role) newErrors.role = "Vui lòng chọn vai trò";
 
-  if (Object.keys(newErrors).length > 0) {
-    setFormErrors(newErrors);
-    return;
-  }
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      return;
+    }
 
-  setFormErrors({});
-  if (isEditing) {
-    setUsers(users.map(u =>
-      u.id === selectedUser.id
-        ? { ...u, ...form }
-        : u
-    ));
-    setModalSuccess("Cập nhật người dùng thành công");
-  } else {
-    const newUser = {
-      id: Math.max(...users.map(u => u.id), 0) + 1,
-      ...form,
-      status: "Đã duyệt",
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setUsers([...users, newUser]);
-    setModalSuccess("Tạo người dùng thành công");
-  }
+    setFormErrors({});
+    if (isEditing) {
+      setUsers(users.map(u =>
+        u.id === selectedUser.id ? { ...u, ...form } : u
+      ));
+      setModalSuccess("Cập nhật người dùng thành công");
+    } else {
+      const newUser = {
+        id: Math.max(...users.map(u => u.id), 0) + 1,
+        ...form,
+        status: "Đã duyệt",
+        createdAt: new Date().toISOString().split('T')[0],
+      };
+      setUsers([...users, newUser]);
+      setModalSuccess("Tạo người dùng thành công");
+    }
 
-  setShowCreateModal(false);
-  setForm({ fullName: "", email: "", password: "", phone: "", role: "" });
-  setSelectedUser(null);
-  setIsEditing(false);
-  setTimeout(() => setModalSuccess(""), 3000);
-};
+    handleCloseCreateModal();
+    setTimeout(() => setModalSuccess(""), 3000);
+  };
 
-const handleFormChange = (e) => {
-  setForm({ ...form, [e.target.name]: e.target.value });
-  setModalError("");
-};
+  const handleFormChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+    setForm({ fullName: "", email: "", password: "", phone: "", role: "" });
+    setFormErrors({});
+    setSelectedUser(null);
+    setIsEditing(false);
+  };
+
+  const handleOpenCreateModal = () => {
+    setForm({ fullName: "", email: "", password: "", phone: "", role: "" });
+    setFormErrors({});
+    setIsEditing(false);
+    setSelectedUser(null);
+    setShowCreateModal(true);
+  };
+
+  const handleOpenEditModal = (user) => {
+    setForm({
+      fullName: user.fullName,
+      email: user.email,
+      password: "",
+      phone: user.phone,
+      role: user.role,
+    });
+    setFormErrors({});
+    setSelectedUser(user);
+    setIsEditing(true);
+    setShowCreateModal(true);
+  };
 
   if (!isAdmin) {
     return (
@@ -249,29 +256,17 @@ const handleFormChange = (e) => {
               <option value="Đã duyệt">Đã duyệt</option>
               <option value="Bị từ chối">Bị từ chối</option>
             </select>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setForm({ fullName: "", email: "", password: "", phone: "", role: "" });
-                setIsEditing(false);
-                setSelectedUser(null);
-                setShowCreateModal(true);
-              }}
-            >
+
+            <button className="btn-primary" onClick={handleOpenCreateModal}>
               ➕ Thêm người dùng
             </button>
-
-            <button
-              className="btn-secondary"
-              onClick={() => setShowPermissionModal(true)}
-            >
+            <button className="btn-secondary" onClick={() => setShowPermissionModal(true)}>
               🔐 Phân quyền
             </button>
           </div>
         </div>
 
-        {/* Success/Error messages */}
-        {modalError && <div className="error-message">{modalError}</div>}
+        {/* Success message */}
         {modalSuccess && <div className="success-message">{modalSuccess}</div>}
 
         {/* User Table */}
@@ -297,62 +292,19 @@ const handleFormChange = (e) => {
                       {user.role}
                     </span>
                   </td>
-                  <td>
-                    <span className={`status-badge status-${user.status.replace(/\s/g, '-').toLowerCase()}`}>
-                      {user.status}
-                    </span>
-                  </td>
+                    <td>
+                      <StatusBadge status={user.status} />
+                    </td>
                   <td>{user.createdAt}</td>
-                  <td className="action-buttons">
-                    {user.status === "Chờ duyệt" && (
-                      <>
-                        <button
-                          className="btn-approve"
-                          onClick={() => handleApprove(user.id)}
-                        >
-                          ✓ Duyệt
-                        </button>
-                        <button
-                          className="btn-reject"
-                          onClick={() => handleReject(user.id)}
-                        >
-                          ✗ Từ chối
-                        </button>
-                      </>
-                    )}
-                    {user.status === "Đã duyệt" && (
-                      <>
-                        <button className="btn-edit"
-                        onClick={() => {
-                          setForm({
-                            fullName: user.fullName,
-                            email: user.email,
-                            password: "",
-                            phone: user.phone,
-                            role: user.role,
-                          });
-                          setSelectedUser(user);
-                          setIsEditing(true);
-                          setShowCreateModal(true);
-                        }}
-                        >✎ Sửa</button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(user.id)}
-                        >
-                          🗑 Xóa
-                        </button>
-                      </>
-                    )}
-                    {user.status === "Bị từ chối" && (
-                      <button
-                        className="btn-unlock"
-                        onClick={() => handleUnlock(user.id)}
-                      >
-                        🔓 Mở khóa
-                      </button>
-                    )}
-
+                  <td>
+                    <ActionButtons
+                      user={user}
+                      onApprove={handleApprove}
+                      onReject={handleReject}
+                      onEdit={handleOpenEditModal}
+                      onDelete={handleDelete}
+                      onUnlock={handleUnlock}
+                    />
                   </td>
                 </tr>
               ))}
@@ -361,176 +313,140 @@ const handleFormChange = (e) => {
         </div>
 
         {/* Pagination */}
-        <div className="pagination">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            ← Trang trước
-          </button>
-          <span className="pagination-info">
-            Trang {currentPage} / {totalPages} ({filteredUsers.length} người dùng)
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Trang sau →
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredUsers.length}
+          onPageChange={handlePageChange}
+        />
 
-        {/* Create User Modal */}
+        {/* Create/Edit User Modal */}
         {showCreateModal && (
-          <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{isEditing ? "Chỉnh sửa người dùng" : "Thêm mới người dùng"}</h3>
-              <button
-                className="modal-close"
-                onClick={() => setShowCreateModal(false)}
-              >
-                ✕
-              </button>
-            </div>
+          <Modal
+            title={isEditing ? "Chỉnh sửa người dùng" : "Thêm mới người dùng"}
+            onClose={handleCloseCreateModal}
+          >
+            <form onSubmit={handleSubmitUser}>
+              <div className="form-group">
+                <label>Họ tên *</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={form.fullName}
+                  onChange={handleFormChange}
+                  className="form-input"
+                />
+                {formErrors.fullName && <p className="field-error">{formErrors.fullName}</p>}
+              </div>
 
-              <form onSubmit={handleSubmitUser}>
-                <div className="form-group">
-                  <label>Họ tên *</label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={form.fullName}
+              <div className="form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleFormChange}
+                  className="form-input"
+                  placeholder="ví dụ: example@gmail.com"
+                />
+                {formErrors.email && <p className="field-error">{formErrors.email}</p>}
+              </div>
+
+              <div className="form-group">
+                <label>Số điện thoại *</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleFormChange}
+                  className="form-input"
+                  placeholder="10 chữ số bắt đầu từ 0, ví dụ: 0987765443"
+                />
+                {formErrors.phone && <p className="field-error">{formErrors.phone}</p>}
+              </div>
+
+              {/* Password field for both add & edit */}
+              <div className="form-group">
+                <label>{isEditing ? "Đổi mật khẩu" : "Mật khẩu khởi tạo"} {isEditing ? "(Để trống nếu không đổi)" : "*"}</label>
+                <div className="password-wrapper">
+                  <PasswordInput
+                    name="password"
+                    value={form.password}
                     onChange={handleFormChange}
-                    className="form-input"
+                    placeholder="••••••••"
                   />
-                  {formErrors.fullName && <p className="field-error">{formErrors.fullName}</p>}
-                </div>
-
-                <div className="form-group">
-                  <label>Email *</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    placeholder="ví dụ: example@gmail.com"
-                  />
-                  {formErrors.email && <p className="field-error">{formErrors.email}</p>}
-                </div>
-
-                <div className="form-group">
-                  <label>Số điện thoại *</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleFormChange}
-                    className="form-input"
-                        placeholder="10 chữ số bắt đầu từ 0, ví dụ: 0987765443"
-                  />
-                  {formErrors.phone && <p className="field-error">{formErrors.phone}</p>}
-                </div>
-
-                <div className="form-group">
-                  <label>Mật khẩu khởi tạo *</label>
-                  <div className="password-wrapper">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={form.password}
-                      onChange={handleFormChange}
-                      className="form-input"
-                      placeholder="••••••••"
-                    />
-                    <span
-                      className={`toggle-icon ${showPassword ? "active" : ""}`}
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      👁
-                    </span>
-                  </div>
-                  {formErrors.password && <p className="field-error">{formErrors.password}</p>}
-                </div>
-
-                <div className="form-group">
-                  <label>Vai trò *</label>
-                  <select
-                    name="role"
-                    value={form.role}
-                    onChange={handleFormChange}
-                    className="form-input"
+                  <span
+                    className={`toggle-icon ${showPassword ? "active" : ""}`}
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    <option value="">-- Chọn vai trò --</option>
-                    {mockRoles.map(role => (
-                      <option key={role.roleId} value={role.name}>
-                        {role.name}
-                      </option>
-                    ))}
-                  </select>
-                  {formErrors.role && <p className="field-error">{formErrors.role}</p>}
+                    👁
+                  </span>
                 </div>
+                {formErrors.password && <p className="field-error">{formErrors.password}</p>}
+              </div>
 
-                <div className="modal-actions">
-                  <button type="button" className="btn-cancel"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setModalError("");
-                    setModalSuccess("");
-                  }}
-              >Hủy
-                  </button>
-                  <button type="submit" className="btn-save">
-                    Lưu
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+              <div className="form-group">
+                <label>Vai trò *</label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleFormChange}
+                  className="form-input"
+                >
+                  <option value="">-- Chọn vai trò --</option>
+                  {mockRoles.map(role => (
+                    <option key={role.roleId} value={role.name}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+                {formErrors.role && <p className="field-error">{formErrors.role}</p>}
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={handleCloseCreateModal}>
+                  Hủy
+                </button>
+                <button type="submit" className="btn-save">
+                  Lưu
+                </button>
+              </div>
+            </form>
+          </Modal>
         )}
 
         {/* Permission Modal */}
         {showPermissionModal && (
-          <div className="modal-overlay" onClick={() => setShowPermissionModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h3>Thiết lập phân quyền</h3>
-                <button
-                  className="modal-close"
-                  onClick={() => setShowPermissionModal(false)}
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="permission-content">
-                {Object.entries(permissions).map(([role, perms]) => (
-                  <div key={role} className="permission-group">
-                    <h4>{role}</h4>
-                    {perms.map((perm, idx) => (
-                      <label key={idx} className="permission-item">
-                        <input type="checkbox" defaultChecked />
-                        <span>{perm}</span>
-                      </label>
-                    ))}
-                  </div>
-                ))}
-              </div>
-              <div className="modal-actions">
-                <button className="btn-cancel" onClick={() => setShowPermissionModal(false)}>
-                  Hủy
-                </button>
-                <button className="btn-save" onClick={() => {
+          <Modal title="Thiết lập phân quyền" onClose={() => setShowPermissionModal(false)}>
+            <div className="permission-content">
+              {Object.entries(permissions).map(([role, perms]) => (
+                <div key={role} className="permission-group">
+                  <h4>{role}</h4>
+                  {perms.map((perm, idx) => (
+                    <label key={idx} className="permission-item">
+                      <input type="checkbox" defaultChecked />
+                      <span>{perm}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowPermissionModal(false)}>
+                Hủy
+              </button>
+              <button
+                className="btn-save"
+                onClick={() => {
                   setModalSuccess("Cập nhật phân quyền thành công");
                   setShowPermissionModal(false);
                   setTimeout(() => setModalSuccess(""), 3000);
-                }}>
-                  Lưu thay đổi
-                </button>
-              </div>
+                }}
+              >
+                Lưu thay đổi
+              </button>
             </div>
-          </div>
+          </Modal>
         )}
       </div>
     </div>
