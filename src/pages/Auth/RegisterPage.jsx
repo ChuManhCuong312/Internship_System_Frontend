@@ -6,12 +6,13 @@ import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthCard from "../../components/Auth/AuthCard";
 import SocialLoginButtons from "../../components/Auth/SocialLoginButtons";
 import "../../styles/auth.css";
+import PasswordInput from "../../components/Common/PasswordInput";
 
 const RegisterPage = () => {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    phone: "",          // ✅ thêm phone
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -112,31 +113,25 @@ const RegisterPage = () => {
 
           <div className="form-group">
             <label htmlFor="password">Mật khẩu</label>
-            <input
-              id="password"
+            <PasswordInput
               name="password"
-              type="password"
               value={form.password}
               onChange={handleChange}
+              placeholder="••••••"
               required
               disabled={loading}
-              className="form-input"
-              placeholder="••••••"
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
-            <input
-              id="confirmPassword"
+            <PasswordInput
               name="confirmPassword"
-              type="password"
               value={form.confirmPassword}
               onChange={handleChange}
+              placeholder="••••••"
               required
               disabled={loading}
-              className="form-input"
-              placeholder="••••••"
             />
           </div>
 

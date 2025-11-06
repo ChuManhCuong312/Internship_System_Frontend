@@ -1,0 +1,85 @@
+.btn-primary,
+.btn-secondary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(1, 87, 155, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(1, 87, 155, 0.4);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 137, 123, 0.3);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 137, 123, 0.4);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+  color: white;
+}
+
+.btn-reject {
+  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+  color: white;
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+  color: white;
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #ff7043 0%, #f4511e 100%);
+  color: white;
+}
+
+.btn-unlock {
+  background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
+  color: white;
+}
+
+.btn-view {
+  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
+  color: white;
+}
+
+.action-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

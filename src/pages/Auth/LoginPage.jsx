@@ -6,6 +6,7 @@ import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthCard from "../../components/Auth/AuthCard";
 import SocialLoginButtons from "../../components/Auth/SocialLoginButtons";
 import "../../styles/auth.css";
+import PasswordInput from "../../components/Common/PasswordInput";
 
 const LoginPage = () => {
   const { login } = useContext(AuthContext);
@@ -69,13 +70,11 @@ const LoginPage = () => {
 
           <div className="form-group">
             <label htmlFor="password">Mật khẩu</label>
-            <input
-              id="password"
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
+            <PasswordInput
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
               required
               disabled={loading}
             />
