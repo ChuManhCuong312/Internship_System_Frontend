@@ -69,15 +69,18 @@
 
 .dashboard-layout {
   display: flex;
-  height: 100vh;
+  height: 100%;
+  overflow: visible;
 }
 
 .dashboard-content {
   flex: 1;
-  background-color: #e0f2f1;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
   padding: 20px;
-  overflow-y: auto;
-}
+ height: auto;
+  max-height: none;
+  }
+
 .mentor-info img {
   width: 50px;
   height: 50px;
