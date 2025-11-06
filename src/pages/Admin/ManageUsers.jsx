@@ -39,6 +39,8 @@ const ManageUsers = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+    const [modalError, setModalError] = useState("");
+    const [modalSuccess, setModalSuccess] = useState("");
 
   // Form state for creating user
   const [form, setForm] = useState({
@@ -48,6 +50,7 @@ const ManageUsers = () => {
     phone: "",
     role: "",
   });
+const [formErrors, setFormErrors] = useState({});
 
   // Permission state
   const [permissions, setPermissions] = useState({
@@ -125,34 +128,80 @@ const ManageUsers = () => {
   };
 
   // Create user
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
 
-    if (!form.role) {
-      setError("Vui lòng chọn vai trò");
-      return;
+const handleSubmitUser = async (e) => {
+  e.preventDefault();
+  const newErrors = {};
+
+  // Họ tên
+  if (!form.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ tên";
+
+  // Email
+  if (!form.email.trim()) {
+      newErrors.email = "Vui lòng nhập email";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email)) newErrors.email = "Email không hợp lệ (ví dụ: example@gmail.com)";
+      const emailExists = users.some(u =>
+        (isEditing ? u.id !== selectedUser?.id : true) &&
+        u.email.toLowerCase() === form.email.toLowerCase()
+      );
+      if (emailExists) newErrors.email = "Email này đã tồn tại trong hệ thống";
     }
 
+  // Mật khẩu
+  if (!isEditing) {
+    if (!form.password.trim()) newErrors.password = "Vui lòng nhập mật khẩu";
+    else if (form.password.length < 6)
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+  }
+
+  // Số điện thoại
+  if (!form.phone.trim()) {
+      newErrors.phone = "Vui lòng nhập số điện thoại";
+    } else {
+      const phoneRegex = /^0[0-9]{9}$/;
+      if (!phoneRegex.test(form.phone)) newErrors.phone = "Số điện thoại phải gồm đúng 10 chữ số";
+    }
+
+  // Vai trò
+  if (!form.role) newErrors.role = "Vui lòng chọn vai trò";
+
+  if (Object.keys(newErrors).length > 0) {
+    setFormErrors(newErrors);
+    return;
+  }
+
+  setFormErrors({});
+  if (isEditing) {
+    setUsers(users.map(u =>
+      u.id === selectedUser.id
+        ? { ...u, ...form }
+        : u
+    ));
+    setModalSuccess("Cập nhật người dùng thành công");
+  } else {
     const newUser = {
-      id: users.length + 1,
-      fullName: form.fullName,
-      email: form.email,
-      role: form.role,
+      id: Math.max(...users.map(u => u.id), 0) + 1,
+      ...form,
       status: "Đã duyệt",
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0],
     };
-
     setUsers([...users, newUser]);
-    setSuccess("Tạo người dùng thành công");
-    setShowCreateModal(false);
-    setForm({ fullName: "", email: "", password: "", phone: "", role: "" });
-    setTimeout(() => setSuccess(""), 3000);
-  };
+    setModalSuccess("Tạo người dùng thành công");
+  }
 
-  const handleFormChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
-  };
+  setShowCreateModal(false);
+  setForm({ fullName: "", email: "", password: "", phone: "", role: "" });
+  setSelectedUser(null);
+  setIsEditing(false);
+  setTimeout(() => setModalSuccess(""), 3000);
+};
+
+const handleFormChange = (e) => {
+  setForm({ ...form, [e.target.name]: e.target.value });
+  setModalError("");
+};
 
   if (!isAdmin) {
     return (
@@ -222,8 +271,8 @@ const ManageUsers = () => {
         </div>
 
         {/* Success/Error messages */}
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {modalError && <div className="error-message">{modalError}</div>}
+        {modalSuccess && <div className="success-message">{modalSuccess}</div>}
 
         {/* User Table */}
         <div className="users-table-container">
@@ -328,16 +377,17 @@ const ManageUsers = () => {
         {showCreateModal && (
           <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h3>Thêm mới người dùng</h3>
-                <button
-                  className="modal-close"
-                  onClick={() => setShowCreateModal(false)}
-                >
-                  ✕
-                </button>
-              </div>
-              <form onSubmit={handleCreateUser}>
+            <div className="modal-header">
+              <h3>{isEditing ? "Chỉnh sửa người dùng" : "Thêm mới người dùng"}</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowCreateModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+              <form onSubmit={handleSubmitUser}>
                 <div className="form-group">
                   <label>Họ tên *</label>
                   <input
@@ -345,10 +395,11 @@ const ManageUsers = () => {
                     name="fullName"
                     value={form.fullName}
                     onChange={handleFormChange}
-                    required
                     className="form-input"
                   />
+                  {formErrors.fullName && <p className="field-error">{formErrors.fullName}</p>}
                 </div>
+
                 <div className="form-group">
                   <label>Email *</label>
                   <input
@@ -356,20 +407,25 @@ const ManageUsers = () => {
                     name="email"
                     value={form.email}
                     onChange={handleFormChange}
-                    required
                     className="form-input"
+                    placeholder="ví dụ: example@gmail.com"
                   />
+                  {formErrors.email && <p className="field-error">{formErrors.email}</p>}
                 </div>
+
                 <div className="form-group">
-                  <label>Số điện thoại</label>
+                  <label>Số điện thoại *</label>
                   <input
                     type="text"
                     name="phone"
                     value={form.phone}
                     onChange={handleFormChange}
                     className="form-input"
+                        placeholder="10 chữ số bắt đầu từ 0, ví dụ: 0987765443"
                   />
+                  {formErrors.phone && <p className="field-error">{formErrors.phone}</p>}
                 </div>
+
                 <div className="form-group">
                   <label>Mật khẩu khởi tạo *</label>
                   <div className="password-wrapper">
@@ -378,7 +434,6 @@ const ManageUsers = () => {
                       name="password"
                       value={form.password}
                       onChange={handleFormChange}
-                      required
                       className="form-input"
                       placeholder="••••••••"
                     />
@@ -389,14 +444,15 @@ const ManageUsers = () => {
                       👁
                     </span>
                   </div>
+                  {formErrors.password && <p className="field-error">{formErrors.password}</p>}
                 </div>
+
                 <div className="form-group">
                   <label>Vai trò *</label>
                   <select
                     name="role"
                     value={form.role}
                     onChange={handleFormChange}
-                    required
                     className="form-input"
                   >
                     <option value="">-- Chọn vai trò --</option>
@@ -406,10 +462,17 @@ const ManageUsers = () => {
                       </option>
                     ))}
                   </select>
+                  {formErrors.role && <p className="field-error">{formErrors.role}</p>}
                 </div>
+
                 <div className="modal-actions">
-                  <button type="button" className="btn-cancel" onClick={() => setShowCreateModal(false)}>
-                    Hủy
+                  <button type="button" className="btn-cancel"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setModalError("");
+                    setModalSuccess("");
+                  }}
+              >Hủy
                   </button>
                   <button type="submit" className="btn-save">
                     Lưu
@@ -451,9 +514,9 @@ const ManageUsers = () => {
                   Hủy
                 </button>
                 <button className="btn-save" onClick={() => {
-                  setSuccess("Cập nhật phân quyền thành công");
+                  setModalSuccess("Cập nhật phân quyền thành công");
                   setShowPermissionModal(false);
-                  setTimeout(() => setSuccess(""), 3000);
+                  setTimeout(() => setModalSuccess(""), 3000);
                 }}>
                   Lưu thay đổi
                 </button>

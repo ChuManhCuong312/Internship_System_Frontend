@@ -480,6 +480,14 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(1, 87, 155, 0.4);
 }
+.btn-save:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 10px rgba(1, 87, 155, 0.3);
+}
+
+.btn-cancel:active {
+  transform: scale(0.97);
+}
 
 /* Permission Modal */
 .permission-content {
@@ -566,6 +574,39 @@
     padding: 20px;
   }
 
+/* Create User Modal */
+.create-user-modal .modal-content {
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(1, 87, 155, 0.15);
+  box-shadow: 0 15px 40px rgba(1, 87, 155, 0.25);
+}
+
+.create-user-modal .modal-header h3 {
+  color: #0277bd;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.create-user-modal .form-group label {
+  color: #01579b;
+  font-weight: 600;
+}
+
+.create-user-modal .form-input {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.create-user-modal .btn-save {
+  background: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+}
+.create-user-modal .field-error {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: 4px;
+  font-style: italic;
+}
+
   .action-buttons {
     flex-direction: column;
   }
@@ -597,3 +638,33 @@
 .toggle-icon.active {
   color: #007bff;
 }
+.field-error {
+  color: #d9534f;
+  font-size: 13px;
+  margin-top: 4px;
+}
+/* Custom scrollbar cho modal */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(1, 87, 155, 0.4);
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(1, 87, 155, 0.6);
+}
+
+/* Firefox */
+.modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(1, 87, 155, 0.4) rgba(0, 0, 0, 0.05);
+}
+
