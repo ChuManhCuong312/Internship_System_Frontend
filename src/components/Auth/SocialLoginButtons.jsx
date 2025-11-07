@@ -1,10 +1,10 @@
 import React from "react";
 import "../../styles/auth.css";
+const API_URL = "http://localhost:8080";
 
 const SocialLoginButtons = () => {
   const handleSocialLogin = (provider) => {
-    console.log(`Login with ${provider}`);
-    // TODO: Implement social login logic
+    window.location.href = `${API_URL}/oauth2/authorization/${provider}`;
   };
 
   return (
