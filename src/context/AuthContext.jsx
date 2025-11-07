@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         Cookies.remove("token");
       }
     }
-setLoading(false); // ✅ Done checking
+setLoading(false);
   }, []);
 
   const login = async (email, password) => {
