@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import "../../styles/toggle.css";
 
-const PasswordInput = ({ value, onChange, placeholder, name, required = false, disabled = false }) => {
+const PasswordInput = ({ name, value, onChange, placeholder }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -10,10 +11,8 @@ const PasswordInput = ({ value, onChange, placeholder, name, required = false, d
         name={name}
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
+        placeholder={placeholder || "••••••••"}
         className="form-input"
-        required={required}
-        disabled={disabled}
       />
       <span
         className={`toggle-icon ${showPassword ? "active" : ""}`}
