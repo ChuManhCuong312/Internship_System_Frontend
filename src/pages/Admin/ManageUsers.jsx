@@ -145,7 +145,7 @@ const ManageUsers = () => {
       newErrors.phone = "Vui lòng nhập số điện thoại";
     } else {
       const phoneRegex = /^0[0-9]{9}$/;
-      if (!phoneRegex.test(form.phone)) newErrors.phone = "Số điện thoại phải gồm đúng 10 chữ số";
+      if (!phoneRegex.test(form.phone)) newErrors.phone = "Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng 0";
     }
 
     if (!form.role) newErrors.role = "Vui lòng chọn vai trò";
@@ -168,7 +168,7 @@ const ManageUsers = () => {
         status: "Đã duyệt",
         createdAt: new Date().toISOString().split('T')[0],
       };
-      setUsers([...users, newUser]);
+      setUsers([newUser, ...users]);
       setModalSuccess("Tạo người dùng thành công");
     }
 
@@ -368,20 +368,12 @@ const ManageUsers = () => {
               {/* Password field for both add & edit */}
               <div className="form-group">
                 <label>{isEditing ? "Đổi mật khẩu" : "Mật khẩu khởi tạo"} {isEditing ? "(Để trống nếu không đổi)" : "*"}</label>
-                <div className="password-wrapper">
-                  <PasswordInput
-                    name="password"
-                    value={form.password}
-                    onChange={handleFormChange}
-                    placeholder="••••••••"
-                  />
-                  <span
-                    className={`toggle-icon ${showPassword ? "active" : ""}`}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    👁
-                  </span>
-                </div>
+                <PasswordInput
+                  name="password"
+                  value={form.password}
+                  onChange={handleFormChange}
+                  placeholder="••••••••"
+                />
                 {formErrors.password && <p className="field-error">{formErrors.password}</p>}
               </div>
 
