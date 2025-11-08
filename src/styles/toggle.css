@@ -1,0 +1,28 @@
+/* Password toggle */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .form-input { padding-right: 40px; }
+
+.toggle-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.toggle-icon.active { color: #007bff; }
+
+.field-error { color: #d9534f; font-size: 13px; margin-top: 4px; }
+
+.modal-content::-webkit-scrollbar { width: 8px; }
+.modal-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+.modal-content::-webkit-scrollbar-thumb { background: rgba(1,87,155,0.4); border-radius: 4px; }
+.modal-content::-webkit-scrollbar-thumb:hover { background: rgba(1,87,155,0.6); }
+
+.modal-content { scrollbar-width: thin; scrollbar-color: rgba(1,87,155,0.4) rgba(0,0,0,0.05); }
