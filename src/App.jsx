@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthContext } from "./context/AuthContext.jsx";
 import Dashboard from "./pages/Intern/Dashboard";
 import HRDashboard from "./pages/HR/Dashboard";
+import ManageInterns  from "./pages/HR/ManageInterns";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -62,6 +63,15 @@ function App() {
           element={
             <PrivateRoute allowedRoles={["HR"]}>
               <HRDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/hr/manage-interns"
+          element={
+            <PrivateRoute allowedRoles={["HR"]}>
+              <ManageInterns />
             </PrivateRoute>
           }
         />

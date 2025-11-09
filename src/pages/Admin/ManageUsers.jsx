@@ -4,11 +4,11 @@ import Modal from "../../components/Layout/Modal";
 import StatusBadge from "../../components/Common/StatusBadge";
 import ActionButtons from "../../components/Common/ActionButtons";
 import Pagination from "../../components/Common/Pagination";
+import PasswordInput from "../../components/Common/PasswordInput";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/manageUsers.css";
 import "../../styles/modal.css";
 import "../../styles/table.css";
-import PasswordInput from "../../components/Common/PasswordInput";
 
 const mockRoles = [
   { roleId: 1, name: "Admin" },
@@ -37,12 +37,16 @@ const ManageUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
+  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [modalSuccess, setModalSuccess] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
 
   const [form, setForm] = useState({
     fullName: "",
@@ -52,6 +56,7 @@ const ManageUsers = () => {
     role: "",
   });
   const [formErrors, setFormErrors] = useState({});
+  const [rejectError, setRejectError] = useState("");
 
   const [permissions, setPermissions] = useState({
     HR: ["Quản lý hồ sơ", "Tạo báo cáo", "Xem dashboard"],
@@ -88,34 +93,50 @@ const ManageUsers = () => {
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const notify = (msg) => {
+    setModalSuccess(msg);
+    setTimeout(() => setModalSuccess(""), 3000);
   };
 
   const handleApprove = (userId) => {
     setUsers(users.map(u => u.id === userId ? { ...u, status: "Đã duyệt" } : u));
-    setModalSuccess("Đã duyệt tài khoản thành công");
-    setTimeout(() => setModalSuccess(""), 3000);
+    notify("✅ Đã duyệt tài khoản thành công");
   };
 
   const handleReject = (userId) => {
-    setUsers(users.map(u => u.id === userId ? { ...u, status: "Bị từ chối" } : u));
-    setModalSuccess("Đã từ chối tài khoản");
-    setTimeout(() => setModalSuccess(""), 3000);
+    const user = users.find(u => u.id === userId);
+    setSelectedUser(user);
+    setRejectReason("");
+    setRejectError("");
+    setShowRejectModal(true);
+  };
+
+  const confirmReject = () => {
+    if (!rejectReason.trim()) {
+      setRejectError("Vui lòng nhập lý do từ chối");
+      return;
+    }
+    setUsers(users.map(u => u.id === selectedUser.id ? { ...u, status: "Bị từ chối" } : u));
+    setShowRejectModal(false);
+    setRejectError("");
+    notify("❌ Đã từ chối tài khoản");
   };
 
   const handleUnlock = (userId) => {
     setUsers(users.map(u => u.id === userId ? { ...u, status: "Chờ duyệt" } : u));
-    setModalSuccess("Tài khoản đã được mở khóa và chuyển về trạng thái chờ duyệt");
-    setTimeout(() => setModalSuccess(""), 3000);
+    notify("🔓 Tài khoản đã được mở khóa và chuyển về trạng thái chờ duyệt");
   };
 
   const handleDelete = (userId) => {
-    if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
-      setUsers(users.filter(u => u.id !== userId));
-      setModalSuccess("Đã xóa người dùng thành công");
-      setTimeout(() => setModalSuccess(""), 3000);
-    }
+    const user = users.find(u => u.id === userId);
+    setSelectedUser(user);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    setUsers(users.filter(u => u.id !== selectedUser.id));
+    setShowDeleteModal(false);
+    notify("🗑️ Đã xóa người dùng thành công");
   };
 
   const handleSubmitUser = async (e) => {
@@ -160,7 +181,7 @@ const ManageUsers = () => {
       setUsers(users.map(u =>
         u.id === selectedUser.id ? { ...u, ...form } : u
       ));
-      setModalSuccess("Cập nhật người dùng thành công");
+      notify("✅ Cập nhật người dùng thành công");
     } else {
       const newUser = {
         id: Math.max(...users.map(u => u.id), 0) + 1,
@@ -169,11 +190,10 @@ const ManageUsers = () => {
         createdAt: new Date().toISOString().split('T')[0],
       };
       setUsers([newUser, ...users]);
-      setModalSuccess("Tạo người dùng thành công");
+      notify("✅ Tạo người dùng thành công");
     }
 
     handleCloseCreateModal();
-    setTimeout(() => setModalSuccess(""), 3000);
   };
 
   const handleFormChange = (e) => {
@@ -292,13 +312,14 @@ const ManageUsers = () => {
                       {user.role}
                     </span>
                   </td>
-                    <td>
-                      <StatusBadge status={user.status} />
-                    </td>
+                  <td>
+                    <StatusBadge status={user.status} />
+                  </td>
                   <td>{user.createdAt}</td>
                   <td>
                     <ActionButtons
                       user={user}
+                      userRole="admin"
                       onApprove={handleApprove}
                       onReject={handleReject}
                       onEdit={handleOpenEditModal}
@@ -317,7 +338,7 @@ const ManageUsers = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           totalItems={filteredUsers.length}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
         />
 
         {/* Create/Edit User Modal */}
@@ -365,7 +386,6 @@ const ManageUsers = () => {
                 {formErrors.phone && <p className="field-error">{formErrors.phone}</p>}
               </div>
 
-              {/* Password field for both add & edit */}
               <div className="form-group">
                 <label>{isEditing ? "Đổi mật khẩu" : "Mật khẩu khởi tạo"} {isEditing ? "(Để trống nếu không đổi)" : "*"}</label>
                 <PasswordInput
@@ -407,6 +427,69 @@ const ManageUsers = () => {
           </Modal>
         )}
 
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <Modal
+            title="Xác nhận xóa người dùng"
+            onClose={() => setShowDeleteModal(false)}
+          >
+            <div className="form-group">
+              <p style={{ marginBottom: '15px' }}>
+                Bạn có chắc chắn muốn xóa người dùng <strong>{selectedUser?.fullName}</strong>?
+              </p>
+              <p style={{ color: '#dc3545', fontSize: '14px' }}>
+                ⚠️ Hành động này không thể hoàn tác!
+              </p>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowDeleteModal(false)}>
+                Hủy
+              </button>
+              <button
+                className="btn-save"
+                onClick={confirmDelete}
+                style={{ background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' }}
+              >
+                Xác nhận xóa
+              </button>
+            </div>
+          </Modal>
+        )}
+
+        {/* Reject Modal */}
+        {showRejectModal && (
+          <Modal
+            title={`Từ chối tài khoản: ${selectedUser?.fullName}`}
+            onClose={() => setShowRejectModal(false)}
+          >
+            <div className="form-group">
+              <label>Lý do từ chối *</label>
+              <textarea
+                className="form-input"
+                value={rejectReason}
+                onChange={(e) => {
+                  setRejectReason(e.target.value);
+                  setRejectError("");
+                }}
+                placeholder="Nhập lý do từ chối tài khoản..."
+                rows={4}
+                style={{ resize: 'vertical' }}
+              />
+              {rejectError && <p className="field-error">{rejectError}</p>}
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowRejectModal(false)}>
+                Hủy
+              </button>
+              <button className="btn-save" onClick={confirmReject}>
+                Xác nhận từ chối
+              </button>
+            </div>
+          </Modal>
+        )}
+
         {/* Permission Modal */}
         {showPermissionModal && (
           <Modal title="Thiết lập phân quyền" onClose={() => setShowPermissionModal(false)}>
@@ -430,9 +513,8 @@ const ManageUsers = () => {
               <button
                 className="btn-save"
                 onClick={() => {
-                  setModalSuccess("Cập nhật phân quyền thành công");
+                  notify("✅ Cập nhật phân quyền thành công");
                   setShowPermissionModal(false);
-                  setTimeout(() => setModalSuccess(""), 3000);
                 }}
               >
                 Lưu thay đổi
