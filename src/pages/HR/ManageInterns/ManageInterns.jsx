@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
-import HRSidebar from "../../components/Layout/HRSidebar";
-import Pagination from "../../components/Common/Pagination";
-import { AuthContext } from "../../context/AuthContext";
+import HRSidebar from "../../../components/Layout/HRSidebar";
+import Pagination from "../../../components/Common/Pagination";
+import { AuthContext } from "../../../context/AuthContext";
 
-import InternHeader from "./HRInternHeader";
-import InternTable from "./HRInternTable";
-import AssignMentorModal from "./AssignMentorModal";
-import RejectModal from "./RejectModal";
-import ContractModal from "./ContractModal";
-import ProfileModal from "./ProfileModal";
-import DeleteModal from "./DeleteModal";
+import HRInternHeader from "./HRInternHeader";
+import HRInternTable from "./HRInternTable";
+import AssignMentorModal from "./modals/AssignMentorModal";
+import RejectModal from "./modals/RejectModal";
+import ContractModal from "./modals/ContractModal";
+import ProfileModal from "./modals/ProfileModal";
+import DeleteModal from "./modals/DeleteModal";
 
-import "../../styles/manageUsers.css";
+import "../../../styles/manageUsers.css";
 
 const mockMentors = [
   { id: 1, name: "Nguyễn Văn Hướng" },
@@ -327,7 +327,7 @@ const handleProfileSubmit = () => {
       <div className="dashboard-layout">
         <HRSidebar />
         <div className="dashboard-content manage-users-content">
-          <InternHeader
+          <HRInternHeader
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
@@ -337,7 +337,7 @@ const handleProfileSubmit = () => {
 
           {modalSuccess && <div className="success-message">{modalSuccess}</div>}
 
-          <InternTable
+          <HRInternTable
             interns={currentInterns}
             handlers={{
               handleAssignMentor,
