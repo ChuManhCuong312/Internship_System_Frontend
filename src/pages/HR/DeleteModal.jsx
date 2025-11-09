@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "../../../../components/Layout/Modal";
+import Modal from "../../components/Layout/Modal";
 
 const DeleteModal = ({ intern, onClose, onConfirm }) => (
   <Modal title="Xác nhận xóa hồ sơ" onClose={onClose}>

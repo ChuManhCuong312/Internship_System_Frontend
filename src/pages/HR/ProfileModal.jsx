@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "../../../../components/Layout/Modal";
+import Modal from "../../components/Layout/Modal";
 
 const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, onSubmit, errors }) => (
   <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName}` : "Thêm hồ sơ mới"} onClose={onClose}>
