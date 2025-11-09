@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthCard from "../../components/Auth/AuthCard";
+import { authService } from "../../services/authService";
 import "../../styles/auth.css";
 
 const ForgotPasswordPage = () => {
@@ -9,23 +10,46 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0); // 60s cooldown for resend
 
-  const handleSubmit = async (e) => {
+  // Countdown effect for resend
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
+
+  // Initial send
+  const handleSendLink = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
     setLoading(true);
 
     try {
-      // TODO: Implement actual forgot password logic
-      console.log("Reset password for:", email);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const res = await authService.sendResetLink(email);
+      console.log(res);
       setSuccess(true);
+      setCooldown(60); // start cooldown after sending
     } catch (err) {
-      setError(err.message || "Failed to send reset email. Please try again.");
+      setError(err?.response?.data || "Không thể gửi link reset. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend button click
+  const handleResendLink = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await authService.resendResetLink(email);
+      console.log(res);
+      setCooldown(60); // restart cooldown
+    } catch (err) {
+      setError(err?.response?.data || "Không thể gửi lại link.");
     } finally {
       setLoading(false);
     }
@@ -34,16 +58,12 @@ const ForgotPasswordPage = () => {
   return (
     <AuthLayout>
       <AuthCard title="Quên mật khẩu">
-        {success ? (
-          <div className="success-message">
-            Link reset mật khẩu đã đươc gửi tới email của bạn. Hãy xem tin nhắn.
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="auth-form">
+        {!success && (
+          <form onSubmit={handleSendLink} className="auth-form">
             {error && <div className="error-message">{error}</div>}
-            
+
             <p className="auth-footer-text" style={{ marginBottom: "20px", textAlign: "left" }}>
-              Nhập địa chỉ email của bạn và hệ thống sẽ gửi link reset mật khẩu đên bạn.
+              Nhập địa chỉ email của bạn và hệ thống sẽ gửi link reset mật khẩu đến bạn.
             </p>
 
             <div className="form-group">
@@ -56,14 +76,36 @@ const ForgotPasswordPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={loading}
+                disabled={loading || cooldown > 0}
               />
             </div>
 
-            <button type="submit" className="auth-btn" disabled={loading}>
-              {loading ? "Đang gửi..." : "Gửi link reset"}
+            <button type="submit" className="auth-btn" disabled={loading || cooldown > 0}>
+              {loading
+                ? "Đang gửi..."
+                : "Gửi link reset"}
             </button>
           </form>
+        )}
+
+        {success && (
+          <div>
+            <div className="success-message">
+              Link reset mật khẩu đã được gửi tới email của bạn. Hãy kiểm tra hộp thư đến.
+            </div>
+            <button
+              onClick={handleResendLink}
+              className="auth-btn"
+              disabled={cooldown > 0 || loading}
+              style={{
+                marginTop: "16px",
+                background: cooldown > 0 ? "#94a3b8" : "#475569",
+              }}
+            >
+              {cooldown > 0 ? `Gửi lại link (${cooldown}s)` : "Gửi lại link"}
+            </button>
+            {error && <div className="error-message" style={{ marginTop: "8px" }}>{error}</div>}
+          </div>
         )}
 
         <div className="auth-footer">
