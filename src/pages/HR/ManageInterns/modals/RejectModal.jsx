@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "../../components/Layout/Modal";
+import Modal from "../../../../components/Layout/Modal";
 
 const RejectModal = ({ intern, reason, setReason, onClose, onConfirm, error }) => (
   <Modal title={`Từ chối hồ sơ: ${intern?.fullName}`} onClose={onClose}>
