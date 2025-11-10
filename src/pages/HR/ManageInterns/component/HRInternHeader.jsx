@@ -43,7 +43,7 @@ const HRInternHeader = ({
           >
             <option value="">Tất cả ngành</option>
             <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-            <option value="Kinh tế số">Kinh tế</option>
+            <option value="Kinh tế số">Kinh tế số</option>
             <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
              <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
          </select>
