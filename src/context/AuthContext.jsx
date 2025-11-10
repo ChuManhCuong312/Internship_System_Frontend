@@ -1,7 +1,7 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode"; // ✅ make sure installed: npm i jwt-decode
+import {jwtDecode} from "jwt-decode"; // Make sure installed: npm i jwt-decode
 import { authService } from "../services/authService";
 
 export const AuthContext = createContext();
@@ -9,7 +9,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => Cookies.get("token") || null);
-  const [loading, setLoading] = useState(true); // ✅ Add loading state
+  const [loading, setLoading] = useState(true); // Add loading state
 
   // Restore user from token on page load
   useEffect(() => {
