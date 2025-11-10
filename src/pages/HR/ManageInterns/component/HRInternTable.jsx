@@ -1,5 +1,5 @@
 import React from "react";
-import InternRow from "./HRInternRow";
+import HRInternRow from "./HRInternRow";
 
 const HRInternTable = ({ interns, handlers }) => (
   <div className="users-table-container">
@@ -18,8 +18,18 @@ const HRInternTable = ({ interns, handlers }) => (
         </tr>
       </thead>
       <tbody>
-        {interns.map((i) => (
-          <InternRow key={i.id} intern={i} {...handlers} />
+        {interns.map((intern) => (
+          <HRInternRow
+            key={intern.id}
+            intern={intern}
+            handleAssignMentor={handlers.handleAssignMentor}
+            handleApprove={handlers.handleApprove}
+            handleReject={handlers.handleReject}
+            handleEdit={handlers.handleEdit}
+            handleDelete={handlers.handleDelete}
+            handleUnlock={handlers.handleUnlock}
+            handleSendContract={handlers.handleSendContract}
+          />
         ))}
       </tbody>
     </table>

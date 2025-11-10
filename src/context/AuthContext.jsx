@@ -1,7 +1,6 @@
-// src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode"; // Make sure installed: npm i jwt-decode
+import { jwtDecode } from "jwt-decode";
 import { authService } from "../services/authService";
 
 export const AuthContext = createContext();
@@ -9,42 +8,47 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => Cookies.get("token") || null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
-  // Restore user from token on page load
-  useEffect(() => {
-    const existingToken = Cookies.get("token");
-    if (existingToken) {
-      try {
-        const payload = jwtDecode(existingToken)
-        setUser({ email: payload.sub, role: payload.role || "INTERN" });
-        setToken(existingToken);
-      } catch (err) {
-        console.error("Invalid token", err);
-        Cookies.remove("token");
-      }
-    }
-setLoading(false);
-  }, []);
+  // Khôi phục user khi reload trang
+ useEffect(() => {
+   const existingToken = Cookies.get("token");
+   if (existingToken) {
+     try {
+       const payload = jwtDecode(existingToken);
+       // Kiểm tra hết hạn
+       if (payload.exp * 1000 < Date.now()) {
+         console.warn("Token expired");
+         Cookies.remove("token");
+       } else {
+         setUser({ email: payload.sub, role: payload.role || "INTERN" });
+         setToken(existingToken);
+       }
+     } catch (err) {
+       console.error("Invalid token", err);
+       Cookies.remove("token");
+     }
+   }
+   setLoading(false);
+ }, []);
 
+
+  // Đăng nhập và lưu token
   const login = async (email, password) => {
     try {
       const res = await authService.login({ email, password });
-      const jwt = res.token.replace("Bearer ", "");
+      const jwt = res.token.replace("Bearer ", ""); // bỏ tiền tố "Bearer "
 
-      // Save JWT in cookies
       Cookies.set("token", jwt, {
-        expires: 1,
-        secure: true,
+        expires: 1, // 1 ngày
+        secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
       });
 
       const payload = jwtDecode(jwt);
-      const loggedInUser = { email: payload.sub, role: payload.role || "INTERN" };
-      setUser(loggedInUser);
+      setUser({ email: payload.sub, role: payload.role || "INTERN" });
       setToken(jwt);
-
-      return loggedInUser;
+      return payload;
     } catch (err) {
       console.error("Login error:", err);
       throw err;
@@ -57,11 +61,9 @@ setLoading(false);
     setToken(null);
   };
 
-
-return (
-  <AuthContext.Provider value={{ user, token, login, logout, setUser, loading }}>
-    {children}
-  </AuthContext.Provider>
-);
-
+  return (
+    <AuthContext.Provider value={{ user, token, login, logout, setUser, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
