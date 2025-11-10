@@ -25,6 +25,7 @@ const ApproveDocs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [internsPerPage] = useState(10);
   const [modalSuccess, setModalSuccess] = useState("");
+const [majorFilter, setMajorFilter] = useState("");
 
   // Modals
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -51,6 +52,12 @@ const ApproveDocs = () => {
         );
       }
 
+      if (majorFilter) {
+        result = result.filter((i) =>
+          (i.major || "").toLowerCase().includes(majorFilter.toLowerCase())
+        );
+      }
+
       if (searchTerm) {
         const q = searchTerm.toLowerCase();
         result = result.filter(
@@ -63,7 +70,8 @@ const ApproveDocs = () => {
       setFilteredInterns(result);
       setCurrentPage(1);
     }
-  }, [searchTerm, statusFilter, interns, loading]);
+  }, [searchTerm, statusFilter, majorFilter, interns, loading]);
+
 
   const indexOfLast = currentPage * internsPerPage;
   const indexOfFirst = indexOfLast - internsPerPage;
@@ -175,6 +183,7 @@ const ApproveDocs = () => {
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+            setMajorFilter={setMajorFilter}
         />
 
         {modalSuccess && <div className="success-message">{modalSuccess}</div>}
