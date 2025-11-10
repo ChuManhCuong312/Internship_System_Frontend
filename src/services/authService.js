@@ -33,11 +33,10 @@ export const authService = {
     try {
       const res = await axios.post(`${BASE_URL_AUTH}/register`, formData);
       return (
-        res.data ||
-        "Đăng ký thành công! Mã OTP đã được gửi tới email của bạn."
+        res.data
       );
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
 
@@ -47,7 +46,7 @@ export const authService = {
       const res = await axios.post(`${BASE_URL_AUTH}/login`, credentials);
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error;
     }
   },
 
@@ -59,7 +58,7 @@ export const authService = {
       });
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
 
@@ -71,7 +70,7 @@ export const authService = {
       });
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
 
@@ -83,7 +82,7 @@ export const authService = {
         });
         return res.data;
       } catch (error) {
-        throw error.response?.data || error.message;
+        throw error
       }
     },
   // Reset password
@@ -94,7 +93,7 @@ export const authService = {
       });
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
 
@@ -106,7 +105,7 @@ export const authService = {
         });
         return res.data;
       } catch (error) {
-        throw error.response?.data || error.message;
+        throw error
       }
     },
 

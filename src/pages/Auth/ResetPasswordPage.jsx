@@ -25,6 +25,10 @@ const ResetPasswordPage = () => {
     e.preventDefault();
     setMessage(null);
 
+    if (newPassword.length < 6){
+        setMessage({ type: "error", text: "Mật khẩu ko được ngắn hơn 6 ký tự" });
+        return;
+    }
     if (newPassword !== confirmPassword) {
       setMessage({ type: "error", text: "Mật khẩu nhập lại không khớp" });
       return;
@@ -33,29 +37,15 @@ const ResetPasswordPage = () => {
     setLoading(true);
     try {
       const res = await authService.resetPassword(token, newPassword);
-      setMessage({ type: "success", text: res });
+      setMessage({ type: "success", text: "Cập nhật mật khẩu thành công. Điều hướng về trang đăng nhập." });
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setMessage({ type: "error", text: err?.response?.data || "Reset mật khẩu thất bại" });
+      setMessage({ type: "error", text: "Cập nhật mật khẩu thất bại" });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResendLink = async () => {
-    setLoading(true);
-    setMessage(null);
-
-    try {
-      const res = await authService.resendResetLink(token);
-      setMessage({ type: "info", text: res });
-      setResendCooldown(60); // 60s cooldown
-    } catch (err) {
-      setMessage({ type: "error", text: err?.response?.data || "Không thể gửi lại link" });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!token) {
     return (
@@ -70,7 +60,7 @@ const ResetPasswordPage = () => {
   return (
     <div className="auth-layout">
       <div className="auth-card">
-        <h2 className="auth-title">Reset Password</h2>
+        <h2 className="auth-title">Cập nhật mật khẩu</h2>
 
         {message && (
           <div
