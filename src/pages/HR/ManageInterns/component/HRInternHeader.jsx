@@ -22,9 +22,7 @@ const HRInternHeader = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilt
         <option value="Bị từ chối">Bị từ chối</option>
         <option value="Hợp đồng hoàn tất">Hợp đồng hoàn tất</option>
       </select>
-      <button className="btn-primary" onClick={onAdd}>
-        ➕ Thêm hợp đồng
-      </button>
+        {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
     </div>
   </div>
 );
