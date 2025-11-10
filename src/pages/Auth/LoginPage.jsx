@@ -32,8 +32,8 @@ const LoginPage = () => {
     } catch (err) {
         if (err.response) {
           if (err.response.status === 401) {
-            // Nếu backend trả về thông báo cụ thể
-            const message = err.response.data?.message || "Email hoặc mật khẩu không đúng.";
+            const data = err.response.data;
+            const message = "Email hoặc mật khẩu không đúng.";
             setError(message);
           } else {
             setError("Đăng nhập thất bại. Vui lòng thử lại.");
