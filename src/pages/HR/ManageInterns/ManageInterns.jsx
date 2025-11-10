@@ -212,6 +212,7 @@ const handleDelete = (intern) => {
         <HRInternTable
           interns={currentInterns}
           handlers={{
+              handleAssignMentor,
             handleEdit: handleEditProfile,
             handleDelete: handleDelete
           }}
@@ -243,6 +244,23 @@ const handleDelete = (intern) => {
             onConfirm={confirmDelete}
           />
         )}
+
+    {showAssignModal && (
+      <AssignMentorModal
+        intern={selectedIntern}
+        mentors={[
+          { id: 1, name: "Mentor A" },
+          { id: 2, name: "Mentor B" },
+          { id: 3, name: "Mentor C" },
+        ]} // hoặc lấy danh sách mentor từ context/API
+        selectedMentor={selectedMentor}
+        setSelectedMentor={setSelectedMentor}
+        onClose={() => setShowAssignModal(false)}
+        onSave={confirmAssign}
+        error={assignError}
+      />
+    )}
+
       </div>
     </div>
   );

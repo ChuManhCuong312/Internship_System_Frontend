@@ -24,18 +24,21 @@ const HRInternRow = ({
     <td>{intern.email}</td>
     <td>{intern.school}</td>
     <td>{intern.major}</td>
-    <td>
-      {(!intern.mentor || intern.mentor === "-") ? (
-              <button
-                className="btn-assign"
-                onClick={() => handleAssignMentor(intern)}
-              >
-                👨‍🏫 Phân công
-              </button>
-            ) : (
-              intern.mentor
-            )}
-        </td>
+    {handleAssignMentor && (
+      <td>
+        {(!intern.mentor || intern.mentor === "-") ? (
+          <button
+            className="btn-assign"
+            onClick={() => handleAssignMentor(intern)}
+          >
+            👨‍🏫 Phân công
+          </button>
+        ) : (
+          intern.mentor
+        )}
+      </td>
+    )}
+
     <td>
       {intern.documents && intern.documents.length > 0
         ? intern.documents.map((doc, idx) => (
