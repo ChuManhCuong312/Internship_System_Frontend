@@ -27,6 +27,7 @@ const ManageInterns = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [internsPerPage] = useState(10);
   const [modalSuccess, setModalSuccess] = useState("");
+const [majorFilter, setMajorFilter] = useState("");
 
   // Modals
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -52,10 +53,15 @@ const ManageInterns = () => {
             (i.email || "").toLowerCase().includes(q)
         );
       }
+  if (majorFilter) {
+        result = result.filter((i) =>
+          (i.major || "").toLowerCase().includes(majorFilter.toLowerCase())
+        );
+      }
       setFilteredInterns(result);
       setCurrentPage(1);
     }
-  }, [searchTerm, interns, loading]);
+  }, [searchTerm, majorFilter, interns, loading]);
 
   const indexOfLast = currentPage * internsPerPage;
   const indexOfFirst = indexOfLast - internsPerPage;
@@ -191,6 +197,8 @@ const handleDelete = (intern) => {
           title="Quản lý hồ sơ thực tập sinh"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+           majorFilter={majorFilter}
+            setMajorFilter={setMajorFilter}
           onAdd={() => {
             setIsEditProfile(false);
             setProfileData({});
