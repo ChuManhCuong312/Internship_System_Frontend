@@ -1,6 +1,6 @@
 import React from "react";
-import StatusBadge from "../../../components/Common/StatusBadge";
-import ActionButtons from "../../../components/Common/ActionButtons";
+import StatusBadge from "../../../../components/Common/StatusBadge";
+import ActionButtons from "../../../../components/Common/ActionButtons";
 
 const HRInternRow = ({
   intern,
