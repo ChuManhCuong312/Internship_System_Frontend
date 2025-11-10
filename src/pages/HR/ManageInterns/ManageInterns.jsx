@@ -1,4 +1,3 @@
-// src/pages/hr/ManageInterns.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import HRSidebar from "../../../components/Layout/HRSidebar";
@@ -71,7 +70,6 @@ const ManageInterns = () => {
       );
     }
 
-    // **Force filter**: only show completed contracts on this page
     result = result.filter((i) => i.status === COMPLETED_STATUS);
 
     setFilteredInterns(result);

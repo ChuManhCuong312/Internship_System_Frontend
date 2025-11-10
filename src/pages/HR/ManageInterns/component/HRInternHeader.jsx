@@ -7,7 +7,7 @@ const HRInternHeader = ({
   statusFilter,
   setStatusFilter,
   onAdd,
-  showStatusFilter = true, // mặc định hiển thị
+  showStatusFilter = true,
 }) => (
   <div className="manage-users-header">
     <h2 className="page-title">{title}</h2>
@@ -30,7 +30,6 @@ const HRInternHeader = ({
           <option value="Chờ duyệt">Chờ duyệt</option>
           <option value="Đã duyệt">Đã duyệt</option>
           <option value="Bị từ chối">Bị từ chối</option>
-          <option value="Hợp đồng hoàn tất">Hợp đồng hoàn tất</option>
         </select>
       )}
 
