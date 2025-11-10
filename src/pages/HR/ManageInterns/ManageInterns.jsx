@@ -204,6 +204,7 @@ const handleDelete = (intern) => {
             setProfileData({});
             setShowProfileModal(true);
           }}
+      showStatusFilter={false}
         />
 
         {modalSuccess && <div className="success-message">{modalSuccess}</div>}
