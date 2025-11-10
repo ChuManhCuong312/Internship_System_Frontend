@@ -1,0 +1,41 @@
+import React from "react";
+
+const HRInternHeader = ({
+    title = "Quản lý hồ sơ thực tập sinh",
+  searchTerm,
+  setSearchTerm,
+  statusFilter,
+  setStatusFilter,
+  onAdd,
+  showStatusFilter = true,
+}) => (
+  <div className="manage-users-header">
+    <h2 className="page-title">{title}</h2>
+    <div className="header-actions">
+      <input
+        type="text"
+        placeholder="🔍 Tìm kiếm theo tên hoặc email"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
+
+      {showStatusFilter && (
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="Chờ duyệt">Chờ duyệt</option>
+          <option value="Đã duyệt">Đã duyệt</option>
+          <option value="Bị từ chối">Bị từ chối</option>
+        </select>
+      )}
+
+      {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
+    </div>
+  </div>
+);
+
+export default HRInternHeader;
