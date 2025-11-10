@@ -37,19 +37,26 @@ const ApproveDocs = () => {
 
   useEffect(() => {
     let result = interns;
-    if (searchTerm) {
-      result = result.filter(
-        (i) =>
-          (i.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (i.email || "").toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    if (statusFilter) {
-      result = result.filter((i) => i.status === statusFilter);
-    }
-    setFilteredInterns(result);
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter, interns]);
+
+     if (statusFilter) {
+        result = result.filter((i) => i.status === statusFilter);
+      } else {
+        result = result.filter((i) =>
+          ["Chờ duyệt", "Đã duyệt"].includes(i.status)
+        );
+      }
+
+      if (searchTerm) {
+        result = result.filter(
+          (i) =>
+            (i.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (i.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      setFilteredInterns(result);
+      setCurrentPage(1);
+    }, [searchTerm, statusFilter, interns]);
 
   const indexOfLast = currentPage * internsPerPage;
   const indexOfFirst = indexOfLast - internsPerPage;
@@ -145,7 +152,7 @@ const ApproveDocs = () => {
       <HRSidebar />
       <div className="dashboard-content manage-users-content">
         <HRInternHeader
-        title="Phê duyệt và phản hồi"
+          title="Phê duyệt và phản hồi"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
