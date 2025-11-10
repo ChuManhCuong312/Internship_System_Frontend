@@ -1,6 +1,7 @@
 import React from "react";
 
 const HRInternHeader = ({
+    title = "Quản lý hồ sơ thực tập sinh",
   searchTerm,
   setSearchTerm,
   statusFilter,
@@ -9,7 +10,7 @@ const HRInternHeader = ({
   showStatusFilter = true, // mặc định hiển thị
 }) => (
   <div className="manage-users-header">
-    <h2 className="page-title">Quản lý hồ sơ thực tập sinh</h2>
+    <h2 className="page-title">{title}</h2>
     <div className="header-actions">
       <input
         type="text"

@@ -145,6 +145,7 @@ const ApproveDocs = () => {
       <HRSidebar />
       <div className="dashboard-content manage-users-content">
         <HRInternHeader
+        title="Phê duyệt và phản hồi"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
