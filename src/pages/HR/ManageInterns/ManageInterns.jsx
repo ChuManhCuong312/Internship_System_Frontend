@@ -3,8 +3,8 @@ import HRSidebar from "../../../components/Layout/HRSidebar";
 import Pagination from "../../../components/Common/Pagination";
 import { AuthContext } from "../../../context/AuthContext";
 
-import HRInternHeader from "./HRInternHeader";
-import HRInternTable from "./HRInternTable";
+import HRInternHeader from "./component/HRInternHeader";
+import HRInternTable from "./component/HRInternTable";
 import AssignMentorModal from "./modals/AssignMentorModal";
 import RejectModal from "./modals/RejectModal";
 import ContractModal from "./modals/ContractModal";
@@ -66,7 +66,7 @@ const mockInterns = [
   },
 ];
 
-const ManageIntern = () => {
+const ManageInterns = () => {
   const { user: loggedInUser } = useContext(AuthContext);
   const isHR = loggedInUser?.role === "HR";
 
@@ -367,5 +367,5 @@ const handleProfileSubmit = () => {
     );
   };
 
-  export default ManageIntern;
+  export default ManageInterns;
 
