@@ -15,6 +15,7 @@ import { InternsContext } from "../../../context/InternsContext";
 import "../../../styles/manageUsers.css";
 
 const defaultSchool = "CMC University";
+const COMPLETED_STATUS = "Hợp đồng hoàn tất";
 
 const ManageInterns = () => {
   const { user: loggedInUser } = useContext(AuthContext);
@@ -22,9 +23,12 @@ const ManageInterns = () => {
 
   const { interns, setInterns, mockMentors } = useContext(InternsContext);
 
-  const [filteredInterns, setFilteredInterns] = useState(interns);
+  const [filteredInterns, setFilteredInterns] = useState(
+    interns.filter((i) => i.status === COMPLETED_STATUS)
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  // keep statusFilter state for compatibility with HRInternHeader if needed
+  const [statusFilter, setStatusFilter] = useState(COMPLETED_STATUS);
   const [currentPage, setCurrentPage] = useState(1);
   const [internsPerPage] = useState(10);
   const [modalSuccess, setModalSuccess] = useState("");
@@ -56,19 +60,23 @@ const ManageInterns = () => {
 
   useEffect(() => {
     let result = interns;
+
+    // Search by name or email
     if (searchTerm) {
+      const q = searchTerm.toLowerCase();
       result = result.filter(
         (i) =>
-          (i.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (i.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+          (i.fullName || "").toLowerCase().includes(q) ||
+          (i.email || "").toLowerCase().includes(q)
       );
     }
-    if (statusFilter) {
-      result = result.filter((i) => i.status === statusFilter);
-    }
+
+    // **Force filter**: only show completed contracts on this page
+    result = result.filter((i) => i.status === COMPLETED_STATUS);
+
     setFilteredInterns(result);
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, interns]);
+  }, [searchTerm, interns]);
 
   const indexOfLast = currentPage * internsPerPage;
   const indexOfFirst = indexOfLast - internsPerPage;
@@ -245,6 +253,7 @@ const ManageInterns = () => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           onAdd={handleAddProfile}
+          showStatusFilter={false}
         />
 
         {modalSuccess && <div className="success-message">{modalSuccess}</div>}
