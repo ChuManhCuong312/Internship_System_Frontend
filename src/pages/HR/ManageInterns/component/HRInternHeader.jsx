@@ -1,6 +1,13 @@
 import React from "react";
 
-const HRInternHeader = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, onAdd }) => (
+const HRInternHeader = ({
+  searchTerm,
+  setSearchTerm,
+  statusFilter,
+  setStatusFilter,
+  onAdd,
+  showStatusFilter = true, // mặc định hiển thị
+}) => (
   <div className="manage-users-header">
     <h2 className="page-title">Quản lý hồ sơ thực tập sinh</h2>
     <div className="header-actions">
@@ -11,18 +18,22 @@ const HRInternHeader = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilt
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-input"
       />
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-        className="filter-select"
-      >
-        <option value="">Tất cả trạng thái</option>
-        <option value="Chờ duyệt">Chờ duyệt</option>
-        <option value="Đã duyệt">Đã duyệt</option>
-        <option value="Bị từ chối">Bị từ chối</option>
-        <option value="Hợp đồng hoàn tất">Hợp đồng hoàn tất</option>
-      </select>
-        {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
+
+      {showStatusFilter && (
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="Chờ duyệt">Chờ duyệt</option>
+          <option value="Đã duyệt">Đã duyệt</option>
+          <option value="Bị từ chối">Bị từ chối</option>
+          <option value="Hợp đồng hoàn tất">Hợp đồng hoàn tất</option>
+        </select>
+      )}
+
+      {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
     </div>
   </div>
 );
