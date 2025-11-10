@@ -1,65 +1,71 @@
-// src/context/InternsContext.jsx
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
+import {
+  getAllInterns,
+  createIntern,
+  updateIntern,
+  deleteIntern,
+} from "../api/internApi";
+import { AuthContext } from "./AuthContext";
 
 export const InternsContext = createContext();
 
-const mockMentors = [
-  { id: 1, name: "Nguyễn Văn Hướng" },
-  { id: 2, name: "Trần Thị Hạnh" },
-  { id: 3, name: "Phạm Quốc Bình" },
-];
-
-const mockInterns = [
-  {
-    id: 1,
-    fullName: "Nguyễn Văn A",
-    email: "a@example.com",
-    phone: "0987765443",
-    major: "Công nghệ thông tin",
-    mentor: "-",
-    status: "Chờ duyệt",
-    createdAt: "2024-03-15",
-    documents: ["CV_A.pdf", "DonXinTT_A.pdf"],
-  },
-  {
-    id: 2,
-    fullName: "Trần Thị B",
-    email: "b@example.com",
-    phone: "0987765442",
-    major: "Công nghệ thông tin",
-    mentor: "-",
-    status: "Đã duyệt",
-    createdAt: "2024-03-28",
-    documents: ["CV_B.pdf"],
-  },
-  {
-    id: 3,
-    fullName: "Lê Văn C",
-    email: "c@example.com",
-    phone: "0987765441",
-    major: "Quản trị kinh doanh",
-    mentor: "Nguyễn Văn Hướng",
-    status: "Hợp đồng hoàn tất",
-    createdAt: "2024-04-02",
-    documents: ["CV_C.pdf", "HopDong_C.pdf"],
-  },
-  {
-    id: 4,
-    fullName: "Lê Văn D",
-    email: "d@example.com",
-    phone: "0987765442",
-    major: "Thiết kế đồ họa",
-    mentor: "-",
-    status: "Hợp đồng hoàn tất",
-    createdAt: "2024-04-03",
-    documents: ["CV_C.pdf", "HopDong_C.pdf"],
-  },
-];
-
 export const InternsProvider = ({ children }) => {
-  const [interns, setInterns] = useState(mockInterns);
+  const { token, loading: authLoading } = useContext(AuthContext);
+  const [interns, setInterns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch interns
+  const fetchInterns = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const data = await getAllInterns(token);
+      setInterns(data);
+      setError(null);
+    } catch (err) {
+      console.error("Lấy danh sách intern thất bại:", err);
+      setError("Không thể tải danh sách thực tập sinh");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!authLoading && token) fetchInterns();
+  }, [authLoading, token]);
+
+  const addIntern = async (internProfile) => {
+    const newIntern = await createIntern(token, internProfile);
+    setInterns((prev) => [...prev, newIntern]);
+  };
+
+const editIntern = async (id, internProfile) => {
+  const updated = await updateIntern(token, id, internProfile);
+  setInterns((prev) =>
+    prev.map((i) => (i.internId === id ? updated : i))
+  );
+};
+
+const removeIntern = async (id) => {
+  await deleteIntern(token, id);
+  setInterns((prev) => prev.filter((i) => i.internId !== id));
+};
+
+
   return (
-    <InternsContext.Provider value={{ interns, setInterns, mockMentors }}>
+    <InternsContext.Provider
+      value={{
+        interns,
+        setInterns,
+        loading,
+        error,
+        fetchInterns,
+        addIntern,
+        editIntern,
+        removeIntern,
+      }}
+    >
       {children}
     </InternsContext.Provider>
   );

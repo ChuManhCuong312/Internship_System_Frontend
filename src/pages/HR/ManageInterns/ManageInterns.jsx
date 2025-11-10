@@ -1,33 +1,29 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import Pagination from "../../../components/Common/Pagination";
-import { AuthContext } from "../../../context/AuthContext";
-
 import HRInternHeader from "./component/HRInternHeader";
 import HRInternTable from "./component/HRInternTable";
 import AssignMentorModal from "./modals/AssignMentorModal";
 import ProfileModal from "./modals/ProfileModal";
 import DeleteModal from "./modals/DeleteModal";
-
 import { InternsContext } from "../../../context/InternsContext";
+import { AuthContext } from "../../../context/AuthContext";
 import "../../../styles/manageUsers.css";
-
-const defaultSchool = "CMC University";
-const COMPLETED_STATUS = "Hợp đồng hoàn tất";
 
 const ManageInterns = () => {
   const { user: loggedInUser } = useContext(AuthContext);
   const isHR = loggedInUser?.role === "HR";
 
-  const { interns, setInterns, mockMentors } = useContext(InternsContext);
+  const {
+    interns,
+    loading,
+    addIntern,
+    editIntern,
+    removeIntern,
+  } = useContext(InternsContext);
 
-  const [filteredInterns, setFilteredInterns] = useState(
-    interns.filter((i) => i.status === COMPLETED_STATUS)
-  );
+  const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  // keep statusFilter state for compatibility with HRInternHeader if needed
-  const [statusFilter, setStatusFilter] = useState(COMPLETED_STATUS);
   const [currentPage, setCurrentPage] = useState(1);
   const [internsPerPage] = useState(10);
   const [modalSuccess, setModalSuccess] = useState("");
@@ -36,45 +32,30 @@ const ManageInterns = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [selectedIntern, setSelectedIntern] = useState(null);
   const [selectedMentor, setSelectedMentor] = useState("");
   const [assignError, setAssignError] = useState("");
 
-  // Profile states
-  const [profileData, setProfileData] = useState({
-    full_name: "",
-    gender: "Khác",
-    dob: "",
-    school: "",
-    major: "",
-    gpa: "",
-    phone: "",
-    address: "",
-    photo_path: null,
-    documents: [],
-  });
+  // Profile state
+  const [profileData, setProfileData] = useState({});
   const [profileError, setProfileError] = useState({});
   const [isEditProfile, setIsEditProfile] = useState(false);
 
   useEffect(() => {
-    let result = interns;
-
-    // Search by name or email
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      result = result.filter(
-        (i) =>
-          (i.fullName || "").toLowerCase().includes(q) ||
-          (i.email || "").toLowerCase().includes(q)
-      );
+    if (!loading) {
+      let result = interns.filter((i) => i.status === "COMPLETED");
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase();
+        result = result.filter(
+          (i) =>
+            (i.fullName || "").toLowerCase().includes(q) ||
+            (i.email || "").toLowerCase().includes(q)
+        );
+      }
+      setFilteredInterns(result);
+      setCurrentPage(1);
     }
-
-    result = result.filter((i) => i.status === COMPLETED_STATUS);
-
-    setFilteredInterns(result);
-    setCurrentPage(1);
-  }, [searchTerm, interns]);
+  }, [searchTerm, interns, loading]);
 
   const indexOfLast = currentPage * internsPerPage;
   const indexOfFirst = indexOfLast - internsPerPage;
@@ -85,148 +66,110 @@ const ManageInterns = () => {
     setModalSuccess(msg);
     setTimeout(() => setModalSuccess(""), 3000);
   };
+// Assign mentor
+const handleAssignMentor = (intern) => {
+  setSelectedIntern(intern);
+  setSelectedMentor("");
+  setAssignError("");
+  setShowAssignModal(true);
+};
 
-  // Assign mentor
-  const handleAssignMentor = (intern) => {
-    setSelectedIntern(intern);
-    setSelectedMentor("");
-    setAssignError("");
-    setShowAssignModal(true);
-  };
-
-  const confirmAssign = () => {
-    if (!selectedMentor) {
-      setAssignError("Vui lòng chọn mentor");
-      return;
-    }
-    setInterns((prev) =>
-      prev.map((i) =>
-        i.id === selectedIntern.id ? { ...i, mentor: selectedMentor } : i
-      )
-    );
+const confirmAssign = async () => {
+  if (!selectedMentor) {
+    setAssignError("Vui lòng chọn mentor");
+    return;
+  }
+  try {
+    await editIntern(selectedIntern.id, { ...selectedIntern, mentor: selectedMentor });
     setShowAssignModal(false);
-    setAssignError("");
     notify("👨‍🏫 Phân công mentor thành công");
-  };
+  } catch (err) {
+    console.error(err);
+    notify("❌ Lỗi khi phân công mentor");
+  }
+};
 
-  // Profile add/edit
-  const handleAddProfile = () => {
-    setProfileData({
-      full_name: "",
-      gender: "Khác",
-      dob: "",
-      school: defaultSchool,
-      major: "",
-      gpa: "",
-      phone: "",
-      address: "",
-      photo_path: null,
-      documents: [],
-    });
-    setProfileError({});
-    setIsEditProfile(false);
-    setShowProfileModal(true);
-  };
+// Add profile
+const handleAddProfile = () => {
+  setProfileData({
+    full_name: "",
+    gender: "Khác",
+    dob: "",
+    school: "CMC University",
+    major: "",
+    gpa: "",
+    phone: "",
+    address: "",
+    photo_path: null,
+    documents: [],
+  });
+  setProfileError({});
+  setIsEditProfile(false);
+  setShowProfileModal(true);
+};
 
-  const handleEditProfile = (intern) => {
-    setSelectedIntern(intern);
-    setProfileData({
-      full_name: intern.fullName || "",
-      gender: intern.gender || "Khác",
-      dob: intern.dob || "",
-      school: intern.school || defaultSchool,
-      major: intern.major || "",
-      gpa: intern.gpa !== undefined ? String(intern.gpa) : "",
-      phone: intern.phone || "",
-      address: intern.address || "",
-      photo_path: intern.photo_path || null,
-      documents: intern.documents || [],
-    });
-    setProfileError({});
-    setIsEditProfile(true);
-    setShowProfileModal(true);
-  };
+// Edit profile
+const handleEditProfile = (intern) => {
+  setSelectedIntern(intern);
+  setProfileData({
+    full_name: intern.fullName || "",
+    gender: intern.gender || "Khác",
+    dob: intern.dob || "",
+    school: intern.school || "CMC University",
+    major: intern.major || "",
+    gpa: intern.gpa !== undefined ? String(intern.gpa) : "",
+    phone: intern.phone || "",
+    address: intern.address || "",
+    photo_path: intern.photo_path || null,
+    documents: intern.documents || [],
+  });
+  setProfileError({});
+  setIsEditProfile(true);
+  setShowProfileModal(true);
+};
 
-  const handleProfileSubmit = () => {
+// Delete
+const handleDelete = (intern) => {
+  setSelectedIntern(intern);
+  setShowDeleteModal(true);
+};
+
+  // Thêm/Sửa Profile
+  const handleProfileSubmit = async () => {
+    // Validate trước
     const errors = {};
-    if (!profileData.full_name || !profileData.full_name.trim())
-      errors.full_name = "Họ tên không được để trống";
-    if (!profileData.gender) errors.gender = "Vui lòng chọn giới tính";
-    if (!profileData.dob) errors.dob = "Ngày sinh không được để trống";
-    if (!profileData.school || !profileData.school.trim())
-      errors.school = "Trường không được để trống";
-    if (!profileData.major || !profileData.major.trim())
-      errors.major = "Ngành không được để trống";
-
-    const gpaNum = parseFloat(profileData.gpa);
-    if (isNaN(gpaNum) || gpaNum <= 0 || gpaNum > 4)
-      errors.gpa = "GPA phải lớn hơn 0 và nhỏ hơn hoặc bằng 4.00";
-
-    if (!profileData.phone || !profileData.phone.trim()) {
-      errors.phone = "Số điện thoại không được để trống";
-    } else if (!/^0\d{9}$/.test(profileData.phone)) {
-      errors.phone = "Số điện thoại phải 10 số và bắt đầu bằng 0";
-    }
-
-    if (!profileData.address || !profileData.address.trim())
-      errors.address = "Địa chỉ không được để trống";
-
-    if (!profileData.photo_path) errors.photo_path = "Vui lòng chọn ảnh hồ sơ";
-
+    if (!profileData.full_name) errors.full_name = "Họ tên không được để trống";
+    if (!profileData.major) errors.major = "Ngành không được để trống";
     if (Object.keys(errors).length > 0) {
       setProfileError(errors);
       return;
     }
 
-    if (isEditProfile) {
-      setInterns((prev) =>
-        prev.map((i) =>
-          i.id === selectedIntern.id
-            ? {
-                ...i,
-                ...profileData,
-                fullName: profileData.full_name,
-                gpa: gpaNum,
-              }
-            : i
-        )
-      );
-      notify("✏️ Hồ sơ đã được cập nhật");
-    } else {
-      const newId = interns.length > 0 ? Math.max(...interns.map((i) => i.id)) + 1 : 1;
-      const createdAt = new Date().toISOString().slice(0, 10);
-      setInterns((prev) => [
-        ...prev,
-        {
-          id: newId,
-          fullName: profileData.full_name,
-          email: profileData.email || "",
-          phone: profileData.phone,
-          major: profileData.major,
-          mentor: "-",
-          status: "Chờ duyệt",
-          createdAt,
-          documents: profileData.documents || [],
-          ...profileData,
-          gpa: gpaNum,
-        },
-      ]);
-      notify("➕ Hồ sơ mới đã được thêm");
+    try {
+      if (isEditProfile) {
+        await editIntern(selectedIntern.id, { ...profileData, fullName: profileData.full_name });
+        notify("✏️ Hồ sơ đã được cập nhật");
+      } else {
+        await addIntern({ ...profileData, status: "Chờ duyệt" });
+        notify("➕ Hồ sơ mới đã được thêm");
+      }
+      setShowProfileModal(false);
+    } catch (err) {
+      console.error(err);
+      notify("❌ Lỗi khi lưu hồ sơ");
     }
-    setShowProfileModal(false);
   };
 
-  // Delete
-  const handleDelete = (id) => {
-    const intern = interns.find((i) => i.id === id);
-    setSelectedIntern(intern);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDelete = () => {
-    setInterns((prev) => prev.filter((i) => i.id !== selectedIntern.id));
-    setShowDeleteModal(false);
-    notify("🗑️ Đã xóa hồ sơ thành công");
+  // Xóa
+  const confirmDelete = async () => {
+    try {
+      await removeIntern(selectedIntern.id);
+      setShowDeleteModal(false);
+      notify("🗑️ Đã xóa hồ sơ thành công");
+    } catch (err) {
+      console.error(err);
+      notify("❌ Lỗi khi xóa hồ sơ");
+    }
   };
 
   if (!isHR) {
@@ -235,7 +178,6 @@ const ManageInterns = () => {
         <HRSidebar />
         <div className="dashboard-content">
           <h2 className="page-title">Bạn không có quyền truy cập trang này.</h2>
-          <Link to="/hr/approve-docs">Chuyển sang Duyệt tài liệu</Link>
         </div>
       </div>
     );
@@ -246,13 +188,14 @@ const ManageInterns = () => {
       <HRSidebar />
       <div className="dashboard-content manage-users-content">
         <HRInternHeader
-        title="Quản lý hồ sơ thực tập sinh"
+          title="Quản lý hồ sơ thực tập sinh"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          onAdd={handleAddProfile}
-          showStatusFilter={false}
+          onAdd={() => {
+            setIsEditProfile(false);
+            setProfileData({});
+            setShowProfileModal(true);
+          }}
         />
 
         {modalSuccess && <div className="success-message">{modalSuccess}</div>}
@@ -260,9 +203,8 @@ const ManageInterns = () => {
         <HRInternTable
           interns={currentInterns}
           handlers={{
-            handleAssignMentor,
             handleEdit: handleEditProfile,
-            handleDelete,
+            handleDelete: handleDelete
           }}
         />
 
@@ -272,18 +214,6 @@ const ManageInterns = () => {
           totalItems={filteredInterns.length}
           onPageChange={setCurrentPage}
         />
-
-        {showAssignModal && (
-          <AssignMentorModal
-            intern={selectedIntern}
-            mentors={mockMentors}
-            selectedMentor={selectedMentor}
-            setSelectedMentor={setSelectedMentor}
-            onClose={() => setShowAssignModal(false)}
-            onSave={confirmAssign}
-            error={assignError}
-          />
-        )}
 
         {showProfileModal && (
           <ProfileModal
