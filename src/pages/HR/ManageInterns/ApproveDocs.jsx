@@ -1,62 +1,69 @@
-// src/pages/hr/ApproveDocs.jsx
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import Pagination from "../../../components/Common/Pagination";
-import { AuthContext } from "../../../context/AuthContext";
-
 import HRInternHeader from "./component/HRInternHeader";
 import HRInternTable from "./component/HRInternTable";
 import RejectModal from "./modals/RejectModal";
 import ContractModal from "./modals/ContractModal";
-
 import { InternsContext } from "../../../context/InternsContext";
+import { AuthContext } from "../../../context/AuthContext";
 import "../../../styles/manageUsers.css";
 
 const ApproveDocs = () => {
   const { user: loggedInUser } = useContext(AuthContext);
   const isHR = loggedInUser?.role === "HR";
 
-  const { interns, setInterns } = useContext(InternsContext);
+  const {
+    interns,
+    loading,
+    editIntern,
+  } = useContext(InternsContext);
 
-  const [filteredInterns, setFilteredInterns] = useState(interns);
+  const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [internsPerPage] = useState(10);
   const [modalSuccess, setModalSuccess] = useState("");
 
-  // Approve modals
+  // Modals
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showContractModal, setShowContractModal] = useState(false);
-
   const [selectedIntern, setSelectedIntern] = useState(null);
+
+  // Reject state
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState("");
+
+  // Contract state
   const [contractFile, setContractFile] = useState(null);
   const [contractError, setContractError] = useState("");
 
   useEffect(() => {
-    let result = interns;
+    if (!loading) {
+      let result = interns;
 
-     if (statusFilter) {
+      if (statusFilter) {
         result = result.filter((i) => i.status === statusFilter);
       } else {
         result = result.filter((i) =>
-          ["Chờ duyệt", "Đã duyệt"].includes(i.status)
+          ["PENDING", "APPROVED", "REJECTED"].includes(i.status)
         );
       }
 
       if (searchTerm) {
+        const q = searchTerm.toLowerCase();
         result = result.filter(
           (i) =>
-            (i.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (i.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+            (i.fullName || "").toLowerCase().includes(q) ||
+            (i.email || "").toLowerCase().includes(q)
         );
       }
 
       setFilteredInterns(result);
       setCurrentPage(1);
-    }, [searchTerm, statusFilter, interns]);
+    }
+  }, [searchTerm, statusFilter, interns, loading]);
 
   const indexOfLast = currentPage * internsPerPage;
   const indexOfFirst = indexOfLast - internsPerPage;
@@ -68,72 +75,83 @@ const ApproveDocs = () => {
     setTimeout(() => setModalSuccess(""), 3000);
   };
 
-  const handleApprove = (id) => {
-    setInterns((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, status: "Đã duyệt" } : i))
-    );
-    notify("✅ Đã duyệt hồ sơ thành công");
+  // Approve
+  const handleApprove = async (intern) => {
+    try {
+      await editIntern(intern.internId, { ...intern, status: "APPROVED" });
+      notify("✅ Đã duyệt hồ sơ thành công");
+    } catch (err) {
+      console.error(err);
+      notify("❌ Lỗi khi duyệt hồ sơ");
+    }
   };
 
-  const handleReject = (id) => {
-    const intern = interns.find((i) => i.id === id);
+  // Reject
+  const handleReject = (intern) => {
     setSelectedIntern(intern);
     setRejectReason("");
     setRejectError("");
     setShowRejectModal(true);
   };
 
-  const confirmReject = () => {
-    if (!rejectReason || !rejectReason.trim()) {
+  const confirmReject = async () => {
+    if (!rejectReason.trim()) {
       setRejectError("Vui lòng nhập lý do từ chối");
       return;
     }
-    setInterns((prev) =>
-      prev.map((i) =>
-        i.id === selectedIntern.id ? { ...i, status: "Bị từ chối", rejectReason } : i
-      )
-    );
-    setShowRejectModal(false);
-    setRejectReason("");
-    setRejectError("");
-    notify("❌ Đã từ chối hồ sơ");
+    try {
+      await editIntern(selectedIntern.internId, {
+        ...selectedIntern,
+        status: "REJECTED",
+        rejectReason,
+      });
+      setShowRejectModal(false);
+      notify("❌ Đã từ chối hồ sơ");
+    } catch (err) {
+      console.error(err);
+      notify("❌ Lỗi khi từ chối hồ sơ");
+    }
   };
 
-  const handleSendContract = (id) => {
-    const intern = interns.find((i) => i.id === id);
+  // Send contract
+  const handleSendContract = (intern) => {
     setSelectedIntern(intern);
     setContractFile(null);
     setContractError("");
     setShowContractModal(true);
   };
 
-  const confirmSendContract = () => {
+  const confirmSendContract = async () => {
     if (!contractFile) {
       setContractError("Vui lòng chọn file hợp đồng");
       return;
     }
-    setInterns((prev) =>
-      prev.map((i) =>
-        i.id === selectedIntern.id
-          ? {
-              ...i,
-              status: "Hợp đồng hoàn tất",
-              documents: [...(i.documents || []), contractFile.name || contractFile],
-            }
-          : i
-      )
-    );
-    setShowContractModal(false);
-    setContractFile(null);
-    setContractError("");
-    notify("📤 Đã gửi hợp đồng và hoàn tất");
+    try {
+      await editIntern(selectedIntern.internId, {
+        ...selectedIntern,
+        status: "COMPLETED",
+        documents: [
+          ...(selectedIntern.documents || []),
+          contractFile.name || contractFile,
+        ],
+      });
+      setShowContractModal(false);
+      notify("📤 Đã gửi hợp đồng và hoàn tất");
+    } catch (err) {
+      console.error(err);
+      notify("❌ Lỗi khi gửi hợp đồng");
+    }
   };
 
-  const handleUnlock = (id) => {
-    setInterns((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, status: "Chờ duyệt" } : i))
-    );
-    notify("🔓 Hồ sơ đã được mở lại để duyệt");
+  // Unlock
+  const handleUnlock = async (intern) => {
+    try {
+      await editIntern(intern.internId, { ...intern, status: "PENDING" });
+      notify("🔓 Hồ sơ đã được mở lại để duyệt");
+    } catch (err) {
+      console.error(err);
+      notify("❌ Lỗi khi mở lại hồ sơ");
+    }
   };
 
   if (!isHR) {

@@ -5,7 +5,7 @@ import ActionButtons from "../../../../components/Common/ActionButtons";
 const statusMap = {
   PENDING: "Chờ duyệt",
   APPROVED: "Đã duyệt",
-  REJECTED: "Từ chối",
+  REJECTED: "Bị từ chối",
   ACTIVE: "Đang hoạt động",
   COMPLETED: "Hợp đồng hoàn tất"
 };

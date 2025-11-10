@@ -27,9 +27,9 @@ const HRInternHeader = ({
           className="filter-select"
         >
           <option value="">Tất cả trạng thái</option>
-          <option value="Chờ duyệt">Chờ duyệt</option>
-          <option value="Đã duyệt">Đã duyệt</option>
-          <option value="Bị từ chối">Bị từ chối</option>
+          <option value="PENDING">Chờ duyệt</option>
+          <option value="APPROVED">Đã duyệt</option>
+          <option value="REJECTED">Bị từ chối</option>
         </select>
       )}
 

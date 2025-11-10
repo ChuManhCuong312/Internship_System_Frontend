@@ -20,7 +20,7 @@ const HRInternTable = ({ interns, handlers }) => (
       <tbody>
         {interns.map((intern) => (
           <HRInternRow
-            key={intern.id}
+            key={intern.internId}
             intern={intern}
             handleAssignMentor={handlers.handleAssignMentor}
             handleApprove={handlers.handleApprove}
