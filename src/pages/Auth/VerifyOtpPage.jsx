@@ -29,12 +29,14 @@ const VerifyOtpPage = () => {
 
     try {
       const res = await authService.verifyOtp(email, otp);
-      setMessage({ type: "success", text: res });
+      setMessage({
+          type: "success",
+          text: "Xác thực OTP thành công" });
       setTimeout(() => navigate("/login"), 4000);
     } catch (err) {
       setMessage({
         type: "error",
-        text: err?.response?.data || "Xác thực OTP không thành công",
+        text: "Xác thực OTP không thành công",
       });
     } finally {
       setLoading(false);
@@ -47,7 +49,9 @@ const VerifyOtpPage = () => {
 
     try {
       const res = await authService.resendOtp(email);
-
+      setMessage({
+          type: "success",
+          text: "Mã OTP mới đã được gửi đến gmail của bạn" });
       // Start the countdown when OTP is successfully sent
       setCooldown(60); // 60-second cooldown
 
@@ -117,15 +121,6 @@ const VerifyOtpPage = () => {
         >
           {cooldown > 0 ? `Gửi lại OTP (${cooldown}s)` : "Gửi lại OTP"}
         </button>
-
-        <div className="auth-footer">
-          <p className="auth-footer-text">
-            Remembered your password?{" "}
-            <a href="/login" className="auth-footer-link">
-              Back to Login
-            </a>
-          </p>
-        </div>
       </div>
     </div>
   );

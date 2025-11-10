@@ -8,6 +8,7 @@ import "../../styles/auth.css";
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0); // 60s cooldown for resend
@@ -30,10 +31,13 @@ const ForgotPasswordPage = () => {
     try {
       const res = await authService.sendResetLink(email);
       console.log(res);
+      setMessage({
+                type: "success",
+                text: "Link thiết lập mẩu khẩu mới đã được gửi thành công." });
       setSuccess(true);
       setCooldown(60); // start cooldown after sending
     } catch (err) {
-      setError(err?.response?.data || "Không thể gửi link reset. Vui lòng thử lại.");
+      setError("Không thể gửi link reset. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -47,9 +51,12 @@ const ForgotPasswordPage = () => {
     try {
       const res = await authService.resendResetLink(email);
       console.log(res);
+      setMessage({
+          type: "success",
+          text: "Link thiết lập mật khẩu mới đã được gửi lại thành công!" });
       setCooldown(60); // restart cooldown
     } catch (err) {
-      setError(err?.response?.data || "Không thể gửi lại link.");
+      setError("Không thể gửi lại link.");
     } finally {
       setLoading(false);
     }
@@ -90,9 +97,17 @@ const ForgotPasswordPage = () => {
 
         {success && (
           <div>
-            <div className="success-message">
-              Link reset mật khẩu đã được gửi tới email của bạn. Hãy kiểm tra hộp thư đến.
-            </div>
+             <div
+                className={
+                    message.type === "error"
+                        ? "error-message"
+                        : message.type === "success"
+                        ? "success-message"
+                        : "info-message"
+                    }
+                >
+                {message.text}
+             </div>
             <button
               onClick={handleResendLink}
               className="auth-btn"
