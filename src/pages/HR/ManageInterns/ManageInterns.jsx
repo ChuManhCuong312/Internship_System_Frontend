@@ -248,6 +248,7 @@ const ManageInterns = () => {
       <HRSidebar />
       <div className="dashboard-content manage-users-content">
         <HRInternHeader
+        title="Quản lý hồ sơ thực tập sinh"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
