@@ -74,4 +74,40 @@ export const authService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Send reset link
+    sendResetLink: async (email) => {
+      try {
+        const res = await axios.post(`${BASE_URL_AUTH}/forgot-password`, null, {
+          params: { email },
+        });
+        return res.data;
+      } catch (error) {
+        throw error.response?.data || error.message;
+      }
+    },
+  // Reset password
+  resetPassword: async (token, newPassword) => {
+    try {
+      const res = await axios.post(`${BASE_URL_AUTH}/reset-password`, null, {
+        params: { token, newPassword } // <-- send as query params
+      });
+      return res.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Resend reset link
+    resendResetLink: async (email) => {
+      try {
+        const res = await axios.post(`${BASE_URL_AUTH}/resend-reset-link`, null, {
+          params: { email },
+        });
+        return res.data;
+      } catch (error) {
+        throw error.response?.data || error.message;
+      }
+    },
+
 };
