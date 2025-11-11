@@ -41,7 +41,7 @@ export const authService = {
 
     getCurrentUser: async () => {
     try {
-        const res = await axiosClient.get("/auth/current-user");
+        const res = await axiosClient.get(`${BASE_URL_AUTH}/current-user`);
         return res.data;
     } catch (error) {
         throw error;

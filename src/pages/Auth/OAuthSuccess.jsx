@@ -4,19 +4,19 @@ import { AuthContext } from "../../context/AuthContext";
 
 const OAuthSuccess = () => {
   const navigate = useNavigate();
-  const { token, user, loading } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
 
   useEffect(() => {
     if (loading) return;
 
-    if (token && user?.role === "INTERN") {
-      console.log("Token found, redirecting to intern dashboard:", token);
+    if (user?.role === "INTERN") {
+      console.log("User found, redirecting to intern dashboard:", user);
       navigate("/intern/dashboard");
     } else {
-      console.log("No token or unauthorized, redirecting to login");
+      console.log("No user or unauthorized, redirecting to login");
       navigate("/login");
     }
-  }, [token, user, loading, navigate]);
+  }, [user, loading, navigate]);
 
   return (
     <div style={{ textAlign: "center", marginTop: "120px" }}>
