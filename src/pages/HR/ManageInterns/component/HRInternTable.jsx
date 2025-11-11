@@ -10,8 +10,8 @@ const HRInternTable = ({ interns, handlers }) => (
           <th>Email</th>
           <th>Trường</th>
           <th>Ngành</th>
-    {handlers.handleAssignMentor && <th>Mentor</th>}          <th>Tài liệu</th>
-          <th>Trạng thái</th>
+    {handlers.handleAssignMentor && <th>Mentor</th>}
+    <th>Tài liệu</th>
           <th>Ngày tạo</th>
           <th>Hành động</th>
         </tr>
