@@ -172,3 +172,23 @@ body, html {
   left: -12px;
   top: 0;
 }
+
+/* === Info === */
+.mentor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mentor-info img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mentor-info .email {
+  font-size: 13px;
+  color: #555;
+}
