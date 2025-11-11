@@ -216,6 +216,7 @@ const handleDelete = (intern) => {
             handleEdit: handleEditProfile,
             handleDelete: handleDelete
           }}
+      showStatus={false}
         />
 
         <Pagination
@@ -252,7 +253,7 @@ const handleDelete = (intern) => {
           { id: 1, name: "Mentor A" },
           { id: 2, name: "Mentor B" },
           { id: 3, name: "Mentor C" },
-        ]} // hoặc lấy danh sách mentor từ context/API
+        ]}
         selectedMentor={selectedMentor}
         setSelectedMentor={setSelectedMentor}
         onClose={() => setShowAssignModal(false)}
