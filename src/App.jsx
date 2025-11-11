@@ -103,7 +103,7 @@ function App() {
             }
           />
           <Route
-            path="/intern/profile"
+            path="/intern/profiles"
             element={
               <PrivateRoute allowedRoles={["INTERN"]}>
                 <MyProfile />

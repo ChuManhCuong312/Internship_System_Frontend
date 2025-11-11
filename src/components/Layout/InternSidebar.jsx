@@ -36,7 +36,9 @@ const InternSidebar = () => {
       </div>
       <ul className="sidebar-menu">
         <li><FaHome /> {expanded && <span>Trang chủ</span>}</li>
-        <li><FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
+
+        <li li onClick={() => navigate("/intern/profiles")}>
+          <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
         <li><FaCalendarAlt /> {expanded && <span>Lịch & Chương trình</span>}</li>
         <li><FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}</li>
         <li><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
