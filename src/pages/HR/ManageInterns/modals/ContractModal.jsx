@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "../../components/Layout/Modal";
+import Modal from "../../../../components/Layout/Modal";
 
 const ContractModal = ({ intern, contractFile, setContractFile, onClose, onConfirm, error }) => (
   <Modal title={`Gửi hợp đồng cho: ${intern?.fullName}`} onClose={onClose}>

@@ -2,9 +2,12 @@
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext.jsx";
+import { InternsProvider } from "./context/InternsContext.jsx";
+
 import Dashboard from "./pages/Intern/Dashboard";
 import HRDashboard from "./pages/HR/Dashboard";
-import ManageInterns  from "./pages/HR/ManageInterns";
+import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
+import ApproveDocs from "./pages/HR/ManageInterns/ApproveDocs";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -28,70 +31,81 @@ const PrivateRoute = ({ children, allowedRoles }) => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Default route */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+    <InternsProvider>
+      <Router>
+        <Routes>
+          {/* Default route */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Auth routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-otp" element={<VerifyOtpPage />} />
-        <Route path="/oauth-success" element={<OAuthSuccess />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+          {/* Auth routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Admin routes */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <PrivateRoute allowedRoles={["ADMIN"]}>
-              <AdminDashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/manageusers"
-          element={
-            <PrivateRoute allowedRoles={["ADMIN"]}>
-              <ManageUsers />
-            </PrivateRoute>
-          }
-        />
+          {/* Admin routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <PrivateRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/manageusers"
+            element={
+              <PrivateRoute allowedRoles={["ADMIN"]}>
+                <ManageUsers />
+              </PrivateRoute>
+            }
+          />
 
-        {/* HR routes */}
-        <Route
-          path="/hr/dashboard"
-          element={
-            <PrivateRoute allowedRoles={["HR"]}>
-              <HRDashboard />
-            </PrivateRoute>
-          }
-        />
+          {/* HR routes */}
+          <Route
+            path="/hr/dashboard"
+            element={
+              <PrivateRoute allowedRoles={["HR"]}>
+                <HRDashboard />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/hr/manage-interns"
-          element={
-            <PrivateRoute allowedRoles={["HR"]}>
-              <ManageInterns />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/hr/manage-interns"
+            element={
+              <PrivateRoute allowedRoles={["HR"]}>
+                <ManageInterns />
+              </PrivateRoute>
+            }
+          />
 
-        {/* Intern routes */}
-        <Route
-          path="/intern/dashboard"
-          element={
-            <PrivateRoute allowedRoles={["INTERN"]}>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/hr/approve-docs"
+            element={
+              <PrivateRoute allowedRoles={["HR"]}>
+                <ApproveDocs />
+              </PrivateRoute>
+            }
+          />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          {/* Intern routes */}
+          <Route
+            path="/intern/dashboard"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </InternsProvider>
   );
 }
 
