@@ -66,22 +66,22 @@ const ActionButtons = ({
      <div className="action-buttons">
        {user.status === "PENDING" && (
          <>
-           <button className="btn-approve" onClick={() => onApprove(user)}>
+           <button type="button" className="btn-approve" onClick={() => onApprove(user)}>
              ✓ Duyệt
            </button>
-           <button className="btn-reject" onClick={() => onReject(user)}>
+           <button type="button" className="btn-reject" onClick={() => onReject(user)}>
              ✗ Từ chối
            </button>
          </>
        )}
        {user.status === "APPROVED" && (
-         <button className="btn-send" onClick={() => onSendContract(user)}>
+         <button type="button" className="btn-send" onClick={() => onSendContract(user)}>
            📎 Tải hợp đồng
          </button>
        )}
        {user.status === "COMPLETED" && (
          <>
-           <button className="btn-edit" onClick={() => onEdit(user)}>
+           <button type="button" className="btn-edit" onClick={() => onEdit(user)}>
              ✎ Sửa
            </button>
            <button className="btn-delete" onClick={() => onDelete(user)}>
@@ -90,7 +90,7 @@ const ActionButtons = ({
          </>
        )}
        {user.status === "REJECTED" && (
-         <button className="btn-unlock" onClick={() => onUnlock(user)}>
+         <button type="button" className="btn-unlock" onClick={() => onUnlock(user)}>
            🔓 Mở khóa
          </button>
        )}
