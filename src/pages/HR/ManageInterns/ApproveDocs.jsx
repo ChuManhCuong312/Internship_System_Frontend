@@ -195,7 +195,9 @@ const [majorFilter, setMajorFilter] = useState("");
             handleReject,
             handleSendContract,
             handleUnlock,
+
           }}
+      showStatus={true}
         />
 
         <Pagination

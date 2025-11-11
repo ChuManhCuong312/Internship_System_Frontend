@@ -216,6 +216,7 @@ const handleDelete = (intern) => {
             handleEdit: handleEditProfile,
             handleDelete: handleDelete
           }}
+      showStatus={false}
         />
 
         <Pagination

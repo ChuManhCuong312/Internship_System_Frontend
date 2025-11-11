@@ -9,6 +9,7 @@ const statusMap = {
   ACTIVE: "Đang hoạt động",
   COMPLETED: "Hợp đồng hoàn tất"
 };
+
 const HRInternRow = ({
   intern,
   handleAssignMentor,
@@ -17,13 +18,15 @@ const HRInternRow = ({
   handleEdit,
   handleDelete,
   handleUnlock,
-  handleSendContract
+  handleSendContract,
+  showStatus = false
 }) => (
   <tr>
     <td>{intern.fullName}</td>
     <td>{intern.email}</td>
     <td>{intern.school}</td>
     <td>{intern.major}</td>
+
     {handleAssignMentor && (
       <td>
         {(!intern.mentor || intern.mentor === "-") ? (
@@ -47,8 +50,13 @@ const HRInternRow = ({
         : "-"
       }
     </td>
-<td><StatusBadge status={statusMap[intern.status]} /></td>
+
+    {showStatus && (
+      <td><StatusBadge status={statusMap[intern.status]} /></td>
+    )}
+
     <td>{intern.createdAt ? intern.createdAt : "-"}</td>
+
     <td>
       <ActionButtons
         user={intern}
