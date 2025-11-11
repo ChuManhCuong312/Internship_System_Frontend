@@ -35,15 +35,6 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   }
 
   return children;
- const { user, token, loading } = useContext(AuthContext);
- if (loading) return <div>Loading...</div>;
- if (!token || !user) return <Navigate to="/login" replace />;
- if (allowedRoles && !allowedRoles.includes(user.role?.toUpperCase())) {
-   return <Navigate to="/login" replace />;
- }
-
-
- return children;
 };
 
 
