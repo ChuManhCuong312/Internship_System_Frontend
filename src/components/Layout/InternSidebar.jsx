@@ -40,12 +40,12 @@ const InternSidebar = () => {
 
         <li onClick={() => navigate("/intern/profiles")}>
           <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
-        <li><FaCalendarAlt /> {expanded && <span>Lịch & Chương trình</span>}</li>
-        <li><FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}</li>
-        <li><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
-        <li><FaLifeRing /> {expanded && <span>Quyền lợi & Hỗ trợ</span>}</li>
+        <li onClick={() => navigate("/intern/calendar")}><FaCalendarAlt /> {expanded && <span>Lịch & Chương trình</span>}</li>
+        <li onClick={() => navigate("/intern/attendance")}><FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}</li>
+        <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
+        <li onClick={() => navigate("/intern/allowance")}><FaLifeRing /> {expanded && <span>Quyền lợi & Phụ cấp</span>}</li>
         <li><FaBell /> {expanded && <span>Thông báo</span>}</li>
-        <li><FaRobot /> {expanded && <span>Chatbot</span>}</li>
+        <li onClick={() => navigate("/intern/support")}><FaRobot /> {expanded && <span>Hỗ trợ</span>}</li>
       </ul>
       {/* Footer */}
       <div className="sidebar-footer">
