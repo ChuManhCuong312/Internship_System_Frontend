@@ -5,6 +5,7 @@ import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
 
 import Dashboard from "./pages/Intern/Dashboard";
+import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
 import ApproveDocs from "./pages/HR/ManageInterns/ApproveDocs";
@@ -91,6 +92,7 @@ function App() {
             }
           />
 
+
           {/* Intern routes */}
           <Route
             path="/intern/dashboard"
@@ -100,6 +102,16 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/intern/profiles"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <MyProfile />
+              </PrivateRoute>
+            }
+          />
+
+
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
