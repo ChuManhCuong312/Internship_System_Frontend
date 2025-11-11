@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
 
+import MentorDashboard from "./pages/Mentor/Dashboard"
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
@@ -19,8 +20,16 @@ import OAuthSuccess from "./pages/Auth/OAuthSuccess";
 import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
-// PrivateRoute component
 const PrivateRoute = ({ children, allowedRoles }) => {
+  const { user, token, loading } = useContext(AuthContext);
+  console.log("User role:", user?.role, "Token:", token);
+  if (loading) return <div>Loading...</div>;
+  if (!token || !user) return <Navigate to="/login" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role?.toUpperCase())) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
  const { user, token, loading } = useContext(AuthContext);
  if (loading) return <div>Loading...</div>;
  if (!token || !user) return <Navigate to="/login" replace />;
@@ -202,6 +211,47 @@ function App() {
             }
           />
 
+        {/* Mentor routes */}
+          <Route
+            path="/mentor/dashboard"
+            element={
+              <PrivateRoute allowedRoles={["MENTOR"]}>
+                <MentorDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/mentor/interns"
+            element={
+              <PrivateRoute allowedRoles={["MENTOR"]}>
+                <div>Trang Thực tập sinh</div> {/* hoặc import component thật */}
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/mentor/tasks"
+            element={
+              <PrivateRoute allowedRoles={["MENTOR"]}>
+                <div>Trang Giao nhiệm vụ</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/mentor/feedback"
+            element={
+              <PrivateRoute allowedRoles={["MENTOR"]}>
+                <div>Trang Phản hồi báo cáo</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/mentor/evaluations"
+            element={
+              <PrivateRoute allowedRoles={["MENTOR"]}>
+                <div>Trang Đánh giá cuối kỳ</div>
+              </PrivateRoute>
+            }
+          />
 
 
           {/* Fallback */}
