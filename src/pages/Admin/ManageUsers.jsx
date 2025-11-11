@@ -171,7 +171,7 @@ const mapStatusToVietnamese = (status) => {
        notify(" Đã xóa người dùng thành công");
        await reloadUsers();
      } catch (err) {
-       notify(" Lỗi khi xóa người dùng", "error");
+       notify(err.response.data, "error");
      }
    };
 
@@ -237,14 +237,17 @@ const mapStatusToVietnamese = (status) => {
      handleCloseCreateModal(); // đóng modal
      await reloadUsers();
    } catch (error) {
-     console.error("Lỗi khi lưu người dùng:", error);
-     if (error.response?.status === 409) {
-       // ví dụ backend trả lỗi trùng email
-       setFormErrors({ email: "Email đã tồn tại trong hệ thống" });
-     } else {
-       setFormErrors({ general: "Đã xảy ra lỗi khi lưu người dùng" });
+       console.error("Lỗi khi lưu người dùng:", error);
+       // Gọi toast để hiển thị đúng message
+       notify(error.response.data, "error");
+
+       // Nếu muốn highlight lỗi ở form
+       if (serverMessage.includes("Email")) {
+         setFormErrors({ email: serverMessage });
+       } else {
+         setFormErrors({ general: serverMessage });
+       }
      }
-   }
  };
 
  const handleFormChange = (e) => {
