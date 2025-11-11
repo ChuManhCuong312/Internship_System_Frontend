@@ -33,11 +33,10 @@ export const authService = {
     try {
       const res = await axios.post(`${BASE_URL_AUTH}/register`, formData);
       return (
-        res.data ||
-        "Đăng ký thành công! Mã OTP đã được gửi tới email của bạn."
+        res.data
       );
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
 
@@ -47,7 +46,7 @@ export const authService = {
       const res = await axios.post(`${BASE_URL_AUTH}/login`, credentials);
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error;
     }
   },
 
@@ -59,7 +58,7 @@ export const authService = {
       });
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
 
@@ -71,7 +70,43 @@ export const authService = {
       });
       return res.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error
     }
   },
+
+  // Send reset link
+    sendResetLink: async (email) => {
+      try {
+        const res = await axios.post(`${BASE_URL_AUTH}/forgot-password`, null, {
+          params: { email },
+        });
+        return res.data;
+      } catch (error) {
+        throw error
+      }
+    },
+  // Reset password
+  resetPassword: async (token, newPassword) => {
+    try {
+      const res = await axios.post(`${BASE_URL_AUTH}/reset-password`, null, {
+        params: { token, newPassword } // <-- send as query params
+      });
+      return res.data;
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Resend reset link
+    resendResetLink: async (email) => {
+      try {
+        const res = await axios.post(`${BASE_URL_AUTH}/resend-reset-link`, null, {
+          params: { email },
+        });
+        return res.data;
+      } catch (error) {
+        throw error
+      }
+    },
+
 };
