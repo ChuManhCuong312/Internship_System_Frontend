@@ -10,6 +10,7 @@ import {
   FaChartLine,
   FaThLarge,
   FaSignOutAlt,
+  FaRegUser,
   FaBars,
 } from "react-icons/fa";
 import avatar from "../../assets/avatar.png";
@@ -66,6 +67,7 @@ const AdminSidebar = () => {
         <li>
           <FaThLarge /> {expanded && <span>Cài đặt chung</span>}
         </li>
+
       </ul>
 
       {/* Footer */}
