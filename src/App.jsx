@@ -19,9 +19,9 @@ import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
 // PrivateRoute component
 const PrivateRoute = ({ children, allowedRoles }) => {
-  const { user, token, loading } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
-  if (!token || !user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />
   if (allowedRoles && !allowedRoles.includes(user.role?.toUpperCase())) {
     return <Navigate to="/login" replace />;
   }
