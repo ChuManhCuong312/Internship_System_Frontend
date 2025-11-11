@@ -110,6 +110,13 @@ body, html {
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* === Charts === */
 .chart-placeholder {
   background-color: #f9f9f9;
   border: 1px dashed #ccc;
