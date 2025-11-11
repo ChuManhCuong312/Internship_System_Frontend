@@ -60,7 +60,7 @@ const HRDashboard = () => {
                   labels: ["CNTT", "Kinh tế số", "Thiết kế đồ họa"],
                   datasets: [
                     {
-                      data: [50, 40, 25], // tổng phản hồi mỗi ngành
+                      data: [50, 40, 25],
                       backgroundColor: ["#00acc1", "#26a69a", "#66bb6a"],
                     },
                   ],
