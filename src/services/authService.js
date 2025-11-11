@@ -1,29 +1,20 @@
 // src/services/authService.js
-import axios from "axios";
-import Cookies from "js-cookie";
+import axiosClient from "../api/axiosClient";
 
-const BASE_URL_ADMIN = "http://localhost:8080/api/admin/users";
-const BASE_URL_AUTH = "http://localhost:8080/api/auth";
+const BASE_URL_ADMIN = "/admin/users";
+const BASE_URL_AUTH = "/auth";
 
 export const authService = {
-  // 🔹 Admin: create user manually (with token)
+  // 🔹 Admin: create user manually (token sent via cookie)
   register: async (formData, roleName) => {
     try {
-      const token = Cookies.get("token");
-
-      const res = await axios.post(
+      const res = await axiosClient.post(
         `${BASE_URL_ADMIN}/create?roleName=${roleName}`,
-        formData,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-            "Content-Type": "application/json",
-          },
-        }
+        formData
       );
       return res.data;
     } catch (error) {
-      console.error(error.response?.data || error.message);
+      console.error(error);
       throw error;
     }
   },
@@ -31,82 +22,89 @@ export const authService = {
   // 🔹 Normal user (intern) registration
   registerIntern: async (formData) => {
     try {
-      const res = await axios.post(`${BASE_URL_AUTH}/register`, formData);
-      return (
-        res.data
-      );
-    } catch (error) {
-      throw error
-    }
-  },
-
-  // 🔹 Login
-  login: async (credentials) => {
-    try {
-      const res = await axios.post(`${BASE_URL_AUTH}/login`, credentials);
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/register`, formData);
       return res.data;
     } catch (error) {
       throw error;
     }
   },
 
+  // 🔹 Login (cookie will be set by backend)
+  login: async (credentials) => {
+    try {
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/login`, credentials);
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+    getCurrentUser: async () => {
+    try {
+        const res = await axiosClient.get("/auth/current-user");
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+    },
+
   // 🔹 Verify OTP
   verifyOtp: async (email, otp) => {
     try {
-      const res = await axios.post(`${BASE_URL_AUTH}/verify-otp`, null, {
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/verify-otp`, null, {
         params: { email, otp },
       });
       return res.data;
     } catch (error) {
-      throw error
+      throw error;
     }
   },
 
   // 🔹 Resend OTP
   resendOtp: async (email) => {
     try {
-      const res = await axios.post(`${BASE_URL_AUTH}/resend-otp`, null, {
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/resend-otp`, null, {
         params: { email },
       });
       return res.data;
     } catch (error) {
-      throw error
+      throw error;
     }
   },
 
-  // Send reset link
-    sendResetLink: async (email) => {
-      try {
-        const res = await axios.post(`${BASE_URL_AUTH}/forgot-password`, null, {
-          params: { email },
-        });
-        return res.data;
-      } catch (error) {
-        throw error
-      }
-    },
-  // Reset password
-  resetPassword: async (token, newPassword) => {
+  // 🔹 Send reset link
+  sendResetLink: async (email) => {
     try {
-      const res = await axios.post(`${BASE_URL_AUTH}/reset-password`, null, {
-        params: { token, newPassword } // <-- send as query params
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/forgot-password`, null, {
+        params: { email },
       });
       return res.data;
     } catch (error) {
-      throw error
+      throw error;
     }
   },
 
-  // Resend reset link
-    resendResetLink: async (email) => {
-      try {
-        const res = await axios.post(`${BASE_URL_AUTH}/resend-reset-link`, null, {
-          params: { email },
-        });
-        return res.data;
-      } catch (error) {
-        throw error
-      }
-    },
+  // 🔹 Reset password
+  resetPassword: async (token, newPassword) => {
+    try {
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/reset-password`, null, {
+        params: { token, newPassword },
+      });
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 
+  // 🔹 Resend reset link
+  resendResetLink: async (email) => {
+    try {
+      const res = await axiosClient.post(`${BASE_URL_AUTH}/resend-reset-link`, null, {
+        params: { email },
+      });
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
