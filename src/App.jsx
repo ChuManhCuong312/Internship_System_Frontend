@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
 
-import MentorDashboard from "./pages/Mentor/Dashboard"
+import MentorDashboard from "./pages/Mentor/Dashboard";
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
@@ -36,7 +36,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
 function App() {
  return (
      <UserProvider>
-{/*         <InternsProvider> */}
+       <InternsProvider>
          <Router>
            <Routes>
              {/* Default route */}
@@ -81,26 +81,23 @@ function App() {
                }
              />
 
-
              <Route
                path="/hr/manage-interns"
                element={
                  <PrivateRoute allowedRoles={["HR"]}>
-{/*                    <ManageInterns /> */}
+                   <ManageInterns />
                  </PrivateRoute>
                }
              />
-
 
              <Route
                path="/hr/approve-docs"
                element={
                  <PrivateRoute allowedRoles={["HR"]}>
-{/*                     <ApproveDocs /> */}
+                   <ApproveDocs />
                  </PrivateRoute>
                }
              />
-
 
              {/* Intern routes */}
              <Route
@@ -111,13 +108,20 @@ function App() {
                  </PrivateRoute>
                }
              />
-
+<Route
+               path="/mentor/dashboard"
+               element={
+                 <PrivateRoute allowedRoles={["MENTOR"]}>
+                   <MentorDashboard />
+                 </PrivateRoute>
+               }
+             />
 
              {/* Fallback */}
              <Route path="*" element={<Navigate to="/login" replace />} />
            </Routes>
          </Router>
-{/*         </InternsProvider> */}
+        </InternsProvider>
      </UserProvider>
  );
 }

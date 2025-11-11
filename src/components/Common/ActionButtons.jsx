@@ -1,21 +1,29 @@
 import React from "react";
 import "../../styles/buttons.css";
 
+const statusMap = {
+  PENDING: "Chờ duyệt",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Bị từ chối",
+  ACTIVE: "Đang hoạt động",
+  COMPLETED: "Hợp đồng hoàn tất",
+};
+
 const ActionButtons = ({
  user,
- userRole, // "admin" hoặc "hr"
+ userRole,
  onApprove,
  onReject,
  onEdit,
  onDelete,
  onUnlock,
- onSendContract // Thêm prop mới cho HR
+ onSendContract
 }) => {
  // Render cho Admin
  if (userRole === "ADMIN") {
    return (
      <div className="action-buttons">
-       {user.status === "PENDING_APPROVAL" && (
+       {user.status === "PENDING" && (
          <>
            <button className="btn-approve" onClick={() => onApprove(user.userId)}>
              ✓ Duyệt
@@ -52,44 +60,43 @@ const ActionButtons = ({
    );
  }
 
-
  // Render cho HR
  if (userRole === "hr") {
-   return (
-     <div className="action-buttons">
-       {user.status === "Chờ duyệt" && (
-         <>
-           <button className="btn-approve" onClick={() => onApprove(user.id)}>
-             ✓ Duyệt
+     return (
+       <div className="action-buttons">
+         {user.status === "PENDING" && (
+           <>
+             <button className="btn-approve" onClick={() => onApprove(userId)}>
+               ✓ Duyệt
+             </button>
+             <button className="btn-reject" onClick={() => onReject(userId)}>
+               ✗ Từ chối
+             </button>
+           </>
+         )}
+         {user.status === "APPROVED" && (
+           <button className="btn-send" onClick={() => onSendContract(userId)}>
+             📎 Tải hợp đồng
            </button>
-           <button className="btn-reject" onClick={() => onReject(user.id)}>
-             ✗ Từ chối
+         )}
+         {user.status === "COMPLETED" && (
+           <>
+             <button className="btn-edit" onClick={() => onEdit(user)}>
+               ✎ Sửa
+             </button>
+             <button className="btn-delete" onClick={() => onDelete(userId)}>
+               🗑 Xóa
+             </button>
+           </>
+         )}
+         {user.status === "REJECTED" && (
+           <button className="btn-unlock" onClick={() => onUnlock(userId)}>
+             🔓 Mở khóa
            </button>
-         </>
-       )}
-       {user.status === "Đã duyệt" && (
-         <button className="btn-send" onClick={() => onSendContract(user.id)}>
-           📎 Tải hợp đồng
-         </button>
-       )}
-       {user.status === "Hợp đồng hoàn tất" && (
-         <>
-           <button className="btn-edit" onClick={() => onEdit(user)}>
-             ✎ Sửa
-           </button>
-           <button className="btn-delete" onClick={() => onDelete(user.id)}>
-             🗑 Xóa
-           </button>
-         </>
-       )}
-       {user.status === "Bị từ chối" && (
-         <button className="btn-unlock" onClick={() => onUnlock(user.id)}>
-           🔓 Mở khóa
-         </button>
-       )}
-     </div>
-   );
- }
+         )}
+       </div>
+     );
+   }
 
 
  return null;
