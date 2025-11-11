@@ -30,9 +30,12 @@ const ActionButtons = ({
            <button className="btn-edit" onClick={() => onEdit(user)}>
              ✎ Sửa
            </button>
-           <button className="btn-delete" onClick={() => onDelete(user.userId)}>
-             🗑 Xóa
-           </button>
+           {/* Chỉ hiển thị nút Xóa nếu không phải admin */}
+             {user.roleId !== 1 && (
+               <button className="btn-delete" onClick={() => onDelete(user.userId)}>
+                 🗑 Xóa
+               </button>
+             )}
          </>
        )}
        {user.status === "REJECTED" && (
