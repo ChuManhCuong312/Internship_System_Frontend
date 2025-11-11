@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSpring, animated } from '@react-spring/web';
+import { useNavigate } from "react-router-dom";
 import {
   FaHome, FaUser, FaCalendarAlt, FaClock, FaTasks,
   FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars
@@ -9,6 +10,7 @@ import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
 
   // Animation cho width
   const sidebarStyle = useSpring({
@@ -42,8 +44,11 @@ const InternSidebar = () => {
         <li><FaBell /> {expanded && <span>Thông báo</span>}</li>
         <li><FaRobot /> {expanded && <span>Chatbot</span>}</li>
       </ul>
+      {/* Footer */}
       <div className="sidebar-footer">
-        <button><FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}</button>
+        <button onClick={() => navigate("/login")}>
+          <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
+        </button>
       </div>
     </animated.div>
   );
