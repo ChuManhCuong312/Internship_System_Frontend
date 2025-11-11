@@ -43,14 +43,19 @@ const HRInternRow = ({
     <td>
       {intern.documents && intern.documents.length > 0
         ? intern.documents.map((doc, idx) => (
-            <a key={idx} href="#" download={doc} className="download-link">📄 {doc}</a>
+            <a key={idx} href={`/uploads/${doc}`} download className="download-link">
+              📄 {doc}
+            </a>
+
           ))
         : "-"
       }
     </td>
 {showStatus && (
-      <td><StatusBadge status={statusMap[intern.status]} /></td>
-    )}    <td>{intern.createdAt ? intern.createdAt : "-"}</td>
+  <td><StatusBadge status={statusMap[intern.status]} /></td>
+)}
+<td>{intern.createdAt ? intern.createdAt : "-"}</td>
+
     <td>
       <ActionButtons
         user={intern}
