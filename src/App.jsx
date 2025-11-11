@@ -17,6 +17,10 @@ import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import OAuthSuccess from "./pages/Auth/OAuthSuccess";
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
+import MyTasks from "./pages/Intern/MyTasks";
+import Attendance from "./pages/Intern/Attendance";
+import AllowanceRequest from "./pages/Intern/AllowanceRequest";
+import SupportRequest from "./pages/Intern/SupportRequest";
 
 // PrivateRoute component
 const PrivateRoute = ({ children, allowedRoles }) => {
@@ -111,6 +115,38 @@ function App() {
             }
           />
 
+          <Route
+            path="/intern/tasks"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <MyTasks />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/intern/attendance"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <Attendance />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/intern/allowance"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <AllowanceRequest />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/intern/support"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <SupportRequest />
+              </PrivateRoute>
+            }
+          />
 
 
           {/* Fallback */}
