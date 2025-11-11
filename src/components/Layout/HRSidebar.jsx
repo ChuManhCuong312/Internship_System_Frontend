@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSpring, animated } from "@react-spring/web";
-import { FaHome, FaUser, FaChalkboardTeacher, FaTasks, FaClock, FaLifeRing, FaChartBar, FaSignOutAlt, FaBars } from "react-icons/fa";
+import { FaHome, FaUser, FaChalkboardTeacher, FaTasks, FaClock, FaLifeRing, FaChartBar, FaSignOutAlt, FaBars, FaRegUser } from "react-icons/fa";
 import avatar from "../../assets/avatar.png";
 import "../../styles/sideBar.css";
 
 const HRSidebar = () => {
   const [expanded, setExpanded] = useState(false);
   const [openSubMenu, setOpenSubMenu] = useState(false);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const sidebarStyle = useSpring({
     width: expanded ? 250 : 60,
     config: { tension: 220, friction: 20 },
@@ -52,14 +52,18 @@ const navigate = useNavigate();
         <li><FaClock /> {expanded && <span>Chấm công & Thời gian</span>}</li>
         <li><FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}</li>
         <li><FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}</li>
+        <li onClick={() => navigate("/Admin/InternProfile")}>
+          <FaRegUser /> {expanded && <span>Tìm kiếm profile intern</span>}
+        </li>
+
       </ul>
 
       <div className="sidebar-footer">
-              <button onClick={() => navigate("/login")}>
-                <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
-              </button>
-            </div>
-          </animated.div>
+        <button onClick={() => navigate("/login")}>
+          <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
+        </button>
+      </div>
+    </animated.div>
   );
 };
 

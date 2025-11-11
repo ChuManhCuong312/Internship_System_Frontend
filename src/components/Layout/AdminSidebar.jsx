@@ -67,9 +67,6 @@ const AdminSidebar = () => {
         <li>
           <FaThLarge /> {expanded && <span>Cài đặt chung</span>}
         </li>
-        <li>
-          <FaRegUser /> {expanded && <span>Tìm kiếm profile intern</span>}
-        </li>
 
       </ul>
 
