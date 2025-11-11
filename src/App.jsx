@@ -260,6 +260,5 @@ function App() {
       </Router>
     </InternsProvider>
   );
-}
 
 export default App;
