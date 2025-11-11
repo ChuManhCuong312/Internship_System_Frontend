@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "../../components/Layout/Modal";
+import Modal from "../../../../components/Layout/Modal";
 
 const AssignMentorModal = ({ intern, mentors, selectedMentor, setSelectedMentor, onClose, onSave, error }) => (
   <Modal title={`Phân công mentor cho ${intern?.fullName}`} onClose={onClose}>
