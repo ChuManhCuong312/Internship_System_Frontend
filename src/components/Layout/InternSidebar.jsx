@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSpring, animated } from '@react-spring/web';
+import { useNavigate } from "react-router-dom";
 import {
   FaHome, FaUser, FaCalendarAlt, FaClock, FaTasks,
   FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars
@@ -9,6 +10,7 @@ import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
 
   // Animation cho width
   const sidebarStyle = useSpring({
@@ -33,8 +35,11 @@ const InternSidebar = () => {
         </div>
       </div>
       <ul className="sidebar-menu">
-        <li><FaHome /> {expanded && <span>Trang chủ</span>}</li>
-        <li><FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
+
+        <li onClick={() => navigate("/intern/dashboard")}><FaHome /> {expanded && <span>Trang chủ</span>}</li>
+
+        <li onClick={() => navigate("/intern/profiles")}>
+          <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
         <li><FaCalendarAlt /> {expanded && <span>Lịch & Chương trình</span>}</li>
         <li><FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}</li>
         <li><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
@@ -42,8 +47,11 @@ const InternSidebar = () => {
         <li><FaBell /> {expanded && <span>Thông báo</span>}</li>
         <li><FaRobot /> {expanded && <span>Chatbot</span>}</li>
       </ul>
+      {/* Footer */}
       <div className="sidebar-footer">
-        <button><FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}</button>
+        <button onClick={() => navigate("/login")}>
+          <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
+        </button>
       </div>
     </animated.div>
   );

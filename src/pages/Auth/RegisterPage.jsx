@@ -30,8 +30,17 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const phone = form.phone.trim();
+
+      // Validate phone: 10 digits, all numbers, starts with 0
+        if (!/^0\d{9}$/.test(phone)) {
+          setError("Số điện thoại phải bao gồm 10 chữ số, bắt đầu bằng 0 và chỉ chứa số.");
+          setSuccess("");
+          return;
+        }
+
     if (form.password !== form.confirmPassword) {
-      setError("Mật khẩu không trùng với xác nhận mật khẩu");
+      setError("Mật khẩu phải trùng với xác nhận mật khẩu");
       return;
     }
 
@@ -50,11 +59,11 @@ const RegisterPage = () => {
     try {
       setLoading(true);
       const res = await authService.registerIntern(requestData); // sử dụng endpoint intern
-      setSuccess(res);
+      setSuccess("Đăng ký thành công! Mã OTP đã được gửi tới email của bạn.");
       setError("");
       setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`), 5000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Đăng ký không thành công");
+      setError("Đăng ký không thành công");
       setSuccess("");
     } finally {
       setLoading(false);
