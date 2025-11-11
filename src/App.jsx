@@ -53,6 +53,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+
             {/* Admin routes */}
             <Route
               path="/admin/dashboard"
