@@ -28,6 +28,7 @@ const LoginPage = () => {
       // Redirect based on role
       if (loggedInUser.role === "ADMIN") navigate("/Admin/Dashboard");
       else if (loggedInUser.role === "HR") navigate("/HR/Dashboard");
+      else if (loggedInUser.role === "MENTOR") navigate("/mentor/dashboard");
       else navigate("/Intern/Dashboard");
     } catch (err) {
         if (err.response) {

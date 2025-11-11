@@ -43,19 +43,19 @@ const MentorSidebar = () => {
 
       {/* Menu */}
       <ul className="sidebar-menu">
-        <li onClick={() => navigate("/Mentor/Dashboard")}>
+        <li onClick={() => navigate("/mentor/dashboard")}>
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
-        <li onClick={() => navigate("/Mentor/Interns")}>
+        <li onClick={() => navigate("/mentor/interns")}>
           <FaUserGraduate /> {expanded && <span>Thực tập sinh</span>}
         </li>
-        <li onClick={() => navigate("/Mentor/Tasks")}>
+        <li onClick={() => navigate("/mentor/tasks")}>
           <FaClipboardList /> {expanded && <span>Giao nhiệm vụ</span>}
         </li>
-        <li onClick={() => navigate("/Mentor/Feedback")}>
+        <li onClick={() => navigate("/mentor/feedback")}>
           <FaRegCommentDots /> {expanded && <span>Phản hồi báo cáo</span>}
         </li>
-        <li onClick={() => navigate("/Mentor/Evaluations")}>
+        <li onClick={() => navigate("/mentor/evaluations")}>
           <FaChartBar /> {expanded && <span>Đánh giá cuối kỳ</span>}
         </li>
       </ul>
