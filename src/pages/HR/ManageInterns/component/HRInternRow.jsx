@@ -17,7 +17,8 @@ const HRInternRow = ({
   handleEdit,
   handleDelete,
   handleUnlock,
-  handleSendContract
+  handleSendContract,
+  showStatus = false
 }) => (
   <tr>
     <td>{intern.fullName}</td>
@@ -47,8 +48,9 @@ const HRInternRow = ({
         : "-"
       }
     </td>
-<td><StatusBadge status={statusMap[intern.status]} /></td>
-    <td>{intern.createdAt ? intern.createdAt : "-"}</td>
+{showStatus && (
+      <td><StatusBadge status={statusMap[intern.status]} /></td>
+    )}    <td>{intern.createdAt ? intern.createdAt : "-"}</td>
     <td>
       <ActionButtons
         user={intern}
