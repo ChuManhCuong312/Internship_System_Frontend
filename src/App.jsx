@@ -21,6 +21,7 @@ import MyTasks from "./pages/Intern/MyTasks";
 import Attendance from "./pages/Intern/Attendance";
 import AllowanceRequest from "./pages/Intern/AllowanceRequest";
 import SupportRequest from "./pages/Intern/SupportRequest";
+import Calendar from "./pages/Intern/Calendar";
 
 // PrivateRoute component
 const PrivateRoute = ({ children, allowedRoles }) => {
@@ -64,6 +65,15 @@ function App() {
             element={
               <PrivateRoute allowedRoles={["ADMIN"]}>
                 <ManageUsers />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/intern/calendar"
+            element={
+              <PrivateRoute allowedRoles={["INTERN"]}>
+                <Calendar />
               </PrivateRoute>
             }
           />
