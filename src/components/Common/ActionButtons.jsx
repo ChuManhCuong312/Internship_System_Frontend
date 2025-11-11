@@ -62,46 +62,44 @@ const ActionButtons = ({
 
  // Render cho HR
  if (userRole === "hr") {
-     return (
-       <div className="action-buttons">
-         {user.status === "PENDING" && (
-           <>
-             <button className="btn-approve" onClick={() => onApprove(userId)}>
-               ✓ Duyệt
-             </button>
-             <button className="btn-reject" onClick={() => onReject(userId)}>
-               ✗ Từ chối
-             </button>
-           </>
-         )}
-         {user.status === "APPROVED" && (
-           <button className="btn-send" onClick={() => onSendContract(userId)}>
-             📎 Tải hợp đồng
+   return (
+     <div className="action-buttons">
+       {user.status === "PENDING" && (
+         <>
+           <button className="btn-approve" onClick={() => onApprove(user)}>
+             ✓ Duyệt
            </button>
-         )}
-         {user.status === "COMPLETED" && (
-           <>
-             <button className="btn-edit" onClick={() => onEdit(user)}>
-               ✎ Sửa
-             </button>
-             <button className="btn-delete" onClick={() => onDelete(userId)}>
-               🗑 Xóa
-             </button>
-           </>
-         )}
-         {user.status === "REJECTED" && (
-           <button className="btn-unlock" onClick={() => onUnlock(userId)}>
-             🔓 Mở khóa
+           <button className="btn-reject" onClick={() => onReject(user)}>
+             ✗ Từ chối
            </button>
-         )}
-       </div>
-     );
-   }
-
+         </>
+       )}
+       {user.status === "APPROVED" && (
+         <button className="btn-send" onClick={() => onSendContract(user)}>
+           📎 Tải hợp đồng
+         </button>
+       )}
+       {user.status === "COMPLETED" && (
+         <>
+           <button className="btn-edit" onClick={() => onEdit(user)}>
+             ✎ Sửa
+           </button>
+           <button className="btn-delete" onClick={() => onDelete(user)}>
+             🗑 Xóa
+           </button>
+         </>
+       )}
+       {user.status === "REJECTED" && (
+         <button className="btn-unlock" onClick={() => onUnlock(user)}>
+           🔓 Mở khóa
+         </button>
+       )}
+     </div>
+   );
+ }
 
  return null;
 };
-
 
 export default ActionButtons;
 
