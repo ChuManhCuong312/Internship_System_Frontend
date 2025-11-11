@@ -49,8 +49,16 @@
   color: #c62828;
   border: 1px solid rgba(244, 67, 54, 0.3);
 }
+.status-chưa-xác-thực{
+background: rgba(244, 67, 54, 0.2);
+color: #c62828;
+border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+=======
 .status-hợp-đồng-hoàn-tất {
   background: rgba(33, 150, 243, 0.2);
   color: #0d47a1;
   border: 1px solid rgba(33, 150, 243, 0.3);
 }
+
