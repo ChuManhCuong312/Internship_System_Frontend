@@ -26,6 +26,18 @@ const hrApi = {
     });
     return res.data;
   },
+
+  updateInternStatus: async (token, id, status, rejectionReason = null) => {
+    const params = { status };
+    if (rejectionReason) params.rejectionReason = rejectionReason;
+
+    const res = await axios.patch(`${API_URL}/${id}/status`, null, {
+      ...authHeader(token),
+      params,
+    });
+    return res.data;
+  },
+
 };
 
 export default hrApi;
