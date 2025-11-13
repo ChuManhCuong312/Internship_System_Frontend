@@ -44,6 +44,13 @@ const ManageInterns = () => {
     fetchInterns();
   }, [token, searchTerm, statusFilter, majorFilter]);
 
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("");
+    setMajorFilter("");
+    fetchInterns();
+  };
+
   if (loading) return <p>Đang tải dữ liệu...</p>;
 
   return (
@@ -57,6 +64,7 @@ const ManageInterns = () => {
           setStatusFilter={setStatusFilter}
           majorFilter={majorFilter}
           setMajorFilter={setMajorFilter}
+          onClearFilters={handleClearFilters}
         />
         <HRInternTable interns={interns} />
       </div>
