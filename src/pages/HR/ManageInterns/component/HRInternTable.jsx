@@ -1,7 +1,7 @@
 import React from "react";
 import HRInternRow from "./HRInternRow";
 
-const HRInternTable = ({ interns }) => {
+const HRInternTable = ({ interns, page, size, fetchInterns }) => {
   const translateStatus = (status) => {
     switch (status) {
       case "PENDING":
@@ -38,12 +38,13 @@ const HRInternTable = ({ interns }) => {
         <tbody>
           {Array.isArray(interns) && interns.length > 0 ? (
             interns.map((intern, index) => (
-              <HRInternRow
-                key={intern.internId}
-                intern={intern}
-                index={index}
-                translateStatus={translateStatus}
-              />
+                <HRInternRow
+                  key={intern.internId}
+                  intern={intern}
+                  index={page * size + index}
+                  translateStatus={translateStatus}
+                  onStatusChange={fetchInterns}
+                />
             ))
           ) : (
             <tr>

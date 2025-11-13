@@ -77,7 +77,7 @@ const ManageInterns = () => {
           setMajorFilter={setMajorFilter}
           onClearFilters={handleClearFilters}
         />
-        <HRInternTable interns={interns} />
+        <HRInternTable interns={interns} page={page} size={size} fetchInterns={fetchInterns} />
 
         {/* Pagination controls */}
         <div className="pagination">
