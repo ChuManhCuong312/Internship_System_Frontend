@@ -3,32 +3,48 @@ import hrApi from "../../../api/hrApi";
 import HRInternTable from "./component/HRInternTable";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
+import HRInternHeader from "./component/HRInternHeader";
 
 const ManageInterns = () => {
-  const { token } = useContext(AuthContext); // lấy token từ context
+  const { token } = useContext(AuthContext);
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInterns = async () => {
-      try {
-        if (!token) {
-          console.warn("Không có token, không thể gọi API");
-          setInterns([]);
-          return;
-        }
-        const res = await hrApi.getAllInterns(token);
-        const data = Array.isArray(res) ? res : [];
-        setInterns(data);
-      } catch (err) {
-        console.error("Error fetching interns:", err);
+  // state cho filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [majorFilter, setMajorFilter] = useState("");
+
+  const fetchInterns = async () => {
+    try {
+      if (!token) {
         setInterns([]);
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
+      // nếu có filter thì gọi search API
+      if (searchTerm || statusFilter || majorFilter) {
+        const res = await hrApi.searchInterns(token, {
+          searchTerm,
+          major: majorFilter,
+          status: statusFilter,
+        });
+        setInterns(Array.isArray(res) ? res : []);
+      } else {
+        const res = await hrApi.getAllInterns(token);
+        setInterns(Array.isArray(res) ? res : []);
+      }
+    } catch (err) {
+      console.error("Error fetching interns:", err);
+      setInterns([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // gọi lại khi filter thay đổi
+  useEffect(() => {
     fetchInterns();
-  }, [token]);
+  }, [token, searchTerm, statusFilter, majorFilter]);
 
   if (loading) return <p>Đang tải dữ liệu...</p>;
 
@@ -36,7 +52,14 @@ const ManageInterns = () => {
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
-        <h2>Quản lý thực tập sinh</h2>
+        <HRInternHeader
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          majorFilter={majorFilter}
+          setMajorFilter={setMajorFilter}
+        />
         <HRInternTable interns={interns} />
       </div>
     </div>

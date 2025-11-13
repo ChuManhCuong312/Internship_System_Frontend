@@ -12,7 +12,10 @@ const HRInternRow = ({ intern, index, translateStatus }) => {
       <td>{intern.gpa}</td>
       <td>
         {intern.cvPath && (
-          <a href={`/${intern.cvPath}`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`/${intern.cvPath}`}
+            download
+          >
             CV
           </a>
         )}
@@ -21,8 +24,7 @@ const HRInternRow = ({ intern, index, translateStatus }) => {
             {" | "}
             <a
               href={`/${intern.internshipApplicationPath}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              download
             >
               Application
             </a>
