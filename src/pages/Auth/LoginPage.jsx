@@ -26,10 +26,10 @@ const LoginPage = () => {
       const loggedInUser = await login(email, password);
 
       // Redirect based on role
-      if (loggedInUser.role === "ADMIN") navigate("/Admin/Dashboard");
-      else if (loggedInUser.role === "HR") navigate("/HR/Dashboard");
+      if (loggedInUser.role === "ADMIN") navigate("/admin/dashboard");
+      else if (loggedInUser.role === "HR") navigate("/hr/dashboard");
       else if (loggedInUser.role === "MENTOR") navigate("/mentor/dashboard");
-      else navigate("/Intern/Dashboard");
+      else navigate("/intern/dashboard");
     } catch (err) {
         if (err.response) {
           if (err.response.status === 401) {
