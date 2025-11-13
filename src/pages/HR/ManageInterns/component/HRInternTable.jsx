@@ -1,7 +1,7 @@
 import React from "react";
+import HRInternRow from "./HRInternRow";
 
 const HRInternTable = ({ interns }) => {
-  // Hàm chuyển trạng thái sang tiếng Việt
   const translateStatus = (status) => {
     switch (status) {
       case "PENDING":
@@ -38,36 +38,12 @@ const HRInternTable = ({ interns }) => {
         <tbody>
           {Array.isArray(interns) && interns.length > 0 ? (
             interns.map((intern, index) => (
-              <tr key={intern.internId}>
-                <td>{index + 1}</td> {/* STT thay cho ID */}
-                <td>{intern.fullName}</td>
-                <td>{intern.email}</td>
-                <td>{intern.phone}</td>
-                <td>{intern.major}</td>
-                <td>{intern.school}</td>
-                <td>{intern.gpa}</td>
-                <td>
-                  {intern.cvPath && (
-                    <a href={`/${intern.cvPath}`} target="_blank" rel="noopener noreferrer">
-                      CV
-                    </a>
-                  )}
-                  {intern.internshipApplicationPath && (
-                    <>
-                      {" | "}
-                      <a
-                        href={`/${intern.internshipApplicationPath}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Application
-                      </a>
-                    </>
-                  )}
-                  {!intern.cvPath && !intern.internshipApplicationPath && "Chưa có"}
-                </td>
-                <td>{translateStatus(intern.status)}</td>
-              </tr>
+              <HRInternRow
+                key={intern.internId}
+                intern={intern}
+                index={index}
+                translateStatus={translateStatus}
+              />
             ))
           ) : (
             <tr>

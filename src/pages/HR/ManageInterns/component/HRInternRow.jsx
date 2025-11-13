@@ -1,74 +1,38 @@
 import React from "react";
-import StatusBadge from "../../../../components/Common/StatusBadge";
-import ActionButtons from "../../../../components/Common/ActionButtons";
 
-const statusMap = {
-  PENDING: "Chờ duyệt",
-  APPROVED: "Đã duyệt",
-  REJECTED: "Bị từ chối",
-  ACTIVE: "Đang hoạt động",
-  COMPLETED: "Hợp đồng hoàn tất"
-};
-const HRInternRow = ({
-  intern,
-  handleAssignMentor,
-  handleApprove,
-  handleReject,
-  handleEdit,
-  handleDelete,
-  handleUnlock,
-  handleSendContract,
-  showStatus = false
-}) => (
-  <tr>
-    <td>{intern.fullName}</td>
-    <td>{intern.email}</td>
-    <td>{intern.school}</td>
-    <td>{intern.major}</td>
-    {handleAssignMentor && (
+const HRInternRow = ({ intern, index, translateStatus }) => {
+  return (
+    <tr>
+      <td>{index + 1}</td>
+      <td>{intern.fullName}</td>
+      <td>{intern.email}</td>
+      <td>{intern.phone}</td>
+      <td>{intern.major}</td>
+      <td>{intern.school}</td>
+      <td>{intern.gpa}</td>
       <td>
-        {(!intern.mentor || intern.mentor === "-") ? (
-          <button
-            className="btn-assign"
-            onClick={() => handleAssignMentor(intern)}
-          >
-            👨‍🏫 Phân công
-          </button>
-        ) : (
-          intern.mentor
+        {intern.cvPath && (
+          <a href={`/${intern.cvPath}`} target="_blank" rel="noopener noreferrer">
+            CV
+          </a>
         )}
-      </td>
-    )}
-
-    <td>
-      {intern.documents && intern.documents.length > 0
-        ? intern.documents.map((doc, idx) => (
-            <a key={idx} href={`/uploads/${doc}`} download className="download-link">
-              📄 {doc}
+        {intern.internshipApplicationPath && (
+          <>
+            {" | "}
+            <a
+              href={`/${intern.internshipApplicationPath}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Application
             </a>
-
-          ))
-        : "-"
-      }
-    </td>
-{showStatus && (
-  <td><StatusBadge status={statusMap[intern.status]} /></td>
-)}
-<td>{intern.createdAt ? intern.createdAt : "-"}</td>
-
-    <td>
-      <ActionButtons
-        user={intern}
-        userRole="hr"
-        onApprove={handleApprove}
-        onReject={handleReject}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onUnlock={handleUnlock}
-        onSendContract={handleSendContract}
-      />
-    </td>
-  </tr>
-);
+          </>
+        )}
+        {!intern.cvPath && !intern.internshipApplicationPath && "Chưa có"}
+      </td>
+      <td>{translateStatus(intern.status)}</td>
+    </tr>
+  );
+};
 
 export default HRInternRow;
