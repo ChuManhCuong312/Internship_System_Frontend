@@ -21,7 +21,13 @@ export const AuthProvider = ({ children }) => {
          console.warn("Token expired");
          Cookies.remove("token");
        } else {
-         setUser({ email: payload.sub, role: payload.role || "INTERN" });
+         // Try to get userId and fullName from token payload if available
+         setUser({ 
+           email: payload.sub || payload.email, 
+           role: payload.role || "INTERN",
+           userId: payload.userId,
+           fullName: payload.fullName
+         });
          setToken(existingToken);
        }
      } catch (err) {
@@ -45,10 +51,17 @@ export const AuthProvider = ({ children }) => {
         sameSite: "Strict",
       });
 
-      const payload = jwtDecode(jwt);
-      setUser({ email: payload.sub, role: payload.role || "INTERN" });
+      // Store full user data from login response
+      const userData = {
+        email: res.email,
+        role: res.role,
+        userId: res.userId,
+        fullName: res.fullName || res["fullName:"] // Handle both formats
+      };
+      
+      setUser(userData);
       setToken(jwt);
-      return payload;
+      return userData;
     } catch (err) {
       console.error("Login error:", err);
       throw err;
