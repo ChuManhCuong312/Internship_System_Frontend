@@ -12,21 +12,15 @@ const HRInternRow = ({ intern, index, translateStatus }) => {
       <td>{intern.gpa}</td>
       <td>
         {intern.cvPath && (
-          <a
-            href={`/${intern.cvPath}`}
-            download
-          >
-            CV
+          <a href={`/${intern.cvPath}`} download>
+            {intern.cvPath}
           </a>
         )}
         {intern.internshipApplicationPath && (
           <>
             {" | "}
-            <a
-              href={`/${intern.internshipApplicationPath}`}
-              download
-            >
-              Application
+            <a href={`/${intern.internshipApplicationPath}`} download>
+              {intern.internshipApplicationPath}
             </a>
           </>
         )}

@@ -10,7 +10,6 @@ const ManageInterns = () => {
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // state cho filter
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
@@ -21,7 +20,7 @@ const ManageInterns = () => {
         setInterns([]);
         return;
       }
-      // nếu có filter thì gọi search API
+
       if (searchTerm || statusFilter || majorFilter) {
         const res = await hrApi.searchInterns(token, {
           searchTerm,
@@ -41,7 +40,6 @@ const ManageInterns = () => {
     }
   };
 
-  // gọi lại khi filter thay đổi
   useEffect(() => {
     fetchInterns();
   }, [token, searchTerm, statusFilter, majorFilter]);

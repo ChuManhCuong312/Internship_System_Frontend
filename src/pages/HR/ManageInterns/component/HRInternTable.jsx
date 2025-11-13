@@ -15,7 +15,7 @@ const HRInternTable = ({ interns }) => {
       case "COMPLETED":
         return "Hoàn thành";
       default:
-        return "Không rõ";
+        return "Chưa gửi CV";
     }
   };
 
