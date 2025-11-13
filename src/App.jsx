@@ -16,7 +16,7 @@ import VerifyOtpPage from "./pages/Auth/VerifyOtpPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import OAuthSuccess from "./pages/Auth/OAuthSuccess";
-// import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
+import { UserProvider } from "./context/UserContext.jsx";
 import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import MyTasks from "./pages/Intern/MyTasks";
@@ -54,6 +54,7 @@ function App() {
             <Route path="/oauth-success" element={<OAuthSuccess />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+
 
             {/* Admin routes */}
             <Route
@@ -95,6 +96,16 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <ApproveDocs />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Mentor routes */}
+            <Route
+              path="/mentor/dashboard"
+              element={
+                <PrivateRoute allowedRoles={["MENTOR"]}>
+                  <MentorDashboard />
                 </PrivateRoute>
               }
             />
@@ -148,6 +159,14 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/intern/calendar"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <Calendar />
+                </PrivateRoute>
+              }
+            />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
@@ -159,4 +178,3 @@ function App() {
 }
 
 export default App;
-
