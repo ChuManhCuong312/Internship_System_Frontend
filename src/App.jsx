@@ -16,7 +16,6 @@ import VerifyOtpPage from "./pages/Auth/VerifyOtpPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import OAuthSuccess from "./pages/Auth/OAuthSuccess";
-import { UserProvider } from "./context/UserContext.jsx";
 import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import MyTasks from "./pages/Intern/MyTasks";
