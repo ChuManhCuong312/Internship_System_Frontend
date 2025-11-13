@@ -29,7 +29,6 @@ const HRInternTable = ({ interns }) => {
             <th>Email</th>
             <th>Số điện thoại</th>
             <th>Ngành</th>
-            <th>Trường</th>
             <th>GPA</th>
             <th>Tài liệu</th>
             <th>Trạng thái</th>
