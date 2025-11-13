@@ -14,6 +14,11 @@ const ManageInterns = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
 
+  // thêm state cho phân trang
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+
   const fetchInterns = async () => {
     try {
       if (!token) {
@@ -21,17 +26,22 @@ const ManageInterns = () => {
         return;
       }
 
+      let res;
       if (searchTerm || statusFilter || majorFilter) {
-        const res = await hrApi.searchInterns(token, {
+        res = await hrApi.searchInterns(token, {
           searchTerm,
           major: majorFilter,
           status: statusFilter,
+          page,
+          size,
         });
-        setInterns(Array.isArray(res) ? res : []);
       } else {
-        const res = await hrApi.getAllInterns(token);
-        setInterns(Array.isArray(res) ? res : []);
+        res = await hrApi.getAllInterns(token, page, size);
       }
+
+      // res là object Page
+      setInterns(res.content || []);
+      setTotalPages(res.totalPages || 0);
     } catch (err) {
       console.error("Error fetching interns:", err);
       setInterns([]);
@@ -42,12 +52,13 @@ const ManageInterns = () => {
 
   useEffect(() => {
     fetchInterns();
-  }, [token, searchTerm, statusFilter, majorFilter]);
+  }, [token, searchTerm, statusFilter, majorFilter, page, size]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
     setStatusFilter("");
     setMajorFilter("");
+    setPage(0);
     fetchInterns();
   };
 
@@ -67,6 +78,29 @@ const ManageInterns = () => {
           onClearFilters={handleClearFilters}
         />
         <HRInternTable interns={interns} />
+
+        {/* Pagination controls */}
+        <div className="pagination">
+          <button
+            className={`pagination-btn ${page === 0 ? "" : ""}`}
+            disabled={page === 0}
+            onClick={() => setPage(page - 1)}
+          >
+            Trang trước
+          </button>
+
+          <span className="pagination-info">
+            Trang {page + 1} / {totalPages}
+          </span>
+
+          <button
+            className={`pagination-btn ${page + 1 >= totalPages ? "" : ""}`}
+            disabled={page + 1 >= totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Trang sau
+          </button>
+        </div>
       </div>
     </div>
   );

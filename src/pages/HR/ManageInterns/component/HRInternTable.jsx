@@ -32,6 +32,7 @@ const HRInternTable = ({ interns }) => {
             <th>GPA</th>
             <th>Tài liệu</th>
             <th>Trạng thái</th>
+            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>

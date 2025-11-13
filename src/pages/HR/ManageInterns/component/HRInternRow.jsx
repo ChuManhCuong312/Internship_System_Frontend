@@ -8,7 +8,6 @@ const HRInternRow = ({ intern, index, translateStatus }) => {
       <td>{intern.email}</td>
       <td>{intern.phone}</td>
       <td>{intern.major}</td>
-      <td>{intern.school}</td>
       <td>{intern.gpa}</td>
       <td>
         {intern.cvPath && (

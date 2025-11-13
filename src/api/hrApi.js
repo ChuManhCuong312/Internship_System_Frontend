@@ -6,13 +6,16 @@ const authHeader = (token) => ({
 });
 
 const hrApi = {
-  getAllInterns: async (token) => {
-    const response = await axios.get(API_URL, authHeader(token));
+  getAllInterns: async (token, page = 0, size = 10) => {
+    const response = await axios.get(API_URL, {
+      ...authHeader(token),
+      params: { page, size },
+    });
     return response.data;
   },
 
-  searchInterns: async (token, { searchTerm, major, status }) => {
-    const params = {};
+  searchInterns: async (token, { searchTerm, major, status, page = 0, size = 10 }) => {
+    const params = { page, size };
     if (searchTerm) params.searchTerm = searchTerm;
     if (major) params.major = major;
     if (status) params.status = status;
@@ -26,5 +29,3 @@ const hrApi = {
 };
 
 export default hrApi;
-
-
