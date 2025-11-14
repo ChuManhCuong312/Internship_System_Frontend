@@ -12,7 +12,7 @@ const Pagination = ({ currentPage, totalPages, totalItems, onPageChange }) => {
         ← Trang trước
       </button>
       <span className="pagination-info">
-        Trang {currentPage} / {totalPages} ({totalItems} người dùng)
+        Trang {currentPage} / {totalPages}
       </span>
       <button
         onClick={() => onPageChange(currentPage + 1)}
