@@ -3,7 +3,7 @@ import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 import RejectModal from "../modals/RejectModal";
 
-const HRInternRow = ({ intern, index, translateStatus, onStatusChange }) => {
+const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reason, setReason] = useState("");
@@ -35,6 +35,8 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange }) => {
         <td>{intern.phone}</td>
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
+        <td>{intern.dob}</td>
+        <td>{intern.address}</td>
         <td>
           {intern.cvFile && (
             <a href={`/${intern.cvFile}`} download>{intern.cvFile}</a>
@@ -61,6 +63,13 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange }) => {
               </button>
             </div>
           )}
+      {intern.status === "APPROVED" && (
+                  <div className="action-buttons">
+                    <button className="btn-edit" onClick={() => onEdit(intern)}>
+                      ✏️ Sửa hồ sơ
+                    </button>
+          </div>
+        )}
         </td>
       </tr>
 
