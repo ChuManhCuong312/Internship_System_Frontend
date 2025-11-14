@@ -1,119 +1,211 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState } from "react";
 import HRSidebar from "../../../components/Layout/HRSidebar";
-import Pagination from "../../../components/Common/Pagination";
-import { InternsContext } from "../../../context/InternsContext";
-import { AuthContext } from "../../../context/AuthContext";
 import "../../../styles/manageUsers.css";
-
-
+import AssignInternForm from "./AssignInternForm";
+import Pagination from "../../../components/Common/Pagination";
 
 const MentorAssigns = () => {
+  const [selectedTab, setSelectedTab] = useState("interns");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterMentor, setFilterMentor] = useState("");
+  const [sortOption, setSortOption] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [filteredAssignments, setFilteredAssignments] = useState([]);
+  const itemsPerPage = 10
 
-  // ✅ Static data
-  const mentorAssignments = [
-    { id: 1, mentorName: "Nguyễn Văn A", internName: "Trần Thị B", assignedAt: "2025-11-13 10:00" },
-    { id: 2, mentorName: "Lê Văn C", internName: "Phạm Văn D", assignedAt: "2025-11-13 11:00" },
-    { id: 3, mentorName: "Nguyễn Văn A", internName: "Ngô Văn E", assignedAt: "2025-11-13 12:00" },
-    { id: 4, mentorName: "Lê Văn C", internName: "Đặng Thị F", assignedAt: "2025-11-13 13:00" },
-    // Add more static rows if needed
-  ];
+  const [interns, setInterns] = useState([
+    { id: 1, name: "Trần Thị B", mentorName: "Nguyễn Văn A" },
+    { id: 2, name: "Phạm Văn D", mentorName: "Lê Văn C" },
+    { id: 3, name: "Ngô Văn E", mentorName: null },
+    { id: 4, name: "Lê Thị G", mentorName: null },
+    { id: 5, name: "Đặng Văn H", mentorName: null },
+    { id: 6, name: "Nguyễn Thị I", mentorName: null },
+  ]);
 
-  // ✅ Filter logic without infinite loop
-  useEffect(() => {
-    let result = mentorAssignments;
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.mentorName.toLowerCase().includes(q) ||
-          item.internName.toLowerCase().includes(q)
-      );
-    }
-    if (filterMentor) {
-      result = result.filter((item) => item.mentorName === filterMentor);
-    }
-    setFilteredAssignments(result);
-    setCurrentPage(1);
-  }, [searchTerm, filterMentor]); // ✅ Removed mentorAssignments from dependencies
+  const [mentors, setMentors] = useState([
+    { id: 1, name: "Nguyễn Văn A", interns: ["Trần Thị B", "Ngô Văn E"] },
+    { id: 2, name: "Lê Văn C", interns: ["Phạm Văn D"] },
+  ]);
 
-  // ✅ Pagination
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentItems = filteredAssignments.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredAssignments.length / itemsPerPage);
+
+  // Modal states
+  const [showInternModal, setShowInternModal] = useState(false);
+  const [selectedIntern, setSelectedIntern] = useState(null);
+  const [selectedMentorName, setSelectedMentorName] = useState("");
+
+  const [showMentorModal, setShowMentorModal] = useState(false);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [selectedInterns, setSelectedInterns] = useState([]);
+
+  // Filter logic
+  const filteredInterns = interns
+    .filter((intern) => intern.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((intern) => {
+      if (sortOption === "withMentor") return intern.mentorName;
+      if (sortOption === "withoutMentor") return !intern.mentorName;
+      return true;
+    });
+
+
+
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredInterns.slice(indexOfFirstItem, indexOfLastItem);
+
+
+  const totalPages = Math.ceil(
+     filteredInterns.length  / itemsPerPage
+  );
+
+  // Open intern modal
+  const handleOpenInternModal = (intern) => {
+    setSelectedIntern(intern);
+    setSelectedMentorName(intern.mentorName || "");
+    setShowInternModal(true);
+  };
+
+  // Save intern assignment
+  const handleSaveInternAssignment = () => {
+    setInterns((prev) =>
+      prev.map((i) =>
+        i.id === selectedIntern.id ? { ...i, mentorName: selectedMentorName } : i
+      )
+    );
+    setShowInternModal(false);
+  };
+
+  // Open mentor modal
+  const handleOpenMentorModal = (mentor) => {
+    setSelectedMentor(mentor);
+    setSelectedInterns(mentor.interns);
+    setShowMentorModal(true);
+  };
+
+  // Save mentor assignment
+  const handleSaveMentorAssignment = () => {
+    setMentors((prev) =>
+      prev.map((m) =>
+        m.id === selectedMentor.id ? { ...m, interns: selectedInterns } : m
+      )
+    );
+    setInterns((prev) =>
+      prev.map((intern) =>
+        selectedInterns.includes(intern.name)
+          ? { ...intern, mentorName: selectedMentor.name }
+          : intern
+      )
+    );
+    setShowMentorModal(false);
+  };
 
   return (
     <div className="dashboard-layout">
       <HRSidebar />
-      <div className="dashboard-content manage-users-content">
-        {/* Header */}
-        <div className="mentor-assign-header">
-          <h1 className="page-title">Phân công Mentor</h1>
-          <div className="header-actions">
+      <div className="mentor-assign-container">
+
+
+        {/* Right Content */}
+        <div className="right-content">
+
+
+          <div className="manage-users-header">
+                <h2 class="page-title">{selectedTab === "interns" ? "Danh sách thực tập sinh" : "Phân công Mentor"}</h2>
+                  <div className="header-actions">
             <input
               type="text"
+              placeholder={`Search ${selectedTab}...`}
               className="search-input"
-              placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <select
               className="filter-select"
-              value={filterMentor}
-              onChange={(e) => setFilterMentor(e.target.value)}
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
             >
-              <option value="">Lọc theo Mentor</option>
-              <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-              <option value="Lê Văn C">Lê Văn C</option>
+              <option value="">Lọc thực tập sinh</option>
+              <option value="withMentor">Đã phân công Mentor</option>
+              <option value="withoutMentor">Chưa phân công Mentor</option>
             </select>
           </div>
-        </div>
-
-        {/* Table */}
-        <table className="mentor-assign-table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Tên Mentor</th>
-              <th>Tên Intern</th>
-              <th>Phân công lúc</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{indexOfFirst + index + 1}</td>
-                  <td>{item.mentorName}</td>
-                  <td>{item.internName}</td>
-                  <td>{item.assignedAt}</td>
+            </div>
+          <div className = "users-table-container">
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Thực tập sinh</th>
+                <th>Mentor</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredInterns.map((intern, index) => (
+                <tr key={intern.id}>
+                  <td>{index + 1}</td>
+                  <td>{intern.name}</td>
+                  <td>{intern.mentorName || "Chưa có Mentor"}</td>
                   <td>
-                    <button className="action-btn">Xóa</button>
+                    <button
+                      className="assign-btn"
+                      onClick={() => handleOpenInternModal(intern)}
+                    >
+                      {intern.mentorName ? "Đổi Mentor" : "Phân công Mentor"}
+                    </button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5">Không tìm thấy dữ liệu</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={filteredAssignments.length}
-          onPageChange={setCurrentPage}
-        />
+              ))}
+            </tbody>
+          </table>
       </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems= {filteredInterns.length}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </div>
+      </div>
+
+      {/* Modals */}
+
+{showInternModal && (
+  <AssignInternForm
+    intern={selectedIntern}
+    mentors={mentors}
+    selectedMentor={selectedMentorName}
+    onSelectMentor={setSelectedMentorName}
+    onSave={handleSaveInternAssignment}
+    onClose={() => setShowInternModal(false)}
+  />
+)}
+
+
+      {showMentorModal && (
+        <AssignMentorForm
+          mentor={selectedMentor}
+          interns={interns}
+          onSave={(selectedInterns) => {
+            setMentors((prev) =>
+              prev.map((m) =>
+                m.id === selectedMentor.id ? { ...m, interns: selectedInterns } : m
+              )
+            );
+            setInterns((prev) =>
+              prev.map((intern) =>
+                selectedInterns.includes(intern.name)
+                  ? { ...intern, mentorName: selectedMentor.name }
+                  : intern
+              )
+            );
+            setShowMentorModal(false);
+          }}
+          onClose={() => setShowMentorModal(false)}
+        />
+      )}
     </div>
   );
 };
