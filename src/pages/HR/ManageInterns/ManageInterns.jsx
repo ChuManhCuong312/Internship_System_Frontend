@@ -6,6 +6,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
 import { useNavigate } from "react-router-dom";
 import CandidatesModal from "./CandidatesModal";
+import ProfileModal from "./modals/ProfileModal"
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
@@ -22,6 +23,7 @@ const ManageInterns = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
+  const [editingIntern, setEditingIntern] = useState(null);
 
   const fetchInterns = async () => {
     try {
@@ -85,7 +87,13 @@ const ManageInterns = () => {
           onClearFilters={handleClearFilters}
           onAdd={handleAddProfilePage}
         />
-        <HRInternTable interns={interns} page={page} size={size} fetchInterns={fetchInterns} />
+        <HRInternTable
+        interns={interns}
+        page={page}
+        size={size}
+        fetchInterns={fetchInterns}
+        onEdit={setEditingIntern}
+         />
 
         {showCandidatesModal && (
           <CandidatesModal
@@ -93,6 +101,31 @@ const ManageInterns = () => {
               onSuccess={fetchInterns}
                />
         )}
+
+    {editingIntern && (
+      <ProfileModal
+        isEdit={true}
+        intern={editingIntern}
+        profileData={{
+          full_name: editingIntern.fullName,
+          gender: editingIntern.gender || "",
+          dob: editingIntern.dob || "",
+          major: editingIntern.major,
+          gpa: editingIntern.gpa,
+          school: editingIntern.school,
+          phone: editingIntern.phone,
+          address: editingIntern.address
+        }}
+        setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
+        onClose={() => setEditingIntern(null)}
+        onSubmit={async () => {
+          await hrApi.updateInternProfile(token, editingIntern.internId, editingIntern);
+          setEditingIntern(null);
+          fetchInterns();
+        }}
+        errors={{}}
+      />
+    )}
 
         <div className="pagination">
           <button

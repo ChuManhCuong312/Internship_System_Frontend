@@ -48,6 +48,7 @@ createInternProfile: async (token, userId, profileData) => {
   formData.append("school", "CMC University");
   formData.append("phoneNumber", profileData.phone);
   formData.append("address", profileData.address);
+  formData.append("address", profileData.address);
 
   const res = await axios.post(`${API_URL}/${userId}/profile`, formData, {
     ...authHeader(token),
@@ -63,6 +64,22 @@ getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
   });
   return response.data;
 },
+
+updateInternProfile: async (token, internId, profileData) => {
+  const res = await axios.patch(`${API_URL}/${internId}/profile`, {
+    school: profileData.school,
+    major: profileData.major,
+    dob: profileData.dob,
+    address: profileData.address,
+    gender: profileData.gender,
+    phoneNumber: profileData.phone,
+    gpa: profileData.gpa
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+},
+
 
 };
 
