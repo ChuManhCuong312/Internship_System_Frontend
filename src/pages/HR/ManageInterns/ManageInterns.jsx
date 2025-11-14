@@ -4,6 +4,8 @@ import HRInternTable from "./component/HRInternTable";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
+import { useNavigate } from "react-router-dom";
+import CandidatesModal from "./CandidatesModal";
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
@@ -14,10 +16,12 @@ const ManageInterns = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
 
-  // thêm state cho phân trang
+  // phân trang
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [showCandidatesModal, setShowCandidatesModal] = useState(false);
 
   const fetchInterns = async () => {
     try {
@@ -39,7 +43,6 @@ const ManageInterns = () => {
         res = await hrApi.getAllInterns(token, page, size);
       }
 
-      // res là object Page
       setInterns(res.content || []);
       setTotalPages(res.totalPages || 0);
     } catch (err) {
@@ -62,6 +65,10 @@ const ManageInterns = () => {
     fetchInterns();
   };
 
+  const handleAddProfilePage = () => {
+    setShowCandidatesModal(true);
+  };
+
   if (loading) return <p>Đang tải dữ liệu...</p>;
 
   return (
@@ -76,13 +83,17 @@ const ManageInterns = () => {
           majorFilter={majorFilter}
           setMajorFilter={setMajorFilter}
           onClearFilters={handleClearFilters}
+          onAdd={handleAddProfilePage}
         />
         <HRInternTable interns={interns} page={page} size={size} fetchInterns={fetchInterns} />
 
-        {/* Pagination controls */}
+        {showCandidatesModal && (
+          <CandidatesModal onClose={() => setShowCandidatesModal(false)} />
+        )}
+
         <div className="pagination">
           <button
-            className={`pagination-btn ${page === 0 ? "" : ""}`}
+            className="pagination-btn"
             disabled={page === 0}
             onClick={() => setPage(page - 1)}
           >
@@ -94,7 +105,7 @@ const ManageInterns = () => {
           </span>
 
           <button
-            className={`pagination-btn ${page + 1 >= totalPages ? "" : ""}`}
+            className="pagination-btn"
             disabled={page + 1 >= totalPages}
             onClick={() => setPage(page + 1)}
           >
