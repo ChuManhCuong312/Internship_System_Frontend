@@ -90,6 +90,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+
             <Route
               path="/hr/approve-docs"
               element={
