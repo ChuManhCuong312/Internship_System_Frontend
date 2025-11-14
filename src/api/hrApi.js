@@ -38,6 +38,32 @@ const hrApi = {
     return res.data;
   },
 
+createInternProfile: async (token, userId, profileData) => {
+  const formData = new FormData();
+  formData.append("fullName", profileData.full_name);
+  formData.append("gender", profileData.gender);
+  formData.append("dob", profileData.dob);
+  formData.append("major", profileData.major);
+  formData.append("gpa", profileData.gpa);
+  formData.append("school", "CMC University");
+  formData.append("phoneNumber", profileData.phone);
+  formData.append("address", profileData.address);
+
+  const res = await axios.post(`${API_URL}/${userId}/profile`, formData, {
+    ...authHeader(token),
+  });
+  return res.data;
+},
+
+
+getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
+  const response = await axios.get(`${API_URL}/candidates`, {
+    ...authHeader(token),
+    params: { page, size },
+  });
+  return response.data;
+},
+
 };
 
 export default hrApi;
