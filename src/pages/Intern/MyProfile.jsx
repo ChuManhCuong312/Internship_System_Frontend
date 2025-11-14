@@ -3,14 +3,14 @@ import { MdEmail } from 'react-icons/md';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
 import { AuthContext } from "../../context/AuthContext";
-import { InternsContext } from "../../context/InternsContext";
+import { getInternByUserId, updateIntern } from "../../api/internApi";
 import "../../styles/profile.css";
 
 export default function ProfilePage() {
-    const useMock = true;
-
-    const { user } = useContext(AuthContext);
-    const { interns, loading, fetchInterns, editIntern } = useContext(InternsContext);
+    const { user, token } = useContext(AuthContext);
+    const [internData, setInternData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
@@ -21,56 +21,68 @@ export default function ProfilePage() {
         dob: '',
         phoneNumber: '',
         gpa: '',
-        cvLink: '',
         cvFile: ''
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
+    // Fetch intern data using userId
     useEffect(() => {
-        if (useMock) return;
-        if (!loading && interns.length === 0) {
-            fetchInterns?.();
-        }
-    }, [useMock, loading, interns, fetchInterns]);
+        const fetchInternData = async () => {
+            if (!user?.userId || !token) {
+                setLoading(false);
+                return;
+            }
 
-    const mockMe = useMemo(() => ({
-        internId: 9999,
-        fullName: 'Jane Doe',
-        email: 'jane.doe@example.com',
-        school: 'University of Technology',
-        major: 'Software Engineering',
-        status: 'ACTIVE',
-        mentor: 'Mr. Mentor',
-        createdAt: '2025-01-10',
-        address: '123 Main St, City, Country',
-        dob: '2002-05-12',
-        phoneNumber: '+1 555 234 5678',
-        gpa: '3.75',
-        cvLink: 'https://example.com/jane-doe-cv',
-        cvFile: '/files/jane-doe-cv.pdf'
-    }), []);
+            try {
+                setLoading(true);
+                setError(null);
+                const data = await getInternByUserId(token, user.userId);
+                
+                // Map API response fields to component format
+                const mappedData = {
+                    internId: data.internId,
+                    userId: data.userId,
+                    fullName: user.fullName || data.fullName || '',
+                    email: user.email,
+                    school: data.school || '',
+                    major: data.major || '',
+                    address: data.address || '',
+                    dob: data.dob || '',
+                    phoneNumber: data.phoneNumber || '',
+                    gpa: data.gpa || '',
+                    cvFile: data.cvPath || '', // Map cvPath to cvFile
+                    status: data.status || '',
+                    gender: data.gender || '',
+                    avatar: data.avatar || '',
+                    permissionFile: data.permissionFile || ''
+                };
+                
+                setInternData(mappedData);
+                
+                // Initialize form data
+                setFormData({
+                    fullName: mappedData.fullName,
+                    school: mappedData.school,
+                    major: mappedData.major,
+                    address: mappedData.address,
+                    dob: mappedData.dob,
+                    phoneNumber: mappedData.phoneNumber,
+                    gpa: mappedData.gpa,
+                    cvFile: mappedData.cvFile
+                });
+            } catch (err) {
+                console.error("Error fetching intern data:", err);
+                setError("Không thể tải thông tin hồ sơ");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const me = useMemo(() => {
-        if (useMock) return mockMe;
-        if (!user?.email) return null;
-        return interns.find(i => i.email === user.email) || null;
-    }, [useMock, mockMe, interns, user]);
+        fetchInternData();
+    }, [user?.userId, token]);
 
-    useEffect(() => {
-        if (me) {
-            setFormData({
-                fullName: me.fullName || '',
-                school: me.school || '',
-                major: me.major || '',
-                address: me.address || '',
-                dob: me.dob || '',
-                phoneNumber: me.phoneNumber || '',
-                gpa: me.gpa || '',
-                cvLink: me.cvLink || '',
-                cvFile: me.cvFile || ''
-            });
-        }
-    }, [me]);
+    const me = internData;
+
 
     const initials = useMemo(() => {
         const source = formData.fullName || me?.fullName || user?.email || '';
@@ -90,7 +102,7 @@ export default function ProfilePage() {
         if (avatarPreview) {
             try {
                 URL.revokeObjectURL(avatarPreview);
-            } catch {}
+            } catch { }
         }
         const url = URL.createObjectURL(file);
         setAvatarPreview(url);
@@ -101,26 +113,70 @@ export default function ProfilePage() {
             if (avatarPreview) {
                 try {
                     URL.revokeObjectURL(avatarPreview);
-                } catch {}
+                } catch { }
             }
         };
     }, [avatarPreview]);
     const handleSave = async () => {
-        if (!me?.internId) return;
-        await editIntern(me.internId, {
-            ...me,
-            fullName: formData.fullName,
-            school: formData.school,
-            major: formData.major,
-            address: formData.address,
-            dob: formData.dob,
-            phoneNumber: formData.phoneNumber,
-            gpa: formData.gpa,
-            cvLink: formData.cvLink,
-            cvFile: formData.cvFile
-        });
-        setIsEditing(false);
+        if (!me?.internId || !token) return;
+        
+        try {
+            // Map form data back to API format
+            const updateData = {
+                school: formData.school,
+                major: formData.major,
+                address: formData.address,
+                dob: formData.dob,
+                phoneNumber: formData.phoneNumber,
+                gpa: formData.gpa,
+                cvPath: formData.cvFile // Map cvFile back to cvPath
+            };
+            
+            const updated = await updateIntern(token, me.internId, updateData);
+            
+            // Update local state with response
+            setInternData(prev => ({
+                ...prev,
+                ...updated,
+                cvFile: updated.cvPath || prev.cvFile
+            }));
+            
+            setIsEditing(false);
+        } catch (err) {
+            console.error("Error updating profile:", err);
+            alert("Có lỗi xảy ra khi cập nhật hồ sơ");
+        }
     };
+
+    if (loading) {
+        return (
+            <div className="profile-page">
+                <InternSidebar />
+                <div className="profile-container">
+                    <div className="profile-content">
+                        <div className="profile-card">
+                            <p>Đang tải thông tin...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="profile-page">
+                <InternSidebar />
+                <div className="profile-container">
+                    <div className="profile-content">
+                        <div className="profile-card">
+                            <p style={{ color: 'red' }}>{error}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="profile-page">
@@ -144,9 +200,7 @@ export default function ProfilePage() {
                             <div>
                                 <div className="profile-name">{me?.fullName || 'Your Name'}</div>
                                 <div className="profile-meta">
-                                    <span>{me?.major || 'Major'}</span>
-                                    <span>•</span>
-                                    <span>{me?.school || 'School'}</span>
+
                                 </div>
                                 <div className="profile-email">
                                     <MdEmail size={16} />
@@ -169,8 +223,12 @@ export default function ProfilePage() {
                                 <div className="value">{me?.status || 'N/A'}</div>
                             </div>
                             <div className="info-item">
-                                <div className="label">Mentor</div>
-                                <div className="value">{me?.mentor || '-'}</div>
+                                <div className="label">Major</div>
+                                <div className="value">{me?.major || '-'}</div>
+                            </div>
+                            <div className="info-item">
+                                <div className="label">School</div>
+                                <div className="value">{me?.school || '-'}</div>
                             </div>
                             <div className="info-item">
                                 <div className="label">Phone</div>
@@ -188,14 +246,7 @@ export default function ProfilePage() {
                                 <div className="label">GPA</div>
                                 <div className="value">{me?.gpa || '-'}</div>
                             </div>
-                            <div className="info-item">
-                                <div className="label">CV (link)</div>
-                                <div className="value">
-                                    {me?.cvLink ? (
-                                        <a href={me.cvLink} target="_blank" rel="noopener noreferrer">View CV</a>
-                                    ) : '-'}
-                                </div>
-                            </div>
+
                             <div className="info-item">
                                 <div className="label">CV (file)</div>
                                 <div className="value">
@@ -282,17 +333,7 @@ export default function ProfilePage() {
                                 style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
                             />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>CV link (view)</label>
-                            <input
-                                type="url"
-                                name="cvLink"
-                                value={formData.cvLink}
-                                onChange={handleChange}
-                                placeholder="https://..."
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
-                        </div>
+
                         <div>
                             <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>CV file path (download URL)</label>
                             <input
