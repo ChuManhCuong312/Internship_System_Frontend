@@ -103,7 +103,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         value={profileData.address}
         onChange={e => setProfileData({ ...profileData, address: e.target.value })}
       />
-      {errors.address && <p className="field-error">{errors.address}</p>}
+    {errors.address && <p className="field-error">{errors.address}</p>}
     </div>
 
     {/* Nút hành động */}
