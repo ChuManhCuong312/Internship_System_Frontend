@@ -6,6 +6,7 @@ import {
   deleteIntern,
 } from "../api/internApi";
 import { AuthContext } from "./AuthContext";
+import { searchInterns, getMajors } from "../api/internApi";
 
 export const InternsContext = createContext();
 
@@ -51,7 +52,14 @@ const removeIntern = async (id) => {
   await deleteIntern(token, id);
   setInterns((prev) => prev.filter((i) => i.internId !== id));
 };
+const searchInternList = async (filters) => {
+  const data = await searchInterns(token, filters);
+  setInterns(data);
+};
 
+const fetchMajors = async () => {
+  return await getMajors(token);
+};
 
   return (
     <InternsContext.Provider
