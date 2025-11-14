@@ -88,7 +88,10 @@ const ManageInterns = () => {
         <HRInternTable interns={interns} page={page} size={size} fetchInterns={fetchInterns} />
 
         {showCandidatesModal && (
-          <CandidatesModal onClose={() => setShowCandidatesModal(false)} />
+          <CandidatesModal
+          onClose={() => setShowCandidatesModal(false)}
+              onSuccess={fetchInterns}
+               />
         )}
 
         <div className="pagination">

@@ -5,7 +5,7 @@ import ProfileModal from "./modals/ProfileModal";
 import Modal from "../../../components/Layout/Modal";
 import "../../../styles/buttons.css";
 
-const CandidatesModal = ({ onClose }) => {
+const CandidatesModal = ({ onClose, onSuccess }) => {
   const { token } = useContext(AuthContext);
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ profileData.dob = dobISO;
     }
 
     if (!profileData.phone || !/^0\d{9}$/.test(profileData.phone)) {
-      newErrors.phone = "Số điện thoại phải từ 9-11 chữ số";
+      newErrors.phone = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số";
     }
 
     if (!profileData.address || profileData.address.trim().length < 5) {
@@ -93,12 +93,13 @@ profileData.dob = dobISO;
       await hrApi.createInternProfile(token, selectedCandidate.userId, profileData);
       setSelectedCandidate(null);
       onClose();
+      if (typeof onSuccess === "function") {
+        onSuccess();
+      }
     } catch (err) {
       console.error("Error creating profile:", err);
     }
-  };
-
-
+};
   return (
 <Modal title="Ứng viên chưa có hồ sơ" onClose={onClose} className="modal-large">
       {loading ? (
