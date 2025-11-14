@@ -94,7 +94,7 @@ profileData.dob = dobISO;
       setSelectedCandidate(null);
       onClose();
       if (typeof onSuccess === "function") {
-        onSuccess();
+        onSuccess(true);
       }
     } catch (err) {
       console.error("Error creating profile:", err);

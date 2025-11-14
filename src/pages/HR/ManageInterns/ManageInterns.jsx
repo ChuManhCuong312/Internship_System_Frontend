@@ -25,12 +25,14 @@ const ManageInterns = () => {
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
   const [editingIntern, setEditingIntern] = useState(null);
 
-  const fetchInterns = async () => {
+  const fetchInterns = async (resetPage = false) => {
     try {
       if (!token) {
         setInterns([]);
         return;
       }
+
+      const currentPage = resetPage ? 0 : page;
 
       let res;
       if (searchTerm || statusFilter || majorFilter) {
@@ -38,15 +40,18 @@ const ManageInterns = () => {
           searchTerm,
           major: majorFilter,
           status: statusFilter,
-          page,
+          page: currentPage,
           size,
         });
       } else {
-        res = await hrApi.getAllInterns(token, page, size);
+        res = await hrApi.getAllInterns(token, 0, 1000);
       }
-    const sorted = (res.content || []).sort((a, b) => b.internId - a.internId);
-      setInterns(res.content || []);
+
+      const sorted = (res.content || []).sort((a, b) => b.internId - a.internId);
+      setInterns(sorted);
       setTotalPages(res.totalPages || 0);
+
+      if (resetPage) setPage(0);
     } catch (err) {
       console.error("Error fetching interns:", err);
       setInterns([]);
@@ -97,9 +102,9 @@ const ManageInterns = () => {
 
         {showCandidatesModal && (
           <CandidatesModal
-          onClose={() => setShowCandidatesModal(false)}
-              onSuccess={fetchInterns}
-               />
+            onClose={() => setShowCandidatesModal(false)}
+            onSuccess={(reset) => fetchInterns(reset)}
+          />
         )}
 
     {editingIntern && (
