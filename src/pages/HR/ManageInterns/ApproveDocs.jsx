@@ -9,6 +9,7 @@ import { InternsContext } from "../../../context/InternsContext";
 import { AuthContext } from "../../../context/AuthContext";
 import "../../../styles/manageUsers.css";
 
+
 const ApproveDocs = () => {
   const { user: loggedInUser } = useContext(AuthContext);
   const isHR = loggedInUser?.role === "HR";
@@ -39,6 +40,17 @@ const [majorFilter, setMajorFilter] = useState("");
   // Contract state
   const [contractFile, setContractFile] = useState(null);
   const [contractError, setContractError] = useState("");
+const prepareInternForPatch = (intern, status) => ({
+  userId: intern.userId,
+  school: intern.school || "CMC University",
+  major: intern.major || "Công nghệ thông tin",
+  status,
+  address: intern.address?.length >= 5 ? intern.address : "Hà Nội",
+  dob: intern.dob || "2000-01-01",
+  cvPath: intern.cvPath || "dummy.pdf",
+  gpa: intern.gpa || 1.0,
+  phoneNumber: intern.phoneNumber || "0000000000"
+});
 
   useEffect(() => {
     if (!loading) {
@@ -84,15 +96,16 @@ const [majorFilter, setMajorFilter] = useState("");
   };
 
   // Approve
-  const handleApprove = async (intern) => {
-    try {
-      await editIntern(intern.internId, { ...intern, status: "APPROVED" });
-      notify("✅ Đã duyệt hồ sơ thành công");
-    } catch (err) {
-      console.error(err);
-      notify("❌ Lỗi khi duyệt hồ sơ");
-    }
-  };
+const handleApprove = async (intern) => {
+  const id = intern.internId;
+  try {
+    await editIntern(id, prepareInternForPatch(intern, "APPROVED"));
+    notify("✅ Đã duyệt hồ sơ thành công");
+  } catch (err) {
+    console.error(err);
+    notify("❌ Lỗi khi duyệt hồ sơ");
+  }
+};
 
   // Reject
   const handleReject = (intern) => {
@@ -107,11 +120,11 @@ const [majorFilter, setMajorFilter] = useState("");
       setRejectError("Vui lòng nhập lý do từ chối");
       return;
     }
+    const id = selectedIntern.internId;
     try {
-      await editIntern(selectedIntern.internId, {
-        ...selectedIntern,
-        status: "REJECTED",
-        rejectReason,
+      await editIntern(id, {
+        ...prepareInternForPatch(selectedIntern, "REJECTED"),
+        rejectReason
       });
       setShowRejectModal(false);
       notify("❌ Đã từ chối hồ sơ");
@@ -121,27 +134,25 @@ const [majorFilter, setMajorFilter] = useState("");
     }
   };
 
-  // Send contract
-  const handleSendContract = (intern) => {
-    setSelectedIntern(intern);
-    setContractFile(null);
-    setContractError("");
-    setShowContractModal(true);
-  };
+// Send contract (mở modal)
+const handleSendContract = (intern) => {
+  setSelectedIntern(intern);
+  setContractFile(null);
+  setContractError("");
+  setShowContractModal(true);
+};
 
+  // Send contract
   const confirmSendContract = async () => {
     if (!contractFile) {
       setContractError("Vui lòng chọn file hợp đồng");
       return;
     }
+    const id = selectedIntern.internId;
     try {
-      await editIntern(selectedIntern.internId, {
-        ...selectedIntern,
-        status: "COMPLETED",
-        documents: [
-          ...(selectedIntern.documents || []),
-          contractFile.name || contractFile,
-        ],
+      await editIntern(id, {
+        ...prepareInternForPatch(selectedIntern, "COMPLETED"),
+        documents: [...(selectedIntern.documents || []), contractFile.name || contractFile]
       });
       setShowContractModal(false);
       notify("📤 Đã gửi hợp đồng và hoàn tất");
@@ -152,15 +163,16 @@ const [majorFilter, setMajorFilter] = useState("");
   };
 
   // Unlock
-  const handleUnlock = async (intern) => {
-    try {
-      await editIntern(intern.internId, { ...intern, status: "PENDING" });
-      notify("🔓 Hồ sơ đã được mở lại để duyệt");
-    } catch (err) {
-      console.error(err);
-      notify("❌ Lỗi khi mở lại hồ sơ");
-    }
-  };
+const handleUnlock = async (intern) => {
+  const id = intern.internId;
+  try {
+    await editIntern(id, prepareInternForPatch(intern, "PENDING"));
+    notify("🔓 Hồ sơ đã được mở lại để duyệt");
+  } catch (err) {
+    console.error(err);
+    notify("❌ Lỗi khi mở lại hồ sơ");
+  }
+};
 
   if (!isHR) {
     return (

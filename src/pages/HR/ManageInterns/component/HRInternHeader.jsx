@@ -1,15 +1,17 @@
 import React from "react";
+import "../../../../styles/manageUsers.css";
 
 const HRInternHeader = ({
-    title = "Quản lý hồ sơ thực tập sinh",
+  title = "Quản lý hồ sơ thực tập sinh",
   searchTerm,
   setSearchTerm,
   statusFilter,
   setStatusFilter,
   majorFilter,
-    setMajorFilter,
+  setMajorFilter,
   onAdd,
   showStatusFilter = true,
+  onClearFilters,
 }) => (
   <div className="manage-users-header">
     <h2 className="page-title">{title}</h2>
@@ -48,6 +50,15 @@ const HRInternHeader = ({
       </select>
 
       {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
+    </div>
+
+    <div className="clear-filter-container">
+      <button
+        className="clear-filter-btn"
+        onClick={onClearFilters}
+      >
+        ✖ Clear filter
+      </button>
     </div>
   </div>
 );
