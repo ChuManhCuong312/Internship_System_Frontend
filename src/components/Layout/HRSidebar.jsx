@@ -43,7 +43,6 @@ const HRSidebar = () => {
         {expanded && openSubMenu && (
           <ul className="submenu">
             <li><Link to="/hr/manage-interns">Quản lý hồ sơ</Link></li>
-            <li><Link to="/hr/approve-docs">Phê duyệt và phản hổi</Link></li>
           </ul>
         )}
 
