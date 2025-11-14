@@ -15,20 +15,6 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       {errors.full_name && <p className="field-error">{errors.full_name}</p>}
     </div>
 
-    {/* Giới tính */}
-    <div className="form-group">
-      <label>Giới tính *</label>
-      <select
-        className="form-input"
-        value={profileData.gender}
-        onChange={e => setProfileData({ ...profileData, gender: e.target.value })}
-      >
-        <option value="MALE">Nam</option>
-        <option value="FEMALE">Nữ</option>
-      </select>
-      {errors.gender && <p className="field-error">{errors.gender}</p>}
-    </div>
-
     {/* Ngày sinh */}
     <div className="form-group">
       <label>Ngày sinh *</label>
@@ -103,7 +89,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         value={profileData.address}
         onChange={e => setProfileData({ ...profileData, address: e.target.value })}
       />
-      {errors.address && <p className="field-error">{errors.address}</p>}
+    {errors.address && <p className="field-error">{errors.address}</p>}
     </div>
 
     {/* Nút hành động */}

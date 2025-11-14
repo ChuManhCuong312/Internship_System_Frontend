@@ -311,7 +311,6 @@ const handlePageChange = (page) => {
    );
  }
 
-
  return (
    <div className="dashboard-layout">
      <AdminSidebar />
