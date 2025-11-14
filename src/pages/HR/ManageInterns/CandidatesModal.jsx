@@ -80,8 +80,8 @@ profileData.dob = dobISO;
       newErrors.phone = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số";
     }
 
-    if (!profileData.address || profileData.address.trim().length < 5) {
-      newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
+    if (!profileData.address || !/^.+,\s*.+$/.test(profileData.address)) {
+      newErrors.address = "Địa chỉ phải có dạng: Quận, Thành phố";
     }
 
     if (Object.keys(newErrors).length > 0) {
