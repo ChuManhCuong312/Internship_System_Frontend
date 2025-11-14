@@ -35,7 +35,6 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
       major: "",
       gpa: "",
       address: "",
-      gender: "",
       dob: "",
       photo_path: null,
       documents: []
@@ -56,10 +55,6 @@ profileData.dob = dobISO;
 
     if (!profileData.full_name || profileData.full_name.trim().length < 2) {
       newErrors.full_name = "Họ tên phải có ít nhất 2 ký tự";
-    }
-
-    if (!profileData.gender) {
-      newErrors.gender = "Vui lòng chọn giới tính";
     }
 
     if (!profileData.dob) {
