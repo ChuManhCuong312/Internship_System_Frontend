@@ -1,8 +1,9 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import "../../styles/modal.css";
 
 const Modal = ({ title, children, onClose }) => {
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
@@ -11,7 +12,8 @@ const Modal = ({ title, children, onClose }) => {
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

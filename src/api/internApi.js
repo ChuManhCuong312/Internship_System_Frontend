@@ -2,7 +2,6 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/interns";
 
-// Tạo axios config có Bearer token
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
@@ -23,7 +22,10 @@ export const searchInterns = async (token, { searchTerm, major, status }) => {
   if (major) params.major = major;
   if (status) params.status = status;
 
-  const res = await axios.get(`${API_URL}/search`, { ...authHeader(token), params });
+  const res = await axios.get(`${API_URL}/search`, {
+    ...authHeader(token),
+    params,
+  });
   return res.data;
 };
 
@@ -33,43 +35,77 @@ export const getMajors = async (token) => {
   return res.data;
 };
 
-// GET /api/interns/{id} - Get intern profile by ID
+// ===== FEATURE: NEW API =====
+
+// GET /api/interns/{id}
 export const getInternById = async (token, id) => {
   const res = await axios.get(`${API_URL}/${id}`, authHeader(token));
   return res.data;
 };
 
-// GET /api/interns/user/{userId} - Get intern profile by user ID
+// GET /api/interns/user/{userId}
 export const getInternByUserId = async (token, userId) => {
   const res = await axios.get(`${API_URL}/user/${userId}`, authHeader(token));
   return res.data;
 };
 
-// GET /api/interns/status/{status} - Get intern profiles by status
+// GET /api/interns/status/{status}
 export const getInternsByStatus = async (token, status) => {
   const res = await axios.get(`${API_URL}/status/${status}`, authHeader(token));
   return res.data;
 };
 
-// POST /api/interns - Create new intern profile
+// ===== CREATE =====
+
 export const createIntern = async (token, internProfile) => {
-  const res = await axios.post(API_URL, internProfile, authHeader(token));
+  const payload = {
+    userId: internProfile.userId,
+    school: internProfile.school || "",
+    major: internProfile.major || "",
+    dob: internProfile.dob || "2000-01-01",
+    address: internProfile.address || "",
+    cvPath: internProfile.cvPath || "default.pdf",
+    status: internProfile.status || "PENDING",
+    phoneNumber: internProfile.phoneNumber || "",
+    gpa: internProfile.gpa || 0.0,
+  };
+
+  const res = await axios.post(API_URL, payload, authHeader(token));
   return res.data;
 };
 
-// PUT /api/interns/{id} - Full update intern profile
+// ===== UPDATE =====
+
+// PATCH /api/interns/{id} - Full update
 export const updateIntern = async (token, id, internProfile) => {
-  const res = await axios.put(`${API_URL}/${id}`, internProfile, authHeader(token));
+  const payload = {
+    userId: internProfile.userId,
+    school: internProfile.school || "CMC University",
+    major: internProfile.major || "Công nghệ thông tin",
+    dob: internProfile.dob || "2000-01-01",
+    address:
+      internProfile.address?.length >= 5
+        ? internProfile.address
+        : "Hà Nội",
+    cvPath: internProfile.cvPath || "dummy.pdf",
+    status: internProfile.status || "PENDING",
+    phoneNumber: internProfile.phoneNumber || "0000000000",
+    gpa: internProfile.gpa > 0 ? internProfile.gpa : 1.0,
+  };
+
+  const res = await axios.patch(`${API_URL}/${id}`, payload, authHeader(token));
   return res.data;
 };
 
-// PATCH /api/interns/{id} - Partial update intern profile
+// PATCH /api/interns/{id} - Partial update
 export const partialUpdateIntern = async (token, id, internProfile) => {
   const res = await axios.patch(`${API_URL}/${id}`, internProfile, authHeader(token));
   return res.data;
 };
 
-// DELETE /api/interns/{id} - Delete intern profile
+// ===== DELETE =====
+
+// DELETE /api/interns/{id}
 export const deleteIntern = async (token, id) => {
   await axios.delete(`${API_URL}/${id}`, authHeader(token));
 };

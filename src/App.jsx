@@ -9,6 +9,7 @@ import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
 import ApproveDocs from "./pages/HR/ManageInterns/ApproveDocs";
+import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -16,7 +17,7 @@ import VerifyOtpPage from "./pages/Auth/VerifyOtpPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import OAuthSuccess from "./pages/Auth/OAuthSuccess";
-import { UserProvider } from "./context/UserContext.jsx";
+import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import MyTasks from "./pages/Intern/MyTasks";
 import Attendance from "./pages/Intern/Attendance";
@@ -35,6 +36,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
 
   return children;
 };
+
 
 function App() {
   return (
@@ -94,6 +96,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <ApproveDocs />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/mentor-assigns"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <MentorAssigns />
                 </PrivateRoute>
               }
             />
