@@ -8,8 +8,6 @@ import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
-import ApproveDocs from "./pages/HR/ManageInterns/ApproveDocs";
-import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -88,22 +86,6 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <ManageInterns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/approve-docs"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ApproveDocs />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/mentor-assigns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <MentorAssigns />
                 </PrivateRoute>
               }
             />
