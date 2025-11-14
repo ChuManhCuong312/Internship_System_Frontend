@@ -48,7 +48,6 @@ createInternProfile: async (token, userId, profileData) => {
   formData.append("school", "CMC University");
   formData.append("phoneNumber", profileData.phone);
   formData.append("address", profileData.address);
-  formData.append("address", profileData.address);
 
   const res = await axios.post(`${API_URL}/${userId}/profile`, formData, {
     ...authHeader(token),

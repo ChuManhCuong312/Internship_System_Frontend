@@ -23,6 +23,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         value={profileData.gender}
         onChange={e => setProfileData({ ...profileData, gender: e.target.value })}
       >
+      <option value="">-- Chọn giới tính --</option>
         <option value="MALE">Nam</option>
         <option value="FEMALE">Nữ</option>
       </select>
