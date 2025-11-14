@@ -1,7 +1,7 @@
 import React from "react";
 import HRInternRow from "./HRInternRow";
 
-const HRInternTable = ({ interns, page, size, fetchInterns }) => {
+const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
   const translateStatus = (status) => {
     switch (status) {
       case "PENDING":
@@ -30,6 +30,8 @@ const HRInternTable = ({ interns, page, size, fetchInterns }) => {
             <th>Số điện thoại</th>
             <th>Ngành</th>
             <th>GPA</th>
+            <th>Ngày sinh</th>
+            <th>Địa chỉ</th>
             <th>Tài liệu</th>
             <th>Trạng thái</th>
             <th>Hành động</th>
@@ -44,6 +46,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns }) => {
                   index={page * size + index}
                   translateStatus={translateStatus}
                   onStatusChange={fetchInterns}
+                  onEdit={onEdit}
                 />
             ))
           ) : (

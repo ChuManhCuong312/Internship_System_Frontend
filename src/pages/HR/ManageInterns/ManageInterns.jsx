@@ -6,6 +6,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
 import { useNavigate } from "react-router-dom";
 import CandidatesModal from "./CandidatesModal";
+import ProfileModal from "./modals/ProfileModal"
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
@@ -22,13 +23,16 @@ const ManageInterns = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
+  const [editingIntern, setEditingIntern] = useState(null);
 
-  const fetchInterns = async () => {
+  const fetchInterns = async (resetPage = false) => {
     try {
       if (!token) {
         setInterns([]);
         return;
       }
+
+      const currentPage = resetPage ? 0 : page;
 
       let res;
       if (searchTerm || statusFilter || majorFilter) {
@@ -36,15 +40,18 @@ const ManageInterns = () => {
           searchTerm,
           major: majorFilter,
           status: statusFilter,
-          page,
+          page: currentPage,
           size,
         });
       } else {
-        res = await hrApi.getAllInterns(token, page, size);
+        res = await hrApi.getAllInterns(token, 0, 1000);
       }
 
-      setInterns(res.content || []);
+      const sorted = (res.content || []).sort((a, b) => b.internId - a.internId);
+      setInterns(sorted);
       setTotalPages(res.totalPages || 0);
+
+      if (resetPage) setPage(0);
     } catch (err) {
       console.error("Error fetching interns:", err);
       setInterns([]);
@@ -85,11 +92,45 @@ const ManageInterns = () => {
           onClearFilters={handleClearFilters}
           onAdd={handleAddProfilePage}
         />
-        <HRInternTable interns={interns} page={page} size={size} fetchInterns={fetchInterns} />
+        <HRInternTable
+        interns={interns}
+        page={page}
+        size={size}
+        fetchInterns={fetchInterns}
+        onEdit={setEditingIntern}
+         />
 
         {showCandidatesModal && (
-          <CandidatesModal onClose={() => setShowCandidatesModal(false)} />
+          <CandidatesModal
+            onClose={() => setShowCandidatesModal(false)}
+            onSuccess={(reset) => fetchInterns(reset)}
+          />
         )}
+
+    {editingIntern && (
+      <ProfileModal
+        isEdit={true}
+        intern={editingIntern}
+        profileData={{
+          full_name: editingIntern.fullName,
+          gender: editingIntern.gender || "",
+          dob: editingIntern.dob || "",
+          major: editingIntern.major,
+          gpa: editingIntern.gpa,
+          school: editingIntern.school,
+          phone: editingIntern.phone,
+          address: editingIntern.address
+        }}
+        setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
+        onClose={() => setEditingIntern(null)}
+        onSubmit={async () => {
+          await hrApi.updateInternProfile(token, editingIntern.internId, editingIntern);
+          setEditingIntern(null);
+          fetchInterns();
+        }}
+        errors={{}}
+      />
+    )}
 
         <div className="pagination">
           <button

@@ -41,7 +41,6 @@ const hrApi = {
 createInternProfile: async (token, userId, profileData) => {
   const formData = new FormData();
   formData.append("fullName", profileData.full_name);
-  formData.append("gender", profileData.gender);
   formData.append("dob", profileData.dob);
   formData.append("major", profileData.major);
   formData.append("gpa", profileData.gpa);
@@ -63,6 +62,21 @@ getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
   });
   return response.data;
 },
+
+updateInternProfile: async (token, internId, profileData) => {
+  const res = await axios.patch(`${API_URL}/${internId}/profile`, {
+    school: profileData.school,
+    major: profileData.major,
+    dob: profileData.dob,
+    address: profileData.address,
+    phoneNumber: profileData.phone,
+    gpa: profileData.gpa
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+},
+
 
 };
 
