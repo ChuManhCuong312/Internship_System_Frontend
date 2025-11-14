@@ -42,7 +42,7 @@ const ManageInterns = () => {
       } else {
         res = await hrApi.getAllInterns(token, page, size);
       }
-
+    const sorted = (res.content || []).sort((a, b) => b.internId - a.internId);
       setInterns(res.content || []);
       setTotalPages(res.totalPages || 0);
     } catch (err) {
