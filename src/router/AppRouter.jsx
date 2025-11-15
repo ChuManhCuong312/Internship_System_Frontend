@@ -32,6 +32,7 @@ import MyTasks from "../pages/Intern/MyTasks";
 import Attendance from "../pages/Intern/Attendance";
 import AllowanceRequest from "../pages/Intern/AllowanceRequest";
 import SupportRequest from "../pages/Intern/SupportRequest";
+import MyContracts from "../pages/Intern/MyContracts";
 
 // Shared Pages
 import NotFound from "../pages/Shared/NotFound";
@@ -205,6 +206,15 @@ const AppRouter = () => {
           element={
             <PrivateRoute requiredRole="intern">
               <SupportRequest />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/intern/contracts"
+          element={
+            <PrivateRoute requiredRole="intern">
+              <MyContracts />
             </PrivateRoute>
           }
         />
