@@ -2,12 +2,12 @@ import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
-
 import MentorDashboard from "./pages/Mentor/Dashboard";
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
+import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns"
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -86,6 +86,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <ManageInterns />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/mentor-assigns"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <MentorAssigns />
                 </PrivateRoute>
               }
             />
