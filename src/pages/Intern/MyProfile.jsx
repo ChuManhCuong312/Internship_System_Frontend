@@ -219,11 +219,41 @@ export default function ProfilePage() {
         // Upload to Cloudinary if internId exists
         if (internData?.internId && token) {
             try {
+                console.log("Uploading avatar to Cloudinary...", { internId: internData.internId, fileName: file.name });
                 const uploadResult = await uploadAvatar(token, file, internData.internId);
-                const avatarUrl = uploadResult.url || uploadResult.secure_url || uploadResult.avatar;
+                console.log("Cloudinary upload result:", uploadResult);
                 
-                // Update intern data with the new avatar URL
-                await partialUpdateIntern(token, internData.internId, { avatar: avatarUrl });
+                // Try multiple possible response formats
+                const avatarUrl = uploadResult?.url || 
+                                 uploadResult?.secure_url || 
+                                 uploadResult?.avatar || 
+                                 uploadResult?.data?.url ||
+                                 uploadResult?.data?.secure_url;
+                
+                if (!avatarUrl) {
+                    console.warn("No avatar URL in upload result:", uploadResult);
+                    alert("Tải lên thành công nhưng không nhận được URL ảnh. Vui lòng thử lại.");
+                    return;
+                }
+                
+                console.log("Updating intern profile with avatar URL:", avatarUrl);
+                // Try different field names that backend might expect
+                try {
+                    await partialUpdateIntern(token, internData.internId, { avatar: avatarUrl });
+                } catch (updateError) {
+                    // Try alternative field names
+                    console.log("Trying alternative field names...");
+                    try {
+                        await partialUpdateIntern(token, internData.internId, { avatarUrl: avatarUrl });
+                    } catch (updateError2) {
+                        // Try with both field names
+                        await partialUpdateIntern(token, internData.internId, { 
+                            avatar: avatarUrl,
+                            avatarUrl: avatarUrl 
+                        });
+                    }
+                }
+                
                 setInternData(prev => ({ ...prev, avatar: avatarUrl }));
                 
                 // Update preview with the actual URL from Cloudinary
@@ -233,6 +263,8 @@ export default function ProfilePage() {
                     } catch { }
                     setAvatarPreview(avatarUrl);
                 }
+                
+                console.log("Avatar updated successfully");
             } catch (err) {
                 console.error("Error uploading avatar:", err);
                 console.error("Error details:", {
@@ -241,10 +273,14 @@ export default function ProfilePage() {
                     status: err.response?.status,
                     file: file.name,
                     fileSize: file.size,
-                    fileType: file.type
+                    fileType: file.type,
+                    stack: err.stack
                 });
                 
-                const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || "Có lỗi xảy ra khi tải lên ảnh đại diện";
+                const errorMessage = err.response?.data?.message || 
+                                   err.response?.data?.error || 
+                                   err.message || 
+                                   "Có lỗi xảy ra khi tải lên ảnh đại diện";
                 alert(`Lỗi: ${errorMessage}`);
                 // Keep the preview even if upload fails
             }
