@@ -19,10 +19,13 @@ export default function ProfilePage() {
         school: '',
         major: '',
         address: '',
+        gender: '',
         dob: '',
         phoneNumber: '',
         gpa: '',
-        cvFile: ''
+        cvFile: '',
+        status: '',
+        permissionFile: '',
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
@@ -146,7 +149,10 @@ export default function ProfilePage() {
                     dob: mappedData.dob,
                     phoneNumber: mappedData.phoneNumber,
                     gpa: mappedData.gpa,
-                    cvFile: mappedData.cvFile
+                    cvFile: mappedData.cvFile,
+                    gender: mappedData.gender,
+                    status: mappedData.status,
+                    permissionFile: mappedData.permissionFile
                 });
             } catch (err) {
                 console.error("Error fetching intern data:", err);
@@ -191,6 +197,12 @@ export default function ProfilePage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleAvatarClick = () => {
+        if (window.confirm("Bạn có muốn thay đổi ảnh đại diện không?")) {
+            document.getElementById("avatarUpload").click();
+        }
+    };
+
     const handleAvatarChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -201,6 +213,46 @@ export default function ProfilePage() {
         }
         const url = URL.createObjectURL(file);
         setAvatarPreview(url);
+    };
+
+    const handleCvFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        // Update form data
+        const newCvPath = `/files/${file.name}`;
+        setFormData(prev => ({ ...prev, cvFile: newCvPath }));
+        
+        // Save to backend if internId exists
+        if (internData?.internId && token) {
+            try {
+                await partialUpdateIntern(token, internData.internId, { cvFile: newCvPath });
+                setInternData(prev => ({ ...prev, cvFile: newCvPath }));
+            } catch (err) {
+                console.error("Error updating CV file:", err);
+                alert("Có lỗi xảy ra khi cập nhật CV");
+            }
+        }
+    };
+
+    const handlePermissionFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        // Update form data
+        const newPermissionPath = `/files/${file.name}`;
+        setFormData(prev => ({ ...prev, permissionFile: newPermissionPath }));
+        
+        // Save to backend if internId exists
+        if (internData?.internId && token) {
+            try {
+                await partialUpdateIntern(token, internData.internId, { permissionFile: newPermissionPath });
+                setInternData(prev => ({ ...prev, permissionFile: newPermissionPath }));
+            } catch (err) {
+                console.error("Error updating permission file:", err);
+                alert("Có lỗi xảy ra khi cập nhật permission file");
+            }
+        }
     };
 
     useEffect(() => {
@@ -224,7 +276,10 @@ export default function ProfilePage() {
                 dob: formData.dob,
                 phoneNumber: formData.phoneNumber,
                 gpa: formData.gpa,
-                cvFile: formData.cvFile // Map cvFile back to cvFile
+                cvFile: formData.cvFile,
+                gender: formData.gender,
+                status: formData.status,
+                permissionFile: formData.permissionFile
             };
             
             const updated = await partialUpdateIntern(token, me.internId, updateData);
@@ -281,7 +336,7 @@ export default function ProfilePage() {
                     <div className="profile-card">
                         <div className="profile-row">
                             <div className="avatar-wrap">
-                                <div className="avatar status-dot">
+                                <div className="avatar status-dot" style={{ cursor: 'pointer' }} onClick={handleAvatarClick}>
                                     <div className="avatar-inner">
                                         {avatarPreview ? (
                                             <img src={avatarPreview} alt="avatar preview" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
@@ -292,6 +347,7 @@ export default function ProfilePage() {
                                         )}
                                     </div>
                                 </div>
+                                <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
                             </div>
 
                             <div>
@@ -303,14 +359,6 @@ export default function ProfilePage() {
                                     <MdEmail size={16} />
                                     <span>{me?.email || user?.email}</span>
                                 </div>
-                            </div>
-
-                            <div className="profile-actions">
-                                <label htmlFor="avatarUpload" className="btn btn-outline">
-                                    Upload
-                                    <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                                </label>
-                                <button className="btn btn-primary" onClick={() => setIsEditing(true)}>Edit</button>
                             </div>
                         </div>
 
@@ -346,10 +394,30 @@ export default function ProfilePage() {
 
                             <div className="info-item">
                                 <div className="label">CV (file)</div>
-                                <div className="value">
+                                <div className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     {me?.cvFile ? (
                                         <a href={me.cvFile} download>Download CV</a>
                                     ) : '-'}
+                                    <label htmlFor="cvUpload" className="btn btn-outline" style={{ margin: 0, padding: '4px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                                        Upload
+                                        <input id="cvUpload" type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} style={{ display: 'none' }} />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="info-item">
+                                <div className="label">Gender</div>
+                                <div className="value">{me?.gender || '-'}</div>
+                            </div>
+                            <div className="info-item">
+                                <div className="label">Permission File</div>
+                                <div className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {me?.permissionFile ? (
+                                        <a href={me.permissionFile} download>Download Permission File</a>
+                                    ) : '-'}
+                                    <label htmlFor="permissionUpload" className="btn btn-outline" style={{ margin: 0, padding: '4px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                                        Upload
+                                        <input id="permissionUpload" type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} style={{ display: 'none' }} />
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -439,6 +507,47 @@ export default function ProfilePage() {
                                 value={formData.cvFile}
                                 onChange={handleChange}
                                 placeholder="/files/your-cv.pdf"
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Gender</label>
+                            <select
+                                name="gender"
+                                value={formData.gender}
+                                onChange={handleChange}
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Status</label>
+                            <select
+                                name="status"
+                                value={formData.status}
+                                onChange={handleChange}
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                            >
+                                <option value="">Select status</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="INACTIVE">Inactive</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Permission File path (download URL)</label>
+                            <input
+                                type="text"
+                                name="permissionFile"
+                                value={formData.permissionFile}
+                                onChange={handleChange}
+                                placeholder="/files/permission-file.pdf"
                                 style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
                             />
                         </div>
