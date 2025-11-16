@@ -7,11 +7,120 @@ import { AuthContext } from "../../context/AuthContext";
 import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
 
+// Toast Component
+const Toast = ({ message, type = 'error', onClose, duration = 5000 }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, duration);
+
+        return () => clearTimeout(timer);
+    }, [duration, onClose]);
+
+    const getIcon = () => {
+        switch (type) {
+            case 'success':
+                return '✓';
+            case 'error':
+                return '✕';
+            case 'warning':
+                return '⚠';
+            case 'info':
+                return 'ℹ';
+            default:
+                return '✕';
+        }
+    };
+
+    const getStyles = () => {
+        const baseStyles = {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '16px 20px',
+            background: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            minWidth: '300px',
+            maxWidth: '500px',
+            animation: 'slideIn 0.3s ease-out',
+            borderLeft: '4px solid',
+            marginBottom: '10px'
+        };
+
+        const colorMap = {
+            error: '#ef4444',
+            success: '#10b981',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+
+        return {
+            ...baseStyles,
+            borderLeftColor: colorMap[type]
+        };
+    };
+
+    const getIconStyles = () => {
+        const baseStyles = {
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            flexShrink: 0
+        };
+
+        const colorMap = {
+            error: { background: '#fee2e2', color: '#ef4444' },
+            success: { background: '#d1fae5', color: '#10b981' },
+            warning: { background: '#fef3c7', color: '#f59e0b' },
+            info: { background: '#dbeafe', color: '#3b82f6' }
+        };
+
+        return {
+            ...baseStyles,
+            ...colorMap[type]
+        };
+    };
+
+    return (
+        <div style={getStyles()}>
+            <div style={getIconStyles()}>{getIcon()}</div>
+            <div style={{ flex: 1, fontSize: '14px', color: '#1f2937', lineHeight: '1.5' }}>
+                {message}
+            </div>
+            <button
+                onClick={onClose}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#6b7280',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    padding: 0,
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                }}
+            >
+                ×
+            </button>
+        </div>
+    );
+};
+
 export default function ProfilePage() {
     const { user, token, loading: authLoading, setUser } = useContext(AuthContext);
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [toasts, setToasts] = useState([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
@@ -28,6 +137,16 @@ export default function ProfilePage() {
         permissionFile: '',
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
+
+    // Toast management functions
+    const showToast = (message, type = 'error') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+    };
+
+    const removeToast = (id) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    };
 
     // Fetch intern data using userId - runs on every refresh/mount
     useEffect(() => {
@@ -89,7 +208,7 @@ export default function ProfilePage() {
                 hasToken: !!token,
                 userEmail: user?.email
             });
-            setError("Không thể xác định thông tin người dùng. Vui lòng đăng xuất và đăng nhập lại để cập nhật thông tin.");
+            showToast("Không thể xác định thông tin người dùng. Vui lòng đăng xuất và đăng nhập lại để cập nhật thông tin.", "error");
             setLoading(false);
             return;
         }
@@ -99,7 +218,6 @@ export default function ProfilePage() {
             
             try {
                 setLoading(true);
-                setError(null);
                 
                 // Always fetch fresh data on mount/refresh
                 const data = await getInternByUserId(token, userId);
@@ -110,7 +228,7 @@ export default function ProfilePage() {
                 // Handle case where data might be null or undefined
                 if (!data) {
                     console.warn("API returned null or undefined data");
-                    setError("Không tìm thấy thông tin hồ sơ");
+                    showToast("Không tìm thấy thông tin hồ sơ", "error");
                     setLoading(false);
                     return;
                 }
@@ -165,13 +283,13 @@ export default function ProfilePage() {
                 
                 // Provide more specific error messages
                 if (err.response?.status === 500) {
-                    setError("Lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.");
+                    showToast("Lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.", "error");
                 } else if (err.response?.status === 404) {
-                    setError("Không tìm thấy thông tin hồ sơ. Vui lòng kiểm tra lại thông tin đăng nhập.");
+                    showToast("Không tìm thấy thông tin hồ sơ. Vui lòng kiểm tra lại thông tin đăng nhập.", "error");
                 } else if (err.response?.status === 401 || err.response?.status === 403) {
-                    setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                    showToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", "error");
                 } else {
-                    setError("Không thể tải thông tin hồ sơ. Vui lòng thử lại.");
+                    showToast("Không thể tải thông tin hồ sơ. Vui lòng thử lại.", "error");
                 }
             } finally {
                 setLoading(false);
@@ -183,7 +301,6 @@ export default function ProfilePage() {
     }, [user?.userId, token, authLoading]);
 
     const me = internData;
-
 
     const initials = useMemo(() => {
         const source = formData.fullName || me?.fullName || user?.email || '';
@@ -232,7 +349,7 @@ export default function ProfilePage() {
                 
                 if (!avatarUrl) {
                     console.warn("No avatar URL in upload result:", uploadResult);
-                    alert("Tải lên thành công nhưng không nhận được URL ảnh. Vui lòng thử lại.");
+                    showToast("Tải lên thành công nhưng không nhận được URL ảnh. Vui lòng thử lại.", "warning");
                     return;
                 }
                 
@@ -265,6 +382,7 @@ export default function ProfilePage() {
                 }
                 
                 console.log("Avatar updated successfully");
+                showToast("Cập nhật ảnh đại diện thành công!", "success");
             } catch (err) {
                 console.error("Error uploading avatar:", err);
                 console.error("Error details:", {
@@ -281,7 +399,7 @@ export default function ProfilePage() {
                                    err.response?.data?.error || 
                                    err.message || 
                                    "Có lỗi xảy ra khi tải lên ảnh đại diện";
-                alert(`Lỗi: ${errorMessage}`);
+                showToast(errorMessage, "error");
                 // Keep the preview even if upload fails
             }
         }
@@ -301,12 +419,13 @@ export default function ProfilePage() {
                 await partialUpdateIntern(token, internData.internId, { cvFile: cvUrl });
                 setInternData(prev => ({ ...prev, cvFile: cvUrl }));
                 setFormData(prev => ({ ...prev, cvFile: cvUrl }));
+                showToast("Tải lên CV thành công!", "success");
             } catch (err) {
                 console.error("Error uploading CV file:", err);
-                alert("Có lỗi xảy ra khi tải lên CV");
+                showToast("Có lỗi xảy ra khi tải lên CV", "error");
             }
         } else {
-            alert("Không thể tải lên CV. Vui lòng thử lại sau.");
+            showToast("Không thể tải lên CV. Vui lòng thử lại sau.", "error");
         }
     };
 
@@ -324,12 +443,13 @@ export default function ProfilePage() {
                 await partialUpdateIntern(token, internData.internId, { permissionFile: permissionUrl });
                 setInternData(prev => ({ ...prev, permissionFile: permissionUrl }));
                 setFormData(prev => ({ ...prev, permissionFile: permissionUrl }));
+                showToast("Tải lên Permission File thành công!", "success");
             } catch (err) {
                 console.error("Error uploading permission file:", err);
-                alert("Có lỗi xảy ra khi tải lên permission file");
+                showToast("Có lỗi xảy ra khi tải lên permission file", "error");
             }
         } else {
-            alert("Không thể tải lên permission file. Vui lòng thử lại sau.");
+            showToast("Không thể tải lên permission file. Vui lòng thử lại sau.", "error");
         }
     };
 
@@ -342,6 +462,7 @@ export default function ProfilePage() {
             }
         };
     }, [avatarPreview]);
+
     const handleSave = async () => {
         if (!me?.internId || !token) return;
         
@@ -370,9 +491,10 @@ export default function ProfilePage() {
             }));
             
             setIsEditing(false);
+            showToast("Cập nhật hồ sơ thành công!", "success");
         } catch (err) {
             console.error("Error updating profile:", err);
-            alert("Có lỗi xảy ra khi cập nhật hồ sơ");
+            showToast("Có lỗi xảy ra khi cập nhật hồ sơ", "error");
         }
     };
 
@@ -384,21 +506,6 @@ export default function ProfilePage() {
                     <div className="profile-content">
                         <div className="profile-card">
                             <p>Đang tải thông tin...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="profile-page">
-                <InternSidebar />
-                <div className="profile-container">
-                    <div className="profile-content">
-                        <div className="profile-card">
-                            <p style={{ color: 'red' }}>{error}</p>
                         </div>
                     </div>
                 </div>
@@ -501,6 +608,18 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Toast Container */}
+            <div className="toast-container">
+                {toasts.map(toast => (
+                    <Toast
+                        key={toast.id}
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => removeToast(toast.id)}
+                    />
+                ))}
             </div>
 
             {isEditing && (
