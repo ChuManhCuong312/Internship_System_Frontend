@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
+import Swal from 'sweetalert2';
 import { MdEmail } from 'react-icons/md';
 import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
@@ -314,11 +315,21 @@ export default function ProfilePage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+   
+
     const handleAvatarClick = () => {
-        if (window.confirm("Bạn có muốn thay đổi ảnh đại diện không?")) {
-            document.getElementById("avatarUpload").click();
-        }
-    };
+  Swal.fire({
+    title: 'Bạn có muốn thay đổi ảnh đại diện không?',
+    showCancelButton: true,
+    confirmButtonText: 'Có',
+    cancelButtonText: 'Không',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      document.getElementById("avatarUpload").click();
+    }
+  });
+};
+
 
     const handleAvatarChange = async (e) => {
         const file = e.target.files?.[0];
