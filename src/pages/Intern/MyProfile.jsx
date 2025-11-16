@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
 import { AuthContext } from "../../context/AuthContext";
-import { getInternByUserId, partialUpdateIntern } from "../../api/internApi";
+import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
 
 export default function ProfilePage() {
@@ -203,35 +203,74 @@ export default function ProfilePage() {
         }
     };
 
-    const handleAvatarChange = (e) => {
+    const handleAvatarChange = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        
+        // Show preview immediately
         if (avatarPreview) {
             try {
                 URL.revokeObjectURL(avatarPreview);
             } catch { }
         }
-        const url = URL.createObjectURL(file);
-        setAvatarPreview(url);
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarPreview(previewUrl);
+        
+        // Upload to Cloudinary if internId exists
+        if (internData?.internId && token) {
+            try {
+                const uploadResult = await uploadAvatar(token, file, internData.internId);
+                const avatarUrl = uploadResult.url || uploadResult.secure_url || uploadResult.avatar;
+                
+                // Update intern data with the new avatar URL
+                await partialUpdateIntern(token, internData.internId, { avatar: avatarUrl });
+                setInternData(prev => ({ ...prev, avatar: avatarUrl }));
+                
+                // Update preview with the actual URL from Cloudinary
+                if (avatarUrl) {
+                    try {
+                        URL.revokeObjectURL(previewUrl);
+                    } catch { }
+                    setAvatarPreview(avatarUrl);
+                }
+            } catch (err) {
+                console.error("Error uploading avatar:", err);
+                console.error("Error details:", {
+                    message: err.message,
+                    response: err.response?.data,
+                    status: err.response?.status,
+                    file: file.name,
+                    fileSize: file.size,
+                    fileType: file.type
+                });
+                
+                const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || "Có lỗi xảy ra khi tải lên ảnh đại diện";
+                alert(`Lỗi: ${errorMessage}`);
+                // Keep the preview even if upload fails
+            }
+        }
     };
 
     const handleCvFileChange = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
         
-        // Update form data
-        const newCvPath = `/files/${file.name}`;
-        setFormData(prev => ({ ...prev, cvFile: newCvPath }));
-        
-        // Save to backend if internId exists
+        // Upload to Cloudinary if internId exists
         if (internData?.internId && token) {
             try {
-                await partialUpdateIntern(token, internData.internId, { cvFile: newCvPath });
-                setInternData(prev => ({ ...prev, cvFile: newCvPath }));
+                const uploadResult = await uploadCV(token, file, internData.internId);
+                const cvUrl = uploadResult.url || uploadResult.secure_url || uploadResult.cvFile;
+                
+                // Update intern data with the new CV URL
+                await partialUpdateIntern(token, internData.internId, { cvFile: cvUrl });
+                setInternData(prev => ({ ...prev, cvFile: cvUrl }));
+                setFormData(prev => ({ ...prev, cvFile: cvUrl }));
             } catch (err) {
-                console.error("Error updating CV file:", err);
-                alert("Có lỗi xảy ra khi cập nhật CV");
+                console.error("Error uploading CV file:", err);
+                alert("Có lỗi xảy ra khi tải lên CV");
             }
+        } else {
+            alert("Không thể tải lên CV. Vui lòng thử lại sau.");
         }
     };
 
@@ -239,19 +278,22 @@ export default function ProfilePage() {
         const file = e.target.files?.[0];
         if (!file) return;
         
-        // Update form data
-        const newPermissionPath = `/files/${file.name}`;
-        setFormData(prev => ({ ...prev, permissionFile: newPermissionPath }));
-        
-        // Save to backend if internId exists
+        // Upload to Cloudinary if internId exists
         if (internData?.internId && token) {
             try {
-                await partialUpdateIntern(token, internData.internId, { permissionFile: newPermissionPath });
-                setInternData(prev => ({ ...prev, permissionFile: newPermissionPath }));
+                const uploadResult = await uploadPermissionFile(token, file, internData.internId);
+                const permissionUrl = uploadResult.url || uploadResult.secure_url || uploadResult.file;
+                
+                // Update intern data with the new permission file URL
+                await partialUpdateIntern(token, internData.internId, { permissionFile: permissionUrl });
+                setInternData(prev => ({ ...prev, permissionFile: permissionUrl }));
+                setFormData(prev => ({ ...prev, permissionFile: permissionUrl }));
             } catch (err) {
-                console.error("Error updating permission file:", err);
-                alert("Có lỗi xảy ra khi cập nhật permission file");
+                console.error("Error uploading permission file:", err);
+                alert("Có lỗi xảy ra khi tải lên permission file");
             }
+        } else {
+            alert("Không thể tải lên permission file. Vui lòng thử lại sau.");
         }
     };
 
