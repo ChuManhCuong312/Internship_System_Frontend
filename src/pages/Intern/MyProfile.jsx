@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { MdEmail } from 'react-icons/md';
+import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
 import { AuthContext } from "../../context/AuthContext";
-import { getInternByUserId, updateIntern } from "../../api/internApi";
+import { getInternByUserId, partialUpdateIntern } from "../../api/internApi";
 import "../../styles/profile.css";
 
 export default function ProfilePage() {
-    const { user, token } = useContext(AuthContext);
+    const { user, token, loading: authLoading, setUser } = useContext(AuthContext);
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,37 +26,114 @@ export default function ProfilePage() {
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
-    // Fetch intern data using userId
+    // Fetch intern data using userId - runs on every refresh/mount
     useEffect(() => {
-        const fetchInternData = async () => {
-            if (!user?.userId || !token) {
-                setLoading(false);
-                return;
-            }
+        console.log("MyProfile useEffect triggered", { 
+            authLoading, 
+            hasUser: !!user, 
+            userId: user?.userId, 
+            hasToken: !!token 
+        });
 
+        // Wait for auth context to finish loading
+        if (authLoading) {
+            console.log("Waiting for auth to finish loading...");
+            return;
+        }
+
+        // If no token, stop loading
+        if (!token) {
+            console.warn("Missing token, cannot fetch intern data");
+            setLoading(false);
+            return;
+        }
+
+        // Get userId from user object, localStorage, or extract from token
+        let userId = user?.userId;
+        
+        // Fallback 1: Check localStorage directly (in case AuthContext hasn't restored it yet)
+        if (!userId) {
+            const storedUserId = localStorage.getItem("userId");
+            if (storedUserId) {
+                userId = parseInt(storedUserId);
+                console.log("Found userId in localStorage:", userId);
+                // Update the user context with the found userId
+                if (user && !user.userId) {
+                    setUser(prev => ({ ...prev, userId: userId }));
+                }
+            }
+        }
+        
+        // Fallback 2: Try to extract from token (though it likely won't be there)
+        if (!userId && token) {
+            try {
+                const payload = jwtDecode(token);
+                // Only use userId or id from token, NOT sub (which is email)
+                userId = payload.userId || payload.id;
+                console.log("Extracted userId from token:", userId, "Token payload:", payload);
+            } catch (err) {
+                console.error("Failed to decode token:", err);
+            }
+        }
+
+        // Validate userId - it should be numeric, not an email
+        if (!userId || (typeof userId === 'string' && userId.includes('@'))) {
+            console.warn("Cannot determine valid userId, cannot fetch intern data", {
+                hasUser: !!user,
+                userId: user?.userId,
+                storedUserId: localStorage.getItem("userId"),
+                extractedUserId: userId,
+                hasToken: !!token,
+                userEmail: user?.email
+            });
+            setError("Không thể xác định thông tin người dùng. Vui lòng đăng xuất và đăng nhập lại để cập nhật thông tin.");
+            setLoading(false);
+            return;
+        }
+
+        const fetchInternData = async () => {
+            console.log("Fetching intern data for userId:", userId);
+            
             try {
                 setLoading(true);
                 setError(null);
-                const data = await getInternByUserId(token, user.userId);
+                
+                // Always fetch fresh data on mount/refresh
+                const data = await getInternByUserId(token, userId);
+                
+                console.log("API Response Data:", data);
+                console.log("User data from context:", user);
+                
+                // Handle case where data might be null or undefined
+                if (!data) {
+                    console.warn("API returned null or undefined data");
+                    setError("Không tìm thấy thông tin hồ sơ");
+                    setLoading(false);
+                    return;
+                }
                 
                 // Map API response fields to component format
+                // Handle both direct data and nested data structures
                 const mappedData = {
-                    internId: data.internId,
-                    userId: data.userId,
-                    fullName: user.fullName || data.fullName || '',
-                    email: user.email,
+                    internId: data.internId || data.id || null,
+                    userId: data.userId || user.userId,
+                    fullName: user.fullName || data.fullName || data.full_name || '',
+                    email: user.email || data.email || '',
                     school: data.school || '',
                     major: data.major || '',
                     address: data.address || '',
                     dob: data.dob || '',
-                    phoneNumber: data.phoneNumber || '',
-                    gpa: data.gpa || '',
-                    cvFile: data.cvFile || '', // Map cvFile to cvFile
+                    phoneNumber: data.phoneNumber || data.phone_number || '',
+                    gpa: data.gpa !== undefined && data.gpa !== null ? String(data.gpa) : '',
+                    cvFile: data.cvFile || data.cv_file || data.cvPath || '',
                     status: data.status || '',
                     gender: data.gender || '',
-                    avatar: data.avatar || '',
-                    permissionFile: data.permissionFile || ''
+                    avatar: data.avatar || data.avatarUrl || data.avatar_url || '',
+                    permissionFile: data.permissionFile || data.permission_file || ''
                 };
+                
+                console.log("Mapped Data:", mappedData);
+                console.log("Successfully fetched and mapped intern data");
                 
                 setInternData(mappedData);
                 
@@ -72,14 +150,31 @@ export default function ProfilePage() {
                 });
             } catch (err) {
                 console.error("Error fetching intern data:", err);
-                setError("Không thể tải thông tin hồ sơ");
+                console.error("Error details:", {
+                    message: err.message,
+                    response: err.response?.data,
+                    status: err.response?.status,
+                    userId: userId
+                });
+                
+                // Provide more specific error messages
+                if (err.response?.status === 500) {
+                    setError("Lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.");
+                } else if (err.response?.status === 404) {
+                    setError("Không tìm thấy thông tin hồ sơ. Vui lòng kiểm tra lại thông tin đăng nhập.");
+                } else if (err.response?.status === 401 || err.response?.status === 403) {
+                    setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                } else {
+                    setError("Không thể tải thông tin hồ sơ. Vui lòng thử lại.");
+                }
             } finally {
                 setLoading(false);
             }
         };
 
+        // Always fetch when component mounts or dependencies change
         fetchInternData();
-    }, [user?.userId, token]);
+    }, [user?.userId, token, authLoading]);
 
     const me = internData;
 
@@ -132,7 +227,7 @@ export default function ProfilePage() {
                 cvFile: formData.cvFile // Map cvFile back to cvFile
             };
             
-            const updated = await updateIntern(token, me.internId, updateData);
+            const updated = await partialUpdateIntern(token, me.internId, updateData);
             
             // Update local state with response
             setInternData(prev => ({
@@ -148,7 +243,7 @@ export default function ProfilePage() {
         }
     };
 
-    if (loading) {
+    if (authLoading || loading) {
         return (
             <div className="profile-page">
                 <InternSidebar />
@@ -190,6 +285,8 @@ export default function ProfilePage() {
                                     <div className="avatar-inner">
                                         {avatarPreview ? (
                                             <img src={avatarPreview} alt="avatar preview" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                        ) : me?.avatar ? (
+                                            <img src={me.avatar} alt="avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                                         ) : (
                                             initials
                                         )}
