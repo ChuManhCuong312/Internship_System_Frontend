@@ -1,6 +1,9 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/hr/interns";
+const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
+const API_URL_MENTOR = "http://localhost:8080/api/mentors";
+
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
@@ -76,6 +79,45 @@ updateInternProfile: async (token, internId, profileData) => {
   });
   return res.data;
 },
+
+getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
+  const params = {};
+  if (search) params.search = search;
+  if (filter) params.filter = filter;
+  if (mentorId) params.mentorId = mentorId;
+
+  const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
+    headers: { Authorization: `Bearer ${token}` },
+    params
+  });
+  return res.data;
+},
+
+assignMentor: async (token, { internId, mentorId }) => {
+  const res = await axios.post(`${API_URL_MENTOR_ASSIGN}/assign`, {
+    internId, mentorId
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+},
+
+reassignMentor: async (token, { internId, mentorId }) => {
+  const res = await axios.put(`${API_URL_MENTOR_ASSIGN}/reassign`, {
+    internId, mentorId
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+},
+
+getAllMentors: async (token) => {
+  const res = await axios.get(`${API_URL_MENTOR}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+},
+
 
 
 };
