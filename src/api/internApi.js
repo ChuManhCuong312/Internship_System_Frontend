@@ -64,7 +64,7 @@ export const createIntern = async (token, internProfile) => {
     major: internProfile.major || "",
     dob: internProfile.dob || "2000-01-01",
     address: internProfile.address || "",
-    cvPath: internProfile.cvPath || "default.pdf",
+    cvFile: internProfile.cvFile || "default.pdf",
     status: internProfile.status || "PENDING",
     phoneNumber: internProfile.phoneNumber || "",
     gpa: internProfile.gpa || 0.0,
@@ -87,7 +87,7 @@ export const updateIntern = async (token, id, internProfile) => {
       internProfile.address?.length >= 5
         ? internProfile.address
         : "Hà Nội",
-    cvPath: internProfile.cvPath || "dummy.pdf",
+    cvFile: internProfile.cvFile || "dummy.pdf",
     status: internProfile.status || "PENDING",
     phoneNumber: internProfile.phoneNumber || "0000000000",
     gpa: internProfile.gpa > 0 ? internProfile.gpa : 1.0,

@@ -50,7 +50,7 @@ export default function ProfilePage() {
                     dob: data.dob || '',
                     phoneNumber: data.phoneNumber || '',
                     gpa: data.gpa || '',
-                    cvFile: data.cvPath || '', // Map cvPath to cvFile
+                    cvFile: data.cvFile || '', // Map cvFile to cvFile
                     status: data.status || '',
                     gender: data.gender || '',
                     avatar: data.avatar || '',
@@ -129,7 +129,7 @@ export default function ProfilePage() {
                 dob: formData.dob,
                 phoneNumber: formData.phoneNumber,
                 gpa: formData.gpa,
-                cvPath: formData.cvFile // Map cvFile back to cvPath
+                cvFile: formData.cvFile // Map cvFile back to cvFile
             };
             
             const updated = await updateIntern(token, me.internId, updateData);
@@ -138,7 +138,7 @@ export default function ProfilePage() {
             setInternData(prev => ({
                 ...prev,
                 ...updated,
-                cvFile: updated.cvPath || prev.cvFile
+                cvFile: updated.cvFile || prev.cvFile
             }));
             
             setIsEditing(false);
