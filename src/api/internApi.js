@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/interns";
+const CLOUDINARY_URL = "http://localhost:8080/api/cloudinary";
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
@@ -64,7 +65,7 @@ export const createIntern = async (token, internProfile) => {
     major: internProfile.major || "",
     dob: internProfile.dob || "2000-01-01",
     address: internProfile.address || "",
-    cvPath: internProfile.cvPath || "default.pdf",
+    cvFile: internProfile.cvFile || "default.pdf",
     status: internProfile.status || "PENDING",
     phoneNumber: internProfile.phoneNumber || "",
     gpa: internProfile.gpa || 0.0,
@@ -87,7 +88,7 @@ export const updateIntern = async (token, id, internProfile) => {
       internProfile.address?.length >= 5
         ? internProfile.address
         : "Hà Nội",
-    cvPath: internProfile.cvPath || "dummy.pdf",
+    cvFile: internProfile.cvFile || "dummy.pdf",
     status: internProfile.status || "PENDING",
     phoneNumber: internProfile.phoneNumber || "0000000000",
     gpa: internProfile.gpa > 0 ? internProfile.gpa : 1.0,
@@ -108,4 +109,119 @@ export const partialUpdateIntern = async (token, id, internProfile) => {
 // DELETE /api/interns/{id}
 export const deleteIntern = async (token, id) => {
   await axios.delete(`${API_URL}/${id}`, authHeader(token));
+};
+
+// ===== CLOUDINARY API =====
+
+// POST /api/cloudinary/upload/avatar - Upload avatar image
+export const uploadAvatar = async (token, file, internId = null) => {
+  // Try different field names - backend might expect "file" or "image"
+  const tryUpload = async (fieldName, urlPath = false) => {
+    const formData = new FormData();
+    formData.append(fieldName, file);
+    
+    if (internId) {
+      if (urlPath) {
+        // Try internId in URL path
+        const url = `${CLOUDINARY_URL}/upload/avatar/${internId}`;
+        return await axios.post(url, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        // Try internId in form data
+        formData.append("internId", String(internId));
+        return await axios.post(`${CLOUDINARY_URL}/upload/avatar`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+    } else {
+      return await axios.post(`${CLOUDINARY_URL}/upload/avatar`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }
+  };
+
+  // Try "file" field name first (most common)
+  try {
+    const res = await tryUpload("file", false);
+    return res.data;
+  } catch (error1) {
+    // If "file" fails with validation error, try "image"
+    if (error1.response?.status === 400) {
+      try {
+        const res = await tryUpload("image", false);
+        return res.data;
+      } catch (error2) {
+        // If both fail, try with internId in URL path
+        if (internId && error2.response?.status === 400) {
+          try {
+            const res = await tryUpload("file", true);
+            return res.data;
+          } catch (error3) {
+            // Last attempt: "image" with internId in path
+            if (error3.response?.status === 400) {
+              const res = await tryUpload("image", true);
+              return res.data;
+            }
+            throw error3;
+          }
+        }
+        throw error2;
+      }
+    }
+    throw error1;
+  }
+};
+
+// POST /api/cloudinary/upload/cv - Upload CV file
+export const uploadCV = async (token, file, internId = null) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (internId) {
+    formData.append("internId", internId);
+  }
+
+  // Don't set Content-Type header - let axios set it automatically with boundary
+  const res = await axios.post(
+    `${CLOUDINARY_URL}/upload/cv`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Let axios set Content-Type automatically for FormData
+      },
+    }
+  );
+  return res.data;
+};
+
+// POST /api/cloudinary/upload/permission - Upload permission file
+export const uploadPermissionFile = async (token, file, internId = null) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (internId) {
+    formData.append("internId", internId);
+  }
+
+  // Don't set Content-Type header - let axios set it automatically with boundary
+  const res = await axios.post(
+    `${CLOUDINARY_URL}/upload/permission`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Let axios set Content-Type automatically for FormData
+      },
+    }
+  );
+  return res.data;
+};
+
+// DELETE /api/cloudinary/delete/{publicId} - Delete file by publicId
+export const deleteCloudinaryFile = async (token, publicId) => {
+  const res = await axios.delete(
+    `${CLOUDINARY_URL}/delete/${encodeURIComponent(publicId)}`,
+    authHeader(token)
+  );
+  return res.data;
 };

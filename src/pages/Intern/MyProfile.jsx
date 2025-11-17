@@ -1,16 +1,127 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
+import Swal from 'sweetalert2';
 import { MdEmail } from 'react-icons/md';
+import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
 import { AuthContext } from "../../context/AuthContext";
-import { getInternByUserId, updateIntern } from "../../api/internApi";
+import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
 
+// Toast Component
+const Toast = ({ message, type = 'error', onClose, duration = 5000 }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, duration);
+
+        return () => clearTimeout(timer);
+    }, [duration, onClose]);
+
+    const getIcon = () => {
+        switch (type) {
+            case 'success':
+                return '✓';
+            case 'error':
+                return '✕';
+            case 'warning':
+                return '⚠';
+            case 'info':
+                return 'ℹ';
+            default:
+                return '✕';
+        }
+    };
+
+    const getStyles = () => {
+        const baseStyles = {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '16px 20px',
+            background: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            minWidth: '300px',
+            maxWidth: '500px',
+            animation: 'slideIn 0.3s ease-out',
+            borderLeft: '4px solid',
+            marginBottom: '10px'
+        };
+
+        const colorMap = {
+            error: '#ef4444',
+            success: '#10b981',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+
+        return {
+            ...baseStyles,
+            borderLeftColor: colorMap[type]
+        };
+    };
+
+    const getIconStyles = () => {
+        const baseStyles = {
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            flexShrink: 0
+        };
+
+        const colorMap = {
+            error: { background: '#fee2e2', color: '#ef4444' },
+            success: { background: '#d1fae5', color: '#10b981' },
+            warning: { background: '#fef3c7', color: '#f59e0b' },
+            info: { background: '#dbeafe', color: '#3b82f6' }
+        };
+
+        return {
+            ...baseStyles,
+            ...colorMap[type]
+        };
+    };
+
+    return (
+        <div style={getStyles()}>
+            <div style={getIconStyles()}>{getIcon()}</div>
+            <div style={{ flex: 1, fontSize: '14px', color: '#1f2937', lineHeight: '1.5' }}>
+                {message}
+            </div>
+            <button
+                onClick={onClose}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#6b7280',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    padding: 0,
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                }}
+            >
+                ×
+            </button>
+        </div>
+    );
+};
+
 export default function ProfilePage() {
-    const { user, token } = useContext(AuthContext);
+    const { user, token, loading: authLoading, setUser } = useContext(AuthContext);
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [toasts, setToasts] = useState([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
@@ -18,44 +129,133 @@ export default function ProfilePage() {
         school: '',
         major: '',
         address: '',
+        gender: '',
         dob: '',
         phoneNumber: '',
         gpa: '',
-        cvFile: ''
+        cvFile: '',
+        status: '',
+        permissionFile: '',
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
-    // Fetch intern data using userId
-    useEffect(() => {
-        const fetchInternData = async () => {
-            if (!user?.userId || !token) {
-                setLoading(false);
-                return;
-            }
+    // Toast management functions
+    const showToast = (message, type = 'error') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+    };
 
+    const removeToast = (id) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    };
+
+    // Fetch intern data using userId - runs on every refresh/mount
+    useEffect(() => {
+        console.log("MyProfile useEffect triggered", { 
+            authLoading, 
+            hasUser: !!user, 
+            userId: user?.userId, 
+            hasToken: !!token 
+        });
+
+        // Wait for auth context to finish loading
+        if (authLoading) {
+            console.log("Waiting for auth to finish loading...");
+            return;
+        }
+
+        // If no token, stop loading
+        if (!token) {
+            console.warn("Missing token, cannot fetch intern data");
+            setLoading(false);
+            return;
+        }
+
+        // Get userId from user object, localStorage, or extract from token
+        let userId = user?.userId;
+        
+        // Fallback 1: Check localStorage directly (in case AuthContext hasn't restored it yet)
+        if (!userId) {
+            const storedUserId = localStorage.getItem("userId");
+            if (storedUserId) {
+                userId = parseInt(storedUserId);
+                console.log("Found userId in localStorage:", userId);
+                // Update the user context with the found userId
+                if (user && !user.userId) {
+                    setUser(prev => ({ ...prev, userId: userId }));
+                }
+            }
+        }
+        
+        // Fallback 2: Try to extract from token (though it likely won't be there)
+        if (!userId && token) {
+            try {
+                const payload = jwtDecode(token);
+                // Only use userId or id from token, NOT sub (which is email)
+                userId = payload.userId || payload.id;
+                console.log("Extracted userId from token:", userId, "Token payload:", payload);
+            } catch (err) {
+                console.error("Failed to decode token:", err);
+            }
+        }
+
+        // Validate userId - it should be numeric, not an email
+        if (!userId || (typeof userId === 'string' && userId.includes('@'))) {
+            console.warn("Cannot determine valid userId, cannot fetch intern data", {
+                hasUser: !!user,
+                userId: user?.userId,
+                storedUserId: localStorage.getItem("userId"),
+                extractedUserId: userId,
+                hasToken: !!token,
+                userEmail: user?.email
+            });
+            showToast("Không thể xác định thông tin người dùng. Vui lòng đăng xuất và đăng nhập lại để cập nhật thông tin.", "error");
+            setLoading(false);
+            return;
+        }
+
+        const fetchInternData = async () => {
+            console.log("Fetching intern data for userId:", userId);
+            
             try {
                 setLoading(true);
-                setError(null);
-                const data = await getInternByUserId(token, user.userId);
+                
+                // Always fetch fresh data on mount/refresh
+                const data = await getInternByUserId(token, userId);
+                
+                console.log("API Response Data:", data);
+                console.log("User data from context:", user);
+                
+                // Handle case where data might be null or undefined
+                if (!data) {
+                    console.warn("API returned null or undefined data");
+                    showToast("Không tìm thấy thông tin hồ sơ", "error");
+                    setLoading(false);
+                    return;
+                }
                 
                 // Map API response fields to component format
+                // Handle both direct data and nested data structures
                 const mappedData = {
-                    internId: data.internId,
-                    userId: data.userId,
-                    fullName: user.fullName || data.fullName || '',
-                    email: user.email,
+                    internId: data.internId || data.id || null,
+                    userId: data.userId || user.userId,
+                    fullName: user.fullName || data.fullName || data.full_name || '',
+                    email: user.email || data.email || '',
                     school: data.school || '',
                     major: data.major || '',
                     address: data.address || '',
                     dob: data.dob || '',
-                    phoneNumber: data.phoneNumber || '',
-                    gpa: data.gpa || '',
-                    cvFile: data.cvPath || '', // Map cvPath to cvFile
+                    phoneNumber: data.phoneNumber || data.phone_number || '',
+                    gpa: data.gpa !== undefined && data.gpa !== null ? String(data.gpa) : '',
+                    cvFile: data.cvFile || data.cv_file || data.cvPath || '',
                     status: data.status || '',
                     gender: data.gender || '',
-                    avatar: data.avatar || '',
-                    permissionFile: data.permissionFile || ''
+                    avatar: data.avatar || data.avatarUrl || data.avatar_url || '',
+                    permissionFile: data.permissionFile || data.permission_file || ''
                 };
+                
+                console.log("Mapped Data:", mappedData);
+                console.log("Successfully fetched and mapped intern data");
                 
                 setInternData(mappedData);
                 
@@ -68,21 +268,40 @@ export default function ProfilePage() {
                     dob: mappedData.dob,
                     phoneNumber: mappedData.phoneNumber,
                     gpa: mappedData.gpa,
-                    cvFile: mappedData.cvFile
+                    cvFile: mappedData.cvFile,
+                    gender: mappedData.gender,
+                    status: mappedData.status,
+                    permissionFile: mappedData.permissionFile
                 });
             } catch (err) {
                 console.error("Error fetching intern data:", err);
-                setError("Không thể tải thông tin hồ sơ");
+                console.error("Error details:", {
+                    message: err.message,
+                    response: err.response?.data,
+                    status: err.response?.status,
+                    userId: userId
+                });
+                
+                // Provide more specific error messages
+                if (err.response?.status === 500) {
+                    showToast("Lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.", "error");
+                } else if (err.response?.status === 404) {
+                    showToast("Không tìm thấy thông tin hồ sơ. Vui lòng kiểm tra lại thông tin đăng nhập.", "error");
+                } else if (err.response?.status === 401 || err.response?.status === 403) {
+                    showToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", "error");
+                } else {
+                    showToast("Không thể tải thông tin hồ sơ. Vui lòng thử lại.", "error");
+                }
             } finally {
                 setLoading(false);
             }
         };
 
+        // Always fetch when component mounts or dependencies change
         fetchInternData();
-    }, [user?.userId, token]);
+    }, [user?.userId, token, authLoading]);
 
     const me = internData;
-
 
     const initials = useMemo(() => {
         const source = formData.fullName || me?.fullName || user?.email || '';
@@ -96,16 +315,153 @@ export default function ProfilePage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleAvatarChange = (e) => {
+   
+
+    const handleAvatarClick = () => {
+  Swal.fire({
+    title: 'Bạn có muốn thay đổi ảnh đại diện không?',
+    showCancelButton: true,
+    confirmButtonText: 'Có',
+    cancelButtonText: 'Không',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      document.getElementById("avatarUpload").click();
+    }
+  });
+};
+
+
+    const handleAvatarChange = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        
+        // Show preview immediately
         if (avatarPreview) {
             try {
                 URL.revokeObjectURL(avatarPreview);
             } catch { }
         }
-        const url = URL.createObjectURL(file);
-        setAvatarPreview(url);
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarPreview(previewUrl);
+        
+        // Upload to Cloudinary if internId exists
+        if (internData?.internId && token) {
+            try {
+                console.log("Uploading avatar to Cloudinary...", { internId: internData.internId, fileName: file.name });
+                const uploadResult = await uploadAvatar(token, file, internData.internId);
+                console.log("Cloudinary upload result:", uploadResult);
+                
+                // Try multiple possible response formats
+                const avatarUrl = uploadResult?.url || 
+                                 uploadResult?.secure_url || 
+                                 uploadResult?.avatar || 
+                                 uploadResult?.data?.url ||
+                                 uploadResult?.data?.secure_url;
+                
+                if (!avatarUrl) {
+                    console.warn("No avatar URL in upload result:", uploadResult);
+                    showToast("Tải lên thành công nhưng không nhận được URL ảnh. Vui lòng thử lại.", "warning");
+                    return;
+                }
+                
+                console.log("Updating intern profile with avatar URL:", avatarUrl);
+                // Try different field names that backend might expect
+                try {
+                    await partialUpdateIntern(token, internData.internId, { avatar: avatarUrl });
+                } catch (updateError) {
+                    // Try alternative field names
+                    console.log("Trying alternative field names...");
+                    try {
+                        await partialUpdateIntern(token, internData.internId, { avatarUrl: avatarUrl });
+                    } catch (updateError2) {
+                        // Try with both field names
+                        await partialUpdateIntern(token, internData.internId, { 
+                            avatar: avatarUrl,
+                            avatarUrl: avatarUrl 
+                        });
+                    }
+                }
+                
+                setInternData(prev => ({ ...prev, avatar: avatarUrl }));
+                
+                // Update preview with the actual URL from Cloudinary
+                if (avatarUrl) {
+                    try {
+                        URL.revokeObjectURL(previewUrl);
+                    } catch { }
+                    setAvatarPreview(avatarUrl);
+                }
+                
+                console.log("Avatar updated successfully");
+                showToast("Cập nhật ảnh đại diện thành công!", "success");
+            } catch (err) {
+                console.error("Error uploading avatar:", err);
+                console.error("Error details:", {
+                    message: err.message,
+                    response: err.response?.data,
+                    status: err.response?.status,
+                    file: file.name,
+                    fileSize: file.size,
+                    fileType: file.type,
+                    stack: err.stack
+                });
+                
+                const errorMessage = err.response?.data?.message || 
+                                   err.response?.data?.error || 
+                                   err.message || 
+                                   "Có lỗi xảy ra khi tải lên ảnh đại diện";
+                showToast(errorMessage, "error");
+                // Keep the preview even if upload fails
+            }
+        }
+    };
+
+    const handleCvFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        // Upload to Cloudinary if internId exists
+        if (internData?.internId && token) {
+            try {
+                const uploadResult = await uploadCV(token, file, internData.internId);
+                const cvUrl = uploadResult.url || uploadResult.secure_url || uploadResult.cvFile;
+                
+                // Update intern data with the new CV URL
+                await partialUpdateIntern(token, internData.internId, { cvFile: cvUrl });
+                setInternData(prev => ({ ...prev, cvFile: cvUrl }));
+                setFormData(prev => ({ ...prev, cvFile: cvUrl }));
+                showToast("Tải lên CV thành công!", "success");
+            } catch (err) {
+                console.error("Error uploading CV file:", err);
+                showToast("Có lỗi xảy ra khi tải lên CV", "error");
+            }
+        } else {
+            showToast("Không thể tải lên CV. Vui lòng thử lại sau.", "error");
+        }
+    };
+
+    const handlePermissionFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        // Upload to Cloudinary if internId exists
+        if (internData?.internId && token) {
+            try {
+                const uploadResult = await uploadPermissionFile(token, file, internData.internId);
+                const permissionUrl = uploadResult.url || uploadResult.secure_url || uploadResult.file;
+                
+                // Update intern data with the new permission file URL
+                await partialUpdateIntern(token, internData.internId, { permissionFile: permissionUrl });
+                setInternData(prev => ({ ...prev, permissionFile: permissionUrl }));
+                setFormData(prev => ({ ...prev, permissionFile: permissionUrl }));
+                showToast("Tải lên Permission File thành công!", "success");
+            } catch (err) {
+                console.error("Error uploading permission file:", err);
+                showToast("Có lỗi xảy ra khi tải lên permission file", "error");
+            }
+        } else {
+            showToast("Không thể tải lên permission file. Vui lòng thử lại sau.", "error");
+        }
     };
 
     useEffect(() => {
@@ -117,6 +473,7 @@ export default function ProfilePage() {
             }
         };
     }, [avatarPreview]);
+
     const handleSave = async () => {
         if (!me?.internId || !token) return;
         
@@ -129,26 +486,30 @@ export default function ProfilePage() {
                 dob: formData.dob,
                 phoneNumber: formData.phoneNumber,
                 gpa: formData.gpa,
-                cvPath: formData.cvFile // Map cvFile back to cvPath
+                cvFile: formData.cvFile,
+                gender: formData.gender,
+                status: formData.status,
+                permissionFile: formData.permissionFile
             };
             
-            const updated = await updateIntern(token, me.internId, updateData);
+            const updated = await partialUpdateIntern(token, me.internId, updateData);
             
             // Update local state with response
             setInternData(prev => ({
                 ...prev,
                 ...updated,
-                cvFile: updated.cvPath || prev.cvFile
+                cvFile: updated.cvFile || prev.cvFile
             }));
             
             setIsEditing(false);
+            showToast("Cập nhật hồ sơ thành công!", "success");
         } catch (err) {
             console.error("Error updating profile:", err);
-            alert("Có lỗi xảy ra khi cập nhật hồ sơ");
+            showToast("Có lỗi xảy ra khi cập nhật hồ sơ", "error");
         }
     };
 
-    if (loading) {
+    if (authLoading || loading) {
         return (
             <div className="profile-page">
                 <InternSidebar />
@@ -156,21 +517,6 @@ export default function ProfilePage() {
                     <div className="profile-content">
                         <div className="profile-card">
                             <p>Đang tải thông tin...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="profile-page">
-                <InternSidebar />
-                <div className="profile-container">
-                    <div className="profile-content">
-                        <div className="profile-card">
-                            <p style={{ color: 'red' }}>{error}</p>
                         </div>
                     </div>
                 </div>
@@ -186,15 +532,18 @@ export default function ProfilePage() {
                     <div className="profile-card">
                         <div className="profile-row">
                             <div className="avatar-wrap">
-                                <div className="avatar status-dot">
+                                <div className="avatar status-dot" style={{ cursor: 'pointer' }} onClick={handleAvatarClick}>
                                     <div className="avatar-inner">
                                         {avatarPreview ? (
                                             <img src={avatarPreview} alt="avatar preview" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                        ) : me?.avatar ? (
+                                            <img src={me.avatar} alt="avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                                         ) : (
                                             initials
                                         )}
                                     </div>
                                 </div>
+                                <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
                             </div>
 
                             <div>
@@ -206,14 +555,6 @@ export default function ProfilePage() {
                                     <MdEmail size={16} />
                                     <span>{me?.email || user?.email}</span>
                                 </div>
-                            </div>
-
-                            <div className="profile-actions">
-                                <label htmlFor="avatarUpload" className="btn btn-outline">
-                                    Upload
-                                    <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                                </label>
-                                <button className="btn btn-primary" onClick={() => setIsEditing(true)}>Edit</button>
                             </div>
                         </div>
 
@@ -249,15 +590,47 @@ export default function ProfilePage() {
 
                             <div className="info-item">
                                 <div className="label">CV (file)</div>
-                                <div className="value">
+                                <div className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     {me?.cvFile ? (
                                         <a href={me.cvFile} download>Download CV</a>
                                     ) : '-'}
+                                    <label htmlFor="cvUpload" className="btn btn-outline" style={{ margin: 0, padding: '4px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                                        Upload
+                                        <input id="cvUpload" type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} style={{ display: 'none' }} />
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="info-item">
+                                <div className="label">Gender</div>
+                                <div className="value">{me?.gender || '-'}</div>
+                            </div>
+                            <div className="info-item">
+                                <div className="label">Permission File</div>
+                                <div className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {me?.permissionFile ? (
+                                        <a href={me.permissionFile} download>Download Permission File</a>
+                                    ) : '-'}
+                                    <label htmlFor="permissionUpload" className="btn btn-outline" style={{ margin: 0, padding: '4px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                                        Upload
+                                        <input id="permissionUpload" type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} style={{ display: 'none' }} />
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Toast Container */}
+            <div className="toast-container">
+                {toasts.map(toast => (
+                    <Toast
+                        key={toast.id}
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => removeToast(toast.id)}
+                    />
+                ))}
             </div>
 
             {isEditing && (
@@ -342,6 +715,47 @@ export default function ProfilePage() {
                                 value={formData.cvFile}
                                 onChange={handleChange}
                                 placeholder="/files/your-cv.pdf"
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Gender</label>
+                            <select
+                                name="gender"
+                                value={formData.gender}
+                                onChange={handleChange}
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Status</label>
+                            <select
+                                name="status"
+                                value={formData.status}
+                                onChange={handleChange}
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                            >
+                                <option value="">Select status</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="INACTIVE">Inactive</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Permission File path (download URL)</label>
+                            <input
+                                type="text"
+                                name="permissionFile"
+                                value={formData.permissionFile}
+                                onChange={handleChange}
+                                placeholder="/files/permission-file.pdf"
                                 style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
                             />
                         </div>
