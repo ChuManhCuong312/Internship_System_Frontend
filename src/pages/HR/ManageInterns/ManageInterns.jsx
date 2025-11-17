@@ -60,7 +60,7 @@ const ManageInterns = () => {
   };
 
   useEffect(() => {
-    fetchInterns(true); // truyền resetPage = true
+    fetchInterns(true);
   }, [searchTerm, statusFilter, majorFilter]);
 
   useEffect(() => {
