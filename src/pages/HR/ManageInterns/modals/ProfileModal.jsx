@@ -56,16 +56,25 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
 
     {/* GPA */}
     <div className="form-group">
-      <label>GPA</label>
-      <input
-        type="number"
-        step="0.01"
-        min="0.01"
-        max="4"
-        className="form-input"
-        value={profileData.gpa}
-        onChange={e => setProfileData({ ...profileData, gpa: e.target.value })}
-      />
+      <label>GPA *</label>
+     <input
+       type="number"
+       step="0.01"
+       min="0.01"
+       max="4"
+       className="form-input"
+       value={profileData.gpa}
+       onChange={e => setProfileData({ ...profileData, gpa: e.target.value })}
+       onInput={e => {
+         if (parseFloat(e.target.value) > 4) {
+           e.target.value = "4";
+         }
+         if (parseFloat(e.target.value) < 0) {
+           e.target.value = "0.01";
+         }
+       }}
+       required
+     />
       {errors.gpa && <p className="field-error">{errors.gpa}</p>}
     </div>
 
