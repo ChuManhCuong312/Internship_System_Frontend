@@ -80,11 +80,11 @@ updateInternProfile: async (token, internId, profileData) => {
   return res.data;
 },
 
-getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
-  const params = {};
+
+getInternAssignments: async (token, { search = "", filter = "all", page = 1, size = 10 } = {}) => {
+  const params = { page, size };
   if (search) params.search = search;
   if (filter) params.filter = filter;
-  if (mentorId) params.mentorId = mentorId;
 
   const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -92,6 +92,7 @@ getInternAssignments: async (token, { search = "", filter = "all", mentorId = nu
   });
   return res.data;
 },
+
 
 assignMentor: async (token, { internId, mentorId }) => {
   const res = await axios.post(`${API_URL_MENTOR_ASSIGN}/assign`, {
