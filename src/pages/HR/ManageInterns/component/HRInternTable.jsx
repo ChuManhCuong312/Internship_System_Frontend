@@ -9,7 +9,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
       case "APPROVED":
         return "Đã duyệt";
       case "REJECTED":
-        return "Từ chối";
+        return "Bị từ chối";
       case "ACTIVE":
         return "Đang hoạt động";
       case "COMPLETED":

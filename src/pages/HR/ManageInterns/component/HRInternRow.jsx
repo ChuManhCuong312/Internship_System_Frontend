@@ -51,7 +51,15 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
           )}
           {!intern.cvFile && !intern.permissionFile && "Chưa có"}
         </td>
-        <td>{translateStatus(intern.status)}</td>
+        <td>
+          <span
+            className={`status-badge status-${translateStatus(intern.status)
+              .toLowerCase()
+              .replace(/\s/g, "-")}`}
+          >
+            {translateStatus(intern.status)}
+          </span>
+        </td>
         <td>
           {intern.status === "PENDING" && (
             <div className="action-buttons">
