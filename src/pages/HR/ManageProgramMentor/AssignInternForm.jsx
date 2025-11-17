@@ -10,7 +10,7 @@ const AssignInternForm = ({
   onClose
 }) => {
   const isApproved = intern.internConfirmStatus === "APPROVED";
-  const isReassign = !!intern.mentorId; // check if intern already has mentor
+  const isReassign = !!intern.mentorId;
 
   return (
     <div className="modal-overlay">
@@ -47,9 +47,7 @@ const AssignInternForm = ({
         </div>
 
         {!isApproved && (
-          <p style={{ color: "red" }}>
-            TTS chưa xác nhận hợp đồng
-          </p>
+          <p style={{ color: "red" }}>TTS chưa xác nhận hợp đồng</p>
         )}
 
         <div className="modal-actions">
