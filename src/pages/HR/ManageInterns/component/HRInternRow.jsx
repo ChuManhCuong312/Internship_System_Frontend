@@ -38,18 +38,18 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
         <td>{intern.dob}</td>
         <td>{intern.address}</td>
         <td>
-          {intern.cvFile && (
-            <a href={`/${intern.cvFile}`} download>{intern.cvFile}</a>
+          {intern.cvPath && (
+            <a href={`/${intern.cvPath}`} download>{intern.cvPath}</a>
           )}
-          {intern.permissionFile && (
+          {intern.internshipApplicationPath && (
             <>
               {" | "}
-              <a href={`/${intern.permissionFile}`} download>
-                {intern.permissionFile}
+              <a href={`/${intern.internshipApplicationPath}`} download>
+                {intern.internshipApplicationPath}
               </a>
             </>
           )}
-          {!intern.cvFile && !intern.permissionFile && "Chưa có"}
+          {!intern.cvPath && !intern.internshipApplicationPath && "Chưa có"}
         </td>
         <td>{translateStatus(intern.status)}</td>
         <td>
