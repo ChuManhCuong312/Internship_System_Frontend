@@ -9,43 +9,56 @@ const AssignInternForm = ({
   onSave,
   onClose
 }) => {
+  const isApproved = intern.internConfirmStatus === "APPROVED";
+  const isReassign = !!intern.mentorId; // check if intern already has mentor
+
   return (
     <div className="modal-overlay">
       <div className="modal assign-intern-modal">
-        <h3 className="modal-title">Phân công Mentor</h3>
+        <h3 className="modal-title">
+          {isReassign ? "Phân công lại Mentor" : "Phân công Mentor"}
+        </h3>
 
-        {/* Intern Name */}
         <div className="form-group">
           <label className="form-label">Thực tập sinh:</label>
           <input
             type="text"
-            value={intern.name}
+            value={intern.internName}
             readOnly
             className="form-input readonly"
           />
         </div>
 
-        {/* Mentor Selector */}
         <div className="form-group">
           <label className="form-label">Chọn Mentor:</label>
           <select
-            value={selectedMentor}
-            onChange={(e) => onSelectMentor(e.target.value)}
+            value={selectedMentor ?? ""}
+            onChange={(e) => onSelectMentor(Number(e.target.value))}
             className="form-select"
+            disabled={!isApproved}
           >
             <option value="">-- Chọn Mentor --</option>
             {mentors.map((mentor) => (
-              <option key={mentor.id} value={mentor.name}>
-                {mentor.name}
+              <option key={mentor.mentorId} value={mentor.mentorId}>
+                {mentor.fullName}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Actions */}
+        {!isApproved && (
+          <p style={{ color: "red" }}>
+            TTS chưa xác nhận hợp đồng
+          </p>
+        )}
+
         <div className="modal-actions">
-          <button className="btn-primary" onClick={onSave}>
-            Lưu
+          <button
+            className="btn-primary"
+            onClick={onSave}
+            disabled={!isApproved || !selectedMentor}
+          >
+            {isReassign ? "Phân công lại" : "Phân công"}
           </button>
           <button className="btn-secondary" onClick={onClose}>
             Hủy
