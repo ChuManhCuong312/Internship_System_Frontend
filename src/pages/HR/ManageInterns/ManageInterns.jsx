@@ -44,11 +44,10 @@ const ManageInterns = () => {
           size,
         });
       } else {
-        res = await hrApi.getAllInterns(token, 0, 1000);
+        res = await hrApi.getAllInterns(token, currentPage, size);
       }
 
-      const sorted = (res.content || []).sort((a, b) => b.internId - a.internId);
-      setInterns(sorted);
+      setInterns(res.content || []);
       setTotalPages(res.totalPages || 0);
 
       if (resetPage) setPage(0);
