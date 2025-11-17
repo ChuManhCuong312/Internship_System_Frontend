@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { MdEmail } from 'react-icons/md';
+import { MdEmail, MdEdit, MdDownload, MdUpload, MdSchool, MdPhone, MdLocationOn, MdCalendarToday, MdTrendingUp, MdPerson, MdDescription } from 'react-icons/md';
 import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
@@ -8,111 +8,32 @@ import { AuthContext } from "../../context/AuthContext";
 import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
 
-// Toast Component
+// Toast Component - Đã được nâng cấp
 const Toast = ({ message, type = 'error', onClose, duration = 5000 }) => {
     useEffect(() => {
-        const timer = setTimeout(() => {
-            onClose();
-        }, duration);
-
+        const timer = setTimeout(onClose, duration);
         return () => clearTimeout(timer);
     }, [duration, onClose]);
 
-    const getIcon = () => {
-        switch (type) {
-            case 'success':
-                return '✓';
-            case 'error':
-                return '✕';
-            case 'warning':
-                return '⚠';
-            case 'info':
-                return 'ℹ';
-            default:
-                return '✕';
-        }
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
     };
 
-    const getStyles = () => {
-        const baseStyles = {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '16px 20px',
-            background: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            minWidth: '300px',
-            maxWidth: '500px',
-            animation: 'slideIn 0.3s ease-out',
-            borderLeft: '4px solid',
-            marginBottom: '10px'
-        };
-
-        const colorMap = {
-            error: '#ef4444',
-            success: '#10b981',
-            warning: '#f59e0b',
-            info: '#3b82f6'
-        };
-
-        return {
-            ...baseStyles,
-            borderLeftColor: colorMap[type]
-        };
-    };
-
-    const getIconStyles = () => {
-        const baseStyles = {
-            width: '24px',
-            height: '24px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            fontSize: '14px',
-            flexShrink: 0
-        };
-
-        const colorMap = {
-            error: { background: '#fee2e2', color: '#ef4444' },
-            success: { background: '#d1fae5', color: '#10b981' },
-            warning: { background: '#fef3c7', color: '#f59e0b' },
-            info: { background: '#dbeafe', color: '#3b82f6' }
-        };
-
-        return {
-            ...baseStyles,
-            ...colorMap[type]
-        };
+    const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6'
     };
 
     return (
-        <div style={getStyles()}>
-            <div style={getIconStyles()}>{getIcon()}</div>
-            <div style={{ flex: 1, fontSize: '14px', color: '#1f2937', lineHeight: '1.5' }}>
-                {message}
-            </div>
-            <button
-                onClick={onClose}
-                style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#6b7280',
-                    fontSize: '20px',
-                    cursor: 'pointer',
-                    padding: 0,
-                    width: '20px',
-                    height: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                }}
-            >
-                ×
-            </button>
+        <div className={`toast toast-${type}`}>
+            <div className="toast-icon">{icons[type]}</div>
+            <div className="toast-message">{message}</div>
+            <button onClick={onClose} className="toast-close">×</button>
         </div>
     );
 };
@@ -122,34 +43,17 @@ export default function ProfilePage() {
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [toasts, setToasts] = useState([]);
-
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        fullName: '',
-        school: '',
-        major: '',
-        address: '',
-        gender: '',
-        dob: '',
-        phoneNumber: '',
-        gpa: '',
-        cvFile: '',
-        status: '',
-        permissionFile: '',
-    });
+    const [formData, setFormData] = useState({ fullName: '', school: '', major: '', address: '', gender: '', dob: '', phoneNumber: '', gpa: '', cvFile: '', status: '', permissionFile: '' });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
-    // Toast management functions
     const showToast = (message, type = 'error') => {
         const id = Date.now();
         setToasts(prev => [...prev, { id, message, type }]);
     };
 
-    const removeToast = (id) => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
-    };
+    const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
-    // Fetch intern data using userId - runs on every refresh/mount
     useEffect(() => {
         console.log("MyProfile useEffect triggered", { 
             authLoading, 
@@ -527,94 +431,122 @@ export default function ProfilePage() {
     return (
         <div className="profile-page">
             <InternSidebar />
-            <div className="profile-container">
-                <div className="profile-content">
-                    <div className="profile-card">
-                        <div className="profile-row">
-                            <div className="avatar-wrap">
-                                <div className="avatar status-dot" style={{ cursor: 'pointer' }} onClick={handleAvatarClick}>
-                                    <div className="avatar-inner">
-                                        {avatarPreview ? (
-                                            <img src={avatarPreview} alt="avatar preview" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                                        ) : me?.avatar ? (
-                                            <img src={me.avatar} alt="avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                                        ) : (
-                                            initials
-                                        )}
-                                    </div>
-                                </div>
-                                <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                            </div>
 
-                            <div>
-                                <div className="profile-name">{me?.fullName || 'Your Name'}</div>
-                                <div className="profile-meta">
+            <div className="profile-main">
+                {/* Header Card */}
+                <div className="profile-header-card">
+                    <div className="profile-avatar-large" onClick={handleAvatarClick}>
+                        {avatarPreview || me?.avatar ? (
+                            <img src={avatarPreview || me.avatar} alt="Avatar" />
+                        ) : (
+                            <div className="avatar-placeholder">{initials}</div>
+                        )}
+                        <div className="avatar-edit-overlay">
+                            <MdEdit size={24} />
+                        </div>
+                        <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
+                    </div>
 
-                                </div>
-                                <div className="profile-email">
-                                    <MdEmail size={16} />
-                                    <span>{me?.email || user?.email}</span>
-                                </div>
+                    <div className="profile-header-info">
+                        <h1>{me?.fullName || 'Sinh viên thực tập'}</h1>
+                        <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
+                        <div className="profile-status-badge status-{me?.status?.toLowerCase() || 'pending'}">
+                            {me?.status || 'Chưa xác định'}
+                        </div>
+                    </div>
+
+                    <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
+                        <MdEdit /> Chỉnh sửa hồ sơ
+                    </button>
+                </div>
+
+                {/* Info Grid */}
+                <div className="profile-grid">
+                    <div className="info-card">
+                        <MdSchool className="info-icon" />
+                        <div>
+                            <div className="info-label">Trường</div>
+                            <div className="info-value">{me?.school || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div className="info-card">
+                        <MdTrendingUp className="info-icon" />
+                        <div>
+                            <div className="info-label">Ngành học</div>
+                            <div className="info-value">{me?.major || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div className="info-card">
+                        <MdPhone className="info-icon" />
+                        <div>
+                            <div className="info-label">Số điện thoại</div>
+                            <div className="info-value">{me?.phoneNumber || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div className="info-card">
+                        <MdLocationOn className="info-icon" />
+                        <div>
+                            <div className="info-label">Địa chỉ</div>
+                            <div className="info-value">{me?.address || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div className="info-card">
+                        <MdCalendarToday className="info-icon" />
+                        <div>
+                            <div className="info-label">Ngày sinh</div>
+                            <div className="info-value">{me?.dob || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div className="info-card">
+                        <MdPerson className="info-icon" />
+                        <div>
+                            <div className="info-label">Giới tính</div>
+                            <div className="info-value">{me?.gender === 'MALE' ? 'Nam' : me?.gender === 'FEMALE' ? 'Nữ' : me?.gender || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div className="info-card">
+                        <div className="info-label">GPA</div>
+                        <div className="info-value gpa">{me?.gpa || '-'}</div>
+                    </div>
+
+                    <div className="info-card full-width">
+                        <MdDescription className="info-icon" />
+                        <div style={{ width: '100%' }}>
+                            <div className="info-label">CV</div>
+                            <div className="file-actions">
+                                {me?.cvFile ? (
+                                    <a href={me.cvFile} target="_blank" rel="noopener noreferrer" className="file-link">
+                                        <MdDownload /> Tải xuống CV
+                                    </a>
+                                ) : <span>Chưa tải lên</span>}
+                                <label className="btn-upload-small">
+                                    <MdUpload /> Tải lên
+                                    <input id="cvUpload" type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} />
+                                </label>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="info-grid">
-                            <div className="info-item">
-                                <div className="label">Status</div>
-                                <div className="value">{me?.status || 'N/A'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">Major</div>
-                                <div className="value">{me?.major || '-'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">School</div>
-                                <div className="value">{me?.school || '-'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">Phone</div>
-                                <div className="value">{me?.phoneNumber || '-'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">Address</div>
-                                <div className="value">{me?.address || '-'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">Date of Birth</div>
-                                <div className="value">{me?.dob || '-'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">GPA</div>
-                                <div className="value">{me?.gpa || '-'}</div>
-                            </div>
-
-                            <div className="info-item">
-                                <div className="label">CV (file)</div>
-                                <div className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {me?.cvFile ? (
-                                        <a href={me.cvFile} download>Download CV</a>
-                                    ) : '-'}
-                                    <label htmlFor="cvUpload" className="btn btn-outline" style={{ margin: 0, padding: '4px 12px', fontSize: '12px', cursor: 'pointer' }}>
-                                        Upload
-                                        <input id="cvUpload" type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} style={{ display: 'none' }} />
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">Gender</div>
-                                <div className="value">{me?.gender || '-'}</div>
-                            </div>
-                            <div className="info-item">
-                                <div className="label">Permission File</div>
-                                <div className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {me?.permissionFile ? (
-                                        <a href={me.permissionFile} download>Download Permission File</a>
-                                    ) : '-'}
-                                    <label htmlFor="permissionUpload" className="btn btn-outline" style={{ margin: 0, padding: '4px 12px', fontSize: '12px', cursor: 'pointer' }}>
-                                        Upload
-                                        <input id="permissionUpload" type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} style={{ display: 'none' }} />
-                                    </label>
-                                </div>
+                    <div className="info-card full-width">
+                        <MdDescription className="info-icon" />
+                        <div style={{ width: '100%' }}>
+                            <div className="info-label">Giấy xin phép thực tập</div>
+                            <div className="file-actions">
+                                {me?.permissionFile ? (
+                                    <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link">
+                                        <MdDownload /> Tải xuống
+                                    </a>
+                                ) : <span>Chưa tải lên</span>}
+                                <label className="btn-upload-small">
+                                    <MdUpload /> Tải lên
+                                    <input id="permissionUpload" type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -624,145 +556,56 @@ export default function ProfilePage() {
             {/* Toast Container */}
             <div className="toast-container">
                 {toasts.map(toast => (
-                    <Toast
-                        key={toast.id}
-                        message={toast.message}
-                        type={toast.type}
-                        onClose={() => removeToast(toast.id)}
-                    />
+                    <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
                 ))}
             </div>
 
+            {/* Edit Modal - Đẹp hơn, 2 cột trên desktop */}
             {isEditing && (
-                <Modal title="Edit Profile" onClose={() => setIsEditing(false)}>
-                    <div style={{ display: 'grid', gap: 12 }}>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Full name</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                <Modal title="Chỉnh sửa hồ sơ" onClose={() => setIsEditing(false)}>
+                    <div className="edit-form-grid">
+                        <div className="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>School</label>
-                            <input
-                                type="text"
-                                name="school"
-                                value={formData.school}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                        <div className="form-group">
+                            <label>Trường</label>
+                            <input type="text" name="school" value={formData.school} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Major</label>
-                            <input
-                                type="text"
-                                name="major"
-                                value={formData.major}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                        <div className="form-group">
+                            <label>Ngành học</label>
+                            <input type="text" name="major" value={formData.major} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Phone number</label>
-                            <input
-                                type="text"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                        <div className="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Address</label>
-                            <input
-                                type="text"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                        <div className="form-group">
+                            <label>Địa chỉ</label>
+                            <input type="text" name="address" value={formData.address} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Date of birth</label>
-                            <input
-                                type="date"
-                                name="dob"
-                                value={formData.dob}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                        <div className="form-group">
+                            <label>Ngày sinh</label>
+                            <input type="date" name="dob" value={formData.dob} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>GPA</label>
-                            <input
-                                type="text"
-                                name="gpa"
-                                value={formData.gpa}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
+                        <div className="form-group">
+                            <label>GPA</label>
+                            <input type="text" name="gpa" value={formData.gpa} onChange={handleChange} />
                         </div>
+                        <div className="form-group">
+                            <label>Giới tính</label>
+                            <select name="gender" value={formData.gender} onChange={handleChange}>
+                                <option value="">Chọn giới tính</option>
+                                <option value="MALE">Nam</option>
+                                <option value="FEMALE">Nữ</option>
+                                <option value="OTHER">Khác</option>
+                            </select>
+                        </div>
+                    </div>
 
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>CV file path (download URL)</label>
-                            <input
-                                type="text"
-                                name="cvFile"
-                                value={formData.cvFile}
-                                onChange={handleChange}
-                                placeholder="/files/your-cv.pdf"
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Gender</label>
-                            <select
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            >
-                                <option value="">Select gender</option>
-                                <option value="MALE">Male</option>
-                                <option value="FEMALE">Female</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Status</label>
-                            <select
-                                name="status"
-                                value={formData.status}
-                                onChange={handleChange}
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            >
-                                <option value="">Select status</option>
-                                <option value="PENDING">Pending</option>
-                                <option value="APPROVED">Approved</option>
-                                <option value="REJECTED">Rejected</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="INACTIVE">Inactive</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Permission File path (download URL)</label>
-                            <input
-                                type="text"
-                                name="permissionFile"
-                                value={formData.permissionFile}
-                                onChange={handleChange}
-                                placeholder="/files/permission-file.pdf"
-                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
-                            />
-                        </div>
-                        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                            <button onClick={() => setIsEditing(false)} className="btn btn-outline">Cancel</button>
-                            <button onClick={handleSave} className="btn btn-primary">Save</button>
-                        </div>
+                    <div className="modal-actions">
+                        <button className="btn-cancel" onClick={() => setIsEditing(false)}>Hủy</button>
+                        <button className="btn-save" onClick={handleSave}>Lưu thay đổi</button>
                     </div>
                 </Modal>
             )}
