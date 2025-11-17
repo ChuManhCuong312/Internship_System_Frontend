@@ -51,6 +51,7 @@ const formatDateToISO = (dateStr) => {
   const handleSubmitProfile = async () => {
     const newErrors = {};
 const dobISO = formatDateToISO(profileData.dob);
+const gpaValue = parseFloat(profileData.gpa);
 profileData.dob = dobISO;
 
     if (!profileData.full_name || profileData.full_name.trim().length < 2) {
@@ -67,12 +68,16 @@ profileData.dob = dobISO;
       newErrors.major = "Vui lòng chọn ngành";
     }
 
-    if (!profileData.gpa || profileData.gpa <= 0 || profileData.gpa > 4) {
-      newErrors.gpa = "GPA phải nằm trong khoảng 0.01 - 4.0";
-    }
+   if (isNaN(gpaValue) || gpaValue <= 0 || gpaValue > 4) {
+     newErrors.gpa = "GPA phải là số trong khoảng 0.01 - 4.0";
+   }
 
     if (!profileData.phone || !/^0\d{9}$/.test(profileData.phone)) {
       newErrors.phone = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số";
+    }
+
+    if (profileData.address.length < 5) {
+      newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
     }
 
     if (Object.keys(newErrors).length > 0) {
