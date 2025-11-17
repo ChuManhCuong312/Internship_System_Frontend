@@ -11,7 +11,7 @@ import { getInternByUserId } from '../../api/internApi';
 import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const navigate = useNavigate();
   const { user, token, logout, loading: authLoading } = useContext(AuthContext);
   const [internData, setInternData] = useState(null);
