@@ -323,12 +323,12 @@ const handlePageChange = (page) => {
              type="text"
              placeholder="🔍 Tìm kiếm theo tên hoặc email"
              value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
+             onChange={(e) => {setSearchTerm(e.target.value),setCurrentPage(1)}}
              className="search-input"
            />
            <select
              value={roleFilter}
-             onChange={(e) => setRoleFilter(e.target.value)}
+             onChange={(e) => {setRoleFilter(e.target.value),setCurrentPage(1)}}
              className="filter-select"
            >
              <option value="">Tất cả vai trò</option>
@@ -338,7 +338,7 @@ const handlePageChange = (page) => {
            </select>
            <select
              value={statusFilter}
-             onChange={(e) => setStatusFilter(e.target.value)}
+             onChange={(e) => {setStatusFilter(e.target.value),setCurrentPage(1)}}
              className="filter-select"
            >
              <option value="">Tất cả trạng thái</option>
@@ -384,7 +384,7 @@ const handlePageChange = (page) => {
                  <td>
                    <StatusBadge status={mapStatusToVietnamese(user.status)} />
                  </td>
-                 <td>{new Date(user.createdAt).toLocaleString()}</td>
+                 <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                  <td>
                    <ActionButtons
                      user={user}

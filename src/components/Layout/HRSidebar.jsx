@@ -9,7 +9,7 @@ import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
 
 const HRSidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openProgramMenu, setOpenProgramMenu] = useState(false);
   const { user, logout } = useContext(AuthContext);

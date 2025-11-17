@@ -23,7 +23,7 @@ const ActionButtons = ({
  if (userRole === "ADMIN") {
    return (
      <div className="action-buttons">
-       {user.status === "PENDING" && (
+       {user.status === "PENDING_APPROVAL" && (
          <>
            <button className="btn-approve" onClick={() => onApprove(user.userId)}>
              ✓ Duyệt
