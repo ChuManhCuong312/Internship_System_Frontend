@@ -51,7 +51,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="9" style={{ textAlign: "center" }}>
+              <td colSpan="11" style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>
