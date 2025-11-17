@@ -2,63 +2,65 @@
 .role-badge,
 .status-badge {
   display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
+  border: 1px solid;
 }
 
+/* Role Badges */
 .role-hr {
-  background: rgba(156, 39, 176, 0.2);
-  color: #7b1fa2;
-  border: 1px solid rgba(156, 39, 176, 0.3);
+  background: #faf5ff;
+  color: #7c3aed;
+  border-color: #e9d5ff;
 }
 
 .role-mentor {
-  background: rgba(3, 169, 244, 0.2);
-  color: #01579b;
-  border: 1px solid rgba(3, 169, 244, 0.3);
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #dbeafe;
 }
 
 .role-intern {
-  background: rgba(255, 152, 0, 0.2);
-  color: #e65100;
-  border: 1px solid rgba(255, 152, 0, 0.3);
+  background: #fff7ed;
+  color: #ea580c;
+  border-color: #fed7aa;
 }
 
 .role-admin {
-  background: rgba(244, 67, 54, 0.2);
-  color: #c62828;
-  border: 1px solid rgba(244, 67, 54, 0.3);
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
+/* Status Badges */
 .status-chờ-duyệt {
-  background: rgba(255, 193, 7, 0.2);
-  color: #f57f17;
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
 }
 
 .status-đã-duyệt {
-  background: rgba(76, 175, 80, 0.2);
-  color: #2e7d32;
-  border: 1px solid rgba(76, 175, 80, 0.3);
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
 }
 
 .status-bị-từ-chối {
-  background: rgba(244, 67, 54, 0.2);
-  color: #c62828;
-  border: 1px solid rgba(244, 67, 54, 0.3);
-}
-.status-chưa-xác-thực{
-background: rgba(244, 67, 54, 0.2);
-color: #c62828;
-border: 1px solid rgba(244, 67, 54, 0.3);
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
-=======
+.status-chưa-xác-thực {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
 .status-hợp-đồng-hoàn-tất {
-  background: rgba(33, 150, 243, 0.2);
-  color: #0d47a1;
-  border: 1px solid rgba(33, 150, 243, 0.3);
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #dbeafe;
 }
-
