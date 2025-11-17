@@ -56,7 +56,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
 
     {/* GPA */}
     <div className="form-group">
-      <label>GPA</label>
+      <label>GPA *</label>
       <input
         type="number"
         step="0.01"
