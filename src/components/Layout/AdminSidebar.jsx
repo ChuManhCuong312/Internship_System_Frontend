@@ -17,7 +17,7 @@ import avatar from "../../assets/avatar.png";
 import "../../styles/sideBar.css";
 
 const AdminSidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const navigate = useNavigate();
 
   const sidebarStyle = useSpring({

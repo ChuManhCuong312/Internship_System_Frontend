@@ -6,7 +6,7 @@ import avatar from "../../assets/avatar.png";
 import "../../styles/sideBar.css";
 
 const HRSidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openProgramMenu, setOpenProgramMenu] = useState(false);
 
