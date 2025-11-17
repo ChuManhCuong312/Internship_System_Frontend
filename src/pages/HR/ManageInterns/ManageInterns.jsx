@@ -60,8 +60,12 @@ const ManageInterns = () => {
   };
 
   useEffect(() => {
+    fetchInterns(true); // truyền resetPage = true
+  }, [searchTerm, statusFilter, majorFilter]);
+
+  useEffect(() => {
     fetchInterns();
-  }, [token, searchTerm, statusFilter, majorFilter, page, size]);
+  }, [page, size, token]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
