@@ -3,7 +3,7 @@ import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 import RejectModal from "../modals/RejectModal";
 
-const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit }) => {
+const HRInternRow = ({ intern, index, translateStatus, translateGender, onStatusChange, onEdit }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reason, setReason] = useState("");
@@ -33,6 +33,7 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
         <td>{intern.fullName}</td>
         <td>{intern.email}</td>
         <td>{intern.phone}</td>
+        <td>{translateGender(intern.gender)}</td>
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
         <td>{intern.dob}</td>

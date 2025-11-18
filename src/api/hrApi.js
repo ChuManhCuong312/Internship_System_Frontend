@@ -44,6 +44,7 @@ const hrApi = {
 createInternProfile: async (token, userId, profileData) => {
   const formData = new FormData();
   formData.append("fullName", profileData.full_name);
+  formData.append("gender", profileData.gender);
   formData.append("dob", profileData.dob);
   formData.append("major", profileData.major);
   formData.append("gpa", profileData.gpa);
@@ -73,6 +74,7 @@ updateInternProfile: async (token, internId, profileData) => {
       dob: profileData.dob,
       address: profileData.address,
       phone: profileData.phone,
+      gender: profileData.gender,
       gpa: profileData.gpa
     }, {
       headers: { Authorization: `Bearer ${token}` }

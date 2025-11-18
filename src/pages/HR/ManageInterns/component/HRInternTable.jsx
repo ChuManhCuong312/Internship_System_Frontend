@@ -19,6 +19,10 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
     }
   };
 
+const translateGender = (gender) => {
+    return gender === "MALE" ? "Nam" : gender === "FEMALE" ? "Nữ" : "";
+  };
+
   return (
     <div className="users-table-container">
       <table className="users-table">
@@ -28,6 +32,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
             <th>Họ tên</th>
             <th>Email</th>
             <th>Số điện thoại</th>
+            <th>Giới tính</th>
             <th>Ngành</th>
             <th>GPA</th>
             <th>Ngày sinh</th>
@@ -45,13 +50,14 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
                   intern={intern}
                   index={page * size + index}
                   translateStatus={translateStatus}
+                  translateGender={translateGender}
                   onStatusChange={fetchInterns}
                   onEdit={onEdit}
                 />
             ))
           ) : (
             <tr>
-              <td colSpan="11" style={{ textAlign: "center" }}>
+              <td colSpan="12" style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>
