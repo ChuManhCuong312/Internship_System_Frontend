@@ -113,7 +113,7 @@ reassignMentor: async (token, { internId, mentorId }) => {
 },
 
 getAllMentors: async (token) => {
-  const res = await axios.get(`${API_URL_MENTOR}`, {
+  const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/mentors`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.data;
