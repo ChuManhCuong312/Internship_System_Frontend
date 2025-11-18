@@ -37,7 +37,7 @@ const AdminSidebar = () => {
           <FaBars />
         </button>
         <div className="avatar-container">
-          <img src={avatar} alt="Admin Avatar" />
+          <img src={avatar} alt="Admin Avatar" className="avatar-initials"/>
           {expanded && (
             <div className="avatar-info">
               <h4>Admin</h4>
