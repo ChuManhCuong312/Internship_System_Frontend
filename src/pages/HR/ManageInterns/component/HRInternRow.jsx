@@ -26,6 +26,19 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
     onStatusChange();
   };
 
+  // Hàm tạo class name cho status badge
+  const getStatusClass = (status) => {
+    const statusMap = {
+      'PENDING': 'status-chờ-duyệt',
+      'APPROVED': 'status-đã-duyệt',
+      'REJECTED': 'status-bị-từ-chối',
+      'NO_FILE': 'status-chưa-xác-thực',
+      'ACTIVE': 'status-đã-duyệt',
+      'COMPLETED': 'status-hợp-đồng-hoàn-tất'
+    };
+    return `status-badge ${statusMap[status] || ''}`;
+  };
+
   return (
     <>
       <tr>
@@ -35,7 +48,11 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
         <td>{intern.phone}</td>
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
-        <td>{translateStatus(intern.status)}</td>
+        <td>
+          <span className={getStatusClass(intern.status)}>
+            {translateStatus(intern.status)}
+          </span>
+        </td>
         <td>
           {intern.status === "PENDING" && (
             <div className="action-buttons">
