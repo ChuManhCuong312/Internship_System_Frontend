@@ -3,7 +3,7 @@ import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 import RejectModal from "../modals/RejectModal";
 
-const HRInternRow = ({ intern, index, translateStatus, translateGender, onStatusChange, onEdit }) => {
+const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reason, setReason] = useState("");
@@ -33,25 +33,8 @@ const HRInternRow = ({ intern, index, translateStatus, translateGender, onStatus
         <td>{intern.fullName}</td>
         <td>{intern.email}</td>
         <td>{intern.phone}</td>
-        <td>{translateGender(intern.gender)}</td>
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
-        <td>{intern.dob}</td>
-        <td>{intern.address}</td>
-        <td>
-          {intern.cvPath && (
-            <a href={`/${intern.cvPath}`} download>{intern.cvPath}</a>
-          )}
-          {intern.permissionFile && (
-            <>
-              {" | "}
-              <a href={`/${intern.permissionFile}`} download>
-                {intern.permissionFile}
-              </a>
-            </>
-          )}
-          {!intern.cvPath && !intern.permissionFile && "Chưa có"}
-        </td>
         <td>{translateStatus(intern.status)}</td>
         <td>
           {intern.status === "PENDING" && (
@@ -64,13 +47,13 @@ const HRInternRow = ({ intern, index, translateStatus, translateGender, onStatus
               </button>
             </div>
           )}
-      {intern.status === "APPROVED" && (
-                  <div className="action-buttons">
-                    <button className="btn-edit" onClick={() => onEdit(intern)}>
-                      ✏️ Sửa hồ sơ
-                    </button>
-          </div>
-        )}
+          {intern.status === "APPROVED" && (
+            <div className="action-buttons">
+              <button className="btn-edit" onClick={() => onEdit(intern)}>
+                ✏️ Sửa hồ sơ
+              </button>
+            </div>
+          )}
         </td>
       </tr>
 
