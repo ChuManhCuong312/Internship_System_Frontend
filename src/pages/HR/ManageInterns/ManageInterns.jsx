@@ -134,19 +134,23 @@ const ManageInterns = () => {
             setEditingIntern(null);
             fetchInterns();
           } catch (err) {
-            console.error("Error updating intern:", err);
+              console.error("Error updating intern:", err);
 
-            if (err.response?.status === 400 && err.response?.data) {
-              const errors = err.response.data;
-              if (typeof errors === "object") {
-                Object.values(errors).forEach(msg => toast.error(msg));
+              if (err.response?.status === 400) {
+                let msg = err.response.data;
+
+                if (typeof msg === "string") {
+                  const match = msg.match(/interpolatedMessage='([^']+)'/);
+                  if (match) {
+                    msg = match[1];
+                  }
+                }
+
+                toast.error(msg || "Dữ liệu không hợp lệ ❌");
               } else {
-                toast.error(errors);
+                toast.error("Cập nhật hồ sơ thất bại ❌");
               }
-            } else {
-              toast.error("Cập nhật hồ sơ thất bại ❌");
             }
-          }
         }}
       />
     )}

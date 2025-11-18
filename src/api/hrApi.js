@@ -67,18 +67,25 @@ getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
 },
 
 updateInternProfile: async (token, internId, profileData) => {
-  const res = await axios.patch(`${API_URL}/${internId}/profile`, {
-    school: profileData.school,
-    major: profileData.major,
-    dob: profileData.dob,
-    address: profileData.address,
-    phone: profileData.phone,
-    gpa: profileData.gpa
-  }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
+  try {
+    const res = await axios.patch(`${API_URL}/${internId}/profile`, {
+      school: profileData.school,
+      major: profileData.major,
+      dob: profileData.dob,
+      address: profileData.address,
+      phoneNumber: profileData.phone,
+      gpa: profileData.gpa
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (err) {
+
+    throw err;
+  }
 },
+
+
 
 getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
   const params = {};
