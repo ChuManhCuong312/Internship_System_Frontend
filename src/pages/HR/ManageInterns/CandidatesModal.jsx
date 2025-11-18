@@ -4,6 +4,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import ProfileModal from "./modals/ProfileModal";
 import Modal from "../../../components/Layout/Modal";
 import "../../../styles/buttons.css";
+import { toast } from "react-toastify";
 
 const CandidatesModal = ({ onClose, onSuccess }) => {
   const { token } = useContext(AuthContext);
@@ -87,6 +88,7 @@ profileData.dob = dobISO;
 
     try {
       await hrApi.createInternProfile(token, selectedCandidate.userId, profileData);
+      toast.success("Tạo hồ sơ thành công ✅");
       setSelectedCandidate(null);
       onClose();
       if (typeof onSuccess === "function") {
@@ -94,6 +96,17 @@ profileData.dob = dobISO;
       }
     } catch (err) {
       console.error("Error creating profile:", err);
+
+      if (err.response?.status === 400 && err.response?.data) {
+        const errors = err.response.data;
+        if (typeof errors === "object") {
+          Object.values(errors).forEach(msg => toast.error(msg));
+        } else {
+          toast.error(errors);
+        }
+      } else {
+        toast.error("Có lỗi xảy ra khi tạo hồ sơ ❌");
+      }
     }
 };
   return (
