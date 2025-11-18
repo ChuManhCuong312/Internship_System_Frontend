@@ -213,9 +213,16 @@ export default function ProfilePage() {
             console.log("Upload avatar lỗi (đã chặn toast):", err.message);
             // Toast sẽ bị chặn bởi suppressNextErrorToast()
         }
-        showToast("Đang tải lên file...", "info");
-    // ... sau 800ms
-    setTimeout(() => showToast("Tải lên file thành công!", "success"), 3000);
+       // Hiển thị toast thông báo ngay lập tức
+showToast("Đang tải lên file...", "info");
+
+// Sau 3 giây hiển thị thông báo thành công và reload trang
+setTimeout(() => {
+    showToast("Tải lên file thành công!", "success");
+    setTimeout(() => {
+        window.location.reload(); // Làm mới trang
+    }, 3000); // Đợi thêm 3s sau khi toast success
+}, 800); // Chờ 800ms trước khi show toast succes
     };
 
   // TẢI LÊN CV – GIẢ LẬP THÀNH CÔNG LUÔN
@@ -223,10 +230,17 @@ const handleCvFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file || !me?.internId || !token) return;
 
-    // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC (giả lập)
-    showToast("Đang tải lên file...", "info");
-    // ... sau 800ms
-    setTimeout(() => showToast("Tải lên file thành công!", "success"), 3000);
+    // Hiển thị toast thông báo ngay lập tức
+showToast("Đang tải lên file...", "info");
+
+// Sau 3 giây hiển thị thông báo thành công và reload trang
+setTimeout(() => {
+    showToast("Tải lên file thành công!", "success");
+    setTimeout(() => {
+        window.location.reload(); // Làm mới trang
+    }, 3000); // Đợi thêm 3s sau khi toast success
+}, 800); // Chờ 800ms trước khi show toast succes
+
 
    
     try {
@@ -252,9 +266,16 @@ const handlePermissionFileChange = async (e) => {
     if (!file || !me?.internId || !token) return;
 
     // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC
-    showToast("Đang tải lên file...", "info");
-// ... sau 800ms
-setTimeout(() => showToast("Tải lên file thành công!", "success"), 800);
+    // Hiển thị toast thông báo ngay lập tức
+showToast("Đang tải lên file...", "info");
+
+// Sau 3 giây hiển thị thông báo thành công và reload trang
+setTimeout(() => {
+    showToast("Tải lên file thành công!", "success");
+    setTimeout(() => {
+        window.location.reload(); // Làm mới trang
+    }, 3000); // Đợi thêm 3s sau khi toast success
+}, 800); // Chờ 800ms trước khi show toast succes
 
     try {
         const res = await uploadPermissionFile(token, file, me.internId);
