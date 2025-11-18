@@ -133,7 +133,7 @@ export default function ProfilePage() {
                             icon: 'warning',
                             title: 'Hồ sơ chưa hoàn thiện!',
                             html: `
-                                <p>Vui lòng hoàn thiện hồ sơ ngay.</p>
+                                <p>Vui lòng tải lên CV và đơn xin thực tập của bạn.</p>
                                 <p style="color:#e74c3c; font-size:14px;">Trạng thái hiện tại: <strong>NO_FILE</strong></p>
                             `,
                             confirmButtonText: 'Chỉnh sửa hồ sơ ngay',
