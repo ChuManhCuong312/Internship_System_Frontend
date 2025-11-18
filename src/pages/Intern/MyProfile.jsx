@@ -91,7 +91,7 @@ export default function ProfilePage() {
                 const data = await getInternByUserId(token, userId);
 
                 if (!data) {
-                    showToast("Không tìm thấy thông tin hồ sơ", "error");
+                    showToast("Không tìm thấy thông tin hồ sơ, vui lòng ", "error");
                     return;
                 }
 
@@ -127,6 +127,27 @@ export default function ProfilePage() {
                     permissionFile: mapped.permissionFile
                 });
                 if (mapped.avatar) setAvatarPreview(mapped.avatar);
+                if (mapped.status === "NO_FILE") {
+                    setTimeout(() => { // Đảm bảo DOM đã render xong
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Hồ sơ chưa hoàn thiện!',
+                            html: `
+                                <p>Vui lòng tải lên CV và đơn xin thực tập của bạn.</p>
+                                <p style="color:#e74c3c; font-size:14px;">Trạng thái hiện tại: <strong>NO_FILE</strong></p>
+                            `,
+                            confirmButtonText: 'Chỉnh sửa hồ sơ ngay',
+                            cancelButtonText: 'Để sau',
+                            showCancelButton: true,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                setIsEditing(true); // Mở modal chỉnh sửa ngay
+                            }
+                        });
+                    }, 300); // Delay nhẹ để tránh lỗi Swal khi DOM chưa sẵn sàng
+                }
             } catch (err) {
                 const status = err.response?.status;
                 if (status === 404) showToast("Không tìm thấy hồ sơ", "error");
@@ -394,7 +415,7 @@ setTimeout(() => {
                         <div style={{ width: '100%' }}>
                             <div className="info-label">Giấy xin phép thực tập</div>
                             <div className="file-actions">
-                                {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống</a> : <span>Chưa tải lên</span>}
+                                {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xin phép thực tập</a> : <span>Chưa tải lên</span>}
                                 <label className="btn-upload-small">
                                     <MdUpload /> Tải lên
                                     <input type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
