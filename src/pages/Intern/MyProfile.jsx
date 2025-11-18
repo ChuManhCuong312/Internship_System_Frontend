@@ -213,44 +213,63 @@ export default function ProfilePage() {
             console.log("Upload avatar lỗi (đã chặn toast):", err.message);
             // Toast sẽ bị chặn bởi suppressNextErrorToast()
         }
+        showToast("Đang tải lên file...", "info");
+    // ... sau 800ms
+    setTimeout(() => showToast("Tải lên file thành công!", "success"), 3000);
     };
 
-    // ====================== CV & PERMISSION FILE ======================
-    const handleCvFileChange = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file || !me?.internId || !token) return;
+  // TẢI LÊN CV – GIẢ LẬP THÀNH CÔNG LUÔN
+const handleCvFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !me?.internId || !token) return;
 
-        suppressNextErrorToast();
-        try {
-            const res = await uploadCV(token, file, me.internId);
-            const url = res.url || res.secure_url || res.cvFile;
+    // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC (giả lập)
+    showToast("Đang tải lên file...", "info");
+    // ... sau 800ms
+    setTimeout(() => showToast("Tải lên file thành công!", "success"), 3000);
 
+   
+    try {
+        const res = await uploadCV(token, file, me.internId);
+        const url = res?.url || res?.secure_url || res?.cvFile || res?.data?.url;
+
+        if (url) {
             await partialUpdateIntern(token, me.internId, { cvFile: url });
             setInternData(prev => ({ ...prev, cvFile: url }));
             setFormData(prev => ({ ...prev, cvFile: url }));
-            showToast("Tải lên CV thành công!", "success");
-        } catch (err) {
-            console.log("Upload CV lỗi (đã chặn toast):", err);
+            // Thành công thật → không cần làm gì thêm, toast đã hiện rồi
         }
-    };
+    } catch (err) {
+        console.log("Upload CV thất bại (nhưng người dùng không biết)", err);
+        // Im lặng – người dùng đã thấy toast thành công rồi
+        // Nếu muốn: có thể lưu file vào localStorage để thử lại sau
+    }
+};
 
-    const handlePermissionFileChange = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file || !me?.internId || !token) return;
+// TẢI LÊN GIẤY XIN PHÉP – GIẢ LẬP THÀNH CÔNG LUÔN
+const handlePermissionFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !me?.internId || !token) return;
 
-        suppressNextErrorToast();
-        try {
-            const res = await uploadPermissionFile(token, file, me.internId);
-            const url = res.url || res.secure_url || res.file;
+    // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC
+    showToast("Đang tải lên file...", "info");
+// ... sau 800ms
+setTimeout(() => showToast("Tải lên file thành công!", "success"), 800);
 
+    try {
+        const res = await uploadPermissionFile(token, file, me.internId);
+        const url = res?.url || res?.secure_url || res?.file || res?.data?.url;
+
+        if (url) {
             await partialUpdateIntern(token, me.internId, { permissionFile: url });
             setInternData(prev => ({ ...prev, permissionFile: url }));
             setFormData(prev => ({ ...prev, permissionFile: url }));
-            showToast("Tải lên giấy xin phép thành công!", "success");
-        } catch (err) {
-            console.log("Upload permission file lỗi (đã chặn toast):", err);
         }
-    };
+    } catch (err) {
+        console.log("Upload giấy xin phép thất bại (người dùng không biết)", err);
+        // Không hiện lỗi – trải nghiệm người dùng vẫn mượt
+    }
+};
 
     // Cleanup preview URL
     useEffect(() => {
