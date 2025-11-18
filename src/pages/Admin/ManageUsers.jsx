@@ -39,7 +39,6 @@ const ManageUsers = () => {
    reject,
    unlock,
  } = useContext(UserContext);
- const [filteredUsers, setFilteredUsers] = useState("");
  const [searchTerm, setSearchTerm] = useState("");
  const [roleFilter, setRoleFilter] = useState("");
  const [statusFilter, setStatusFilter] = useState("");
@@ -292,7 +291,7 @@ const handlePageChange = (page) => {
    });
  };
 const handleClearFilters = () => {
-    setFilteredUsers("");
+    setSearchTerm("");
     setRoleFilter("");
     setStatusFilter("");
   };
@@ -491,18 +490,22 @@ const handleClearFilters = () => {
                {formErrors.phone && <p className="field-error">{formErrors.phone}</p>}
              </div>
 
-
-             <div className="form-group">
-               <label>{isEditing ? "Đổi mật khẩu" : "Mật khẩu khởi tạo"} {isEditing ? "(Để trống nếu không đổi)" : "*"}</label>
-               <PasswordInput
-                 name="password"
-                 value={form.password}
-                 onChange={handleFormChange}
-                 placeholder="••••••••"
-               />
-               {formErrors.password && <p className="field-error">{formErrors.password}</p>}
-             </div>
-
+             {!isEditing && (
+               <div className="form-group">
+                 <label>
+                   Mật khẩu khởi tạo *
+                 </label>
+                 <PasswordInput
+                   name="password"
+                   value={form.password}
+                   onChange={handleFormChange}
+                   placeholder="••••••••"
+                 />
+                 {formErrors.password && (
+                   <p className="field-error">{formErrors.password}</p>
+                 )}
+               </div>
+             )}
 
              <div className="form-group">
                <label>Vai trò *</label>
