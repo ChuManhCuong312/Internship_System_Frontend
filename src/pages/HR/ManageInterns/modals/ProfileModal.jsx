@@ -2,17 +2,17 @@ import React from "react";
 import Modal from "../../../../components/Layout/Modal";
 
 const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, onSubmit, errors }) => (
-  <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName}` : "Thêm hồ sơ mới"} onClose={onClose}>
+  <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
     {/* Họ tên */}
     <div className="form-group">
       <label>Họ tên *</label>
       <input
         className="form-input"
-        value={profileData.full_name}
+        value={profileData?.full_name || ""}
         onChange={e => setProfileData({ ...profileData, full_name: e.target.value })}
       />
-      {errors.full_name && <p className="field-error">{errors.full_name}</p>}
+      {errors?.full_name && <p className="field-error">{errors.full_name}</p>}
     </div>
 
     {/* Ngày sinh */}
@@ -21,10 +21,10 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       <input
         type="date"
         className="form-input"
-        value={profileData.dob}
+        value={profileData?.dob || ""}
         onChange={e => setProfileData({ ...profileData, dob: e.target.value })}
       />
-      {errors.dob && <p className="field-error">{errors.dob}</p>}
+      {errors?.dob && <p className="field-error">{errors.dob}</p>}
     </div>
 
     {/* Trường (mặc định CMC University) */}
@@ -32,7 +32,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       <label>Trường *</label>
       <input
         className="form-input"
-        value="CMC University"
+        value={profileData?.school || "CMC University"}
         readOnly
       />
     </div>
@@ -42,7 +42,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       <label>Ngành *</label>
       <select
         className="form-input"
-        value={profileData.major}
+        value={profileData?.major || ""}
         onChange={e => setProfileData({ ...profileData, major: e.target.value })}
       >
         <option value="">-- Chọn ngành --</option>
@@ -51,31 +51,31 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
         <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
       </select>
-      {errors.major && <p className="field-error">{errors.major}</p>}
+      {errors?.major && <p className="field-error">{errors.major}</p>}
     </div>
 
     {/* GPA */}
     <div className="form-group">
       <label>GPA *</label>
-     <input
-       type="number"
-       step="0.01"
-       min="0.01"
-       max="4"
-       className="form-input"
-       value={profileData.gpa}
-       onChange={e => setProfileData({ ...profileData, gpa: e.target.value })}
-       onInput={e => {
-         if (parseFloat(e.target.value) > 4) {
-           e.target.value = "4";
-         }
-         if (parseFloat(e.target.value) < 0) {
-           e.target.value = "0.01";
-         }
-       }}
-       required
-     />
-      {errors.gpa && <p className="field-error">{errors.gpa}</p>}
+      <input
+        type="number"
+        step="0.01"
+        min="0.01"
+        max="4"
+        className="form-input"
+        value={profileData?.gpa || ""}
+        onChange={e => setProfileData({ ...profileData, gpa: e.target.value })}
+        onInput={e => {
+          if (parseFloat(e.target.value) > 4) {
+            e.target.value = "4";
+          }
+          if (parseFloat(e.target.value) < 0) {
+            e.target.value = "0.01";
+          }
+        }}
+        required
+      />
+      {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
     </div>
 
     {/* Số điện thoại */}
@@ -83,11 +83,11 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       <label>Số điện thoại *</label>
       <input
         className="form-input"
-        value={profileData.phone}
+        value={profileData?.phone || ""}
         onChange={e => setProfileData({ ...profileData, phone: e.target.value })}
         placeholder="Ví dụ: 0987654321"
       />
-      {errors.phone && <p className="field-error">{errors.phone}</p>}
+      {errors?.phone && <p className="field-error">{errors.phone}</p>}
     </div>
 
     {/* Địa chỉ */}
@@ -95,10 +95,10 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       <label>Địa chỉ *</label>
       <input
         className="form-input"
-        value={profileData.address}
+        value={profileData?.address || ""}
         onChange={e => setProfileData({ ...profileData, address: e.target.value })}
       />
-    {errors.address && <p className="field-error">{errors.address}</p>}
+      {errors?.address && <p className="field-error">{errors.address}</p>}
     </div>
 
     {/* Nút hành động */}
