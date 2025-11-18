@@ -22,7 +22,8 @@
 
 .users-table th {
   padding: 15px;
-  text-align: left;
+  text-align: center;
+  vertical-align: middle;
   font-weight: 600;
   color: #01579b;
   border-bottom: 2px solid rgba(1, 87, 155, 0.3);
@@ -30,6 +31,8 @@
 
 .users-table td {
   padding: 15px;
+  text-align: center;
+  vertical-align: middle;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   color: #333;
 }
