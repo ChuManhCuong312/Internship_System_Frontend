@@ -88,14 +88,10 @@ updateInternProfile: async (token, internId, profileData) => {
 
 
 
-getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
-  const params = {};
-  if (search) params.search = search;
-  if (filter) params.filter = filter;
-
+getInternAssignments: async (token, params = {}) => {
   const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
     headers: { Authorization: `Bearer ${token}` },
-    params
+    params  // Pass all params directly
   });
   return res.data;
 },
