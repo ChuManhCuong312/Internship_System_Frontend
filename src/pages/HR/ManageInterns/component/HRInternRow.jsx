@@ -49,10 +49,24 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
         <td>
-          <span className={getStatusClass(intern.status)}>
-            {translateStatus(intern.status)}
-          </span>
-        </td>
+                  {intern.cvPath && (
+                    <a href={`/${intern.cvPath}`} download>{intern.cvPath}</a>
+                  )}
+                  {intern.permissionFile && (
+                    <>
+                      {" | "}
+                      <a href={`/${intern.permissionFile}`} download>
+                        {intern.permissionFile}
+                      </a>
+                    </>
+                  )}
+                  {!intern.cvPath && !intern.permissionFile && "Chưa có"}
+                </td>
+                <td>
+                  <span className={getStatusClass(intern.status)}>
+                    {translateStatus(intern.status)}
+                  </span>
+                </td>
         <td>
           {intern.status === "PENDING" && (
             <div className="action-buttons">

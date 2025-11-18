@@ -30,6 +30,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
             <th>Số điện thoại</th>
             <th>Ngành</th>
             <th>GPA</th>
+            <th>Tài liệu</th>
             <th>Trạng thái</th>
             <th>Hành động</th>
           </tr>
@@ -48,7 +49,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="8" style={{ textAlign: "center" }}>
+              <td colSpan="9" style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>
