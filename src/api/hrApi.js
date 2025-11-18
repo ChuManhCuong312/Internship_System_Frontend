@@ -44,14 +44,14 @@ const hrApi = {
 createInternProfile: async (token, userId, profileData) => {
   const formData = new FormData();
   formData.append("fullName", profileData.full_name);
+  formData.append("gender", profileData.gender);
   formData.append("dob", profileData.dob);
   formData.append("major", profileData.major);
   formData.append("gpa", profileData.gpa);
   formData.append("school", "CMC University");
-  formData.append("phoneNumber", profileData.phone);
   formData.append("address", profileData.address);
 
-  const res = await axios.post(`${API_URL}/${userId}/profile`, formData, {
+  const res = await axios.post(`${API_URL}/${userId}/profile?phone=${profileData.phone}`, formData, {
     ...authHeader(token),
   });
   return res.data;
@@ -67,22 +67,29 @@ getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
 },
 
 updateInternProfile: async (token, internId, profileData) => {
-  const res = await axios.patch(`${API_URL}/${internId}/profile`, {
-    school: profileData.school,
-    major: profileData.major,
-    dob: profileData.dob,
-    address: profileData.address,
-    phoneNumber: profileData.phone,
-    gpa: profileData.gpa
-  }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
+  try {
+    const res = await axios.patch(`${API_URL}/${internId}/profile`, {
+      school: profileData.school,
+      major: profileData.major,
+      dob: profileData.dob,
+      address: profileData.address,
+      phone: profileData.phone,
+      gender: profileData.gender,
+      gpa: profileData.gpa
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (err) {
+
+    throw err;
+  }
 },
 
 
-getInternAssignments: async (token, { search = "", filter = "all", page = 1, size = 10 } = {}) => {
-  const params = { page, size };
+
+getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
+  const params = {};
   if (search) params.search = search;
   if (filter) params.filter = filter;
 

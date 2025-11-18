@@ -7,6 +7,7 @@ import HRInternHeader from "./component/HRInternHeader";
 import { useNavigate } from "react-router-dom";
 import CandidatesModal from "./CandidatesModal";
 import ProfileModal from "./modals/ProfileModal"
+import { toast } from "react-toastify";
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
@@ -127,11 +128,30 @@ const ManageInterns = () => {
         setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
         onClose={() => setEditingIntern(null)}
         onSubmit={async () => {
-          await hrApi.updateInternProfile(token, editingIntern.internId, editingIntern);
-          setEditingIntern(null);
-          fetchInterns();
+          try {
+            await hrApi.updateInternProfile(token, editingIntern.internId, editingIntern);
+            toast.success("Cập nhật hồ sơ thành công ✅");
+            setEditingIntern(null);
+            fetchInterns();
+          } catch (err) {
+              console.error("Error updating intern:", err);
+
+              if (err.response?.status === 400) {
+                let msg = err.response.data;
+
+                if (typeof msg === "string") {
+                  const match = msg.match(/interpolatedMessage='([^']+)'/);
+                  if (match) {
+                    msg = match[1];
+                  }
+                }
+
+                toast.error(msg || "Dữ liệu không hợp lệ ❌");
+              } else {
+                toast.error("Cập nhật hồ sơ thất bại ❌");
+              }
+            }
         }}
-        errors={{}}
       />
     )}
 
