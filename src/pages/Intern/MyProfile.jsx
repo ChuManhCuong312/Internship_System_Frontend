@@ -330,7 +330,6 @@ export default function ProfilePage() {
                 <div className="profile-grid">
                     <div className="info-card"><MdSchool className="info-icon" /><div><div className="info-label">Trường</div><div className="info-value">{me?.school || '-'}</div></div></div>
                     <div className="info-card"><MdTrendingUp className="info-icon" /><div><div className="info-label">Ngành học</div><div className="info-value">{me?.major || '-'}</div></div></div>
-                    <div className="info-card"><MdPhone className="info-icon" /><div><div className="info-label">Số điện thoại</div><div className="info-value">{me?.phoneNumber || '-'}</div></div></div>
                     <div className="info-card"><MdLocationOn className="info-icon" /><div><div className="info-label">Địa chỉ</div><div className="info-value">{me?.address || '-'}</div></div></div>
                     <div className="info-card"><MdCalendarToday className="info-icon" /><div><div className="info-label">Ngày sinh</div><div className="info-value">{me?.dob || '-'}</div></div></div>
                     <div className="info-card"><MdPerson className="info-icon" /><div><div className="info-label">Giới tính</div><div className="info-value">{me?.gender === 'MALE' ? 'Nam' : me?.gender === 'FEMALE' ? 'Nữ' : me?.gender || '-'}</div></div></div>
@@ -378,7 +377,6 @@ export default function ProfilePage() {
                         <div className="form-group"><label>Họ và tên</label><input type="text" name="fullName" value={formData.fullName} onChange={handleChange} disabled /></div>
                         <div className="form-group"><label>Trường</label><input type="text" name="school" value={formData.school} onChange={handleChange} /></div>
                         <div className="form-group"><label>Ngành học</label><input type="text" name="major" value={formData.major} onChange={handleChange} /></div>
-                        <div className="form-group"><label>Số điện thoại</label><input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} /></div>
                         <div className="form-group"><label>Địa chỉ</label><input type="text" name="address" value={formData.address} onChange={handleChange} /></div>
                         <div className="form-group"><label>Ngày sinh</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} /></div>
                         <div className="form-group"><label>GPA</label><input type="text" name="gpa" value={formData.gpa} onChange={handleChange} /></div>
@@ -388,7 +386,7 @@ export default function ProfilePage() {
                                 <option value="">Chọn giới tính</option>
                                 <option value="MALE">Nam</option>
                                 <option value="FEMALE">Nữ</option>
-                                <option value="OTHER">Khác</option>
+                             
                             </select>
                         </div>
                     </div>
