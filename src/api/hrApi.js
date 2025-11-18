@@ -92,7 +92,6 @@ getInternAssignments: async (token, { search = "", filter = "all", mentorId = nu
   const params = {};
   if (search) params.search = search;
   if (filter) params.filter = filter;
-  if (mentorId) params.mentorId = mentorId;
 
   const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -100,6 +99,7 @@ getInternAssignments: async (token, { search = "", filter = "all", mentorId = nu
   });
   return res.data;
 },
+
 
 assignMentor: async (token, { internId, mentorId }) => {
   const res = await axios.post(`${API_URL_MENTOR_ASSIGN}/assign`, {
@@ -120,7 +120,7 @@ reassignMentor: async (token, { internId, mentorId }) => {
 },
 
 getAllMentors: async (token) => {
-  const res = await axios.get(`${API_URL_MENTOR}`, {
+  const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/mentors`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.data;

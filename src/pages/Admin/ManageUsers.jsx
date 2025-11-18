@@ -39,7 +39,6 @@ const ManageUsers = () => {
    reject,
    unlock,
  } = useContext(UserContext);
- const [filteredUsers, setFilteredUsers] = useState("");
  const [searchTerm, setSearchTerm] = useState("");
  const [roleFilter, setRoleFilter] = useState("");
  const [statusFilter, setStatusFilter] = useState("");
@@ -49,7 +48,6 @@ const ManageUsers = () => {
 
  // Modal states
  const [showCreateModal, setShowCreateModal] = useState(false);
- const [showPermissionModal, setShowPermissionModal] = useState(false);
  const [showDeleteModal, setShowDeleteModal] = useState(false);
  const [showRejectModal, setShowRejectModal] = useState(false);
 
@@ -241,12 +239,6 @@ const mapStatusToVietnamese = (status) => {
        // Gọi toast để hiển thị đúng message
        notify(error.response.data, "error");
 
-       // Nếu muốn highlight lỗi ở form
-       if (serverMessage.includes("Email")) {
-         setFormErrors({ email: serverMessage });
-       } else {
-         setFormErrors({ general: serverMessage });
-       }
      }
  };
 
@@ -298,6 +290,11 @@ const handlePageChange = (page) => {
      status: statusFilter,
    });
  };
+const handleClearFilters = () => {
+    setSearchTerm("");
+    setRoleFilter("");
+    setStatusFilter("");
+  };
 
 
  if (!isAdmin) {
@@ -332,6 +329,7 @@ const handlePageChange = (page) => {
              className="filter-select"
            >
              <option value="">Tất cả vai trò</option>
+             <option value="1">Admin</option>
              <option value="2">HR</option>
              <option value="3">Mentor</option>
              <option value="4">Intern</option>
@@ -350,12 +348,15 @@ const handlePageChange = (page) => {
 
 
            <button className="btn-primary" onClick={handleOpenCreateModal}>
-             ➕ Thêm người dùng
-           </button>
-           <button className="btn-secondary" onClick={() => setShowPermissionModal(true)}>
-             🔐 Phân quyền
+              Thêm người dùng
            </button>
          </div>
+         <button
+                 className="clear-filter-btn"
+                 onClick={handleClearFilters}
+               >
+                 ✖ Clear filter
+               </button>
        </div>
 
        {/* User Table */}
@@ -363,6 +364,7 @@ const handlePageChange = (page) => {
          <table className="users-table">
            <thead>
              <tr>
+               <th>STT</th>
                <th>Họ tên</th>
                <th>Email</th>
                <th>Vai trò</th>
@@ -372,8 +374,9 @@ const handlePageChange = (page) => {
              </tr>
            </thead>
            <tbody>
-             {users.map(user => (
+             {users.map((user, index) => (
                <tr key={user.userId}>
+                 <td>{(currentPage - 1) * usersPerPage + index + 1}</td>
                  <td>{user.fullName}</td>
                  <td>{user.email}</td>
                  <td>
@@ -487,18 +490,22 @@ const handlePageChange = (page) => {
                {formErrors.phone && <p className="field-error">{formErrors.phone}</p>}
              </div>
 
-
-             <div className="form-group">
-               <label>{isEditing ? "Đổi mật khẩu" : "Mật khẩu khởi tạo"} {isEditing ? "(Để trống nếu không đổi)" : "*"}</label>
-               <PasswordInput
-                 name="password"
-                 value={form.password}
-                 onChange={handleFormChange}
-                 placeholder="••••••••"
-               />
-               {formErrors.password && <p className="field-error">{formErrors.password}</p>}
-             </div>
-
+             {!isEditing && (
+               <div className="form-group">
+                 <label>
+                   Mật khẩu khởi tạo *
+                 </label>
+                 <PasswordInput
+                   name="password"
+                   value={form.password}
+                   onChange={handleFormChange}
+                   placeholder="••••••••"
+                 />
+                 {formErrors.password && (
+                   <p className="field-error">{formErrors.password}</p>
+                 )}
+               </div>
+             )}
 
              <div className="form-group">
                <label>Vai trò *</label>
@@ -587,38 +594,7 @@ const handlePageChange = (page) => {
        )}
 
 
-       {/* Permission Modal */}
-       {showPermissionModal && (
-         <Modal title="Thiết lập phân quyền" onClose={() => setShowPermissionModal(false)}>
-           <div className="permission-content">
-             {Object.entries(permissions).map(([role, perms]) => (
-               <div key={role} className="permission-group">
-                 <h4>{role}</h4>
-                 {perms.map((perm, idx) => (
-                   <label key={idx} className="permission-item">
-                     <input type="checkbox" defaultChecked />
-                     <span>{perm}</span>
-                   </label>
-                 ))}
-               </div>
-             ))}
-           </div>
-           <div className="modal-actions">
-             <button className="btn-cancel" onClick={() => setShowPermissionModal(false)}>
-               Hủy
-             </button>
-             <button
-               className="btn-save"
-               onClick={() => {
-                 notify("✅ Cập nhật phân quyền thành công");
-                 setShowPermissionModal(false);
-               }}
-             >
-               Lưu thay đổi
-             </button>
-           </div>
-         </Modal>
-       )}
+
      </div>
      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
    </div>

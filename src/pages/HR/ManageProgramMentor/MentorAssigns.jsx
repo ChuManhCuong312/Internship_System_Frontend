@@ -11,8 +11,13 @@ const MentorAssigns = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
+
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
 
   const [interns, setInterns] = useState([]);
   const [mentors, setMentors] = useState([]);
@@ -22,6 +27,9 @@ const MentorAssigns = () => {
   const [selectedIntern, setSelectedIntern] = useState(null);
   const [selectedMentorId, setSelectedMentorId] = useState(null);
 
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("")
+
   useEffect(() => {
     if (!token) return;
     loadData(); // initial load
@@ -29,15 +37,21 @@ const MentorAssigns = () => {
   }, [token]);
 
   // load interns with current filters
-  const loadData = async () => {
+
+  const loadData = async (page = currentPage) => {
     try {
-      const filter = sortOption === "withMentor" ? "withMentor" : sortOption === "withoutMentor" ? "withoutMentor" : "all";
-      const data = await hrApi.getInternAssignments(token, { search: searchTerm, filter });
-      setInterns(data);
+        const filter = sortOption === "withMentor" ? "withMentor" : sortOption === "withoutMentor" ? "withoutMentor" : "all";
+        const data = await hrApi.getInternAssignments(token, { search: searchTerm, filter, page, size: itemsPerPage });
+
+        setInterns(data.data);
+        setTotalPages(data.totalPages);
+        setTotalItems(data.totalItems);
     } catch (err) {
-      console.error("Failed to load interns:", err);
+        console.error("Failed to load interns:", err);
     }
   };
+
+
 
   const loadMentors = async () => {
     try {
@@ -50,7 +64,8 @@ const MentorAssigns = () => {
 
   // call whenever search or filter changes
   useEffect(() => {
-    loadData();
+    setCurrentPage(1);
+    loadData(1);
   }, [searchTerm, sortOption]);
 
   // open modal
@@ -80,10 +95,20 @@ const MentorAssigns = () => {
 
       await loadData(); // refresh list
       setShowInternModal(false);
+      showToast(selectedIntern.mentorId ? "Phân công lại thành công!" : "Phân công thành công!", "success");
     } catch (err) {
       console.error("Assign failed:", err);
-      alert(err?.response?.data?.message || err?.message || "Assign failed");
+      showToast("Có lỗi xảy ra khi phân công!", "error");
     }
+  };
+
+  const showToast = (message, type) => {
+    setToastMessage(message);
+    setToastType(type);
+    setTimeout(() => {
+        setToastMessage("");
+        setToastType("");
+    }, 3000);
   };
 
   return (
@@ -127,7 +152,7 @@ const MentorAssigns = () => {
               <tbody>
                 {interns.map((intern, idx) => (
                   <tr key={intern.internId}>
-                    <td>{idx + 1}</td>
+                    <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                     <td>{intern.internName}</td>
                     <td>{intern.mentorName || "Chưa có Mentor"}</td>
                     <td>{intern.assignedAt ? new Date(intern.assignedAt).toLocaleString() : "-"}</td>
@@ -149,12 +174,15 @@ const MentorAssigns = () => {
             </table>
           </div>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={1}
-            totalItems={interns.length}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                onPageChange={(page) => {
+                setCurrentPage(page);
+                loadData(page); // reload data when page changes
+                }}
+            />
         </div>
       </div>
 
@@ -167,6 +195,13 @@ const MentorAssigns = () => {
           onSave={handleSaveInternAssignment}
           onClose={() => setShowInternModal(false)}
         />
+      )}
+
+      {/* ✅ Toast Notification */}
+      {toastMessage && (
+            <div className={`toast ${toastType}`}>
+                {toastMessage}
+            </div>
       )}
     </div>
   );
