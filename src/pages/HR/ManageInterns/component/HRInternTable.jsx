@@ -19,10 +19,6 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
     }
   };
 
-const translateGender = (gender) => {
-    return gender === "MALE" ? "Nam" : gender === "FEMALE" ? "Nữ" : "";
-  };
-
   return (
     <div className="users-table-container">
       <table className="users-table">
@@ -32,12 +28,8 @@ const translateGender = (gender) => {
             <th>Họ tên</th>
             <th>Email</th>
             <th>Số điện thoại</th>
-            <th>Giới tính</th>
             <th>Ngành</th>
             <th>GPA</th>
-            <th>Ngày sinh</th>
-            <th>Địa chỉ</th>
-            <th>Tài liệu</th>
             <th>Trạng thái</th>
             <th>Hành động</th>
           </tr>
@@ -45,19 +37,18 @@ const translateGender = (gender) => {
         <tbody>
           {Array.isArray(interns) && interns.length > 0 ? (
             interns.map((intern, index) => (
-                <HRInternRow
-                  key={intern.internId}
-                  intern={intern}
-                  index={page * size + index}
-                  translateStatus={translateStatus}
-                  translateGender={translateGender}
-                  onStatusChange={fetchInterns}
-                  onEdit={onEdit}
-                />
+              <HRInternRow
+                key={intern.internId}
+                intern={intern}
+                index={page * size + index}
+                translateStatus={translateStatus}
+                onStatusChange={fetchInterns}
+                onEdit={onEdit}
+              />
             ))
           ) : (
             <tr>
-              <td colSpan="12" style={{ textAlign: "center" }}>
+              <td colSpan="8" style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>
