@@ -40,7 +40,7 @@ const AssignInternForm = ({
             <option value="">-- Chọn Mentor --</option>
             {mentors.map((mentor) => (
               <option key={mentor.mentorId} value={mentor.mentorId}>
-                {mentor.fullName}
+                {mentor.mentorName} - ({mentor.assignedCount})
               </option>
             ))}
           </select>
