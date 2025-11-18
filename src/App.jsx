@@ -22,6 +22,8 @@ import Attendance from "./pages/Intern/Attendance";
 import AllowanceRequest from "./pages/Intern/AllowanceRequest";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -169,6 +171,17 @@ function App() {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
+           <ToastContainer
+                      position="top-right"
+                      autoClose={3000}
+                      hideProgressBar={false}
+                      newestOnTop={false}
+                      closeOnClick
+                      rtl={false}
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                    />
         </Router>
       </InternsProvider>
     </UserProvider>

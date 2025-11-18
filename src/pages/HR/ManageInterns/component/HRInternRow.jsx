@@ -26,6 +26,19 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
     onStatusChange();
   };
 
+  // Hàm tạo class name cho status badge
+  const getStatusClass = (status) => {
+    const statusMap = {
+      'PENDING': 'status-chờ-duyệt',
+      'APPROVED': 'status-đã-duyệt',
+      'REJECTED': 'status-bị-từ-chối',
+      'NO_FILE': 'status-chưa-xác-thực',
+      'ACTIVE': 'status-đã-duyệt',
+      'COMPLETED': 'status-hợp-đồng-hoàn-tất'
+    };
+    return `status-badge ${statusMap[status] || ''}`;
+  };
+
   return (
     <>
       <tr>
@@ -35,23 +48,11 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
         <td>{intern.phone}</td>
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
-        <td>{intern.dob}</td>
-        <td>{intern.address}</td>
         <td>
-          {intern.cvPath && (
-            <a href={`/${intern.cvPath}`} download>{intern.cvPath}</a>
-          )}
-          {intern.permissionFile && (
-            <>
-              {" | "}
-              <a href={`/${intern.permissionFile}`} download>
-                {intern.permissionFile}
-              </a>
-            </>
-          )}
-          {!intern.cvPath && !intern.permissionFile && "Chưa có"}
+          <span className={getStatusClass(intern.status)}>
+            {translateStatus(intern.status)}
+          </span>
         </td>
-        <td>{translateStatus(intern.status)}</td>
         <td>
           {intern.status === "PENDING" && (
             <div className="action-buttons">
@@ -63,13 +64,13 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
               </button>
             </div>
           )}
-      {intern.status === "APPROVED" && (
-                  <div className="action-buttons">
-                    <button className="btn-edit" onClick={() => onEdit(intern)}>
-                      ✏️ Sửa hồ sơ
-                    </button>
-          </div>
-        )}
+          {intern.status === "APPROVED" && (
+            <div className="action-buttons">
+              <button className="btn-edit" onClick={() => onEdit(intern)}>
+                ✏️ Sửa hồ sơ
+              </button>
+            </div>
+          )}
         </td>
       </tr>
 
