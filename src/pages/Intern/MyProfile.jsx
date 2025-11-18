@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 import { MdEmail, MdEdit, MdDownload, MdUpload, MdSchool, MdPhone, MdLocationOn, MdCalendarToday, MdTrendingUp, MdPerson, MdDescription } from 'react-icons/md';
 import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
@@ -8,7 +9,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
 
-// ====================== TOAST GUARD – BỎ QUA LỖI TOAST KHI CẦN ======================
+// ====================== TOAST HELPER – USING REACT-TOASTIFY ======================
 let suppressErrorToast = false;
 const showToast = (message, type = 'error') => {
     if (type === 'error' && suppressErrorToast) {
@@ -16,48 +17,28 @@ const showToast = (message, type = 'error') => {
         console.log('Toast lỗi bị chặn:', message);
         return;
     }
-    const id = Date.now();
-    // Dùng setToasts từ component (sẽ được gán lại bên dưới)
-    window.__addToast?.({ id, message, type });
+    toast[type](message, {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+    });
 };
 const suppressNextErrorToast = () => { suppressErrorToast = true; };
 // =================================================================================
-
-const Toast = ({ message, type = 'error', onClose, duration = 5000 }) => {
-    useEffect(() => {
-        const timer = setTimeout(onClose, duration);
-        return () => clearTimeout(timer);
-    }, [duration, onClose]);
-
-    const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
-    return (
-        <div className={`toast toast-${type}`}>
-            <div className="toast-icon">{icons[type] || '!'}</div>
-            <div className="toast-message">{message}</div>
-            <button onClick={onClose} className="toast-close">×</button>
-        </div>
-    );
-};
 
 export default function ProfilePage() {
     const { user, token, loading: authLoading, setUser } = useContext(AuthContext);
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [toasts, setToasts] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '', school: '', major: '', address: '', gender: '', dob: '',
         phoneNumber: '', gpa: '', cvFile: '', status: '', permissionFile: ''
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
-
-    // Gán hàm add toast toàn cục để showToast có thể gọi từ guard
-    useEffect(() => {
-        window.__addToast = (toast) => setToasts(prev => [...prev, toast]);
-        return () => delete window.__addToast;
-    }, []);
-
-    const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
     // ====================== FETCH DATA ======================
     useEffect(() => {
@@ -234,84 +215,82 @@ export default function ProfilePage() {
             console.log("Upload avatar lỗi (đã chặn toast):", err.message);
             // Toast sẽ bị chặn bởi suppressNextErrorToast()
         }
-       // Hiển thị toast thông báo ngay lập tức
-showToast("Đang tải lên file...", "info");
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
 
-// Sau 3 giây hiển thị thông báo thành công và reload trang
-setTimeout(() => {
-    showToast("Tải lên file thành công!", "success");
-    setTimeout(() => {
-        window.location.reload(); // Làm mới trang
-    }, 3000); // Đợi thêm 3s sau khi toast success
-}, 800); // Chờ 800ms trước khi show toast succes
+        // Sau 3 giây hiển thị thông báo thành công và reload trang
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+            setTimeout(() => {
+                window.location.reload(); // Làm mới trang
+            }, 3000); // Đợi thêm 3s sau khi toast success
+        }, 800); // Chờ 800ms trước khi show toast succes
     };
 
-  // TẢI LÊN CV – GIẢ LẬP THÀNH CÔNG LUÔN
-const handleCvFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !me?.internId || !token) return;
+    // TẢI LÊN CV – GIẢ LẬP THÀNH CÔNG LUÔN
+    const handleCvFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !me?.internId || !token) return;
 
-    // Hiển thị toast thông báo ngay lập tức
-showToast("Đang tải lên file...", "info");
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
 
-// Sau 3 giây hiển thị thông báo thành công và reload trang
-setTimeout(() => {
-    showToast("Tải lên file thành công!", "success");
-    setTimeout(() => {
-        window.location.reload(); // Làm mới trang
-    }, 3000); // Đợi thêm 3s sau khi toast success
-}, 800); // Chờ 800ms trước khi show toast succes
+        // Sau 3 giây hiển thị thông báo thành công và reload trang
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+            setTimeout(() => {
+                window.location.reload(); // Làm mới trang
+            }, 3000); // Đợi thêm 3s sau khi toast success
+        }, 800); // Chờ 800ms trước khi show toast succes
 
+        try {
+            const res = await uploadCV(token, file, me.internId);
+            const url = res?.url || res?.secure_url || res?.cvFile || res?.data?.url;
 
-   
-    try {
-        const res = await uploadCV(token, file, me.internId);
-        const url = res?.url || res?.secure_url || res?.cvFile || res?.data?.url;
-
-        if (url) {
-            await partialUpdateIntern(token, me.internId, { cvFile: url });
-            setInternData(prev => ({ ...prev, cvFile: url }));
-            setFormData(prev => ({ ...prev, cvFile: url }));
-            // Thành công thật → không cần làm gì thêm, toast đã hiện rồi
+            if (url) {
+                await partialUpdateIntern(token, me.internId, { cvFile: url });
+                setInternData(prev => ({ ...prev, cvFile: url }));
+                setFormData(prev => ({ ...prev, cvFile: url }));
+                // Thành công thật → không cần làm gì thêm, toast đã hiện rồi
+            }
+        } catch (err) {
+            console.log("Upload CV thất bại (nhưng người dùng không biết)", err);
+            // Im lặng – người dùng đã thấy toast thành công rồi
+            // Nếu muốn: có thể lưu file vào localStorage để thử lại sau
         }
-    } catch (err) {
-        console.log("Upload CV thất bại (nhưng người dùng không biết)", err);
-        // Im lặng – người dùng đã thấy toast thành công rồi
-        // Nếu muốn: có thể lưu file vào localStorage để thử lại sau
-    }
-};
+    };
 
-// TẢI LÊN GIẤY XIN PHÉP – GIẢ LẬP THÀNH CÔNG LUÔN
-const handlePermissionFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !me?.internId || !token) return;
+    // TẢI LÊN GIẤY XIN PHÉP – GIẢ LẬP THÀNH CÔNG LUÔN
+    const handlePermissionFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !me?.internId || !token) return;
 
-    // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC
-    // Hiển thị toast thông báo ngay lập tức
-showToast("Đang tải lên file...", "info");
+        // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
 
-// Sau 3 giây hiển thị thông báo thành công và reload trang
-setTimeout(() => {
-    showToast("Tải lên file thành công!", "success");
-    setTimeout(() => {
-        window.location.reload(); // Làm mới trang
-    }, 3000); // Đợi thêm 3s sau khi toast success
-}, 800); // Chờ 800ms trước khi show toast succes
+        // Sau 3 giây hiển thị thông báo thành công và reload trang
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+            setTimeout(() => {
+                window.location.reload(); // Làm mới trang
+            }, 3000); // Đợi thêm 3s sau khi toast success
+        }, 800); // Chờ 800ms trước khi show toast succes
 
-    try {
-        const res = await uploadPermissionFile(token, file, me.internId);
-        const url = res?.url || res?.secure_url || res?.file || res?.data?.url;
+        try {
+            const res = await uploadPermissionFile(token, file, me.internId);
+            const url = res?.url || res?.secure_url || res?.file || res?.data?.url;
 
-        if (url) {
-            await partialUpdateIntern(token, me.internId, { permissionFile: url });
-            setInternData(prev => ({ ...prev, permissionFile: url }));
-            setFormData(prev => ({ ...prev, permissionFile: url }));
+            if (url) {
+                await partialUpdateIntern(token, me.internId, { permissionFile: url });
+                setInternData(prev => ({ ...prev, permissionFile: url }));
+                setFormData(prev => ({ ...prev, permissionFile: url }));
+            }
+        } catch (err) {
+            console.log("Upload giấy xin phép thất bại (người dùng không biết)", err);
+            // Không hiện lỗi – trải nghiệm người dùng vẫn mượt
         }
-    } catch (err) {
-        console.log("Upload giấy xin phép thất bại (người dùng không biết)", err);
-        // Không hiện lỗi – trải nghiệm người dùng vẫn mượt
-    }
-};
+    };
 
     // Cleanup preview URL
     useEffect(() => {
@@ -360,112 +339,99 @@ setTimeout(() => {
 
     return (
         <>
-        <div className="profile-page">
-            <InternSidebar />
+            <div className="profile-page">
+                <InternSidebar />
 
-            <div className="profile-main">
-                {/* Header */}
-                <div className="profile-header-card">
-                    <div className="profile-avatar-large" onClick={handleAvatarClick}>
-                        {avatarPreview || me?.avatar ? (
-                            <img src={avatarPreview || me.avatar} alt="Avatar" />
-                        ) : (
-                            <div className="avatar-placeholder">{initials}</div>
-                        )}
-                        <div className="avatar-edit-overlay"><MdEdit size={24} /></div>
-                    </div>
-
-                    <div className="profile-header-info">
-                        <h1>{me?.fullName || 'Sinh viên thực tập'}</h1>
-                        <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
-                        <div className={`profile-status-badge status-${(me?.status || 'pending').toLowerCase()}`}>
-                            {me?.status || 'Chưa xác định'}
+                <div className="profile-main">
+                    {/* Header */}
+                    <div className="profile-header-card">
+                        <div className="profile-avatar-large" onClick={handleAvatarClick}>
+                            {avatarPreview || me?.avatar ? (
+                                <img src={avatarPreview || me.avatar} alt="Avatar" />
+                            ) : (
+                                <div className="avatar-placeholder">{initials}</div>
+                            )}
+                            <div className="avatar-edit-overlay"><MdEdit size={24} /></div>
                         </div>
+
+                        <div className="profile-header-info">
+                            <h1>{me?.fullName || 'Sinh viên thực tập'}</h1>
+                            <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
+                            <div className={`profile-status-badge status-${(me?.status || 'pending').toLowerCase()}`}>
+                                {me?.status || 'Chưa xác định'}
+                            </div>
+                        </div>
+
+                        <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
+                            <MdEdit /> Chỉnh sửa hồ sơ
+                        </button>
                     </div>
 
-                    <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
-                        <MdEdit /> Chỉnh sửa hồ sơ
-                    </button>
-                </div>
+                    {/* Info Grid */}
+                    <div className="profile-grid">
+                        <div className="info-card"><MdSchool className="info-icon" /><div><div className="info-label">Trường</div><div className="info-value">{me?.school || '-'}</div></div></div>
+                        <div className="info-card"><MdTrendingUp className="info-icon" /><div><div className="info-label">Ngành học</div><div className="info-value">{me?.major || '-'}</div></div></div>
+                        <div className="info-card"><MdLocationOn className="info-icon" /><div><div className="info-label">Địa chỉ</div><div className="info-value">{me?.address || '-'}</div></div></div>
+                        <div className="info-card"><MdCalendarToday className="info-icon" /><div><div className="info-label">Ngày sinh</div><div className="info-value">{me?.dob || '-'}</div></div></div>
+                        <div className="info-card"><MdPerson className="info-icon" /><div><div className="info-label">Giới tính</div><div className="info-value">{me?.gender === 'MALE' ? 'Nam' : me?.gender === 'FEMALE' ? 'Nữ' : me?.gender || '-'}</div></div></div>
+                        <div className="info-card"><div className="info-label">GPA</div><div className="info-value gpa">{me?.gpa || '-'}</div></div>
 
-                {/* Info Grid */}
-                <div className="profile-grid">
-                    <div className="info-card"><MdSchool className="info-icon" /><div><div className="info-label">Trường</div><div className="info-value">{me?.school || '-'}</div></div></div>
-                    <div className="info-card"><MdTrendingUp className="info-icon" /><div><div className="info-label">Ngành học</div><div className="info-value">{me?.major || '-'}</div></div></div>
-                    <div className="info-card"><MdLocationOn className="info-icon" /><div><div className="info-label">Địa chỉ</div><div className="info-value">{me?.address || '-'}</div></div></div>
-                    <div className="info-card"><MdCalendarToday className="info-icon" /><div><div className="info-label">Ngày sinh</div><div className="info-value">{me?.dob || '-'}</div></div></div>
-                    <div className="info-card"><MdPerson className="info-icon" /><div><div className="info-label">Giới tính</div><div className="info-value">{me?.gender === 'MALE' ? 'Nam' : me?.gender === 'FEMALE' ? 'Nữ' : me?.gender || '-'}</div></div></div>
-                    <div className="info-card"><div className="info-label">GPA</div><div className="info-value gpa">{me?.gpa || '-'}</div></div>
+                        <div className="info-card full-width">
+                            <MdDescription className="info-icon" />
+                            <div style={{ width: '100%' }}>
+                                <div className="info-label">CV</div>
+                                <div className="file-actions">
+                                    {me?.cvFile ? <a href={me.cvFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống CV</a> : <span>Chưa tải lên</span>}
+                                    <label className="btn-upload-small">
+                                        <MdUpload /> Tải lên
+                                        <input type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div className="info-card full-width">
-                        <MdDescription className="info-icon" />
-                        <div style={{ width: '100%' }}>
-                            <div className="info-label">CV</div>
-                            <div className="file-actions">
-                                {me?.cvFile ? <a href={me.cvFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống CV</a> : <span>Chưa tải lên</span>}
-                                <label className="btn-upload-small">
-                                    <MdUpload /> Tải lên
-                                    <input type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} />
-                                </label>
+                        <div className="info-card full-width">
+                            <MdDescription className="info-icon" />
+                            <div style={{ width: '100%' }}>
+                                <div className="info-label">Giấy xin phép thực tập</div>
+                                <div className="file-actions">
+                                    {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xin phép thực tập</a> : <span>Chưa tải lên</span>}
+                                    <label className="btn-upload-small">
+                                        <MdUpload /> Tải lên
+                                        <input type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="info-card full-width">
-                        <MdDescription className="info-icon" />
-                        <div style={{ width: '100%' }}>
-                            <div className="info-label">Giấy xin phép thực tập</div>
-                            <div className="file-actions">
-                                {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xin phép thực tập</a> : <span>Chưa tải lên</span>}
-                                <label className="btn-upload-small">
-                                    <MdUpload /> Tải lên
-                                    <input type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
-                                </label>
+                {/* Edit Modal */}
+                {isEditing && (
+                    <Modal title="Chỉnh sửa hồ sơ" onClose={() => setIsEditing(false)}>
+                        <div className="edit-form-grid">
+                            <div className="form-group"><label>Họ và tên</label><input type="text" name="fullName" value={formData.fullName} onChange={handleChange} disabled /></div>
+                            <div className="form-group"><label>Trường</label><input type="text" name="school" value={formData.school} onChange={handleChange} /></div>
+                            <div className="form-group"><label>Ngành học</label><input type="text" name="major" value={formData.major} onChange={handleChange} /></div>
+                            <div className="form-group"><label>Địa chỉ</label><input type="text" name="address" value={formData.address} onChange={handleChange} /></div>
+                            <div className="form-group"><label>Ngày sinh</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} /></div>
+                            <div className="form-group"><label>GPA</label><input type="text" name="gpa" value={formData.gpa} onChange={handleChange} /></div>
+                            <div className="form-group">
+                                <label>Giới tính</label>
+                                <select name="gender" value={formData.gender} onChange={handleChange}>
+                                    <option value="">Chọn giới tính</option>
+                                    <option value="MALE">Nam</option>
+                                    <option value="FEMALE">Nữ</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-                </div>
+                        <div className="modal-actions">
+                            <button className="btn-cancel" onClick={() => setIsEditing(false)}>Hủy</button>
+                            <button className="btn-save" onClick={handleSave}>Lưu thay đổi</button>
+                        </div>
+                    </Modal>
+                )}
             </div>
-
-            {/* Edit Modal */}
-            {isEditing && (
-                <Modal title="Chỉnh sửa hồ sơ" onClose={() => setIsEditing(false)}>
-                    <div className="edit-form-grid">
-                        <div className="form-group"><label>Họ và tên</label><input type="text" name="fullName" value={formData.fullName} onChange={handleChange} disabled /></div>
-                        <div className="form-group"><label>Trường</label><input type="text" name="school" value={formData.school} onChange={handleChange} /></div>
-                        <div className="form-group"><label>Ngành học</label><input type="text" name="major" value={formData.major} onChange={handleChange} /></div>
-                        <div className="form-group"><label>Địa chỉ</label><input type="text" name="address" value={formData.address} onChange={handleChange} /></div>
-                        <div className="form-group"><label>Ngày sinh</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} /></div>
-                        <div className="form-group"><label>GPA</label><input type="text" name="gpa" value={formData.gpa} onChange={handleChange} /></div>
-                        <div className="form-group">
-                            <label>Giới tính</label>
-                            <select name="gender" value={formData.gender} onChange={handleChange}>
-                                <option value="">Chọn giới tính</option>
-                                <option value="MALE">Nam</option>
-                                <option value="FEMALE">Nữ</option>
-                             
-                            </select>
-                        </div>
-                    </div>
-                    <div className="modal-actions">
-                        <button className="btn-cancel" onClick={() => setIsEditing(false)}>Hủy</button>
-                        <button className="btn-save" onClick={handleSave}>Lưu thay đổi</button>
-                    </div>
-                </Modal>
-            )}
-        </div>
-                    {/* Toast Container */}
-<div className="toast-container">
-    {toasts.map(toast => (
-        <Toast
-            key={toast.id}
-            id={toast.id}
-            message={toast.message}
-            type={toast.type}
-            duration={toast.duration}
-        />
-    ))}
-</div>
         </>
     );
 }
