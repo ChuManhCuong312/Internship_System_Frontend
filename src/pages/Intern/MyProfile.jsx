@@ -359,6 +359,7 @@ setTimeout(() => {
     }
 
     return (
+        <>
         <div className="profile-page">
             <InternSidebar />
 
@@ -426,11 +427,6 @@ setTimeout(() => {
                 </div>
             </div>
 
-            {/* Toast Container */}
-            <div className="toast-container">
-                {toasts.map(t => <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />)}
-            </div>
-
             {/* Edit Modal */}
             {isEditing && (
                 <Modal title="Chỉnh sửa hồ sơ" onClose={() => setIsEditing(false)}>
@@ -458,5 +454,18 @@ setTimeout(() => {
                 </Modal>
             )}
         </div>
+                    {/* Toast Container */}
+<div className="toast-container">
+    {toasts.map(toast => (
+        <Toast
+            key={toast.id}
+            id={toast.id}
+            message={toast.message}
+            type={toast.type}
+            duration={toast.duration}
+        />
+    ))}
+</div>
+        </>
     );
 }
