@@ -11,7 +11,7 @@ import { getInternByUserId } from '../../api/internApi';
 import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
   const { user, token, logout, loading: authLoading } = useContext(AuthContext);
   const [internData, setInternData] = useState(null);
@@ -94,11 +94,13 @@ const InternSidebar = () => {
   };
 
   return (
-    <animated.div className="sidebar" style={sidebarStyle}>
+    <animated.div 
+      className="sidebar" 
+      style={sidebarStyle}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
       <div className="sidebar-header">
-        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
-          <FaBars />
-        </button>
         <div className="avatar-container">
           {avatar ? (
             <img 
