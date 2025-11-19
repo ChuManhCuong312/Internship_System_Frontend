@@ -1,7 +1,16 @@
 import React from "react";
 import HRInternRow from "./HRInternRow";
 
-const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
+const HRInternTable = ({
+  interns,
+  page,
+  size,
+  fetchInterns,
+  onEdit,
+  onView,
+  showDocuments = true,
+  showApproveActions = false
+}) => {
   const translateStatus = (status) => {
     switch (status) {
       case "PENDING":
@@ -30,7 +39,8 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
             <th>Số điện thoại</th>
             <th>Ngành</th>
             <th>GPA</th>
-            <th>Tài liệu</th>
+            {showDocuments && <th>Tài liệu</th>}
+            {!showDocuments && <th>Giới tính</th>}
             <th>Trạng thái</th>
             <th>Hành động</th>
           </tr>
@@ -45,11 +55,14 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
                 translateStatus={translateStatus}
                 onStatusChange={fetchInterns}
                 onEdit={onEdit}
+                onView={onView}
+                showDocuments={showDocuments}
+                showApproveActions={showApproveActions}
               />
             ))
           ) : (
             <tr>
-              <td colSpan="9" style={{ textAlign: "center" }}>
+              <td colSpan={showDocuments ? "9" : "9"} style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>

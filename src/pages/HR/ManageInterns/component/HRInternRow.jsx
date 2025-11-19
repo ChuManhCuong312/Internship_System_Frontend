@@ -5,7 +5,16 @@ import RejectModal from "../modals/RejectModal";
 import { LoadingButton } from "../../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
 
-const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit }) => {
+const HRInternRow = ({
+  intern,
+  index,
+  translateStatus,
+  onStatusChange,
+  onEdit,
+  onView,
+  showDocuments = true,
+  showApproveActions = false
+}) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reason, setReason] = useState("");
@@ -70,52 +79,69 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
         <td>{intern.phone}</td>
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
-        <td>
-          {intern.cvPath && (
-            <a href={intern.cvPath} target="_blank" rel="noopener noreferrer">
-              📄 Xem/Tải CV
-            </a>
-          )}
-          {intern.permissionFile && (
-            <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer">
-              📄 Xem/Tải đơn xin
-            </a>
-          )}
-        </td>
+
+        {showDocuments ? (
+          <td>
+            {intern.cvPath && (
+              <a href={intern.cvPath} target="_blank" rel="noopener noreferrer">
+                📄 CV
+              </a>
+            )}
+            {intern.cvPath && intern.permissionFile && " | "}
+            {intern.permissionFile && (
+              <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer">
+                📄 Đơn xin
+              </a>
+            )}
+          </td>
+        ) : (
+          <td>{intern.gender === "MALE" ? "Nam" : "Nữ"}</td>
+        )}
+
         <td>
           <span className={getStatusClass(intern.status)}>
             {translateStatus(intern.status)}
           </span>
         </td>
+
         <td>
-          {intern.status === "PENDING" ? (
-            <div className="action-buttons">
-              <LoadingButton
-                className="btn-approve"
-                onClick={handleApprove}
-                isLoading={isApproving}
-                disabled={isRejecting}
-              >
-                {isApproving ? "Đang duyệt..." : "Duyệt"}
-              </LoadingButton>
-              <LoadingButton
-                className="btn-reject"
-                onClick={() => setShowRejectModal(true)}
-                isLoading={isRejecting}
-                disabled={isApproving}
-              >
-                Từ chối
-              </LoadingButton>
-            </div>
-          ) : (
-            <div className="action-buttons">
-              <button className="btn-edit" onClick={() => onEdit(intern)}>
-                ✏️ Sửa hồ sơ
-              </button>
-            </div>
-          )}
+          <div className="action-buttons">
+            {showApproveActions && intern.status === "PENDING" ? (
+              <>
+                <LoadingButton
+                  className="btn-approve"
+                  onClick={handleApprove}
+                  isLoading={isApproving}
+                  disabled={isRejecting}
+                >
+                  Duyệt
+                </LoadingButton>
+                <LoadingButton
+                  className="btn-reject"
+                  onClick={() => setShowRejectModal(true)}
+                  isLoading={isRejecting}
+                  disabled={isApproving}
+                >
+                  Từ chối
+                </LoadingButton>
+              </>
+            ) : (
+              <>
+                {onView && (
+                  <button className="btn-view" onClick={() => onView(intern)}>
+                    👁️ Xem
+                  </button>
+                )}
+                {onEdit && (
+                  <button className="btn-edit" onClick={() => onEdit(intern)}>
+                    ✏️ Sửa
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </td>
-        </tr>
+      </tr>
 
       {showRejectModal && (
         <RejectModal

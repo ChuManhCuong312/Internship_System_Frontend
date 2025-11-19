@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import hrApi from "../../../api/hrApi";
 import HRInternTable from "./component/HRInternTable";
 import HRSidebar from "../../../components/Layout/HRSidebar";
@@ -6,16 +7,18 @@ import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
 import CandidatesModal from "./CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
+import ViewProfileModal from "./modals/ViewProfileModal";
 import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
+import "../../../styles/manageInterns.css";
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
 
   const [page, setPage] = useState(0);
@@ -24,7 +27,24 @@ const ManageInterns = () => {
 
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
   const [editingIntern, setEditingIntern] = useState(null);
+  const [viewingIntern, setViewingIntern] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const fetchPendingCount = async () => {
+    try {
+      if (!token) return;
+      const res = await hrApi.searchInterns(token, {
+        status: "PENDING",
+        page: 0,
+        size: 1,
+      });
+      setPendingCount(res.totalElements || 0);
+    } catch (err) {
+      console.error("Error fetching pending count:", err);
+    }
+  };
 
   const fetchInterns = async (resetPage = false) => {
     try {
@@ -35,18 +55,13 @@ const ManageInterns = () => {
 
       const currentPage = resetPage ? 0 : page;
 
-      let res;
-      if (searchTerm || statusFilter || majorFilter) {
-        res = await hrApi.searchInterns(token, {
-          searchTerm,
-          major: majorFilter,
-          status: statusFilter,
-          page: currentPage,
-          size,
-        });
-      } else {
-        res = await hrApi.getAllInterns(token, currentPage, size);
-      }
+      const res = await hrApi.searchInterns(token, {
+        searchTerm,
+        major: majorFilter,
+        status: "APPROVED",
+        page: currentPage,
+        size,
+      });
 
       setInterns(res.content || []);
       setTotalPages(res.totalPages || 0);
@@ -63,7 +78,8 @@ const ManageInterns = () => {
 
   useEffect(() => {
     fetchInterns(true);
-  }, [searchTerm, statusFilter, majorFilter]);
+    fetchPendingCount();
+  }, [searchTerm, majorFilter]);
 
   useEffect(() => {
     fetchInterns();
@@ -71,10 +87,8 @@ const ManageInterns = () => {
 
   const handleClearFilters = () => {
     setSearchTerm("");
-    setStatusFilter("");
     setMajorFilter("");
     setPage(0);
-    fetchInterns();
   };
 
   const handleAddProfilePage = () => {
@@ -140,28 +154,51 @@ const ManageInterns = () => {
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
+        {/* Notification hồ sơ chờ duyệt */}
+        {pendingCount > 0 && (
+          <div className="pending-notification">
+            <span className="notification-icon">⚠️</span>
+            <span className="notification-text">
+              Có <strong>{pendingCount}</strong> hồ sơ đang chờ duyệt
+            </span>
+            <button
+              className="notification-btn"
+              onClick={() => navigate("/hr/approve-interns")}
+            >
+              Xem ngay →
+            </button>
+          </div>
+        )}
+
         <HRInternHeader
+          title="Quản lý hồ sơ thực tập sinh"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
+          showStatusFilter={false}
           majorFilter={majorFilter}
           setMajorFilter={setMajorFilter}
           onClearFilters={handleClearFilters}
           onAdd={handleAddProfilePage}
         />
+
         <HRInternTable
           interns={interns}
           page={page}
           size={size}
           fetchInterns={fetchInterns}
           onEdit={setEditingIntern}
+          onView={setViewingIntern}
+          showDocuments={false}
+          showApproveActions={false}
         />
 
         {showCandidatesModal && (
           <CandidatesModal
             onClose={() => setShowCandidatesModal(false)}
-            onSuccess={(reset) => fetchInterns(reset)}
+            onSuccess={(reset) => {
+              fetchInterns(reset);
+              fetchPendingCount();
+            }}
           />
         )}
 
@@ -183,6 +220,13 @@ const ManageInterns = () => {
             onClose={() => setEditingIntern(null)}
             onSubmit={handleUpdateIntern}
             isLoading={isUpdating}
+          />
+        )}
+
+        {viewingIntern && (
+          <ViewProfileModal
+            intern={viewingIntern}
+            onClose={() => setViewingIntern(null)}
           />
         )}
 
