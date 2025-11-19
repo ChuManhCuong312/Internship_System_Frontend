@@ -96,6 +96,7 @@ const ApproveInterns = () => {
           showStatusFilter={true}
           statusOptions={[
             { value: "PENDING", label: "Chờ duyệt" },
+            { value: "NO_FILE", label: "Chưa nộp tài liệu" },
             { value: "REJECTED", label: "Bị từ chối" },
           ]}
         />
