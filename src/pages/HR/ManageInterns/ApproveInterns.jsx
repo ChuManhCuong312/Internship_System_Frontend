@@ -6,6 +6,7 @@ import { LoadingSpinner, LoadingTable } from "../../../components/common/Loading
 import { toast } from "react-toastify";
 import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
+import CandidatesModal from "./CandidatesModal";
 
 const ApproveInterns = () => {
   const { token } = useContext(AuthContext);
@@ -15,6 +16,7 @@ const ApproveInterns = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("PENDING");
   const [majorFilter, setMajorFilter] = useState("");
+  const [showCandidatesModal, setShowCandidatesModal] = useState(false);
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -65,6 +67,10 @@ const ApproveInterns = () => {
     setPage(0);
   };
 
+  const handleAddProfilePage = () => {
+      setShowCandidatesModal(true);
+    };
+
   if (loading) {
     return (
       <div className="dashboard-layout">
@@ -99,6 +105,7 @@ const ApproveInterns = () => {
             { value: "NO_FILE", label: "Chưa nộp tài liệu" },
             { value: "REJECTED", label: "Bị từ chối" },
           ]}
+          onAdd={handleAddProfilePage}
         />
 
         <HRInternTable
@@ -110,6 +117,14 @@ const ApproveInterns = () => {
           showDocuments={true}
           showApproveActions={true}
         />
+        {showCandidatesModal && (
+          <CandidatesModal
+            onClose={() => setShowCandidatesModal(false)}
+            onSuccess={(reset) => {
+              fetchInterns(reset);
+            }}
+          />
+        )}
 
         <div className="pagination">
           <button

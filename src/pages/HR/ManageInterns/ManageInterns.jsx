@@ -5,7 +5,6 @@ import HRInternTable from "./component/HRInternTable";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
-import CandidatesModal from "./CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
 import ViewProfileModal from "./modals/ViewProfileModal";
 import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
@@ -91,10 +90,6 @@ const ManageInterns = () => {
     setPage(0);
   };
 
-  const handleAddProfilePage = () => {
-    setShowCandidatesModal(true);
-  };
-
   const handleUpdateIntern = async () => {
     try {
       setIsUpdating(true);
@@ -178,7 +173,6 @@ const ManageInterns = () => {
           majorFilter={majorFilter}
           setMajorFilter={setMajorFilter}
           onClearFilters={handleClearFilters}
-          onAdd={handleAddProfilePage}
         />
 
         <HRInternTable
@@ -191,16 +185,6 @@ const ManageInterns = () => {
           showDocuments={false}
           showApproveActions={false}
         />
-
-        {showCandidatesModal && (
-          <CandidatesModal
-            onClose={() => setShowCandidatesModal(false)}
-            onSuccess={(reset) => {
-              fetchInterns(reset);
-              fetchPendingCount();
-            }}
-          />
-        )}
 
         {editingIntern && (
           <ProfileModal
