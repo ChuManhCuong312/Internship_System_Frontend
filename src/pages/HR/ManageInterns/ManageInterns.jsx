@@ -184,6 +184,7 @@ const ManageInterns = () => {
           onView={setViewingIntern}
           showDocuments={false}
           showApproveActions={false}
+          showStatus={false}
         />
 
         {editingIntern && (
