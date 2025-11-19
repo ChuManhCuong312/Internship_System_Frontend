@@ -86,8 +86,6 @@ updateInternProfile: async (token, internId, profileData) => {
   }
 },
 
-
-
 getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
   const params = {};
   if (search) params.search = search;

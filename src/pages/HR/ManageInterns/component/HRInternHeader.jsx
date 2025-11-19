@@ -11,6 +11,12 @@ const HRInternHeader = ({
   setMajorFilter,
   onAdd,
   showStatusFilter = true,
+  statusOptions = [
+    { value: "", label: "Tất cả trạng thái" },
+    { value: "PENDING", label: "Chờ duyệt" },
+    { value: "APPROVED", label: "Đã duyệt" },
+    { value: "REJECTED", label: "Bị từ chối" },
+  ],
   onClearFilters,
 }) => (
   <div className="manage-users-header">
@@ -30,10 +36,11 @@ const HRInternHeader = ({
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="">Tất cả trạng thái</option>
-          <option value="PENDING">Chờ duyệt</option>
-          <option value="APPROVED">Đã duyệt</option>
-          <option value="REJECTED">Bị từ chối</option>
+          {statusOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       )}
 
@@ -44,19 +51,16 @@ const HRInternHeader = ({
       >
         <option value="">Tất cả ngành</option>
         <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-        <option value="Kinh tế số">Kinh tế số</option>
-        <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
+        <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
         <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
+        <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
       </select>
 
       {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
     </div>
 
     <div className="clear-filter-container">
-      <button
-        className="clear-filter-btn"
-        onClick={onClearFilters}
-      >
+      <button className="clear-filter-btn" onClick={onClearFilters}>
         ✖ Clear filter
       </button>
     </div>

@@ -1,0 +1,121 @@
+/* src/styles/manageInterns.css */
+
+.pending-notification {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border: 2px solid #ffc107;
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-icon {
+  font-size: 24px;
+}
+
+.notification-text {
+  flex: 1;
+  color: #856404;
+  font-size: 15px;
+}
+
+.notification-text strong {
+  color: #ff6b6b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.notification-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(238, 90, 82, 0.3);
+}
+
+.notification-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(238, 90, 82, 0.4);
+}
+
+/* Profile Details */
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row label {
+  font-weight: 600;
+  color: #555;
+}
+
+.detail-row span {
+  color: #333;
+}
+
+.document-links {
+  display: flex;
+  gap: 12px;
+}
+
+.doc-link {
+  color: #0288d1;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.doc-link:hover {
+  color: #01579b;
+  text-decoration: underline;
+}
+
+/* Button View */
+.btn-view {
+  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(84, 110, 122, 0.3);
+}
