@@ -42,7 +42,6 @@ const HRInternRow = ({
       setError("Vui lòng nhập lý do từ chối");
       return;
     }
-
     try {
       setIsRejecting(true);
       await hrApi.updateInternStatus(token, intern.internId, "REJECTED", reason);
@@ -61,14 +60,14 @@ const HRInternRow = ({
 
   const getStatusClass = (status) => {
     const statusMap = {
-      'PENDING': 'status-chờ-duyệt',
-      'APPROVED': 'status-đã-duyệt',
-      'REJECTED': 'status-bị-từ-chối',
-      'NO_FILE': 'status-chưa-xác-thực',
-      'ACTIVE': 'status-đã-duyệt',
-      'COMPLETED': 'status-hợp-đồng-hoàn-tất'
+      PENDING: "status-chờ-duyệt",
+      APPROVED: "status-đã-duyệt",
+      REJECTED: "status-bị-từ-chối",
+      NO_FILE: "status-chưa-xác-thực",
+      ACTIVE: "status-đã-duyệt",
+      COMPLETED: "status-hợp-đồng-hoàn-tất"
     };
-    return `status-badge ${statusMap[status] || ''}`;
+    return `status-badge ${statusMap[status] || ""}`;
   };
 
   return (
@@ -81,7 +80,7 @@ const HRInternRow = ({
         <td>{intern.major}</td>
         <td>{intern.gpa}</td>
 
-        {showDocuments ? (
+        {showDocuments && (
           <td>
             {intern.cvPath && (
               <a href={intern.cvPath} target="_blank" rel="noopener noreferrer">
@@ -95,16 +94,16 @@ const HRInternRow = ({
               </a>
             )}
           </td>
-        ) : (
-          <td>{intern.gender === "MALE" ? "Nam" : "Nữ"}</td>
         )}
 
-       {showStatus && (
-        <td>
-          <span className={getStatusClass(intern.status)}>
-            {translateStatus(intern.status)}
-          </span>
-        </td>
+        <td>{intern.school}</td>
+
+        {showStatus && (
+          <td>
+            <span className={getStatusClass(intern.status)}>
+              {translateStatus(intern.status)}
+            </span>
+          </td>
         )}
 
         <td>

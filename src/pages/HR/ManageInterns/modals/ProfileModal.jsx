@@ -59,12 +59,31 @@ const ProfileModal = ({
     {/* Trường */}
     <div className="form-group">
       <label>Trường *</label>
-      <input
+      <select
         className="form-input"
-        value={profileData?.school || "CMC University"}
-        readOnly
+        value={profileData?.school || ""}
+        onChange={e => setProfileData({ ...profileData, school: e.target.value })}
         disabled={isLoading}
-      />
+      >
+        <option value="">-- Chọn trường --</option>
+        <option value="CMC University">CMC University</option>
+        <option value="Đại học Quốc gia Hà Nội">Đại học Quốc gia Hà Nội</option>
+        <option value="Đại học Bách Khoa Hà Nội">Đại học Bách Khoa Hà Nội</option>
+        <option value="Đại học Kinh tế Quốc dân">Đại học Kinh tế Quốc dân</option>
+        <option value="OTHER">Khác...</option>
+      </select>
+
+      {profileData?.school === "OTHER" && (
+        <input
+          className="form-input"
+          placeholder="Nhập tên trường"
+          value={profileData?.customSchool || ""}
+          onChange={e => setProfileData({ ...profileData, customSchool: e.target.value })}
+          disabled={isLoading}
+        />
+      )}
+
+      {errors?.school && <p className="field-error">{errors.school}</p>}
     </div>
 
     {/* Ngành */}
