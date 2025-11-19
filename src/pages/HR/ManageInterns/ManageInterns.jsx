@@ -4,9 +4,9 @@ import HRInternTable from "./component/HRInternTable";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
-import { useNavigate } from "react-router-dom";
 import CandidatesModal from "./CandidatesModal";
-import ProfileModal from "./modals/ProfileModal"
+import ProfileModal from "./modals/ProfileModal";
+import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
 
 const ManageInterns = () => {
@@ -18,13 +18,13 @@ const ManageInterns = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
 
-  // phân trang
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
   const [editingIntern, setEditingIntern] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const fetchInterns = async (resetPage = false) => {
     try {
@@ -55,6 +55,7 @@ const ManageInterns = () => {
     } catch (err) {
       console.error("Error fetching interns:", err);
       setInterns([]);
+      toast.error("Không thể tải danh sách thực tập sinh");
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,60 @@ const ManageInterns = () => {
     setShowCandidatesModal(true);
   };
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
+  const handleUpdateIntern = async () => {
+    try {
+      setIsUpdating(true);
+
+      const updateData = {
+        school: editingIntern.school,
+        major: editingIntern.major,
+        dob: editingIntern.dob,
+        address: editingIntern.address,
+        gender: editingIntern.gender,
+        gpa: parseFloat(editingIntern.gpa),
+        phone: editingIntern.phone
+      };
+
+      await hrApi.updateInternProfile(token, editingIntern.internId, updateData);
+      toast.success("Cập nhật hồ sơ thành công ✅");
+      setEditingIntern(null);
+      fetchInterns();
+    } catch (err) {
+      console.error("Error updating intern:", err);
+
+      if (err.response?.status === 400) {
+        let msg = err.response.data;
+
+        if (typeof msg === "string") {
+          const match = msg.match(/interpolatedMessage='([^']+)'/);
+          if (match) {
+            msg = match[1];
+          }
+        }
+
+        toast.error(msg || "Dữ liệu không hợp lệ ❌");
+      } else {
+        toast.error("Cập nhật hồ sơ thất bại ❌");
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-layout">
+        <HRSidebar />
+        <div className="dashboard-content">
+          <div className="loading-card">
+            <LoadingSpinner size="large" />
+            <p className="loading-text">Đang tải danh sách thực tập sinh...</p>
+          </div>
+          <LoadingTable />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout">
@@ -97,12 +151,12 @@ const ManageInterns = () => {
           onAdd={handleAddProfilePage}
         />
         <HRInternTable
-        interns={interns}
-        page={page}
-        size={size}
-        fetchInterns={fetchInterns}
-        onEdit={setEditingIntern}
-         />
+          interns={interns}
+          page={page}
+          size={size}
+          fetchInterns={fetchInterns}
+          onEdit={setEditingIntern}
+        />
 
         {showCandidatesModal && (
           <CandidatesModal
@@ -111,49 +165,26 @@ const ManageInterns = () => {
           />
         )}
 
-    {editingIntern && (
-      <ProfileModal
-        isEdit={true}
-        intern={editingIntern}
-        profileData={{
-          full_name: editingIntern.fullName,
-          gender: editingIntern.gender || "",
-          dob: editingIntern.dob || "",
-          major: editingIntern.major,
-          gpa: editingIntern.gpa,
-          school: editingIntern.school,
-          phone: editingIntern.phone,
-          address: editingIntern.address
-        }}
-        setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
-        onClose={() => setEditingIntern(null)}
-        onSubmit={async () => {
-          try {
-            await hrApi.updateInternProfile(token, editingIntern.internId, editingIntern);
-            toast.success("Cập nhật hồ sơ thành công ✅");
-            setEditingIntern(null);
-            fetchInterns();
-          } catch (err) {
-              console.error("Error updating intern:", err);
-
-              if (err.response?.status === 400) {
-                let msg = err.response.data;
-
-                if (typeof msg === "string") {
-                  const match = msg.match(/interpolatedMessage='([^']+)'/);
-                  if (match) {
-                    msg = match[1];
-                  }
-                }
-
-                toast.error(msg || "Dữ liệu không hợp lệ ❌");
-              } else {
-                toast.error("Cập nhật hồ sơ thất bại ❌");
-              }
-            }
-        }}
-      />
-    )}
+        {editingIntern && (
+          <ProfileModal
+            isEdit={true}
+            intern={editingIntern}
+            profileData={{
+              full_name: editingIntern.fullName,
+              gender: editingIntern.gender || "",
+              dob: editingIntern.dob || "",
+              major: editingIntern.major,
+              gpa: editingIntern.gpa,
+              school: editingIntern.school,
+              phone: editingIntern.phone,
+              address: editingIntern.address
+            }}
+            setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
+            onClose={() => setEditingIntern(null)}
+            onSubmit={handleUpdateIntern}
+            isLoading={isUpdating}
+          />
+        )}
 
         <div className="pagination">
           <button

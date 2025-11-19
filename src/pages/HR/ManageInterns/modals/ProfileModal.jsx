@@ -1,7 +1,17 @@
 import React from "react";
 import Modal from "../../../../components/Layout/Modal";
+import { LoadingButton } from "../../../../components/common/LoadingSpinner";
 
-const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, onSubmit, errors }) => (
+const ProfileModal = ({
+  isEdit,
+  intern,
+  profileData,
+  setProfileData,
+  onClose,
+  onSubmit,
+  errors,
+  isLoading
+}) => (
   <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
     {/* Họ tên */}
@@ -11,6 +21,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.full_name || ""}
         onChange={e => setProfileData({ ...profileData, full_name: e.target.value })}
+        disabled={isLoading}
       />
       {errors?.full_name && <p className="field-error">{errors.full_name}</p>}
     </div>
@@ -22,6 +33,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.gender || ""}
         onChange={e => setProfileData({ ...profileData, gender: e.target.value })}
+        disabled={isLoading}
       >
         <option value="">-- Chọn giới tính --</option>
         <option value="MALE">Nam</option>
@@ -38,17 +50,20 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.dob || ""}
         onChange={e => setProfileData({ ...profileData, dob: e.target.value })}
+        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+        disabled={isLoading}
       />
       {errors?.dob && <p className="field-error">{errors.dob}</p>}
     </div>
 
-    {/* Trường (mặc định CMC University) */}
+    {/* Trường */}
     <div className="form-group">
       <label>Trường *</label>
       <input
         className="form-input"
         value={profileData?.school || "CMC University"}
         readOnly
+        disabled={isLoading}
       />
     </div>
 
@@ -59,6 +74,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.major || ""}
         onChange={e => setProfileData({ ...profileData, major: e.target.value })}
+        disabled={isLoading}
       >
         <option value="">-- Chọn ngành --</option>
         <option value="Công nghệ thông tin">Công nghệ thông tin</option>
@@ -88,6 +104,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
             e.target.value = "0.01";
           }
         }}
+        disabled={isLoading}
         required
       />
       {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
@@ -101,6 +118,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         value={profileData?.phone || ""}
         onChange={e => setProfileData({ ...profileData, phone: e.target.value })}
         placeholder="Ví dụ: 0987654321"
+        disabled={isLoading}
       />
       {errors?.phone && <p className="field-error">{errors.phone}</p>}
     </div>
@@ -112,14 +130,23 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.address || ""}
         onChange={e => setProfileData({ ...profileData, address: e.target.value })}
+        disabled={isLoading}
       />
       {errors?.address && <p className="field-error">{errors.address}</p>}
     </div>
 
     {/* Nút hành động */}
     <div className="modal-actions">
-      <button className="btn-cancel" onClick={onClose}>Hủy</button>
-      <button className="btn-save" onClick={onSubmit}>{isEdit ? "Cập nhật" : "Thêm hồ sơ"}</button>
+      <button className="btn-cancel" onClick={onClose} disabled={isLoading}>
+        Hủy
+      </button>
+      <LoadingButton
+        className="btn-save"
+        onClick={onSubmit}
+        isLoading={isLoading}
+      >
+        {isEdit ? "Cập nhật" : "Thêm hồ sơ"}
+      </LoadingButton>
     </div>
   </Modal>
 );
