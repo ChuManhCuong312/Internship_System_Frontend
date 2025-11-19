@@ -72,6 +72,7 @@ const MentorAssigns = () => {
   const handleOpenInternModal = (intern) => {
     setSelectedIntern(intern);
     setSelectedMentorId(intern.mentorId || "");
+    loadMentors();
     setShowInternModal(true);
   };
 
