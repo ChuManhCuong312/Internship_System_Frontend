@@ -21,9 +21,13 @@ const ApproveInterns = () => {
   const [editingIntern, setEditingIntern] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
+const [majorOptions, setMajorOptions] = useState([]);
+const [schoolOptions, setSchoolOptions] = useState([]);
+
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [schoolFilter, setSchoolFilter] = useState("");
 
 const [errors, setErrors] = useState({});
 
@@ -60,6 +64,7 @@ const validateIntern = (intern) => {
       const res = await hrApi.searchInterns(token, {
         searchTerm,
         major: majorFilter,
+        school: schoolFilter,
         status: statusFilter,
         page: currentPage,
         size,
@@ -81,6 +86,19 @@ const validateIntern = (intern) => {
   useEffect(() => {
     fetchInterns(true);
   }, [searchTerm, statusFilter, majorFilter]);
+useEffect(() => {
+  const fetchFilters = async () => {
+    try {
+      const majors = await hrApi.getAllMajors(token);
+      setMajorOptions(majors || []);
+      const schools = await hrApi.getAllSchools(token);
+      setSchoolOptions(schools || []);
+    } catch (err) {
+      console.error("Không thể tải danh sách filter:", err);
+    }
+  };
+  if (token) fetchFilters();
+}, [token]);
 
   useEffect(() => {
     fetchInterns();
@@ -153,8 +171,12 @@ const validateIntern = (intern) => {
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          majorFilter={majorFilter}
-          setMajorFilter={setMajorFilter}
+          majorOptions={majorOptions}
+            schoolOptions={schoolOptions}
+            majorFilter={majorFilter}
+            setMajorFilter={setMajorFilter}
+            schoolFilter={schoolFilter}
+            setSchoolFilter={setSchoolFilter}
           onClearFilters={handleClearFilters}
           showStatusFilter={true}
           statusOptions={[
