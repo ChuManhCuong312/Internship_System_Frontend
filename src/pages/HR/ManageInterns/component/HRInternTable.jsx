@@ -28,6 +28,7 @@ const HRInternTable = ({
         return "Chưa gửi CV";
     }
   };
+const totalColumns = 8 + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
 
   return (
     <div className="users-table-container">
@@ -41,7 +42,7 @@ const HRInternTable = ({
             <th>Ngành</th>
             <th>GPA</th>
             {showDocuments && <th>Tài liệu</th>}
-            {!showDocuments && <th>Giới tính</th>}
+            <th>Trường</th>
             {showStatus && <th>Trạng thái</th>}
             <th>Hành động</th>
           </tr>
@@ -64,7 +65,7 @@ const HRInternTable = ({
             ))
           ) : (
             <tr>
-              <td colSpan={showDocuments ? "9" : "9"} style={{ textAlign: "center" }}>
+              <td colSpan={totalColumns} style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>
