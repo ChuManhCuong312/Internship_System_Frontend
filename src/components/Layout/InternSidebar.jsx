@@ -11,10 +11,18 @@ import { getInternByUserId } from '../../api/internApi';
 import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(() => {
+    const saved = localStorage.getItem('sidebarExpanded');
+    return saved ? JSON.parse(saved) : false;
+  });
   const navigate = useNavigate();
   const { user, token, logout, loading: authLoading } = useContext(AuthContext);
   const [internData, setInternData] = useState(null);
+
+  // Save expanded state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarExpanded', JSON.stringify(expanded));
+  }, [expanded]);
 
   // Fetch intern data to get avatar
   useEffect(() => {
