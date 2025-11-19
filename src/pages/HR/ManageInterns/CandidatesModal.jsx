@@ -3,6 +3,7 @@ import hrApi from "../../../api/hrApi";
 import { AuthContext } from "../../../context/AuthContext";
 import ProfileModal from "./modals/ProfileModal";
 import Modal from "../../../components/Layout/Modal";
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 import "../../../styles/buttons.css";
 import { toast } from "react-toastify";
 
@@ -13,6 +14,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [profileData, setProfileData] = useState({});
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -21,6 +23,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
         setCandidates(res.content || []);
       } catch (err) {
         console.error("Error fetching candidates:", err);
+        toast.error("Không thể tải danh sách ứng viên");
       } finally {
         setLoading(false);
       }
@@ -38,51 +41,66 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
       gpa: "",
       address: "",
       dob: "",
+      school: "CMC University",
       photo_path: null,
       documents: []
     });
+    setErrors({});
   };
-const formatDateToISO = (dateStr) => {
-  if (dateStr.includes("/")) {
-    const [day, month, year] = dateStr.split("/");
-    return `${year}-${month}-${day}`;
-  }
-  return dateStr;
-};
+
+  const formatDateToISO = (dateStr) => {
+    if (dateStr.includes("/")) {
+      const [day, month, year] = dateStr.split("/");
+      return `${year}-${month}-${day}`;
+    }
+    return dateStr;
+  };
 
   const handleSubmitProfile = async () => {
     const newErrors = {};
-const dobISO = formatDateToISO(profileData.dob);
-const gpaValue = parseFloat(profileData.gpa);
-profileData.dob = dobISO;
+    const dobISO = formatDateToISO(profileData.dob);
+    const gpaValue = parseFloat(profileData.gpa);
 
     if (!profileData.full_name || profileData.full_name.trim().length < 2) {
       newErrors.full_name = "Họ tên phải có ít nhất 2 ký tự";
     }
 
     if (!profileData.gender) {
-    newErrors.gender = "Vui lòng chọn giới tính";
+      newErrors.gender = "Vui lòng chọn giới tính";
     }
 
     if (!profileData.dob) {
       newErrors.dob = "Ngày sinh bắt buộc";
-    } else if (new Date(profileData.dob) >= new Date()) {
-      newErrors.dob = "Ngày sinh phải là ngày trong quá khứ";
+    } else {
+      const birthDate = new Date(profileData.dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age < 18) {
+        newErrors.dob = "Tuổi phải từ 18 trở lên";
+      } else if (birthDate >= today) {
+        newErrors.dob = "Ngày sinh phải là ngày trong quá khứ";
+      }
     }
 
     if (!profileData.major) {
       newErrors.major = "Vui lòng chọn ngành";
     }
 
-   if (isNaN(gpaValue) || gpaValue <= 0 || gpaValue > 4) {
-     newErrors.gpa = "GPA phải là số trong khoảng 0.01 - 4.0";
-   }
+    if (isNaN(gpaValue) || gpaValue <= 0 || gpaValue > 4) {
+      newErrors.gpa = "GPA phải là số trong khoảng 0.01 - 4.0";
+    }
 
     if (!profileData.phone || !/^0\d{9}$/.test(profileData.phone)) {
       newErrors.phone = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số";
     }
 
-    if (profileData.address.length < 5) {
+    if (!profileData.address || profileData.address.length < 5) {
       newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
     }
 
@@ -92,6 +110,9 @@ profileData.dob = dobISO;
     }
 
     try {
+      setIsSubmitting(true);
+      profileData.dob = dobISO;
+
       await hrApi.createInternProfile(token, selectedCandidate.userId, profileData);
       toast.success("Tạo hồ sơ thành công ✅");
       setSelectedCandidate(null);
@@ -112,12 +133,18 @@ profileData.dob = dobISO;
       } else {
         toast.error("Có lỗi xảy ra khi tạo hồ sơ ❌");
       }
+    } finally {
+      setIsSubmitting(false);
     }
-};
+  };
+
   return (
-<Modal title="Ứng viên chưa có hồ sơ" onClose={onClose} className="modal-large">
+    <Modal title="Ứng viên chưa có hồ sơ" onClose={onClose} className="modal-large">
       {loading ? (
-        <p>Đang tải...</p>
+        <div className="loading-card">
+          <LoadingSpinner size="medium" />
+          <p className="loading-text">Đang tải danh sách ứng viên...</p>
+        </div>
       ) : (
         <table className="users-table">
           <thead>
@@ -130,17 +157,30 @@ profileData.dob = dobISO;
             </tr>
           </thead>
           <tbody>
-            {candidates.map((c, idx) => (
-              <tr key={c.userId}>
-                <td>{idx + 1}</td>
-                <td>{c.fullName}</td>
-                <td>{c.email}</td>
-                <td>{c.phone}</td>
-                <td>
-                  <button className="btn-primary" onClick={() => handleOpenProfileModal(c)}>➕ Thêm hồ sơ</button>
+            {candidates.length > 0 ? (
+              candidates.map((c, idx) => (
+                <tr key={c.userId}>
+                  <td>{idx + 1}</td>
+                  <td>{c.fullName}</td>
+                  <td>{c.email}</td>
+                  <td>{c.phone}</td>
+                  <td>
+                    <button
+                      className="btn-primary"
+                      onClick={() => handleOpenProfileModal(c)}
+                    >
+                      ➕ Thêm hồ sơ
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  Không có ứng viên nào chưa có hồ sơ
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       )}
@@ -151,9 +191,13 @@ profileData.dob = dobISO;
           intern={selectedCandidate}
           profileData={profileData}
           setProfileData={setProfileData}
-          onClose={() => setSelectedCandidate(null)}
+          onClose={() => {
+            setSelectedCandidate(null);
+            setErrors({});
+          }}
           onSubmit={handleSubmitProfile}
           errors={errors}
+          isLoading={isSubmitting}
         />
       )}
     </Modal>

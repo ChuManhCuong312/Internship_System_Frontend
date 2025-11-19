@@ -1,23 +1,33 @@
 import React from "react";
 import Modal from "../../../../components/Layout/Modal";
+import { LoadingButton } from "../../../../components/common/LoadingSpinner";
 
-const RejectModal = ({ intern, reason, setReason, onClose, onConfirm, error }) => (
-  <Modal title={`Từ chối hồ sơ: ${intern?.fullName}`} onClose={onClose}>
+const RejectModal = ({ intern, reason, setReason, error, onClose, onConfirm, isLoading }) => (
+  <Modal title={`Từ chối hồ sơ: ${intern.fullName}`} onClose={onClose}>
     <div className="form-group">
       <label>Lý do từ chối *</label>
       <textarea
         className="form-input"
+        rows="4"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="Nhập lý do từ chối hồ sơ..."
-        rows={4}
-        style={{ resize: 'vertical' }}
+        disabled={isLoading}
       />
       {error && <p className="field-error">{error}</p>}
     </div>
+
     <div className="modal-actions">
-      <button className="btn-cancel" onClick={onClose}>Hủy</button>
-      <button className="btn-save" onClick={onConfirm}>Xác nhận từ chối</button>
+      <button className="btn-cancel" onClick={onClose} disabled={isLoading}>
+        Hủy
+      </button>
+      <LoadingButton
+        className="btn-reject"
+        onClick={onConfirm}
+        isLoading={isLoading}
+      >
+        Xác nhận từ chối
+      </LoadingButton>
     </div>
   </Modal>
 );
