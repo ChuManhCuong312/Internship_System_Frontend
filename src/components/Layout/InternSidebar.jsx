@@ -40,8 +40,10 @@ const InternSidebar = () => {
         }
 
         if (userId && !isNaN(userId)) {
-          const data = await getInternByUserId(token, userId);
-          if (data) {
+          const response = await getInternByUserId(token, userId);
+          if (response) {
+            // Handle new response structure: { internProfile: {...}, phone: "..." }
+            const data = response.internProfile || response;
             setInternData({
               avatar: data.avatar || data.avatarUrl || data.avatar_url || '',
               fullName: data.fullName || data.full_name || user?.fullName || ''

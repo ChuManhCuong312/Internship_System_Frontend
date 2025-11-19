@@ -5,6 +5,7 @@ import { MdEmail, MdEdit, MdDownload, MdUpload, MdSchool, MdPhone, MdLocationOn,
 import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
+import ProfileModal from "../HR/ManageInterns/modals/ProfileModal";
 import { AuthContext } from "../../context/AuthContext";
 import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
@@ -35,8 +36,8 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
-        fullName: '', school: '', major: '', address: '', gender: '', dob: '',
-        phoneNumber: '', gpa: '', cvFile: '', status: '', permissionFile: ''
+        full_name: '', school: '', major: '', address: '', gender: '', dob: '',
+        phone: '', gpa: '', cvFile: '', status: '', permissionFile: ''
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
@@ -69,12 +70,16 @@ export default function ProfilePage() {
         const fetchInternData = async () => {
             try {
                 setLoading(true);
-                const data = await getInternByUserId(token, userId);
+                const response = await getInternByUserId(token, userId);
 
-                if (!data) {
+                if (!response) {
                     showToast("Không tìm thấy thông tin hồ sơ, vui lòng ", "error");
                     return;
                 }
+
+                // Handle new response structure: { internProfile: {...}, phone: "..." }
+                const data = response.internProfile || response;
+                const phone = response.phone || data.phoneNumber || data.phone_number || '';
 
                 const mapped = {
                     internId: data.internId || data.id,
@@ -84,7 +89,7 @@ export default function ProfilePage() {
                     major: data.major || '',
                     address: data.address || '',
                     dob: data.dob || '',
-                    phoneNumber: data.phoneNumber || data.phone_number || '',
+                    phoneNumber: phone,
                     gpa: data.gpa != null ? String(data.gpa) : '',
                     cvFile: data.cvFile || data.cv_file || data.cvPath || '',
                     status: data.status || '',
@@ -95,12 +100,12 @@ export default function ProfilePage() {
 
                 setInternData(mapped);
                 setFormData({
-                    fullName: mapped.fullName,
+                    full_name: mapped.fullName,
                     school: mapped.school,
                     major: mapped.major,
                     address: mapped.address,
                     dob: mapped.dob,
-                    phoneNumber: mapped.phoneNumber,
+                    phone: mapped.phoneNumber,
                     gpa: mapped.gpa,
                     cvFile: mapped.cvFile,
                     gender: mapped.gender,
@@ -145,12 +150,12 @@ export default function ProfilePage() {
     const me = internData;
 
     const initials = useMemo(() => {
-        const src = formData.fullName || me?.fullName || user?.email || '';
+        const src = formData.full_name || me?.fullName || user?.email || '';
         const parts = src.trim().split(' ');
         return parts.length >= 2
             ? (parts[0][0] + parts[1][0]).toUpperCase()
             : src.slice(0, 2).toUpperCase();
-    }, [formData.fullName, me, user]);
+    }, [formData.full_name, me, user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -310,7 +315,7 @@ export default function ProfilePage() {
                 major: formData.major,
                 address: formData.address,
                 dob: formData.dob,
-                phoneNumber: formData.phoneNumber,
+                phoneNumber: formData.phone,
                 gpa: formData.gpa,
                 gender: formData.gender,
                 permissionFile: formData.permissionFile
@@ -356,7 +361,10 @@ export default function ProfilePage() {
 
                         <div className="profile-header-info">
                             <h1>{me?.fullName || 'Sinh viên thực tập'}</h1>
-                            <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
+                            <div className="profile-contact-info">
+                                <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
+                                <p className="profile-phone"><MdPhone /> {me?.phoneNumber || '-'}</p>
+                            </div>
                             <div className={`profile-status-badge status-${(me?.status || 'pending').toLowerCase()}`}>
                                 {me?.status || 'Chưa xác định'}
                             </div>
@@ -408,28 +416,15 @@ export default function ProfilePage() {
 
                 {/* Edit Modal */}
                 {isEditing && (
-                    <Modal title="Chỉnh sửa hồ sơ" onClose={() => setIsEditing(false)}>
-                        <div className="edit-form-grid">
-                            <div className="form-group"><label>Họ và tên</label><input type="text" name="fullName" value={formData.fullName} onChange={handleChange} disabled /></div>
-                            <div className="form-group"><label>Trường</label><input type="text" name="school" value={formData.school} onChange={handleChange} /></div>
-                            <div className="form-group"><label>Ngành học</label><input type="text" name="major" value={formData.major} onChange={handleChange} /></div>
-                            <div className="form-group"><label>Địa chỉ</label><input type="text" name="address" value={formData.address} onChange={handleChange} /></div>
-                            <div className="form-group"><label>Ngày sinh</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} /></div>
-                            <div className="form-group"><label>GPA</label><input type="text" name="gpa" value={formData.gpa} onChange={handleChange} /></div>
-                            <div className="form-group">
-                                <label>Giới tính</label>
-                                <select name="gender" value={formData.gender} onChange={handleChange}>
-                                    <option value="">Chọn giới tính</option>
-                                    <option value="MALE">Nam</option>
-                                    <option value="FEMALE">Nữ</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="modal-actions">
-                            <button className="btn-cancel" onClick={() => setIsEditing(false)}>Hủy</button>
-                            <button className="btn-save" onClick={handleSave}>Lưu thay đổi</button>
-                        </div>
-                    </Modal>
+                    <ProfileModal
+                        isEdit={true}
+                        intern={me}
+                        profileData={formData}
+                        setProfileData={setFormData}
+                        onClose={() => setIsEditing(false)}
+                        onSubmit={handleSave}
+                        errors={{}}
+                    />
                 )}
             </div>
         </>
