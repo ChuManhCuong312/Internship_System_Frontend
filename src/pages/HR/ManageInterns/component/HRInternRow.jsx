@@ -88,7 +88,7 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
           </span>
         </td>
         <td>
-          {intern.status === "PENDING" && (
+          {intern.status === "PENDING" ? (
             <div className="action-buttons">
               <LoadingButton
                 className="btn-approve"
@@ -107,8 +107,7 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
                 Từ chối
               </LoadingButton>
             </div>
-          )}
-          {intern.status === "APPROVED" && (
+          ) : (
             <div className="action-buttons">
               <button className="btn-edit" onClick={() => onEdit(intern)}>
                 ✏️ Sửa hồ sơ
@@ -116,7 +115,7 @@ const HRInternRow = ({ intern, index, translateStatus, onStatusChange, onEdit })
             </div>
           )}
         </td>
-      </tr>
+        </tr>
 
       {showRejectModal && (
         <RejectModal
