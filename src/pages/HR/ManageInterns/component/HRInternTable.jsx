@@ -9,7 +9,8 @@ const HRInternTable = ({
   onEdit,
   onView,
   showDocuments = true,
-  showApproveActions = false
+  showApproveActions = false,
+  showStatus = true
 }) => {
   const translateStatus = (status) => {
     switch (status) {
@@ -41,7 +42,7 @@ const HRInternTable = ({
             <th>GPA</th>
             {showDocuments && <th>Tài liệu</th>}
             {!showDocuments && <th>Giới tính</th>}
-            <th>Trạng thái</th>
+            {showStatus && <th>Trạng thái</th>}
             <th>Hành động</th>
           </tr>
         </thead>
@@ -58,6 +59,7 @@ const HRInternTable = ({
                 onView={onView}
                 showDocuments={showDocuments}
                 showApproveActions={showApproveActions}
+                showStatus={showStatus}
               />
             ))
           ) : (

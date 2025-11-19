@@ -13,7 +13,8 @@ const HRInternRow = ({
   onEdit,
   onView,
   showDocuments = true,
-  showApproveActions = false
+  showApproveActions = false,
+  showStatus = true
 }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -98,11 +99,13 @@ const HRInternRow = ({
           <td>{intern.gender === "MALE" ? "Nam" : "Nữ"}</td>
         )}
 
+       {showStatus && (
         <td>
           <span className={getStatusClass(intern.status)}>
             {translateStatus(intern.status)}
           </span>
         </td>
+        )}
 
         <td>
           <div className="action-buttons">
@@ -129,12 +132,12 @@ const HRInternRow = ({
               <>
                 {onView && (
                   <button className="btn-view" onClick={() => onView(intern)}>
-                    👁️ Xem
+                    Xem
                   </button>
                 )}
                 {onEdit && (
                   <button className="btn-edit" onClick={() => onEdit(intern)}>
-                    ✏️ Sửa
+                    Sửa
                   </button>
                 )}
               </>

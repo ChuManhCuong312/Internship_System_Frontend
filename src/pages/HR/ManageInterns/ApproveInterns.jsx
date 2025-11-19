@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
 import CandidatesModal from "./CandidatesModal";
+import ProfileModal from "./modals/ProfileModal";
 
 const ApproveInterns = () => {
   const { token } = useContext(AuthContext);
@@ -17,6 +18,8 @@ const ApproveInterns = () => {
   const [statusFilter, setStatusFilter] = useState("PENDING");
   const [majorFilter, setMajorFilter] = useState("");
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
+  const [editingIntern, setEditingIntern] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -71,6 +74,32 @@ const ApproveInterns = () => {
       setShowCandidatesModal(true);
     };
 
+    const handleUpdateIntern = async () => {
+      try {
+        setIsUpdating(true);
+
+        const updateData = {
+          school: editingIntern.school,
+          major: editingIntern.major,
+          dob: editingIntern.dob,
+          address: editingIntern.address,
+          gender: editingIntern.gender,
+          gpa: parseFloat(editingIntern.gpa),
+          phone: editingIntern.phone,
+        };
+
+        await hrApi.updateInternProfile(token, editingIntern.internId, updateData);
+        toast.success("Cập nhật hồ sơ thành công ✅");
+        setEditingIntern(null);
+        fetchInterns();
+      } catch (err) {
+        console.error("Error updating intern:", err);
+        toast.error("Cập nhật hồ sơ thất bại ❌");
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+
   if (loading) {
     return (
       <div className="dashboard-layout">
@@ -113,9 +142,10 @@ const ApproveInterns = () => {
           page={page}
           size={size}
           fetchInterns={fetchInterns}
-          onEdit={null}
+          onEdit={setEditingIntern}
           showDocuments={true}
           showApproveActions={true}
+          showStatus={true}
         />
         {showCandidatesModal && (
           <CandidatesModal
@@ -125,6 +155,26 @@ const ApproveInterns = () => {
             }}
           />
         )}
+    {editingIntern && (
+      <ProfileModal
+        isEdit={true}
+        intern={editingIntern}
+        profileData={{
+          full_name: editingIntern.fullName,
+          gender: editingIntern.gender || "",
+          dob: editingIntern.dob || "",
+          major: editingIntern.major,
+          gpa: editingIntern.gpa,
+          school: editingIntern.school,
+          phone: editingIntern.phone,
+          address: editingIntern.address,
+        }}
+        setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
+        onClose={() => setEditingIntern(null)}
+        onSubmit={handleUpdateIntern}
+        isLoading={isUpdating}
+      />
+    )}
 
         <div className="pagination">
           <button
