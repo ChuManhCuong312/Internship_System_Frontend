@@ -9,6 +9,8 @@ const HRInternHeader = ({
   setStatusFilter,
   majorFilter,
   setMajorFilter,
+  schoolFilter,
+  setSchoolFilter,
   onAdd,
   showStatusFilter = true,
   statusOptions = [
@@ -17,6 +19,8 @@ const HRInternHeader = ({
     { value: "APPROVED", label: "Đã duyệt" },
     { value: "REJECTED", label: "Bị từ chối" },
   ],
+  majorOptions = [],
+  schoolOptions = [],
   onClearFilters,
 }) => (
   <div className="manage-users-header">
@@ -50,10 +54,20 @@ const HRInternHeader = ({
         className="filter-select"
       >
         <option value="">Tất cả ngành</option>
-        <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-        <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
-        <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
-        <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
+        {majorOptions.map((major) => (
+          <option key={major} value={major}>{major}</option>
+        ))}
+      </select>
+
+      <select
+        value={schoolFilter}
+        onChange={(e) => setSchoolFilter(e.target.value)}
+        className="filter-select"
+      >
+        <option value="">Tất cả trường</option>
+        {schoolOptions.map((school) => (
+          <option key={school} value={school}>{school}</option>
+        ))}
       </select>
 
       {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}

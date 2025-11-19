@@ -29,6 +29,10 @@ const ManageInterns = () => {
   const [viewingIntern, setViewingIntern] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
+const [majorOptions, setMajorOptions] = useState([]);
+const [schoolOptions, setSchoolOptions] = useState([]);
+const [schoolFilter, setSchoolFilter] = useState("");
+
   const [pendingCount, setPendingCount] = useState(0);
 const [errors, setErrors] = useState({});
 
@@ -78,6 +82,7 @@ if (!intern.phone?.match(/^0\d{9}$/)) {
       const res = await hrApi.searchInterns(token, {
         searchTerm,
         major: majorFilter,
+        school: schoolFilter,
         status: "APPROVED",
         page: currentPage,
         size,
@@ -100,6 +105,19 @@ if (!intern.phone?.match(/^0\d{9}$/)) {
     fetchInterns(true);
     fetchPendingCount();
   }, [searchTerm, majorFilter]);
+useEffect(() => {
+  const fetchFilters = async () => {
+    try {
+      const majors = await hrApi.getAllMajors(token);
+      setMajorOptions(majors || []);
+      const schools = await hrApi.getAllSchools(token);
+      setSchoolOptions(schools || []);
+    } catch (err) {
+      console.error("Không thể tải danh sách filter:", err);
+    }
+  };
+  if (token) fetchFilters();
+}, [token]);
 
   useEffect(() => {
     fetchInterns();
@@ -196,8 +214,12 @@ if (!intern.phone?.match(/^0\d{9}$/)) {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           showStatusFilter={false}
-          majorFilter={majorFilter}
-          setMajorFilter={setMajorFilter}
+          majorOptions={majorOptions}
+            schoolOptions={schoolOptions}
+            majorFilter={majorFilter}
+            setMajorFilter={setMajorFilter}
+            schoolFilter={schoolFilter}
+            setSchoolFilter={setSchoolFilter}
           onClearFilters={handleClearFilters}
         />
 
