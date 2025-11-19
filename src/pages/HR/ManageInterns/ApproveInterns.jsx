@@ -25,6 +25,29 @@ const ApproveInterns = () => {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
+const [errors, setErrors] = useState({});
+
+const validateIntern = (intern) => {
+  const newErrors = {};
+  if (!intern.fullName?.trim()) newErrors.full_name = "Họ tên bắt buộc";
+  if (!intern.gender) newErrors.gender = "Giới tính bắt buộc";
+  if (!intern.dob) newErrors.dob = "Ngày sinh bắt buộc";
+  if (!intern.major) newErrors.major = "Ngành bắt buộc";
+  if (!intern.gpa || intern.gpa <= 0 || intern.gpa > 4) newErrors.gpa = "GPA phải từ 0.01 đến 4";
+  if (!intern.phone?.match(/^0\d{9}$/)) {
+    newErrors.phone = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
+  } else {
+    const isDuplicate = interns.some(
+      (i) => i.phone === intern.phone && i.internId !== intern.internId
+    );
+    if (isDuplicate) {
+      newErrors.phone = "Số điện thoại đã tồn tại";
+    }
+  }
+  if (!intern.address?.trim()) newErrors.address = "Địa chỉ bắt buộc";
+  return newErrors;
+};
+
   const fetchInterns = async (resetPage = false) => {
     try {
       if (!token) {
@@ -75,6 +98,11 @@ const ApproveInterns = () => {
     };
 
     const handleUpdateIntern = async () => {
+        const newErrors = validateIntern(editingIntern);
+          if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+          }
       try {
         setIsUpdating(true);
 
@@ -173,6 +201,7 @@ const ApproveInterns = () => {
         onClose={() => setEditingIntern(null)}
         onSubmit={handleUpdateIntern}
         isLoading={isUpdating}
+        errors={errors}
       />
     )}
 
