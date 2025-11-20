@@ -85,7 +85,7 @@ const validateIntern = (intern) => {
 
   useEffect(() => {
     fetchInterns(true);
-  }, [searchTerm, statusFilter, majorFilter]);
+  }, [searchTerm, statusFilter, majorFilter, schoolFilter]);
 useEffect(() => {
   const fetchFilters = async () => {
     try {
