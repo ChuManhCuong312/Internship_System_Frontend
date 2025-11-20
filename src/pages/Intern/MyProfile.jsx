@@ -300,7 +300,7 @@ export default function ProfilePage() {
     const uploadAvatarHandler = async (file) => {
         if (!internData?.internId || !token) return;
 
-        suppressNextErrorToast();
+        showToast("Đang tải lên ảnh đại diện...", "info");
 
         try {
             const res = await uploadAvatar(token, file, internData.internId);
@@ -308,19 +308,13 @@ export default function ProfilePage() {
 
             if (!url) throw new Error("Không nhận được URL ảnh");
 
-            await partialUpdateIntern(token, internData.internId, { avatar: url });
-
             setInternData(prev => ({ ...prev, avatar: url }));
             setAvatarPreview(url);
             showToast("Cập nhật ảnh đại diện thành công!", "success");
         } catch (err) {
-            console.log("Upload avatar error (toast suppressed):", err.message);
+            console.error("Upload avatar error:", err);
+            showToast(`Tải lên ảnh đại diện thất bại: ${err.message || 'Lỗi không xác định'}`, "error");
         }
-
-        showToast("Đang tải lên file...", "info");
-        setTimeout(() => {
-            showToast("Tải lên file thành công!", "success");
-        }, UPLOAD_DELAY_MS);
     };
 
     // ====================== FILE UPLOAD HANDLERS ======================
@@ -329,21 +323,20 @@ export default function ProfilePage() {
 
         showToast("Đang tải lên file...", "info");
 
-        setTimeout(() => {
-            showToast("Tải lên file thành công!", "success");
-        }, UPLOAD_DELAY_MS);
-
         try {
             const res = await uploadFn(token, file, internData.internId);
             const url = res?.url || res?.secure_url || res?.[fieldName] || res?.file || res?.data?.url;
 
             if (url) {
-                await partialUpdateIntern(token, internData.internId, { [fieldName]: url });
                 setInternData(prev => ({ ...prev, [fieldName]: url }));
                 setFormData(prev => ({ ...prev, [fieldName]: url }));
+                showToast(successMessage || "Tải lên file thành công!", "success");
+            } else {
+                showToast("Không thể lấy URL file sau khi tải lên", "error");
             }
         } catch (err) {
-            console.log(`Upload ${fieldName} failed (user not notified):`, err);
+            console.error(`Upload ${fieldName} failed:`, err);
+            showToast(`Tải lên ${fieldName} thất bại: ${err.message || 'Lỗi không xác định'}`, "error");
         }
     };
 
