@@ -2,7 +2,7 @@ import React from "react";
 import Modal from "../../../../components/Layout/Modal";
 
 const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onClose, onSubmit, errors }) => (
-    <Modal title={isCreating ? `Chỉnh sửa hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
+    <Modal title={isCreating ? `Tạo mới hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
         {/* Họ tên */}
         <div className="form-group">

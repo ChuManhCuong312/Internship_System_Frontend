@@ -482,10 +482,27 @@ export default function ProfilePage() {
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Edit Modal */}
-                {isEditing && (
+
+                    <div className="info-card full-width">
+                        <MdDescription className="info-icon" />
+                        <div style={{ width: '100%' }}>
+                            <div className="info-label">Giấy xác nhận của trường</div>
+                            <div className="file-actions">
+                                {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xác nhận của trường</a> : <span>Chưa tải lên</span>}
+                                <label className="btn-upload-small">
+                                    <MdUpload /> Tải lên
+                                    <input type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div >
+
+            {/* Edit Modal */}
+            {
+                isEditing && (
                     <ProfileModal
                         isEdit={true}
                         intern={me}
@@ -495,10 +512,12 @@ export default function ProfilePage() {
                         onSubmit={handleSave}
                         errors={{}}
                     />
-                )}
+                )
+            }
 
-                {/* Add Modal */}
-                {isCreating && (
+            {/* Add Modal */}
+            {
+                isCreating && (
                     <AddProfileModal
                         isCreating={true}
                         intern={me}
@@ -508,8 +527,9 @@ export default function ProfilePage() {
                         onSubmit={handleSave}
                         errors={{}}
                     />
-                )}
-            </div>
+                )
+            }
+
         </>
     );
 }
