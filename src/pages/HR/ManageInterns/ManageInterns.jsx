@@ -104,7 +104,7 @@ if (!intern.phone?.match(/^0\d{9}$/)) {
   useEffect(() => {
     fetchInterns(true);
     fetchPendingCount();
-  }, [searchTerm, majorFilter]);
+  }, [searchTerm, majorFilter, schoolFilter]);
 useEffect(() => {
   const fetchFilters = async () => {
     try {
