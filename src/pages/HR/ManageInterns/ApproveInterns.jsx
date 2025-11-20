@@ -6,7 +6,7 @@ import { LoadingSpinner, LoadingTable } from "../../../components/common/Loading
 import { toast } from "react-toastify";
 import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
-import CandidatesModal from "./CandidatesModal";
+import CandidatesModal from "./modals/CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
 import { HrContext } from "../../../context/HrContext";
 

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
-import hrApi from "../../../api/hrApi";
-import { AuthContext } from "../../../context/AuthContext";
-import ProfileModal from "./modals/ProfileModal";
-import Modal from "../../../components/Layout/Modal";
-import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
-import "../../../styles/buttons.css";
+import hrApi from "../../../../api/hrApi";
+import { AuthContext } from "../../../../context/AuthContext";
+import ProfileModal from "./ProfileModal";
+import Modal from "../../../../components/Layout/Modal";
+import { LoadingSpinner } from "../../../../components/common/LoadingSpinner";
+import "../../../../styles/buttons.css";
 import { toast } from "react-toastify";
-import { HrContext } from "../../../context/HrContext";
+import { HrContext } from "../../../../context/HrContext";
 
 const CandidatesModal = ({ onClose, onSuccess }) => {
   const { token } = useContext(AuthContext);
