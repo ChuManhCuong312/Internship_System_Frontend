@@ -116,7 +116,6 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onCl
             {errors?.address && <p className="field-error">{errors.address}</p>}
         </div>
 
-
         {/* Nút hành động */}
         <div className="modal-actions">
             <button className="btn-cancel" onClick={onClose}>Hủy</button>
