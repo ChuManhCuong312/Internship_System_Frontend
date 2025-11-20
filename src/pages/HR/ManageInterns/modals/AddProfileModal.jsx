@@ -1,8 +1,101 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../../../../components/Layout/Modal";
 
-const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSubmit, errors }) => (
-    <Modal title={isCreating ? `Tạo mới hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"}>
+const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSubmit, errors: externalErrors = {} }) => {
+    const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Validation function
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Gender validation
+        if (!profileData?.gender) {
+            newErrors.gender = "Vui lòng chọn giới tính";
+        }
+
+        // Date of birth validation
+        if (!profileData?.dob) {
+            newErrors.dob = "Vui lòng nhập ngày sinh";
+        } else {
+            const dob = new Date(profileData.dob);
+            const today = new Date();
+            
+            if (dob > today) {
+                newErrors.dob = "Ngày sinh không thể là ngày trong tương lai";
+            } else {
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                
+                if (age < 18) {
+                    newErrors.dob = "Sinh viên phải ít nhất 16 tuổi";
+                } else if (age > 100) {
+                    newErrors.dob = "Ngày sinh không hợp lệ";
+                }
+            }
+        }
+
+        // Major validation
+        if (!profileData?.major) {
+            newErrors.major = "Vui lòng chọn ngành học";
+        }
+
+        // GPA validation
+        if (!profileData?.gpa) {
+            newErrors.gpa = "Vui lòng nhập GPA";
+        } else {
+            const gpa = parseFloat(profileData.gpa);
+            if (isNaN(gpa)) {
+                newErrors.gpa = "GPA phải là số";
+            } else if (gpa < 0.01) {
+                newErrors.gpa = "GPA phải lớn hơn hoặc bằng 0.01";
+            } else if (gpa > 4.0) {
+                newErrors.gpa = "GPA không được vượt quá 4.0";
+            }
+        }
+
+        // Address validation
+        if (!profileData?.address) {
+            newErrors.address = "Vui lòng nhập địa chỉ";
+        } else if (profileData.address.length < 5) {
+            newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
+        } else if (profileData.address.length > 200) {
+            newErrors.address = "Địa chỉ không được vượt quá 200 ký tự";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    // Handle submit with validation
+    const handleSubmit = async () => {
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await onSubmit();
+            setIsSubmitting(false);
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            setIsSubmitting(false);
+        }
+    };
+
+    // Clear error for a specific field when user starts editing
+    const updateField = (field, value) => {
+        setProfileData({ ...profileData, [field]: value });
+        if (errors[field]) {
+            setErrors({ ...errors, [field]: null });
+        }
+    };
+
+    return (
+        <Modal title={isCreating ? `Tạo mới hồ sơ: ${profileData?.full_name || intern?.fullName || ""}` : "Thêm hồ sơ mới"}>
 
         {/* Họ tên */}
         {/* Giới tính */}
@@ -96,9 +189,16 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSu
 
         {/* Nút hành động */}
         <div className="modal-actions">
-            <button className="btn-save" onClick={onSubmit}>{isCreating ? "Thêm hồ sơ" : "Thêm hồ sơ"}</button>
+            <button 
+                className="btn-save" 
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+            >
+                {isSubmitting ? "Đang xử lý..." : isCreating ? "Tạo hồ sơ" : "Thêm hồ sơ"}
+            </button>
         </div>
     </Modal>
-);
+    );
+};
 
 export default AddProfileModal;

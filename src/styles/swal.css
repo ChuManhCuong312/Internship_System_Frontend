@@ -1,0 +1,63 @@
+/* Swal Dialog Styling */
+
+/* Backdrop with strong blur effect */
+.swal2-container {
+  backdrop-filter: blur(15px);
+}
+
+/* Swal overlay background */
+.swal2-backdrop {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(15px);
+}
+
+/* Swal popup styling */
+.swal2-popup {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 15px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Swal title */
+.swal2-title {
+  color: #01579b;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Swal HTML content */
+.swal2-html-container {
+  color: #333;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Swal buttons */
+.swal2-confirm,
+.swal2-cancel {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.swal2-confirm {
+  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%) !important;
+  color: white;
+  box-shadow: 0 4px 15px rgba(1, 87, 155, 0.3);
+}
+
+.swal2-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(1, 87, 155, 0.4);
+}
+
+.swal2-cancel {
+  background: rgba(0, 0, 0, 0.1) !important;
+  color: #666;
+}
+
+.swal2-cancel:hover {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
