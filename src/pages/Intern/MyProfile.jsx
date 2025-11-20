@@ -118,7 +118,8 @@ const showCreateProfileDialog = async () => {
             <p>Bạn có muốn tạo hồ sơ thực tập mới ngay bây giờ?</p>
         `,
         confirmButtonText: 'Tạo hồ sơ mới',
-        showCancelButton: false,
+        cancelButtonText: 'Thoát',
+        showCancelButton: true,
         allowOutsideClick: false,
         allowEscapeKey: false,
     });
@@ -138,7 +139,8 @@ const showIncompleteProfileDialog = async () => {
             <p style="color:#e74c3c; font-size:14px;">Trạng thái hiện tại: <strong>NO_FILE</strong></p>
         `,
         confirmButtonText: 'Tải lên tài liệu ngay',
-        showCancelButton: false,
+        cancelButtonText: 'Thoát',
+        showCancelButton: true,
         allowOutsideClick: false,
         allowEscapeKey: false,
     });
