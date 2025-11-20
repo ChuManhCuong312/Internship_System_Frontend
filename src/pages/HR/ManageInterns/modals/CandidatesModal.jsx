@@ -46,9 +46,8 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
       gpa: "",
       address: "",
       dob: "",
-      school: "CMC University",
-      photo_path: null,
-      documents: []
+      school: "",
+      photo_path: null
     });
     setErrors({});
   };
