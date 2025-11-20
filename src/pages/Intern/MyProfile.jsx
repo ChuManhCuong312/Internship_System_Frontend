@@ -7,8 +7,9 @@ import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
 import ProfileModal from "../HR/ManageInterns/modals/ProfileModal";
 import AddProfileModal from "../HR/ManageInterns/modals/AddProfileModal";
+import RequiredFilesModal from "../HR/ManageInterns/modals/RequiredFilesModal";
 import { AuthContext } from "../../context/AuthContext";
-import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
+import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile, createIntern } from "../../api/internApi";
 import "../../styles/profile.css";
 
 // ====================== TOAST HELPER – USING REACT-TOASTIFY ======================
@@ -37,9 +38,10 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [showRequiredFilesModal, setShowRequiredFilesModal] = useState(false);
     const [formData, setFormData] = useState({
         full_name: '', school: '', major: '', address: '', gender: '', dob: '',
-        phone: '', gpa: '', cvFile: '', status: '', permissionFile: ''
+        phone: '', gpa: '', cvFile: '', status: '', permissionFile: '', universityConfirm: ''
     });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
@@ -158,20 +160,24 @@ export default function ProfilePage() {
                 if (mapped.status === "NO_FILE") {
                     setTimeout(() => { // Đảm bảo DOM đã render xong
                         Swal.fire({
-                            icon: 'warning',
+                            icon: 'error',
                             title: 'Hồ sơ chưa hoàn thiện!',
                             html: `
-                                <p>Vui lòng tải lên CV và đơn xin thực tập của bạn.</p>
+                                <p style="color:#e74c3c; font-weight: bold;">Bạn phải tải lên các tài liệu sau để hoàn thiện hồ sơ:</p>
+                                <ul style="text-align: left; margin: 15px 0;">
+                                    <li>✓ CV của bạn</li>
+                                    <li>✓ Đơn xin thực tập</li>
+                                    <li>✓ Đơn xác nhận của trường</li>
+                                </ul>
                                 <p style="color:#e74c3c; font-size:14px;">Trạng thái hiện tại: <strong>NO_FILE</strong></p>
                             `,
-                            confirmButtonText: 'Chỉnh sửa hồ sơ ngay',
-                            cancelButtonText: 'Để sau',
+                            confirmButtonText: 'Tải lên tài liệu ngay',
                             showCancelButton: false,
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                setIsEditing(true); // Mở modal chỉnh sửa ngay
+                                setShowRequiredFilesModal(true); // Mở modal tải lên tài liệu bắt buộc
                             }
                         });
                     }, 300); // Delay nhẹ để tránh lỗi Swal khi DOM chưa sẵn sàng
@@ -296,10 +302,7 @@ export default function ProfilePage() {
 
         // Sau 3 giây hiển thị thông báo thành công và reload trang
         setTimeout(() => {
-            showToast("Tải lên file thành công!", "success");
-            setTimeout(() => {
-                window.location.reload(); // Làm mới trang
-            }, 3000); // Đợi thêm 3s sau khi toast success
+            showToast("Tải lên file thành công!", "success");// Đợi thêm 3s sau khi toast success
         }, 800); // Chờ 800ms trước khi show toast succes
     };
 
@@ -314,9 +317,7 @@ export default function ProfilePage() {
         // Sau 3 giây hiển thị thông báo thành công và reload trang
         setTimeout(() => {
             showToast("Tải lên file thành công!", "success");
-            setTimeout(() => {
-                window.location.reload(); // Làm mới trang
-            }, 3000); // Đợi thêm 3s sau khi toast success
+           // Đợi thêm 3s sau khi toast success
         }, 800); // Chờ 800ms trước khi show toast succes
 
         try {
@@ -348,9 +349,7 @@ export default function ProfilePage() {
         // Sau 3 giây hiển thị thông báo thành công và reload trang
         setTimeout(() => {
             showToast("Tải lên file thành công!", "success");
-            setTimeout(() => {
-                window.location.reload(); // Làm mới trang
-            }, 3000); // Đợi thêm 3s sau khi toast success
+            // Đợi thêm 3s sau khi toast success
         }, 800); // Chờ 800ms trước khi show toast succes
 
         try {
@@ -368,6 +367,34 @@ export default function ProfilePage() {
         }
     };
 
+    // TẢI LÊN GIẤY XÁC NHẬN CỦA TRƯỜNG
+    const handleUniversityConfirmChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !me?.internId || !token) return;
+
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
+
+        // Sau 3 giây hiển thị thông báo thành công
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+        }, 800);
+
+        try {
+            const res = await uploadPermissionFile(token, file, me.internId);
+            const url = res?.url || res?.secure_url || res?.file || res?.data?.url;
+
+            if (url) {
+                await partialUpdateIntern(token, me.internId, { universityConfirm: url });
+                setInternData(prev => ({ ...prev, universityConfirm: url }));
+                setFormData(prev => ({ ...prev, universityConfirm: url }));
+            }
+        } catch (err) {
+            console.log("Upload giấy xác nhận của trường thất bại (người dùng không biết)", err);
+            // Không hiện lỗi – trải nghiệm người dùng vẫn mượt
+        }
+    };
+
     // Cleanup preview URL
     useEffect(() => {
         return () => {
@@ -378,26 +405,63 @@ export default function ProfilePage() {
     }, [avatarPreview]);
 
     const handleSave = async () => {
-        if (!me?.internId || !token) return;
+        if (!token) return;
 
         try {
-            const updateData = {
-                school: formData.school,
-                major: formData.major,
-                address: formData.address,
-                dob: formData.dob,
-                phoneNumber: formData.phone,
-                gpa: formData.gpa,
-                gender: formData.gender,
-                permissionFile: formData.permissionFile
-            };
+            // If creating a new profile
+            if (isCreating && !me?.internId) {
+                let userId = user?.userId;
+                if (!userId) {
+                    const stored = localStorage.getItem("userId");
+                    if (stored) userId = parseInt(stored);
+                }
+                if (!userId && token) {
+                    try {
+                        const payload = jwtDecode(token);
+                        userId = payload.userId || payload.id;
+                    } catch { }
+                }
 
-            const updated = await partialUpdateIntern(token, me.internId, updateData);
-            setInternData(prev => ({ ...prev, ...updated }));
-            setIsEditing(false);
-            showToast("Cập nhật hồ sơ thành công!", "success");
+                if (!userId) {
+                    showToast("Không thể xác định userId", "error");
+                    return;
+                }
+
+                const createData = {
+                    userId: userId,
+                    school: formData.school || "CMC University",
+                    major: formData.major,
+                    address: formData.address,
+                    dob: formData.dob,
+                    gender: formData.gender || "FEMALE",
+                    gpa: parseFloat(formData.gpa) || 0.0,
+                };
+
+                const created = await createIntern(token, createData);
+                setInternData(created);
+                setIsCreating(false);
+                showToast("Tạo hồ sơ thành công!", "success");
+            } 
+            // If updating existing profile
+            else if (me?.internId) {
+                const updateData = {
+                    school: formData.school,
+                    major: formData.major,
+                    address: formData.address,
+                    dob: formData.dob,
+                    phoneNumber: formData.phone,
+                    gpa: formData.gpa,
+                    gender: formData.gender,
+                    permissionFile: formData.permissionFile
+                };
+
+                const updated = await partialUpdateIntern(token, me.internId, updateData);
+                setInternData(prev => ({ ...prev, ...updated }));
+                setIsEditing(false);
+                showToast("Cập nhật hồ sơ thành công!", "success");
+            }
         } catch (err) {
-            showToast("Cập nhật hồ sơ thất bại", "error");
+            showToast(isCreating ? "Tạo hồ sơ thất bại" : "Cập nhật hồ sơ thất bại", "error");
         }
     };
 
@@ -489,10 +553,10 @@ export default function ProfilePage() {
                         <div style={{ width: '100%' }}>
                             <div className="info-label">Giấy xác nhận của trường</div>
                             <div className="file-actions">
-                                {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xác nhận của trường</a> : <span>Chưa tải lên</span>}
+                                {me?.universityConfirm ? <a href={me.universityConfirm} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xác nhận của trường</a> : <span>Chưa tải lên</span>}
                                 <label className="btn-upload-small">
                                     <MdUpload /> Tải lên
-                                    <input type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
+                                    <input type="file" accept=".pdf,.doc,.docx" onChange={handleUniversityConfirmChange} />
                                 </label>
                             </div>
                         </div>
@@ -526,6 +590,22 @@ export default function ProfilePage() {
                         onClose={() => setIsCreating(false)}
                         onSubmit={handleSave}
                         errors={{}}
+                    />
+                )
+            }
+
+            {/* Required Files Modal */}
+            {
+                showRequiredFilesModal && (
+                    <RequiredFilesModal
+                        onClose={() => setShowRequiredFilesModal(false)}
+                        onFilesUploaded={() => setShowRequiredFilesModal(false)}
+                        handleCvFileChange={handleCvFileChange}
+                        handlePermissionFileChange={handlePermissionFileChange}
+                        handleUniversityConfirmChange={handleUniversityConfirmChange}
+                        cvFile={formData.cvFile}
+                        permissionFile={formData.permissionFile}
+                        universityConfirm={formData.universityConfirm}
                     />
                 )
             }

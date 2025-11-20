@@ -5,16 +5,6 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSu
     <Modal title={isCreating ? `Tạo mới hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"}>
 
         {/* Họ tên */}
-        <div className="form-group">
-            <label>Họ tên *</label>
-            <input
-                className="form-input"
-                value={profileData?.full_name || ""}
-                onChange={e => setProfileData({ ...profileData, full_name: e.target.value })}
-            />
-            {errors?.full_name && <p className="field-error">{errors.full_name}</p>}
-        </div>
-
         {/* Giới tính */}
         <div className="form-group">
             <label>Giới tính *</label>
@@ -91,18 +81,6 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSu
                 required
             />
             {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
-        </div>
-
-        {/* Số điện thoại */}
-        <div className="form-group">
-            <label>Số điện thoại *</label>
-            <input
-                className="form-input"
-                value={profileData?.phone || ""}
-                onChange={e => setProfileData({ ...profileData, phone: e.target.value })}
-                placeholder="Ví dụ: 0987654321"
-            />
-            {errors?.phone && <p className="field-error">{errors.phone}</p>}
         </div>
 
         {/* Địa chỉ */}

@@ -2,6 +2,7 @@ import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
+import Swal from 'sweetalert2';
 import {
   FaHome, FaUser, FaCalendarAlt, FaClock, FaTasks,
   FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars
@@ -97,8 +98,21 @@ const InternSidebar = () => {
 
   // Handle logout
   const handleLogout = () => {
-    logout();
-    navigate("/login");
+    Swal.fire({
+      title: 'Đăng xuất',
+      text: 'Bạn có chắc chắn muốn đăng xuất?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Có, đăng xuất',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        navigate("/login");
+      }
+    });
   };
 
   return (
