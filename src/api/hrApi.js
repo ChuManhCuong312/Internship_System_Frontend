@@ -51,6 +51,7 @@ createInternProfile: async (token, userId, profileData) => {
   formData.append("gpa", profileData.gpa);
   formData.append("school", profileData.school);
   formData.append("address", profileData.address);
+  formData.append("universityConfirm", profileData.universityConfirm);
 
   const res = await axios.post(`${API_URL}/${userId}/profile?phone=${profileData.phone}`, formData, {
     ...authHeader(token),
@@ -89,7 +90,8 @@ updateInternProfile: async (token, internId, profileData) => {
       address: profileData.address,
       phone: profileData.phone,
       gender: profileData.gender,
-      gpa: profileData.gpa
+      gpa: profileData.gpa,
+      universityConfirm: profileData.universityConfirm
     }, {
       headers: { Authorization: `Bearer ${token}` }
     });

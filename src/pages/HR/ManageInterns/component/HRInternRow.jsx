@@ -93,6 +93,12 @@ const HRInternRow = ({
                 📄 Đơn xin
               </a>
             )}
+            {(intern.cvPath || intern.permissionFile) && intern.universityConfirm && " | "}
+            {intern.universityConfirm && (
+              <a href={intern.universityConfirm} target="_blank" rel="noopener noreferrer">
+                🎓 Xác nhận trường
+              </a>
+            )}
           </td>
         )}
 
