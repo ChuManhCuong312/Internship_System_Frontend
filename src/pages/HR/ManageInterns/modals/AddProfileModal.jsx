@@ -1,8 +1,8 @@
 import React from "react";
 import Modal from "../../../../components/Layout/Modal";
 
-const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onClose, onSubmit, errors }) => (
-    <Modal title={isCreating ? `Tạo mới hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
+const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSubmit, errors }) => (
+    <Modal title={isCreating ? `Tạo mới hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"}>
 
         {/* Họ tên */}
         <div className="form-group">
@@ -118,8 +118,7 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onCl
 
         {/* Nút hành động */}
         <div className="modal-actions">
-            <button className="btn-cancel" onClick={onClose}>Hủy</button>
-            <button className="btn-save" onClick={onSubmit}>{isCreating ? "Cập nhật" : "Thêm hồ sơ"}</button>
+            <button className="btn-save" onClick={onSubmit}>{isCreating ? "Thêm hồ sơ" : "Thêm hồ sơ"}</button>
         </div>
     </Modal>
 );
