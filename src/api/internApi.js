@@ -222,3 +222,35 @@ export const deleteCloudinaryFile = async (token, publicId) => {
   );
   return res.data;
 };
+
+// ===== UNIVERSITY CONFIRMATION UPLOAD & RETRIEVAL =====
+
+// POST /api/cloudinary/upload/university-confirm - Upload university confirmation file
+export const uploadUniversityConfirmationFile = async (token, file, internId = null) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  
+  if (internId) {
+    formData.append("internId", String(internId));
+  }
+
+  const res = await axios.post(
+    `${CLOUDINARY_URL}/upload/university-confirm`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+// GET /api/cloudinary/university-confirm/{internId} - Get university confirmation file for intern
+export const getUniversityConfirmationFile = async (token, internId) => {
+  const res = await axios.get(
+    `${CLOUDINARY_URL}/university-confirm/${internId}`,
+    authHeader(token)
+  );
+  return res.data;
+};
