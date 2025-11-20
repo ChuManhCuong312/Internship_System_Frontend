@@ -107,7 +107,7 @@ getInternAssignments: async (token, { search = "", filter = "all", mentorId = nu
 
   const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
     headers: { Authorization: `Bearer ${token}` },
-    params
+    params  // Pass all params directly
   });
   return res.data;
 },

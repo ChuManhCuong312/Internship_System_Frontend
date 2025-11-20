@@ -11,10 +11,18 @@ import { getInternByUserId } from '../../api/internApi';
 import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(() => {
+    const saved = localStorage.getItem('sidebarExpanded');
+    return saved ? JSON.parse(saved) : false;
+  });
   const navigate = useNavigate();
   const { user, token, logout, loading: authLoading } = useContext(AuthContext);
   const [internData, setInternData] = useState(null);
+
+  // Save expanded state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarExpanded', JSON.stringify(expanded));
+  }, [expanded]);
 
   // Fetch intern data to get avatar
   useEffect(() => {
@@ -40,8 +48,10 @@ const InternSidebar = () => {
         }
 
         if (userId && !isNaN(userId)) {
-          const data = await getInternByUserId(token, userId);
-          if (data) {
+          const response = await getInternByUserId(token, userId);
+          if (response) {
+            // Handle new response structure: { internProfile: {...}, phone: "..." }
+            const data = response.internProfile || response;
             setInternData({
               avatar: data.avatar || data.avatarUrl || data.avatar_url || '',
               fullName: data.fullName || data.full_name || user?.fullName || ''
@@ -92,11 +102,13 @@ const InternSidebar = () => {
   };
 
   return (
-    <animated.div className="sidebar" style={sidebarStyle}>
+    <animated.div 
+      className="sidebar" 
+      style={sidebarStyle}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
       <div className="sidebar-header">
-        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
-          <FaBars />
-        </button>
         <div className="avatar-container">
           {avatar ? (
             <img 

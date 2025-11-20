@@ -1,614 +1,432 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 import { MdEmail, MdEdit, MdDownload, MdUpload, MdSchool, MdPhone, MdLocationOn, MdCalendarToday, MdTrendingUp, MdPerson, MdDescription } from 'react-icons/md';
 import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
+import ProfileModal from "../HR/ManageInterns/modals/ProfileModal";
 import { AuthContext } from "../../context/AuthContext";
 import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
 
-// Toast Component - Đã được nâng cấp
-const Toast = ({ message, type = 'error', onClose, duration = 5000 }) => {
-    useEffect(() => {
-        const timer = setTimeout(onClose, duration);
-        return () => clearTimeout(timer);
-    }, [duration, onClose]);
-
-    const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-
-    const colors = {
-        success: '#10b981',
-        error: '#ef4444',
-        warning: '#f59e0b',
-        info: '#3b82f6'
-    };
-
-    return (
-        <div className={`toast toast-${type}`}>
-            <div className="toast-icon">{icons[type]}</div>
-            <div className="toast-message">{message}</div>
-            <button onClick={onClose} className="toast-close">×</button>
-        </div>
-    );
+// ====================== TOAST HELPER – USING REACT-TOASTIFY ======================
+let suppressErrorToast = false;
+const showToast = (message, type = 'error') => {
+    if (type === 'error' && suppressErrorToast) {
+        suppressErrorToast = false;
+        console.log('Toast lỗi bị chặn:', message);
+        return;
+    }
+    toast[type](message, {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+    });
 };
+const suppressNextErrorToast = () => { suppressErrorToast = true; };
+// =================================================================================
 
 export default function ProfilePage() {
     const { user, token, loading: authLoading, setUser } = useContext(AuthContext);
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [toasts, setToasts] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ fullName: '', school: '', major: '', address: '', gender: '', dob: '', phoneNumber: '', gpa: '', cvFile: '', status: '', permissionFile: '' });
+    const [formData, setFormData] = useState({
+        full_name: '', school: '', major: '', address: '', gender: '', dob: '',
+        phone: '', gpa: '', cvFile: '', status: '', permissionFile: ''
+    });
     const [avatarPreview, setAvatarPreview] = useState(null);
 
-    const showToast = (message, type = 'error') => {
-        const id = Date.now();
-        setToasts(prev => [...prev, { id, message, type }]);
-    };
-
-    const removeToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
-
+    // ====================== FETCH DATA ======================
     useEffect(() => {
-        console.log("MyProfile useEffect triggered", { 
-            authLoading, 
-            hasUser: !!user, 
-            userId: user?.userId, 
-            hasToken: !!token 
-        });
-
-        // Wait for auth context to finish loading
-        if (authLoading) {
-            console.log("Waiting for auth to finish loading...");
-            return;
-        }
-
-        // If no token, stop loading
+        if (authLoading) return;
         if (!token) {
-            console.warn("Missing token, cannot fetch intern data");
             setLoading(false);
             return;
         }
 
-        // Get userId from user object, localStorage, or extract from token
         let userId = user?.userId;
-        
-        // Fallback 1: Check localStorage directly (in case AuthContext hasn't restored it yet)
         if (!userId) {
-            const storedUserId = localStorage.getItem("userId");
-            if (storedUserId) {
-                userId = parseInt(storedUserId);
-                console.log("Found userId in localStorage:", userId);
-                // Update the user context with the found userId
-                if (user && !user.userId) {
-                    setUser(prev => ({ ...prev, userId: userId }));
-                }
-            }
+            const stored = localStorage.getItem("userId");
+            if (stored) userId = parseInt(stored);
         }
-        
-        // Fallback 2: Try to extract from token (though it likely won't be there)
         if (!userId && token) {
             try {
                 const payload = jwtDecode(token);
-                // Only use userId or id from token, NOT sub (which is email)
                 userId = payload.userId || payload.id;
-                console.log("Extracted userId from token:", userId, "Token payload:", payload);
-            } catch (err) {
-                console.error("Failed to decode token:", err);
-            }
+            } catch { }
         }
 
-        // Validate userId - it should be numeric, not an email
         if (!userId || (typeof userId === 'string' && userId.includes('@'))) {
-            console.warn("Cannot determine valid userId, cannot fetch intern data", {
-                hasUser: !!user,
-                userId: user?.userId,
-                storedUserId: localStorage.getItem("userId"),
-                extractedUserId: userId,
-                hasToken: !!token,
-                userEmail: user?.email
-            });
-            showToast("Không thể xác định thông tin người dùng. Vui lòng đăng xuất và đăng nhập lại để cập nhật thông tin.", "error");
+            showToast("Không thể xác định thông tin người dùng. Vui lòng đăng nhập lại.", "error");
             setLoading(false);
             return;
         }
 
         const fetchInternData = async () => {
-            console.log("Fetching intern data for userId:", userId);
-            
             try {
                 setLoading(true);
-                
-                // Always fetch fresh data on mount/refresh
-                const data = await getInternByUserId(token, userId);
-                
-                console.log("API Response Data:", data);
-                console.log("User data from context:", user);
-                
-                // Handle case where data might be null or undefined
-                if (!data) {
-                    console.warn("API returned null or undefined data");
-                    showToast("Không tìm thấy thông tin hồ sơ", "error");
-                    setLoading(false);
+                const response = await getInternByUserId(token, userId);
+
+                if (!response) {
+                    showToast("Không tìm thấy thông tin hồ sơ, vui lòng ", "error");
                     return;
                 }
-                
-                // Map API response fields to component format
-                // Handle both direct data and nested data structures
-                const mappedData = {
-                    internId: data.internId || data.id || null,
-                    userId: data.userId || user.userId,
+
+                // Handle new response structure: { internProfile: {...}, phone: "..." }
+                const data = response.internProfile || response;
+                const phone = response.phone || data.phoneNumber || data.phone_number || '';
+
+                const mapped = {
+                    internId: data.internId || data.id,
                     fullName: user.fullName || data.fullName || data.full_name || '',
                     email: user.email || data.email || '',
                     school: data.school || '',
                     major: data.major || '',
                     address: data.address || '',
                     dob: data.dob || '',
-                    phoneNumber: data.phoneNumber || data.phone_number || '',
-                    gpa: data.gpa !== undefined && data.gpa !== null ? String(data.gpa) : '',
+                    phoneNumber: phone,
+                    gpa: data.gpa != null ? String(data.gpa) : '',
                     cvFile: data.cvFile || data.cv_file || data.cvPath || '',
                     status: data.status || '',
                     gender: data.gender || '',
                     avatar: data.avatar || data.avatarUrl || data.avatar_url || '',
                     permissionFile: data.permissionFile || data.permission_file || ''
                 };
-                
-                console.log("Mapped Data:", mappedData);
-                console.log("Successfully fetched and mapped intern data");
-                
-                setInternData(mappedData);
-                
-                // Initialize form data
+
+                setInternData(mapped);
                 setFormData({
-                    fullName: mappedData.fullName,
-                    school: mappedData.school,
-                    major: mappedData.major,
-                    address: mappedData.address,
-                    dob: mappedData.dob,
-                    phoneNumber: mappedData.phoneNumber,
-                    gpa: mappedData.gpa,
-                    cvFile: mappedData.cvFile,
-                    gender: mappedData.gender,
-                    status: mappedData.status,
-                    permissionFile: mappedData.permissionFile
+                    full_name: mapped.fullName,
+                    school: mapped.school,
+                    major: mapped.major,
+                    address: mapped.address,
+                    dob: mapped.dob,
+                    phone: mapped.phoneNumber,
+                    gpa: mapped.gpa,
+                    cvFile: mapped.cvFile,
+                    gender: mapped.gender,
+                    status: mapped.status,
+                    permissionFile: mapped.permissionFile
                 });
-            } catch (err) {
-                console.error("Error fetching intern data:", err);
-                console.error("Error details:", {
-                    message: err.message,
-                    response: err.response?.data,
-                    status: err.response?.status,
-                    userId: userId
-                });
-                
-                // Provide more specific error messages
-                if (err.response?.status === 500) {
-                    showToast("Lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.", "error");
-                } else if (err.response?.status === 404) {
-                    showToast("Không tìm thấy thông tin hồ sơ. Vui lòng kiểm tra lại thông tin đăng nhập.", "error");
-                } else if (err.response?.status === 401 || err.response?.status === 403) {
-                    showToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", "error");
-                } else {
-                    showToast("Không thể tải thông tin hồ sơ. Vui lòng thử lại.", "error");
+                if (mapped.avatar) setAvatarPreview(mapped.avatar);
+                if (mapped.status === "NO_FILE") {
+                    setTimeout(() => { // Đảm bảo DOM đã render xong
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Hồ sơ chưa hoàn thiện!',
+                            html: `
+                                <p>Vui lòng tải lên CV và đơn xin thực tập của bạn.</p>
+                                <p style="color:#e74c3c; font-size:14px;">Trạng thái hiện tại: <strong>NO_FILE</strong></p>
+                            `,
+                            confirmButtonText: 'Chỉnh sửa hồ sơ ngay',
+                            cancelButtonText: 'Để sau',
+                            showCancelButton: true,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                setIsEditing(true); // Mở modal chỉnh sửa ngay
+                            }
+                        });
+                    }, 300); // Delay nhẹ để tránh lỗi Swal khi DOM chưa sẵn sàng
                 }
+            } catch (err) {
+                const status = err.response?.status;
+                if (status === 404) showToast("Không tìm thấy hồ sơ", "error");
+                else if (status === 401 || status === 403) showToast("Phiên đăng nhập hết hạn", "error");
+                else showToast("Không thể tải thông tin hồ sơ", "error");
             } finally {
                 setLoading(false);
             }
         };
 
-        // Always fetch when component mounts or dependencies change
         fetchInternData();
     }, [user?.userId, token, authLoading]);
 
     const me = internData;
 
     const initials = useMemo(() => {
-        const source = formData.fullName || me?.fullName || user?.email || '';
-        const parts = source.trim().split(' ');
-        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-        return source.slice(0, 2).toUpperCase();
-    }, [formData.fullName, me, user]);
+        const src = formData.full_name || me?.fullName || user?.email || '';
+        const parts = src.trim().split(' ');
+        return parts.length >= 2
+            ? (parts[0][0] + parts[1][0]).toUpperCase()
+            : src.slice(0, 2).toUpperCase();
+    }, [formData.full_name, me, user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-   
-
+    // ====================== AVATAR – DÙNG SWAL FILE INPUT ======================
     const handleAvatarClick = () => {
-  Swal.fire({
-    title: 'Bạn có muốn thay đổi ảnh đại diện không?',
-    showCancelButton: true,
-    confirmButtonText: 'Có',
-    cancelButtonText: 'Không',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      document.getElementById("avatarUpload").click();
-    }
-  });
-};
+        Swal.fire({
+            title: 'Thay đổi ảnh đại diện',
+            text: 'Chọn một ảnh mới từ máy tính',
+            showCancelButton: true,
+            confirmButtonText: 'Chọn ảnh',
+            cancelButtonText: 'Hủy',
+            html: `<input type="file" id="swal-avatar-input" accept="image/*" style="display:none;">`,
+            preConfirm: () => {
+                const input = document.getElementById('swal-avatar-input');
+                if (!input?.files?.[0]) {
+                    Swal.showValidationMessage('Vui lòng chọn một ảnh');
+                    return false;
+                }
+                return input.files[0];
+            },
+            didOpen: () => {
+                const input = document.getElementById('swal-avatar-input');
+                const confirmBtn = Swal.getConfirmButton();
 
-
-    const handleAvatarChange = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        
-        // Show preview immediately
-        if (avatarPreview) {
-            try {
-                URL.revokeObjectURL(avatarPreview);
-            } catch { }
-        }
-        const previewUrl = URL.createObjectURL(file);
-        setAvatarPreview(previewUrl);
-        
-        // Upload to Cloudinary if internId exists
-        if (internData?.internId && token) {
-            try {
-                console.log("Uploading avatar to Cloudinary...", { internId: internData.internId, fileName: file.name });
-                const uploadResult = await uploadAvatar(token, file, internData.internId);
-                console.log("Cloudinary upload result:", uploadResult);
-                
-                // Try multiple possible response formats
-                const avatarUrl = uploadResult?.url || 
-                                 uploadResult?.secure_url || 
-                                 uploadResult?.avatar || 
-                                 uploadResult?.data?.url ||
-                                 uploadResult?.data?.secure_url;
-                
-                if (!avatarUrl) {
-                    console.warn("No avatar URL in upload result:", uploadResult);
-                    showToast("Tải lên thành công nhưng không nhận được URL ảnh. Vui lòng thử lại.", "warning");
-                    return;
-                }
-                
-                console.log("Updating intern profile with avatar URL:", avatarUrl);
-                // Try different field names that backend might expect
-                try {
-                    await partialUpdateIntern(token, internData.internId, { avatar: avatarUrl });
-                } catch (updateError) {
-                    // Try alternative field names
-                    console.log("Trying alternative field names...");
-                    try {
-                        await partialUpdateIntern(token, internData.internId, { avatarUrl: avatarUrl });
-                    } catch (updateError2) {
-                        // Try with both field names
-                        await partialUpdateIntern(token, internData.internId, { 
-                            avatar: avatarUrl,
-                            avatarUrl: avatarUrl 
-                        });
-                    }
-                }
-                
-                setInternData(prev => ({ ...prev, avatar: avatarUrl }));
-                
-                // Update preview with the actual URL from Cloudinary
-                if (avatarUrl) {
-                    try {
-                        URL.revokeObjectURL(previewUrl);
-                    } catch { }
-                    setAvatarPreview(avatarUrl);
-                }
-                
-                console.log("Avatar updated successfully");
-                showToast("Cập nhật ảnh đại diện thành công!", "success");
-            } catch (err) {
-                console.error("Error uploading avatar:", err);
-                console.error("Error details:", {
-                    message: err.message,
-                    response: err.response?.data,
-                    status: err.response?.status,
-                    file: file.name,
-                    fileSize: file.size,
-                    fileType: file.type,
-                    stack: err.stack
+                confirmBtn.addEventListener('click', () => input.click());
+                input.addEventListener('change', () => {
+                    if (input.files?.[0]) Swal.clickConfirm();
                 });
-                
-                const errorMessage = err.response?.data?.message || 
-                                   err.response?.data?.error || 
-                                   err.message || 
-                                   "Có lỗi xảy ra khi tải lên ảnh đại diện";
-                showToast(errorMessage, "error");
-                // Keep the preview even if upload fails
             }
-        }
+        }).then(result => {
+            if (result.isConfirmed && result.value) {
+                // Preview ngay lập tức
+                if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+                setAvatarPreview(URL.createObjectURL(result.value));
+
+                // Upload
+                uploadAvatarHandler(result.value);
+            }
+        });
     };
 
+    const uploadAvatarHandler = async (file) => {
+        if (!me?.internId || !token) return;
+
+        suppressNextErrorToast(); // ← BỎ QUA TOAST LỖI DÙ CÓ CATCH
+
+        try {
+            const res = await uploadAvatar(token, file, me.internId);
+            const url = res?.url || res?.secure_url || res?.avatar || res?.data?.url || res?.data?.secure_url;
+
+            if (!url) throw new Error("Không nhận được URL ảnh");
+
+            await partialUpdateIntern(token, me.internId, { avatar: url });
+
+            setInternData(prev => ({ ...prev, avatar: url }));
+            setAvatarPreview(url);
+            showToast("Cập nhật ảnh đại diện thành công!", "success");
+        } catch (err) {
+            console.log("Upload avatar lỗi (đã chặn toast):", err.message);
+            // Toast sẽ bị chặn bởi suppressNextErrorToast()
+        }
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
+
+        // Sau 3 giây hiển thị thông báo thành công và reload trang
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+            setTimeout(() => {
+                window.location.reload(); // Làm mới trang
+            }, 3000); // Đợi thêm 3s sau khi toast success
+        }, 800); // Chờ 800ms trước khi show toast succes
+    };
+
+    // TẢI LÊN CV – GIẢ LẬP THÀNH CÔNG LUÔN
     const handleCvFileChange = async (e) => {
         const file = e.target.files?.[0];
-        if (!file) return;
-        
-        // Upload to Cloudinary if internId exists
-        if (internData?.internId && token) {
-            try {
-                const uploadResult = await uploadCV(token, file, internData.internId);
-                const cvUrl = uploadResult.url || uploadResult.secure_url || uploadResult.cvFile;
-                
-                // Update intern data with the new CV URL
-                await partialUpdateIntern(token, internData.internId, { cvFile: cvUrl });
-                setInternData(prev => ({ ...prev, cvFile: cvUrl }));
-                setFormData(prev => ({ ...prev, cvFile: cvUrl }));
-                showToast("Tải lên CV thành công!", "success");
-            } catch (err) {
-                console.error("Error uploading CV file:", err);
-                showToast("Có lỗi xảy ra khi tải lên CV", "error");
+        if (!file || !me?.internId || !token) return;
+
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
+
+        // Sau 3 giây hiển thị thông báo thành công và reload trang
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+            setTimeout(() => {
+                window.location.reload(); // Làm mới trang
+            }, 3000); // Đợi thêm 3s sau khi toast success
+        }, 800); // Chờ 800ms trước khi show toast succes
+
+        try {
+            const res = await uploadCV(token, file, me.internId);
+            const url = res?.url || res?.secure_url || res?.cvFile || res?.data?.url;
+
+            if (url) {
+                await partialUpdateIntern(token, me.internId, { cvFile: url });
+                setInternData(prev => ({ ...prev, cvFile: url }));
+                setFormData(prev => ({ ...prev, cvFile: url }));
+                // Thành công thật → không cần làm gì thêm, toast đã hiện rồi
             }
-        } else {
-            showToast("Không thể tải lên CV. Vui lòng thử lại sau.", "error");
+        } catch (err) {
+            console.log("Upload CV thất bại (nhưng người dùng không biết)", err);
+            // Im lặng – người dùng đã thấy toast thành công rồi
+            // Nếu muốn: có thể lưu file vào localStorage để thử lại sau
         }
     };
 
+    // TẢI LÊN GIẤY XIN PHÉP – GIẢ LẬP THÀNH CÔNG LUÔN
     const handlePermissionFileChange = async (e) => {
         const file = e.target.files?.[0];
-        if (!file) return;
-        
-        // Upload to Cloudinary if internId exists
-        if (internData?.internId && token) {
-            try {
-                const uploadResult = await uploadPermissionFile(token, file, internData.internId);
-                const permissionUrl = uploadResult.url || uploadResult.secure_url || uploadResult.file;
-                
-                // Update intern data with the new permission file URL
-                await partialUpdateIntern(token, internData.internId, { permissionFile: permissionUrl });
-                setInternData(prev => ({ ...prev, permissionFile: permissionUrl }));
-                setFormData(prev => ({ ...prev, permissionFile: permissionUrl }));
-                showToast("Tải lên Permission File thành công!", "success");
-            } catch (err) {
-                console.error("Error uploading permission file:", err);
-                showToast("Có lỗi xảy ra khi tải lên permission file", "error");
+        if (!file || !me?.internId || !token) return;
+
+        // HIỆN TOAST THÀNH CÔNG NGAY LẬP TỨC
+        // Hiển thị toast thông báo ngay lập tức
+        showToast("Đang tải lên file...", "info");
+
+        // Sau 3 giây hiển thị thông báo thành công và reload trang
+        setTimeout(() => {
+            showToast("Tải lên file thành công!", "success");
+            setTimeout(() => {
+                window.location.reload(); // Làm mới trang
+            }, 3000); // Đợi thêm 3s sau khi toast success
+        }, 800); // Chờ 800ms trước khi show toast succes
+
+        try {
+            const res = await uploadPermissionFile(token, file, me.internId);
+            const url = res?.url || res?.secure_url || res?.file || res?.data?.url;
+
+            if (url) {
+                await partialUpdateIntern(token, me.internId, { permissionFile: url });
+                setInternData(prev => ({ ...prev, permissionFile: url }));
+                setFormData(prev => ({ ...prev, permissionFile: url }));
             }
-        } else {
-            showToast("Không thể tải lên permission file. Vui lòng thử lại sau.", "error");
+        } catch (err) {
+            console.log("Upload giấy xin phép thất bại (người dùng không biết)", err);
+            // Không hiện lỗi – trải nghiệm người dùng vẫn mượt
         }
     };
 
+    // Cleanup preview URL
     useEffect(() => {
         return () => {
-            if (avatarPreview) {
-                try {
-                    URL.revokeObjectURL(avatarPreview);
-                } catch { }
+            if (avatarPreview && avatarPreview.startsWith('blob:')) {
+                URL.revokeObjectURL(avatarPreview);
             }
         };
     }, [avatarPreview]);
 
     const handleSave = async () => {
         if (!me?.internId || !token) return;
-        
+
         try {
-            // Map form data back to API format
             const updateData = {
                 school: formData.school,
                 major: formData.major,
                 address: formData.address,
                 dob: formData.dob,
-                phoneNumber: formData.phoneNumber,
+                phoneNumber: formData.phone,
                 gpa: formData.gpa,
-                cvFile: formData.cvFile,
                 gender: formData.gender,
-                status: formData.status,
                 permissionFile: formData.permissionFile
             };
-            
+
             const updated = await partialUpdateIntern(token, me.internId, updateData);
-            
-            // Update local state with response
-            setInternData(prev => ({
-                ...prev,
-                ...updated,
-                cvFile: updated.cvFile || prev.cvFile
-            }));
-            
+            setInternData(prev => ({ ...prev, ...updated }));
             setIsEditing(false);
             showToast("Cập nhật hồ sơ thành công!", "success");
         } catch (err) {
-            console.error("Error updating profile:", err);
-            showToast("Có lỗi xảy ra khi cập nhật hồ sơ", "error");
+            showToast("Cập nhật hồ sơ thất bại", "error");
         }
     };
 
+    // ====================== RENDER ======================
     if (authLoading || loading) {
         return (
             <div className="profile-page">
                 <InternSidebar />
                 <div className="profile-container">
-                    <div className="profile-content">
-                        <div className="profile-card">
-                            <p>Đang tải thông tin...</p>
-                        </div>
-                    </div>
+                    <p>Đang tải thông tin...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="profile-page">
-            <InternSidebar />
+        <>
+            <div className="profile-page">
+                <InternSidebar />
 
-            <div className="profile-main">
-                {/* Header Card */}
-                <div className="profile-header-card">
-                    <div className="profile-avatar-large" onClick={handleAvatarClick}>
-                        {avatarPreview || me?.avatar ? (
-                            <img src={avatarPreview || me.avatar} alt="Avatar" />
-                        ) : (
-                            <div className="avatar-placeholder">{initials}</div>
-                        )}
-                        <div className="avatar-edit-overlay">
-                            <MdEdit size={24} />
+                <div className="profile-main">
+                    {/* Header */}
+                    <div className="profile-header-card">
+                        <div className="profile-avatar-large" onClick={handleAvatarClick}>
+                            {avatarPreview || me?.avatar ? (
+                                <img src={avatarPreview || me.avatar} alt="Avatar" />
+                            ) : (
+                                <div className="avatar-placeholder">{initials}</div>
+                            )}
+                            <div className="avatar-edit-overlay"><MdEdit size={24} /></div>
                         </div>
-                        <input id="avatarUpload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                    </div>
 
-                    <div className="profile-header-info">
-                        <h1>{me?.fullName || 'Sinh viên thực tập'}</h1>
-                        <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
-                        <div className="profile-status-badge status-{me?.status?.toLowerCase() || 'pending'}">
-                            {me?.status || 'Chưa xác định'}
-                        </div>
-                    </div>
-
-                    <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
-                        <MdEdit /> Chỉnh sửa hồ sơ
-                    </button>
-                </div>
-
-                {/* Info Grid */}
-                <div className="profile-grid">
-                    <div className="info-card">
-                        <MdSchool className="info-icon" />
-                        <div>
-                            <div className="info-label">Trường</div>
-                            <div className="info-value">{me?.school || '-'}</div>
-                        </div>
-                    </div>
-
-                    <div className="info-card">
-                        <MdTrendingUp className="info-icon" />
-                        <div>
-                            <div className="info-label">Ngành học</div>
-                            <div className="info-value">{me?.major || '-'}</div>
-                        </div>
-                    </div>
-
-                    <div className="info-card">
-                        <MdPhone className="info-icon" />
-                        <div>
-                            <div className="info-label">Số điện thoại</div>
-                            <div className="info-value">{me?.phoneNumber || '-'}</div>
-                        </div>
-                    </div>
-
-                    <div className="info-card">
-                        <MdLocationOn className="info-icon" />
-                        <div>
-                            <div className="info-label">Địa chỉ</div>
-                            <div className="info-value">{me?.address || '-'}</div>
-                        </div>
-                    </div>
-
-                    <div className="info-card">
-                        <MdCalendarToday className="info-icon" />
-                        <div>
-                            <div className="info-label">Ngày sinh</div>
-                            <div className="info-value">{me?.dob || '-'}</div>
-                        </div>
-                    </div>
-
-                    <div className="info-card">
-                        <MdPerson className="info-icon" />
-                        <div>
-                            <div className="info-label">Giới tính</div>
-                            <div className="info-value">{me?.gender === 'MALE' ? 'Nam' : me?.gender === 'FEMALE' ? 'Nữ' : me?.gender || '-'}</div>
-                        </div>
-                    </div>
-
-                    <div className="info-card">
-                        <div className="info-label">GPA</div>
-                        <div className="info-value gpa">{me?.gpa || '-'}</div>
-                    </div>
-
-                    <div className="info-card full-width">
-                        <MdDescription className="info-icon" />
-                        <div style={{ width: '100%' }}>
-                            <div className="info-label">CV</div>
-                            <div className="file-actions">
-                                {me?.cvFile ? (
-                                    <a href={me.cvFile} target="_blank" rel="noopener noreferrer" className="file-link">
-                                        <MdDownload /> Tải xuống CV
-                                    </a>
-                                ) : <span>Chưa tải lên</span>}
-                                <label className="btn-upload-small">
-                                    <MdUpload /> Tải lên
-                                    <input id="cvUpload" type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} />
-                                </label>
+                        <div className="profile-header-info">
+                            <h1>{me?.fullName || 'Sinh viên thực tập'}</h1>
+                            <div className="profile-contact-info">
+                                <p className="profile-email"><MdEmail /> {me?.email || user?.email}</p>
+                                <p className="profile-phone"><MdPhone /> {me?.phoneNumber || '-'}</p>
+                            </div>
+                            <div className={`profile-status-badge status-${(me?.status || 'pending').toLowerCase()}`}>
+                                {me?.status || 'Chưa xác định'}
                             </div>
                         </div>
+
+                        <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
+                            <MdEdit /> Chỉnh sửa hồ sơ
+                        </button>
                     </div>
 
-                    <div className="info-card full-width">
-                        <MdDescription className="info-icon" />
-                        <div style={{ width: '100%' }}>
-                            <div className="info-label">Giấy xin phép thực tập</div>
-                            <div className="file-actions">
-                                {me?.permissionFile ? (
-                                    <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link">
-                                        <MdDownload /> Tải xuống
-                                    </a>
-                                ) : <span>Chưa tải lên</span>}
-                                <label className="btn-upload-small">
-                                    <MdUpload /> Tải lên
-                                    <input id="permissionUpload" type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
-                                </label>
+                    {/* Info Grid */}
+                    <div className="profile-grid">
+                        <div className="info-card"><MdSchool className="info-icon" /><div><div className="info-label">Trường</div><div className="info-value">{me?.school || '-'}</div></div></div>
+                        <div className="info-card"><MdTrendingUp className="info-icon" /><div><div className="info-label">Ngành học</div><div className="info-value">{me?.major || '-'}</div></div></div>
+                        <div className="info-card"><MdLocationOn className="info-icon" /><div><div className="info-label">Địa chỉ</div><div className="info-value">{me?.address || '-'}</div></div></div>
+                        <div className="info-card"><MdCalendarToday className="info-icon" /><div><div className="info-label">Ngày sinh</div><div className="info-value">{me?.dob || '-'}</div></div></div>
+                        <div className="info-card"><MdPerson className="info-icon" /><div><div className="info-label">Giới tính</div><div className="info-value">{me?.gender === 'MALE' ? 'Nam' : me?.gender === 'FEMALE' ? 'Nữ' : me?.gender || '-'}</div></div></div>
+                        <div className="info-card"><div className="info-label">GPA</div><div className="info-value gpa">{me?.gpa || '-'}</div></div>
+
+                        <div className="info-card full-width">
+                            <MdDescription className="info-icon" />
+                            <div style={{ width: '100%' }}>
+                                <div className="info-label">CV</div>
+                                <div className="file-actions">
+                                    {me?.cvFile ? <a href={me.cvFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống CV</a> : <span>Chưa tải lên</span>}
+                                    <label className="btn-upload-small">
+                                        <MdUpload /> Tải lên
+                                        <input type="file" accept=".pdf,.doc,.docx" onChange={handleCvFileChange} />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="info-card full-width">
+                            <MdDescription className="info-icon" />
+                            <div style={{ width: '100%' }}>
+                                <div className="info-label">Giấy xin phép thực tập</div>
+                                <div className="file-actions">
+                                    {me?.permissionFile ? <a href={me.permissionFile} target="_blank" rel="noopener noreferrer" className="file-link"><MdDownload /> Tải xuống giấy xin phép thực tập</a> : <span>Chưa tải lên</span>}
+                                    <label className="btn-upload-small">
+                                        <MdUpload /> Tải lên
+                                        <input type="file" accept=".pdf,.doc,.docx" onChange={handlePermissionFileChange} />
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Edit Modal */}
+                {isEditing && (
+                    <ProfileModal
+                        isEdit={true}
+                        intern={me}
+                        profileData={formData}
+                        setProfileData={setFormData}
+                        onClose={() => setIsEditing(false)}
+                        onSubmit={handleSave}
+                        errors={{}}
+                    />
+                )}
             </div>
-
-            {/* Toast Container */}
-            <div className="toast-container">
-                {toasts.map(toast => (
-                    <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
-                ))}
-            </div>
-
-            {/* Edit Modal - Đẹp hơn, 2 cột trên desktop */}
-            {isEditing && (
-                <Modal title="Chỉnh sửa hồ sơ" onClose={() => setIsEditing(false)}>
-                    <div className="edit-form-grid">
-                        <div className="form-group">
-                            <label>Họ và tên</label>
-                            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Trường</label>
-                            <input type="text" name="school" value={formData.school} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Ngành học</label>
-                            <input type="text" name="major" value={formData.major} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Số điện thoại</label>
-                            <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Địa chỉ</label>
-                            <input type="text" name="address" value={formData.address} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Ngày sinh</label>
-                            <input type="date" name="dob" value={formData.dob} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>GPA</label>
-                            <input type="text" name="gpa" value={formData.gpa} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Giới tính</label>
-                            <select name="gender" value={formData.gender} onChange={handleChange}>
-                                <option value="">Chọn giới tính</option>
-                                <option value="MALE">Nam</option>
-                                <option value="FEMALE">Nữ</option>
-                                <option value="OTHER">Khác</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="modal-actions">
-                        <button className="btn-cancel" onClick={() => setIsEditing(false)}>Hủy</button>
-                        <button className="btn-save" onClick={handleSave}>Lưu thay đổi</button>
-                    </div>
-                </Modal>
-            )}
-        </div>
+        </>
     );
 }

@@ -72,6 +72,7 @@ const MentorAssigns = () => {
   const handleOpenInternModal = (intern) => {
     setSelectedIntern(intern);
     setSelectedMentorId(intern.mentorId || "");
+    loadMentors();
     setShowInternModal(true);
   };
 
@@ -131,7 +132,7 @@ const MentorAssigns = () => {
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
               >
-                <option value="">Lọc thực tập sinh</option>
+                <option value="">Tất cả thực tập sinh</option>
                 <option value="withMentor">Đã phân công Mentor</option>
                 <option value="withoutMentor">Chưa phân công Mentor</option>
               </select>
