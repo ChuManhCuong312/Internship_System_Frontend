@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Modal from "../../../../components/Layout/Modal";
 
-const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSubmit, errors: externalErrors = {} }) => {
+const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, setProfileData, onSubmit, errors: externalErrors = {} }) => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,7 +31,7 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSu
                 }
                 
                 if (age < 18) {
-                    newErrors.dob = "Sinh viên phải ít nhất 16 tuổi";
+                    newErrors.dob = "Sinh viên phải ít nhất 18 tuổi";
                 } else if (age > 100) {
                     newErrors.dob = "Ngày sinh không hợp lệ";
                 }
@@ -79,6 +79,10 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSu
         setIsSubmitting(true);
         try {
             await onSubmit();
+            // Refresh page after successful profile creation
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
             setIsSubmitting(false);
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -94,8 +98,13 @@ const AddProfileModal = ({ isCreating, intern, profileData, setProfileData, onSu
         }
     };
 
+    // Don't render modal if not open
+    if (!isOpen) {
+        return null;
+    }
+
     return (
-        <Modal title={isCreating ? `Tạo mới hồ sơ: ${profileData?.full_name || intern?.fullName || ""}` : "Thêm hồ sơ mới"}>
+        <Modal title={isCreating ? `Tạo mới hồ sơ: ${profileData?.full_name || intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
         {/* Họ tên */}
         {/* Giới tính */}

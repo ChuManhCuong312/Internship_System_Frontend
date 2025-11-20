@@ -35,6 +35,10 @@ const RequiredFilesModal = ({ onClose, onFilesUploaded, handleCvFileChange, hand
   const handleContinue = () => {
     if (allFilesUploaded) {
       onFilesUploaded();
+      // Refresh page after all files uploaded
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
   };
 
