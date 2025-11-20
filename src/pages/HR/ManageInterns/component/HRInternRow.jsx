@@ -72,15 +72,12 @@ const HRInternRow = ({
     return `status-badge ${statusMap[status] || ""}`;
   };
 
-  // Xác định class cho nút dựa trên việc có áp dụng tiêu chí và phù hợp hay không
   const getButtonClass = (buttonType) => {
     if (!appliedCriteria) return '';
 
     if (buttonType === 'approve') {
-      // Nếu phù hợp tiêu chí -> nút Duyệt sáng, nếu không -> mờ
       return isMatching ? 'btn-bright' : 'btn-dim';
     } else {
-      // Nếu không phù hợp tiêu chí -> nút Từ chối sáng, nếu phù hợp -> mờ
       return !isMatching ? 'btn-bright' : 'btn-dim';
     }
   };
@@ -97,26 +94,18 @@ const HRInternRow = ({
 
         {showDocuments && (
           <td>
-            <div className="doc-list">
-              {intern.cvPath && (
-                <a href={intern.cvPath} target="_blank" rel="noopener noreferrer" className="doc-item">
-                  CV
-                </a>
-              )}
-              {intern.permissionFile && (
-                <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer" className="doc-item">
-                  Đơn xin
-                </a>
-              )}
-              {intern.universityConfirm && (
-                <a href={intern.universityConfirm} target="_blank" rel="noopener noreferrer" className="doc-item">
-                  Xác nhận
-                </a>
-              )}
-            </div>
+            {intern.status === "NO_FILE" ? (
+              <span className="doc-status">Chưa có</span>
+            ) : (
+              <div className="doc-list">
+                {intern.cvPath && <a href={intern.cvPath} target="_blank" rel="noopener noreferrer" className="doc-item">CV</a>}
+                {intern.permissionFile && <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer" className="doc-item">Đơn xin</a>}
+                {intern.universityConfirm && <a href={intern.universityConfirm} target="_blank" rel="noopener noreferrer" className="doc-item">Xác nhận</a>}
+              </div>
+            )}
           </td>
-        )}
 
+        )}
 
         <td>{intern.school}</td>
 

@@ -269,6 +269,7 @@ const ApproveInterns = () => {
           <CandidatesModal
             onClose={() => setShowCandidatesModal(false)}
             onSuccess={(reset) => {
+              setStatusFilter("NO_FILE");
               fetchInterns(reset);
             }}
           />
