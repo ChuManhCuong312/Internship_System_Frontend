@@ -14,7 +14,9 @@ const HRInternRow = ({
   onView,
   showDocuments = true,
   showApproveActions = false,
-  showStatus = true
+  showStatus = true,
+  isMatching = false,
+  appliedCriteria,
 }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -70,6 +72,19 @@ const HRInternRow = ({
     return `status-badge ${statusMap[status] || ""}`;
   };
 
+  // Xác định class cho nút dựa trên việc có áp dụng tiêu chí và phù hợp hay không
+  const getButtonClass = (buttonType) => {
+    if (!appliedCriteria) return '';
+
+    if (buttonType === 'approve') {
+      // Nếu phù hợp tiêu chí -> nút Duyệt sáng, nếu không -> mờ
+      return isMatching ? 'btn-bright' : 'btn-dim';
+    } else {
+      // Nếu không phù hợp tiêu chí -> nút Từ chối sáng, nếu phù hợp -> mờ
+      return !isMatching ? 'btn-bright' : 'btn-dim';
+    }
+  };
+
   return (
     <>
       <tr>
@@ -118,18 +133,20 @@ const HRInternRow = ({
             {showApproveActions && intern.status === "PENDING" ? (
               <>
                 <LoadingButton
-                  className="btn-approve"
+                  className={`btn-approve ${getButtonClass('approve')}`}
                   onClick={handleApprove}
                   isLoading={isApproving}
                   disabled={isRejecting}
+                  title={isMatching && appliedCriteria ? '✅ Phù hợp tiêu chí - Nên duyệt' : appliedCriteria && !isMatching ? '⚠️ Không phù hợp tiêu chí' : 'Duyệt hồ sơ'}
                 >
                   Duyệt
                 </LoadingButton>
                 <LoadingButton
-                  className="btn-reject"
+                  className={`btn-reject ${getButtonClass('reject')}`}
                   onClick={() => setShowRejectModal(true)}
                   isLoading={isRejecting}
                   disabled={isApproving}
+                  title={!isMatching && appliedCriteria ? '❌ Không phù hợp tiêu chí - Có thể từ chối' : appliedCriteria && isMatching ? '✅ Phù hợp tiêu chí' : 'Từ chối hồ sơ'}
                 >
                   Từ chối
                 </LoadingButton>

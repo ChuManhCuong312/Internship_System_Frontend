@@ -22,6 +22,11 @@ const HRInternHeader = ({
   majorOptions = [],
   schoolOptions = [],
   onClearFilters,
+  showCriteriaButton,
+  onOpenCriteria,
+  appliedCriteria,
+  onClearCriteria,
+  matchingCount,
 }) => (
   <div className="manage-users-header">
     <h2 className="page-title">{title}</h2>
@@ -71,8 +76,31 @@ const HRInternHeader = ({
       </select>
 
       {onAdd && <button className="btn-primary" onClick={onAdd}>Thêm mới</button>}
-    </div>
-
+      {showCriteriaButton && (
+                <button
+                  className={`btn-criteria ${appliedCriteria ? "btn-criteria-active" : ""}`}
+                  onClick={onOpenCriteria}
+                >
+                  ⚙️ Tiêu chí
+                  {appliedCriteria && (
+                    <span className="criteria-badge">
+                      {matchingCount} phù hợp
+                      <span
+                        className="criteria-badge-clear"
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClearCriteria();
+                        }}
+                      >
+                        ×
+                      </span>
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
     <div className="clear-filter-container">
       <button className="clear-filter-btn" onClick={onClearFilters}>
         ✖ Clear filter

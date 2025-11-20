@@ -10,7 +10,9 @@ const HRInternTable = ({
   onView,
   showDocuments = true,
   showApproveActions = false,
-  showStatus = true
+  showStatus = true,
+  matchingInterns,
+  appliedCriteria,
 }) => {
   const translateStatus = (status) => {
     switch (status) {
@@ -28,7 +30,12 @@ const HRInternTable = ({
         return "Chưa gửi CV";
     }
   };
-const totalColumns = 8 + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
+
+  const totalColumns = 8 + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
+
+  const isMatching = (internId) => {
+    return appliedCriteria && matchingInterns && matchingInterns.has(internId);
+  };
 
   return (
     <div className="users-table-container">
@@ -61,6 +68,8 @@ const totalColumns = 8 + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
                 showDocuments={showDocuments}
                 showApproveActions={showApproveActions}
                 showStatus={showStatus}
+                isMatching={isMatching(intern.internId)}
+                appliedCriteria={appliedCriteria}
               />
             ))
           ) : (
