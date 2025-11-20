@@ -6,6 +6,7 @@ import Modal from "../../../components/Layout/Modal";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 import "../../../styles/buttons.css";
 import { toast } from "react-toastify";
+import { HrContext } from "../../../context/HrContext";
 
 const CandidatesModal = ({ onClose, onSuccess }) => {
   const { token } = useContext(AuthContext);
@@ -18,6 +19,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
 
   useEffect(() => {
     const fetchCandidates = async () => {
+      setLoading(true);
       try {
         const res = await hrApi.getInternCandidatesWithoutProfile(token, 0, 10);
         setCandidates(res.content || []);
@@ -28,8 +30,11 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
         setLoading(false);
       }
     };
-    fetchCandidates();
+
+    if (token) fetchCandidates();
   }, [token]);
+
+ const { schoolOptions, majorOptions, setSchoolOptions, setMajorOptions, fetchFilters } = useContext(HrContext);
 
   const handleOpenProfileModal = (candidate) => {
     setSelectedCandidate(candidate);
@@ -115,6 +120,19 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
 
       await hrApi.createInternProfile(token, selectedCandidate.userId, profileData);
       toast.success("Tạo hồ sơ thành công ✅");
+      if (profileData.school && !schoolOptions.includes(profileData.school)) {
+            setSchoolOptions([...schoolOptions, profileData.school]);
+          }
+      if (profileData.major && !majorOptions.includes(profileData.major)) {
+            setMajorOptions([...majorOptions, profileData.major]);
+      }
+      fetchFilters();
+      const [majors, schools] = await Promise.all([
+        hrApi.getAllMajors(token),
+        hrApi.getAllSchools(token)
+      ]);
+      setMajorOptions(majors || []);
+      setSchoolOptions(schools || []);
       setSelectedCandidate(null);
       onClose();
       if (typeof onSuccess === "function") {
@@ -198,6 +216,8 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
           onSubmit={handleSubmitProfile}
           errors={errors}
           isLoading={isSubmitting}
+          schoolOptions={schoolOptions}
+          majorOptions={majorOptions}
         />
       )}
     </Modal>

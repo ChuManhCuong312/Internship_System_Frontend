@@ -25,6 +25,7 @@ import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { HrProvider } from "./context/HrContext.jsx";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -43,6 +44,7 @@ function App() {
   return (
     <UserProvider>
       <InternsProvider>
+          <HrProvider>
         <Router>
           <Routes>
             {/* Default route */}
@@ -192,6 +194,7 @@ function App() {
                       pauseOnHover
                     />
         </Router>
+         </HrProvider>
       </InternsProvider>
     </UserProvider>
   );

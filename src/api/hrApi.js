@@ -9,7 +9,7 @@ const authHeader = (token) => ({
 });
 
 const hrApi = {
-  getAllInterns: async (token, page = 0, size = 10) => {
+  AllInterns: async (token, page = 0, size = 10) => {
     const response = await axios.get(API_URL, {
       ...authHeader(token),
       params: { page, size },

@@ -10,6 +10,7 @@ import ViewProfileModal from "./modals/ViewProfileModal";
 import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
 import "../../../styles/manageInterns.css";
+import { HrContext } from "../../../context/HrContext";
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
@@ -29,9 +30,8 @@ const ManageInterns = () => {
   const [viewingIntern, setViewingIntern] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-const [majorOptions, setMajorOptions] = useState([]);
-const [schoolOptions, setSchoolOptions] = useState([]);
 const [schoolFilter, setSchoolFilter] = useState("");
+const { schoolOptions, majorOptions, fetchFilters } = useContext(HrContext);
 
   const [pendingCount, setPendingCount] = useState(0);
 const [errors, setErrors] = useState({});
@@ -138,6 +138,13 @@ useEffect(() => {
     try {
       setIsUpdating(true);
 
+      const schoolValue = editingIntern.school === "OTHER"
+        ? editingIntern.customSchool
+        : editingIntern.school;
+
+      const majorValue = editingIntern.major === "OTHER"
+        ? editingIntern.customMajor
+        : editingIntern.major;
       const updateData = {
         school: editingIntern.school,
         major: editingIntern.major,
@@ -254,6 +261,8 @@ useEffect(() => {
             onSubmit={handleUpdateIntern}
             isLoading={isUpdating}
             errors={errors}
+            schoolOptions={schoolOptions}
+            majorOptions={majorOptions}
           />
         )}
 

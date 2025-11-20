@@ -8,6 +8,8 @@ import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
 import CandidatesModal from "./CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
+import { HrContext } from "../../../context/HrContext";
+
 
 const ApproveInterns = () => {
   const { token } = useContext(AuthContext);
@@ -21,13 +23,11 @@ const ApproveInterns = () => {
   const [editingIntern, setEditingIntern] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-const [majorOptions, setMajorOptions] = useState([]);
-const [schoolOptions, setSchoolOptions] = useState([]);
-
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [schoolFilter, setSchoolFilter] = useState("");
+const { schoolOptions, majorOptions, fetchFilters } = useContext(HrContext);
 
 const [errors, setErrors] = useState({});
 
@@ -86,19 +86,6 @@ const validateIntern = (intern) => {
   useEffect(() => {
     fetchInterns(true);
   }, [searchTerm, statusFilter, majorFilter, schoolFilter]);
-useEffect(() => {
-  const fetchFilters = async () => {
-    try {
-      const majors = await hrApi.getAllMajors(token);
-      setMajorOptions(majors || []);
-      const schools = await hrApi.getAllSchools(token);
-      setSchoolOptions(schools || []);
-    } catch (err) {
-      console.error("Không thể tải danh sách filter:", err);
-    }
-  };
-  if (token) fetchFilters();
-}, [token]);
 
   useEffect(() => {
     fetchInterns();
@@ -124,6 +111,13 @@ useEffect(() => {
       try {
         setIsUpdating(true);
 
+        const schoolValue = editingIntern.school === "OTHER"
+          ? editingIntern.customSchool
+          : editingIntern.school;
+
+        const majorValue = editingIntern.major === "OTHER"
+          ? editingIntern.customMajor
+          : editingIntern.major;
         const updateData = {
           school: editingIntern.school,
           major: editingIntern.major,
@@ -224,6 +218,8 @@ useEffect(() => {
         onSubmit={handleUpdateIntern}
         isLoading={isUpdating}
         errors={errors}
+        majorOptions={majorOptions}
+        schoolOptions={schoolOptions}
       />
     )}
 

@@ -1,6 +1,7 @@
 import React from "react";
 import Modal from "../../../../components/Layout/Modal";
 import { LoadingButton } from "../../../../components/common/LoadingSpinner";
+import { Autocomplete, TextField } from "@mui/material";
 
 const ProfileModal = ({
   isEdit,
@@ -10,7 +11,9 @@ const ProfileModal = ({
   onClose,
   onSubmit,
   errors,
-  isLoading
+  isLoading,
+  schoolOptions = [],
+  majorOptions = []
 }) => (
   <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
@@ -20,7 +23,7 @@ const ProfileModal = ({
       <input
         className="form-input"
         value={profileData?.full_name || ""}
-        onChange={e => setProfileData({ ...profileData, full_name: e.target.value })}
+        onChange = {e => setProfileData({ ...profileData, full_name: e.target.value })}
         disabled={isLoading}
       />
       {errors?.full_name && <p className="field-error">{errors.full_name}</p>}
@@ -59,50 +62,44 @@ const ProfileModal = ({
     {/* Trường */}
     <div className="form-group">
       <label>Trường *</label>
-      <select
-        className="form-input"
+      <Autocomplete
+        freeSolo
+        options={schoolOptions}
         value={profileData?.school || ""}
-        onChange={e => setProfileData({ ...profileData, school: e.target.value })}
+        onChange={(event, newValue) => {
+          setProfileData({ ...profileData, school: newValue });
+        }}
+        onInputChange={(event, newInputValue) => {
+          setProfileData({ ...profileData, school: newInputValue });
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Trường *" variant="outlined" />
+        )}
         disabled={isLoading}
-      >
-        <option value="">-- Chọn trường --</option>
-        <option value="CMC University">CMC University</option>
-        <option value="Đại học Quốc gia Hà Nội">Đại học Quốc gia Hà Nội</option>
-        <option value="Đại học Bách Khoa Hà Nội">Đại học Bách Khoa Hà Nội</option>
-        <option value="Đại học Kinh tế Quốc dân">Đại học Kinh tế Quốc dân</option>
-        <option value="OTHER">Khác...</option>
-      </select>
-
-      {profileData?.school === "OTHER" && (
-        <input
-          className="form-input"
-          placeholder="Nhập tên trường"
-          value={profileData?.customSchool || ""}
-          onChange={e => setProfileData({ ...profileData, customSchool: e.target.value })}
-          disabled={isLoading}
-        />
-      )}
-
+      />
       {errors?.school && <p className="field-error">{errors.school}</p>}
-    </div>
+      </div>
 
     {/* Ngành */}
     <div className="form-group">
       <label>Ngành *</label>
-      <select
-        className="form-input"
+      <Autocomplete
+        freeSolo
+        options={majorOptions}
         value={profileData?.major || ""}
-        onChange={e => setProfileData({ ...profileData, major: e.target.value })}
+        onChange={(event, newValue) => {
+          setProfileData({ ...profileData, major: newValue });
+        }}
+        onInputChange={(event, newInputValue) => {
+          setProfileData({ ...profileData, major: newInputValue });
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Ngành *" variant="outlined" />
+        )}
         disabled={isLoading}
-      >
-        <option value="">-- Chọn ngành --</option>
-        <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-        <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
-        <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
-        <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
-      </select>
+      />
       {errors?.major && <p className="field-error">{errors.major}</p>}
-    </div>
+      </div>
 
     {/* GPA */}
     <div className="form-group">
