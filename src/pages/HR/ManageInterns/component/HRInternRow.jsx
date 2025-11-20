@@ -82,25 +82,26 @@ const HRInternRow = ({
 
         {showDocuments && (
           <td>
-            {intern.cvPath && (
-              <a href={intern.cvPath} target="_blank" rel="noopener noreferrer">
-                📄 CV
-              </a>
-            )}
-            {intern.cvPath && intern.permissionFile && " | "}
-            {intern.permissionFile && (
-              <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer">
-                📄 Đơn xin
-              </a>
-            )}
-            {(intern.cvPath || intern.permissionFile) && intern.universityConfirm && " | "}
-            {intern.universityConfirm && (
-              <a href={intern.universityConfirm} target="_blank" rel="noopener noreferrer">
-                🎓 Xác nhận trường
-              </a>
-            )}
+            <div className="doc-list">
+              {intern.cvPath && (
+                <a href={intern.cvPath} target="_blank" rel="noopener noreferrer" className="doc-item">
+                  CV
+                </a>
+              )}
+              {intern.permissionFile && (
+                <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer" className="doc-item">
+                  Đơn xin
+                </a>
+              )}
+              {intern.universityConfirm && (
+                <a href={intern.universityConfirm} target="_blank" rel="noopener noreferrer" className="doc-item">
+                  Xác nhận
+                </a>
+              )}
+            </div>
           </td>
         )}
+
 
         <td>{intern.school}</td>
 

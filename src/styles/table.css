@@ -52,3 +52,21 @@
   vertical-align: middle;
 }
 
+/* ViewProfile */
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.doc-item {
+  font-size: 14px;
+  color: #006fd6;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.doc-item:hover {
+  text-decoration: underline;
+}
+
