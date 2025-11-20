@@ -29,9 +29,16 @@ import { HrProvider } from "./context/HrContext.jsx";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
-  console.log("User role:", user?.role, "Token:", token);
+
   if (loading) return <div>Loading...</div>;
   if (!token || !user) return <Navigate to="/login" replace />;
+
+  // Save last visited route
+  const currentPath = window.location.pathname;
+  if (currentPath !== "/login" && currentPath !== "/register") {
+    localStorage.setItem("lastRoute", currentPath);
+  }
+
   if (allowedRoles && !allowedRoles.includes(user.role?.toUpperCase())) {
     return <Navigate to="/login" replace />;
   }
