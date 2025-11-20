@@ -31,6 +31,7 @@ import {
     createIntern
 } from "../../api/internApi";
 import "../../styles/profile.css";
+import "../../styles/swal.css";
 
 // ====================== CONSTANTS ======================
 const UPLOAD_DELAY_MS = 800;
@@ -206,7 +207,6 @@ export default function ProfilePage() {
                 const mapped = mapInternResponse(response, user);
 
                 if (!mapped.internId) {
-                    showToast("Bạn đã đăng nhập nhưng chưa có hồ sơ thực tập.", "warning");
                     const result = await showCreateProfileDialog();
                     if (result.isConfirmed) {
                         setIsCreating(true);
@@ -243,7 +243,6 @@ export default function ProfilePage() {
             } catch (err) {
                 const status = err.response?.status;
                 if (status === 404) {
-                    showToast("Không tìm thấy hồ sơ", "error");
                     const result = await showCreateProfileDialog();
                     if (result.isConfirmed) {
                         setIsCreating(true);
@@ -455,7 +454,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="profile-header-info">
-                            <h1>{internData?.fullName || 'Sinh viên thực tập'}</h1>
+                            <h1>{internData?.fullName || '-'}</h1>
                             <div className="profile-contact-info">
                                 <p className="profile-email">
                                     <MdEmail /> {internData?.email || user?.email}
@@ -465,7 +464,7 @@ export default function ProfilePage() {
                                 </p>
                             </div>
                             <div className={`profile-status-badge status-${(internData?.status || 'pending').toLowerCase()}`}>
-                                {internData?.status || 'Chưa xác định'}
+                                {internData?.status || '-'}
                             </div>
                         </div>
 
@@ -527,17 +526,15 @@ export default function ProfilePage() {
                 />
             )}
 
-            {isCreating && (
-                <AddProfileModal
-                    isCreating={true}
-                    intern={internData}
-                    profileData={formData}
-                    setProfileData={setFormData}
-                    onClose={() => setIsCreating(false)}
-                    onSubmit={handleSave}
-                    errors={{}}
-                />
-            )}
+            <AddProfileModal
+                isOpen={isCreating}
+                isCreating={true}
+                intern={internData}
+                profileData={formData}
+                setProfileData={setFormData}
+                onClose={() => setIsCreating(false)}
+                onSubmit={handleSave}
+            />
 
             {showRequiredFilesModal && (
                 <RequiredFilesModal
