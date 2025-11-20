@@ -62,7 +62,6 @@ export default function ProfilePage() {
         }
 
         if (!userId || (typeof userId === 'string' && userId.includes('@'))) {
-            showToast("Không thể xác định thông tin người dùng. Vui lòng đăng nhập lại.", "error");
             setLoading(false);
             return;
         }
@@ -72,8 +71,25 @@ export default function ProfilePage() {
                 setLoading(true);
                 const response = await getInternByUserId(token, userId);
 
+
                 if (!response) {
-                    showToast("Không tìm thấy thông tin hồ sơ, vui lòng ", "error");
+
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'Chưa có hồ sơ thực tập',
+                        html: `
+                        <p>Hệ thống không tìm thấy hồ sơ gắn với tài khoản của bạn.</p>
+                        <p>Bạn có muốn tạo hồ sơ thực tập mới ngay bây giờ?</p>
+                    `,
+                        confirmButtonText: 'Tạo hồ sơ mới',
+                        showCancelButton: false,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleCreateNewProfile(); // Điều hướng/mở modal tạo mới
+                        }
+                    });
                     return;
                 }
 
@@ -97,6 +113,30 @@ export default function ProfilePage() {
                     avatar: data.avatar || data.avatarUrl || data.avatar_url || '',
                     permissionFile: data.permissionFile || data.permission_file || ''
                 };
+
+
+                if (!mapped.internId) {
+                    showToast("Bạn đã đăng nhập nhưng chưa có hồ sơ thực tập.", "warning");
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'Chưa có hồ sơ thực tập',
+                        html: `
+                        <p>Tài khoản của bạn chưa có hồ sơ gắn liền.</p>
+                        <p>Hãy tạo hồ sơ mới để tiếp tục quá trình thực tập.</p>
+                    `,
+                        confirmButtonText: 'Tạo hồ sơ mới',
+                        showCancelButton: false,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleCreateNewProfile(); // Điều hướng/mở modal tạo mới
+                        }
+                    });
+                    return;
+                }// Dừng tại đây vì không có internId để set dữ liệu
+
+
 
                 setInternData(mapped);
                 setFormData({
@@ -124,7 +164,7 @@ export default function ProfilePage() {
                             `,
                             confirmButtonText: 'Chỉnh sửa hồ sơ ngay',
                             cancelButtonText: 'Để sau',
-                            showCancelButton: true,
+                            showCancelButton: false,
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                         }).then((result) => {
@@ -134,11 +174,33 @@ export default function ProfilePage() {
                         });
                     }, 300); // Delay nhẹ để tránh lỗi Swal khi DOM chưa sẵn sàng
                 }
+
             } catch (err) {
                 const status = err.response?.status;
-                if (status === 404) showToast("Không tìm thấy hồ sơ", "error");
-                else if (status === 401 || status === 403) showToast("Phiên đăng nhập hết hạn", "error");
-                else showToast("Không thể tải thông tin hồ sơ", "error");
+                if (status === 404) {
+                    showToast("Không tìm thấy hồ sơ", "error");
+                    // Gợi ý tạo hồ sơ mới khi 404
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'Chưa có hồ sơ thực tập',
+                        html: `
+                        <p>Hệ thống không tìm thấy hồ sơ gắn với tài khoản của bạn.</p>
+                        <p>Bạn có muốn tạo hồ sơ thực tập mới?</p>
+                    `,
+                        confirmButtonText: 'Tạo hồ sơ mới',
+                        showCancelButton: false,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleCreateNewProfile();
+                        }
+                    });
+                } else if (status === 401 || status === 403) {
+                    showToast("Phiên đăng nhập hết hạn", "error");
+                } else {
+                    showToast("Không thể tải thông tin hồ sơ", "error");
+                }
             } finally {
                 setLoading(false);
             }
@@ -146,6 +208,7 @@ export default function ProfilePage() {
 
         fetchInternData();
     }, [user?.userId, token, authLoading]);
+
 
     const me = internData;
 
@@ -161,6 +224,19 @@ export default function ProfilePage() {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+
+
+    const handleCreateNewProfile = () => {
+        // Ví dụ 1: mở modal tạo mới
+        // setIsCreating(true);
+
+        // Ví dụ 2: điều hướng sang trang tạo hồ sơ
+        // navigate('/intern/create');
+
+        // Ví dụ 3: gọi API khởi tạo hồ sơ rỗng rồi mở màn hình chỉnh sửa
+        // createEmptyInternProfile(token, user?.userId).then(() => setIsEditing(true));
+    };
+
 
     // ====================== AVATAR – DÙNG SWAL FILE INPUT ======================
     const handleAvatarClick = () => {
@@ -346,7 +422,6 @@ export default function ProfilePage() {
         <>
             <div className="profile-page">
                 <InternSidebar />
-
                 <div className="profile-main">
                     {/* Header */}
                     <div className="profile-header-card">
