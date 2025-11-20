@@ -187,3 +187,135 @@
   line-height: 1.6;
   min-height: 60px;
 }
+.btn-criteria {
+  background: #3b82f6;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.btn-criteria:hover {
+  background: #2563eb;
+}
+
+.btn-criteria-active {
+  background: #10b981; /* xanh lá khi có tiêu chí */
+}
+
+.criteria-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #047857;
+  color: white;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.criteria-badge-clear {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: white;
+}
+
+.criteria-badge-clear:hover {
+  opacity: 0.8;
+}
+/* Nút sáng - Khuyến khích click khi phù hợp tiêu chí */
+.btn-bright {
+  background-color: #10b981;
+  color: white;
+  font-weight: 600;
+  border: 1px solid #0f766e;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.btn-bright:hover {
+  background-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: scale(1.04);
+}
+
+/* Nút mờ - Không khuyến khích khi không phù hợp */
+.btn-dim {
+  background-color: #f3f4f6;
+  color: #374151;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  opacity: 0.85;
+  transform: scale(0.98);
+  transition: all 0.2s ease;
+}
+
+.btn-dim:hover {
+  background-color: #e5e7eb;
+  transform: scale(1);
+}
+
+/* Animation cho nút sáng */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35),
+                0 0 15px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4),
+                0 0 25px rgba(255, 255, 255, 0.4);
+  }
+}
+
+.btn-approve.btn-bright {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  animation: glow-pulse-green 2s ease-in-out infinite !important;
+}
+
+@keyframes glow-pulse-green {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5),
+                0 0 15px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6),
+                0 0 25px rgba(16, 185, 129, 0.5);
+  }
+}
+
+.btn-reject.btn-dim {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+}
+
+.btn-reject.btn-bright {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  animation: glow-pulse-red 2s ease-in-out infinite !important;
+}
+
+@keyframes glow-pulse-red {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5),
+                0 0 15px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(220, 38, 38, 0.6),
+                0 0 25px rgba(220, 38, 38, 0.5);
+  }
+}
+
+.btn-approve,
+.btn-reject {
+  transition: all 0.3s ease !important;
+}
