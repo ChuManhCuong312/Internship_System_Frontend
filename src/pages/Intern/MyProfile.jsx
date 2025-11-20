@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import InternSidebar from "../../components/Layout/InternSidebar";
 import Modal from "../../components/Layout/Modal";
 import ProfileModal from "../HR/ManageInterns/modals/ProfileModal";
+import AddProfileModal from "../HR/ManageInterns/modals/AddProfileModal";
 import { AuthContext } from "../../context/AuthContext";
 import { getInternByUserId, partialUpdateIntern, uploadAvatar, uploadCV, uploadPermissionFile } from "../../api/internApi";
 import "../../styles/profile.css";
@@ -34,6 +35,7 @@ export default function ProfilePage() {
     const { user, token, loading: authLoading, setUser } = useContext(AuthContext);
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isCreating, setIsCreating] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         full_name: '', school: '', major: '', address: '', gender: '', dob: '',
@@ -227,14 +229,7 @@ export default function ProfilePage() {
 
 
     const handleCreateNewProfile = () => {
-        // Ví dụ 1: mở modal tạo mới
-        // setIsCreating(true);
-
-        // Ví dụ 2: điều hướng sang trang tạo hồ sơ
-        // navigate('/intern/create');
-
-        // Ví dụ 3: gọi API khởi tạo hồ sơ rỗng rồi mở màn hình chỉnh sửa
-        // createEmptyInternProfile(token, user?.userId).then(() => setIsEditing(true));
+        setIsCreating(true)
     };
 
 
@@ -497,6 +492,19 @@ export default function ProfilePage() {
                         profileData={formData}
                         setProfileData={setFormData}
                         onClose={() => setIsEditing(false)}
+                        onSubmit={handleSave}
+                        errors={{}}
+                    />
+                )}
+
+                {/* Add Modal */}
+                {isCreating && (
+                    <AddProfileModal
+                        isCreating={true}
+                        intern={me}
+                        profileData={formData}
+                        setProfileData={setFormData}
+                        onClose={() => setIsCreating(false)}
                         onSubmit={handleSave}
                         errors={{}}
                     />
