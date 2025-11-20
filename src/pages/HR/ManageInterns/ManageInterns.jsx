@@ -1,30 +1,74 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import hrApi from "../../../api/hrApi";
 import HRInternTable from "./component/HRInternTable";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
-import { useNavigate } from "react-router-dom";
-import CandidatesModal from "./CandidatesModal";
-import ProfileModal from "./modals/ProfileModal"
+import ProfileModal from "./modals/ProfileModal";
+import ViewProfileModal from "./modals/ViewProfileModal";
+import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
+import "../../../styles/manageInterns.css";
+import { HrContext } from "../../../context/HrContext";
 
 const ManageInterns = () => {
   const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [majorFilter, setMajorFilter] = useState("");
 
-  // phân trang
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
   const [showCandidatesModal, setShowCandidatesModal] = useState(false);
   const [editingIntern, setEditingIntern] = useState(null);
+  const [viewingIntern, setViewingIntern] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+const [schoolFilter, setSchoolFilter] = useState("");
+const { schoolOptions, majorOptions, fetchFilters } = useContext(HrContext);
+
+  const [pendingCount, setPendingCount] = useState(0);
+const [errors, setErrors] = useState({});
+
+const validateIntern = (intern) => {
+  const newErrors = {};
+  if (!intern.fullName?.trim()) newErrors.full_name = "Họ tên bắt buộc";
+  if (!intern.gender) newErrors.gender = "Giới tính bắt buộc";
+  if (!intern.dob) newErrors.dob = "Ngày sinh bắt buộc";
+  if (!intern.major) newErrors.major = "Ngành bắt buộc";
+  if (!intern.gpa || intern.gpa <= 0 || intern.gpa > 4) newErrors.gpa = "GPA phải từ 0.01 đến 4";
+if (!intern.phone?.match(/^0\d{9}$/)) {
+    newErrors.phone = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
+  } else {
+    const isDuplicate = interns.some(
+      (i) => i.phone === intern.phone && i.internId !== intern.internId
+    );
+    if (isDuplicate) {
+      newErrors.phone = "Số điện thoại đã tồn tại";
+    }
+  }  if (!intern.address?.trim()) newErrors.address = "Địa chỉ bắt buộc";
+  return newErrors;
+};
+
+  const fetchPendingCount = async () => {
+    try {
+      if (!token) return;
+      const res = await hrApi.searchInterns(token, {
+        status: "PENDING",
+        page: 0,
+        size: 1,
+      });
+      setPendingCount(res.totalElements || 0);
+    } catch (err) {
+      console.error("Error fetching pending count:", err);
+    }
+  };
 
   const fetchInterns = async (resetPage = false) => {
     try {
@@ -35,18 +79,14 @@ const ManageInterns = () => {
 
       const currentPage = resetPage ? 0 : page;
 
-      let res;
-      if (searchTerm || statusFilter || majorFilter) {
-        res = await hrApi.searchInterns(token, {
-          searchTerm,
-          major: majorFilter,
-          status: statusFilter,
-          page: currentPage,
-          size,
-        });
-      } else {
-        res = await hrApi.getAllInterns(token, currentPage, size);
-      }
+      const res = await hrApi.searchInterns(token, {
+        searchTerm,
+        major: majorFilter,
+        school: schoolFilter,
+        status: "APPROVED",
+        page: currentPage,
+        size,
+      });
 
       setInterns(res.content || []);
       setTotalPages(res.totalPages || 0);
@@ -55,6 +95,7 @@ const ManageInterns = () => {
     } catch (err) {
       console.error("Error fetching interns:", err);
       setInterns([]);
+      toast.error("Không thể tải danh sách thực tập sinh");
     } finally {
       setLoading(false);
     }
@@ -62,7 +103,21 @@ const ManageInterns = () => {
 
   useEffect(() => {
     fetchInterns(true);
-  }, [searchTerm, statusFilter, majorFilter]);
+    fetchPendingCount();
+  }, [searchTerm, majorFilter, schoolFilter]);
+useEffect(() => {
+  const fetchFilters = async () => {
+    try {
+      const majors = await hrApi.getAllMajors(token);
+      setMajorOptions(majors || []);
+      const schools = await hrApi.getAllSchools(token);
+      setSchoolOptions(schools || []);
+    } catch (err) {
+      console.error("Không thể tải danh sách filter:", err);
+    }
+  };
+  if (token) fetchFilters();
+}, [token]);
 
   useEffect(() => {
     fetchInterns();
@@ -70,90 +125,153 @@ const ManageInterns = () => {
 
   const handleClearFilters = () => {
     setSearchTerm("");
-    setStatusFilter("");
     setMajorFilter("");
     setPage(0);
-    fetchInterns();
   };
 
-  const handleAddProfilePage = () => {
-    setShowCandidatesModal(true);
+  const handleUpdateIntern = async () => {
+      const newErrors = validateIntern(editingIntern);
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+    try {
+      setIsUpdating(true);
+
+      const schoolValue = editingIntern.school === "OTHER"
+        ? editingIntern.customSchool
+        : editingIntern.school;
+
+      const majorValue = editingIntern.major === "OTHER"
+        ? editingIntern.customMajor
+        : editingIntern.major;
+      const updateData = {
+        school: editingIntern.school,
+        major: editingIntern.major,
+        dob: editingIntern.dob,
+        address: editingIntern.address,
+        gender: editingIntern.gender,
+        gpa: parseFloat(editingIntern.gpa),
+        phone: editingIntern.phone
+      };
+
+      await hrApi.updateInternProfile(token, editingIntern.internId, updateData);
+      toast.success("Cập nhật hồ sơ thành công ✅");
+      setEditingIntern(null);
+      fetchInterns();
+    } catch (err) {
+      console.error("Error updating intern:", err);
+
+      if (err.response?.status === 400) {
+        let msg = err.response.data;
+
+        if (typeof msg === "string") {
+          const match = msg.match(/interpolatedMessage='([^']+)'/);
+          if (match) {
+            msg = match[1];
+          }
+        }
+
+        toast.error(msg || "Dữ liệu không hợp lệ ❌");
+      } else {
+        toast.error("Cập nhật hồ sơ thất bại ❌");
+      }
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (loading) {
+    return (
+      <div className="dashboard-layout">
+        <HRSidebar />
+        <div className="dashboard-content">
+          <div className="loading-card">
+            <LoadingSpinner size="large" />
+            <p className="loading-text">Đang tải danh sách thực tập sinh...</p>
+          </div>
+          <LoadingTable />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
+        {/* Notification hồ sơ chờ duyệt */}
+        {pendingCount > 0 && (
+          <div className="pending-notification">
+            <span className="notification-icon">⚠️</span>
+            <span className="notification-text">
+              Có <strong>{pendingCount}</strong> hồ sơ đang chờ duyệt
+            </span>
+            <button
+              className="notification-btn"
+              onClick={() => navigate("/hr/approve-interns")}
+            >
+              Xem ngay →
+            </button>
+          </div>
+        )}
+
         <HRInternHeader
+          title="Quản lý hồ sơ thực tập sinh"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          majorFilter={majorFilter}
-          setMajorFilter={setMajorFilter}
+          showStatusFilter={false}
+          majorOptions={majorOptions}
+            schoolOptions={schoolOptions}
+            majorFilter={majorFilter}
+            setMajorFilter={setMajorFilter}
+            schoolFilter={schoolFilter}
+            setSchoolFilter={setSchoolFilter}
           onClearFilters={handleClearFilters}
-          onAdd={handleAddProfilePage}
         />
-        <HRInternTable
-        interns={interns}
-        page={page}
-        size={size}
-        fetchInterns={fetchInterns}
-        onEdit={setEditingIntern}
-         />
 
-        {showCandidatesModal && (
-          <CandidatesModal
-            onClose={() => setShowCandidatesModal(false)}
-            onSuccess={(reset) => fetchInterns(reset)}
+        <HRInternTable
+          interns={interns}
+          page={page}
+          size={size}
+          fetchInterns={fetchInterns}
+          onEdit={setEditingIntern}
+          onView={setViewingIntern}
+          showDocuments={false}
+          showApproveActions={false}
+          showStatus={false}
+        />
+
+        {editingIntern && (
+          <ProfileModal
+            isEdit={true}
+            intern={editingIntern}
+            profileData={{
+              full_name: editingIntern.fullName,
+              gender: editingIntern.gender || "",
+              dob: editingIntern.dob || "",
+              major: editingIntern.major,
+              gpa: editingIntern.gpa,
+              school: editingIntern.school,
+              phone: editingIntern.phone,
+              address: editingIntern.address
+            }}
+            setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
+            onClose={() => setEditingIntern(null)}
+            onSubmit={handleUpdateIntern}
+            isLoading={isUpdating}
+            errors={errors}
+            schoolOptions={schoolOptions}
+            majorOptions={majorOptions}
           />
         )}
 
-    {editingIntern && (
-      <ProfileModal
-        isEdit={true}
-        intern={editingIntern}
-        profileData={{
-          full_name: editingIntern.fullName,
-          gender: editingIntern.gender || "",
-          dob: editingIntern.dob || "",
-          major: editingIntern.major,
-          gpa: editingIntern.gpa,
-          school: editingIntern.school,
-          phone: editingIntern.phone,
-          address: editingIntern.address
-        }}
-        setProfileData={(data) => setEditingIntern({ ...editingIntern, ...data })}
-        onClose={() => setEditingIntern(null)}
-        onSubmit={async () => {
-          try {
-            await hrApi.updateInternProfile(token, editingIntern.internId, editingIntern);
-            toast.success("Cập nhật hồ sơ thành công ✅");
-            setEditingIntern(null);
-            fetchInterns();
-          } catch (err) {
-              console.error("Error updating intern:", err);
-
-              if (err.response?.status === 400) {
-                let msg = err.response.data;
-
-                if (typeof msg === "string") {
-                  const match = msg.match(/interpolatedMessage='([^']+)'/);
-                  if (match) {
-                    msg = match[1];
-                  }
-                }
-
-                toast.error(msg || "Dữ liệu không hợp lệ ❌");
-              } else {
-                toast.error("Cập nhật hồ sơ thất bại ❌");
-              }
-            }
-        }}
-      />
-    )}
+        {viewingIntern && (
+          <ViewProfileModal
+            intern={viewingIntern}
+            onClose={() => setViewingIntern(null)}
+          />
+        )}
 
         <div className="pagination">
           <button

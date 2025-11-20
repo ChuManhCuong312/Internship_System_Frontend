@@ -1,18 +1,15 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import {
-  getAllInterns,
-  createIntern,
-  updateIntern,
-  deleteIntern,
-} from "../api/hrApi";
+import hrApi from "../api/hrApi";
 import { AuthContext } from "./AuthContext";
-import { searchInterns, getMajors } from "../api/hrApi";
 
 export const HrContext = createContext();
 
 export const HrProvider = ({ children }) => {
   const { token, loading: authLoading } = useContext(AuthContext);
+
   const [interns, setInterns] = useState([]);
+  const [schoolOptions, setSchoolOptions] = useState([]);
+  const [majorOptions, setMajorOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,8 +18,8 @@ export const HrProvider = ({ children }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const data = await getAllInterns(token);
-      setInterns(data.content);
+      const data = await hrApi.AllInterns(token);
+      setInterns(data.content || []);
       setError(null);
     } catch (err) {
       console.error("Lấy danh sách intern thất bại:", err);
@@ -32,34 +29,54 @@ export const HrProvider = ({ children }) => {
     }
   };
 
+  // Fetch majors & schools
+  const fetchFilters = async () => {
+    if (!token) return;
+    try {
+      const [majors, schools] = await Promise.all([
+        hrApi.getAllMajors(token),
+        hrApi.getAllSchools(token)
+      ]);
+      setMajorOptions(majors || []);
+      setSchoolOptions(schools || []);
+    } catch (err) {
+      console.error("Không thể tải danh sách filter:", err);
+    }
+  };
+
   useEffect(() => {
-    if (!authLoading && token) fetchInterns();
+    if (token) {
+      fetchFilters();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!authLoading && token) {
+      fetchInterns();
+    }
   }, [authLoading, token]);
 
   const addIntern = async (internProfile) => {
-    const newIntern = await createIntern(token, internProfile);
+    const newIntern = await hrApi.createInternProfile(token, internProfile.userId, internProfile);
     setInterns((prev) => [...prev, newIntern]);
   };
 
-const editIntern = async (id, internProfile) => {
-  const updated = await updateIntern(token, id, internProfile);
-  setInterns((prev) =>
-    prev.map((i) => (i.internId === id ? updated : i))
-  );
-};
+  const editIntern = async (id, internProfile) => {
+    const updated = await hrApi.updateInternProfile(token, id, internProfile);
+    setInterns((prev) =>
+      prev.map((i) => (i.internId === id ? updated : i))
+    );
+  };
 
-const removeIntern = async (id) => {
-  await deleteIntern(token, id);
-  setInterns((prev) => prev.filter((i) => i.internId !== id));
-};
-const searchInternList = async (filters) => {
-  const data = await searchInterns(token, filters);
-  setInterns(data.content);
-};
+  const removeIntern = async (id) => {
+    await hrApi.deleteIntern(token, id);
+    setInterns((prev) => prev.filter((i) => i.internId !== id));
+  };
 
-const fetchMajors = async () => {
-  return await getMajors(token);
-};
+  const searchInternList = async (filters) => {
+    const data = await hrApi.searchInterns(token, filters);
+    setInterns(data.content || []);
+  };
 
   return (
     <HrContext.Provider
@@ -73,7 +90,11 @@ const fetchMajors = async () => {
         editIntern,
         removeIntern,
         searchInternList,
-        fetchMajors,
+        schoolOptions,
+        majorOptions,
+        setSchoolOptions,
+        setMajorOptions,
+        fetchFilters
       }}
     >
       {children}

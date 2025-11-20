@@ -52,6 +52,7 @@ const HRSidebar = () => {
         {expanded && openProfileMenu && (
           <ul className="submenu">
             <li><Link to="/hr/manage-interns">Quản lý hồ sơ</Link></li>
+            <li><Link to="/hr/approve-interns">Phê duyệt hồ sơ</Link></li>
           </ul>
         )}
         <li onClick={() => setOpenProgramMenu(!openProgramMenu)} className="menu-item">
