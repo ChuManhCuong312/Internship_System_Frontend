@@ -7,6 +7,7 @@ import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
+import ApproveInterns from "./pages/HR/ManageInterns/ApproveInterns";
 import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns"
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
@@ -24,6 +25,7 @@ import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { HrProvider } from "./context/HrContext.jsx";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -42,6 +44,7 @@ function App() {
   return (
     <UserProvider>
       <InternsProvider>
+          <HrProvider>
         <Router>
           <Routes>
             {/* Default route */}
@@ -88,6 +91,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <ManageInterns />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/approve-interns"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <ApproveInterns />
                 </PrivateRoute>
               }
             />
@@ -183,6 +194,7 @@ function App() {
                       pauseOnHover
                     />
         </Router>
+         </HrProvider>
       </InternsProvider>
     </UserProvider>
   );

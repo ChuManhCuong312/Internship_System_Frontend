@@ -9,7 +9,7 @@ const authHeader = (token) => ({
 });
 
 const hrApi = {
-  getAllInterns: async (token, page = 0, size = 10) => {
+  AllInterns: async (token, page = 0, size = 10) => {
     const response = await axios.get(API_URL, {
       ...authHeader(token),
       params: { page, size },
@@ -17,10 +17,11 @@ const hrApi = {
     return response.data;
   },
 
-  searchInterns: async (token, { searchTerm, major, status, page = 0, size = 10 }) => {
+  searchInterns: async (token, { searchTerm, major, school, status, page = 0, size = 10 }) => {
     const params = { page, size };
     if (searchTerm) params.searchTerm = searchTerm;
     if (major) params.major = major;
+    if (school) params.school = school;
     if (status) params.status = status;
 
     const res = await axios.get(`${API_URL}/search`, {
@@ -48,7 +49,7 @@ createInternProfile: async (token, userId, profileData) => {
   formData.append("dob", profileData.dob);
   formData.append("major", profileData.major);
   formData.append("gpa", profileData.gpa);
-  formData.append("school", "CMC University");
+  formData.append("school", profileData.school);
   formData.append("address", profileData.address);
 
   const res = await axios.post(`${API_URL}/${userId}/profile?phone=${profileData.phone}`, formData, {
@@ -57,6 +58,19 @@ createInternProfile: async (token, userId, profileData) => {
   return res.data;
 },
 
+getAllMajors: async (token) => {
+  const res = await axios.get(`${API_URL}/majors`, {
+    ...authHeader(token),
+  });
+  return res.data;
+},
+
+getAllSchools: async (token) => {
+  const res = await axios.get(`${API_URL}/schools`, {
+    ...authHeader(token),
+  });
+  return res.data;
+},
 
 getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
   const response = await axios.get(`${API_URL}/candidates`, {
@@ -86,9 +100,11 @@ updateInternProfile: async (token, internId, profileData) => {
   }
 },
 
+getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
+  const params = {};
+  if (search) params.search = search;
+  if (filter) params.filter = filter;
 
-
-getInternAssignments: async (token, params = {}) => {
   const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
     headers: { Authorization: `Bearer ${token}` },
     params  // Pass all params directly

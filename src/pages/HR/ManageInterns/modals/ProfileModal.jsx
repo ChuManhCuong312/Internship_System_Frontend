@@ -1,7 +1,20 @@
 import React from "react";
 import Modal from "../../../../components/Layout/Modal";
+import { LoadingButton } from "../../../../components/common/LoadingSpinner";
+import { Autocomplete, TextField } from "@mui/material";
 
-const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, onSubmit, errors }) => (
+const ProfileModal = ({
+  isEdit,
+  intern,
+  profileData,
+  setProfileData,
+  onClose,
+  onSubmit,
+  errors,
+  isLoading,
+  schoolOptions = [],
+  majorOptions = []
+}) => (
   <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
     {/* Họ tên */}
@@ -10,7 +23,8 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
       <input
         className="form-input"
         value={profileData?.full_name || ""}
-        onChange={e => setProfileData({ ...profileData, full_name: e.target.value })}
+        onChange = {e => setProfileData({ ...profileData, full_name: e.target.value })}
+        disabled={isLoading}
       />
       {errors?.full_name && <p className="field-error">{errors.full_name}</p>}
     </div>
@@ -22,6 +36,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.gender || ""}
         onChange={e => setProfileData({ ...profileData, gender: e.target.value })}
+        disabled={isLoading}
       >
         <option value="">-- Chọn giới tính --</option>
         <option value="MALE">Nam</option>
@@ -38,36 +53,53 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.dob || ""}
         onChange={e => setProfileData({ ...profileData, dob: e.target.value })}
+        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+        disabled={isLoading}
       />
       {errors?.dob && <p className="field-error">{errors.dob}</p>}
     </div>
 
-    {/* Trường (mặc định CMC University) */}
+    {/* Trường */}
     <div className="form-group">
       <label>Trường *</label>
-      <input
-        className="form-input"
-        value={profileData?.school || "CMC University"}
-        readOnly
+      <Autocomplete
+        freeSolo
+        options={schoolOptions}
+        value={profileData?.school || ""}
+        onChange={(event, newValue) => {
+          setProfileData({ ...profileData, school: newValue });
+        }}
+        onInputChange={(event, newInputValue) => {
+          setProfileData({ ...profileData, school: newInputValue });
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Trường *" variant="outlined" />
+        )}
+        disabled={isLoading}
       />
-    </div>
+      {errors?.school && <p className="field-error">{errors.school}</p>}
+      </div>
 
     {/* Ngành */}
     <div className="form-group">
       <label>Ngành *</label>
-      <select
-        className="form-input"
+      <Autocomplete
+        freeSolo
+        options={majorOptions}
         value={profileData?.major || ""}
-        onChange={e => setProfileData({ ...profileData, major: e.target.value })}
-      >
-        <option value="">-- Chọn ngành --</option>
-        <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-        <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
-        <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
-        <option value="Phân tích dữ liệu">Phân tích dữ liệu</option>
-      </select>
+        onChange={(event, newValue) => {
+          setProfileData({ ...profileData, major: newValue });
+        }}
+        onInputChange={(event, newInputValue) => {
+          setProfileData({ ...profileData, major: newInputValue });
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Ngành *" variant="outlined" />
+        )}
+        disabled={isLoading}
+      />
       {errors?.major && <p className="field-error">{errors.major}</p>}
-    </div>
+      </div>
 
     {/* GPA */}
     <div className="form-group">
@@ -88,6 +120,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
             e.target.value = "0.01";
           }
         }}
+        disabled={isLoading}
         required
       />
       {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
@@ -101,6 +134,7 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         value={profileData?.phone || ""}
         onChange={e => setProfileData({ ...profileData, phone: e.target.value })}
         placeholder="Ví dụ: 0987654321"
+        disabled={isLoading}
       />
       {errors?.phone && <p className="field-error">{errors.phone}</p>}
     </div>
@@ -112,14 +146,23 @@ const ProfileModal = ({ isEdit, intern, profileData, setProfileData, onClose, on
         className="form-input"
         value={profileData?.address || ""}
         onChange={e => setProfileData({ ...profileData, address: e.target.value })}
+        disabled={isLoading}
       />
       {errors?.address && <p className="field-error">{errors.address}</p>}
     </div>
 
     {/* Nút hành động */}
     <div className="modal-actions">
-      <button className="btn-cancel" onClick={onClose}>Hủy</button>
-      <button className="btn-save" onClick={onSubmit}>{isEdit ? "Cập nhật" : "Thêm hồ sơ"}</button>
+      <button className="btn-cancel" onClick={onClose} disabled={isLoading}>
+        Hủy
+      </button>
+      <LoadingButton
+        className="btn-save"
+        onClick={onSubmit}
+        isLoading={isLoading}
+      >
+        {isEdit ? "Cập nhật" : "Thêm hồ sơ"}
+      </LoadingButton>
     </div>
   </Modal>
 );

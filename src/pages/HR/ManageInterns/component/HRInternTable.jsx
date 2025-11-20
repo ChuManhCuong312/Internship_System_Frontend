@@ -1,7 +1,17 @@
 import React from "react";
 import HRInternRow from "./HRInternRow";
 
-const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
+const HRInternTable = ({
+  interns,
+  page,
+  size,
+  fetchInterns,
+  onEdit,
+  onView,
+  showDocuments = true,
+  showApproveActions = false,
+  showStatus = true
+}) => {
   const translateStatus = (status) => {
     switch (status) {
       case "PENDING":
@@ -18,6 +28,7 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
         return "Chưa gửi CV";
     }
   };
+const totalColumns = 8 + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
 
   return (
     <div className="users-table-container">
@@ -30,8 +41,9 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
             <th>Số điện thoại</th>
             <th>Ngành</th>
             <th>GPA</th>
-            <th>Tài liệu</th>
-            <th>Trạng thái</th>
+            {showDocuments && <th>Tài liệu</th>}
+            <th>Trường</th>
+            {showStatus && <th>Trạng thái</th>}
             <th>Hành động</th>
           </tr>
         </thead>
@@ -45,11 +57,15 @@ const HRInternTable = ({ interns, page, size, fetchInterns, onEdit }) => {
                 translateStatus={translateStatus}
                 onStatusChange={fetchInterns}
                 onEdit={onEdit}
+                onView={onView}
+                showDocuments={showDocuments}
+                showApproveActions={showApproveActions}
+                showStatus={showStatus}
               />
             ))
           ) : (
             <tr>
-              <td colSpan="9" style={{ textAlign: "center" }}>
+              <td colSpan={totalColumns} style={{ textAlign: "center" }}>
                 Không có dữ liệu thực tập sinh
               </td>
             </tr>
