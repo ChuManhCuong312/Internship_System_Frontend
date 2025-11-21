@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { authService } from "../services/authService";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -118,11 +119,26 @@ export const AuthProvider = ({ children }) => {
     Cookies.remove("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("fullName");
+    localStorage.removeItem("lastRoute");
     setUser(null);
     setToken(null);
     console.log("User logged out, token cleared");
   };
 
+  useEffect(() => {
+      const interceptor = axios.interceptors.response.use(
+        res => res,
+        err => {
+          if (err.response && err.response.status === 401) {
+            logout();
+            window.location.href = "/login";
+          }
+          return Promise.reject(err);
+        }
+      );
+
+      return () => axios.interceptors.response.eject(interceptor);
+    }, []);
   return (
     <AuthContext.Provider value={{ user, token, login, logout, setUser, loading }}>
       {children}
