@@ -105,19 +105,11 @@ if (!intern.phone?.match(/^0\d{9}$/)) {
     fetchInterns(true);
     fetchPendingCount();
   }, [searchTerm, majorFilter, schoolFilter]);
+
 useEffect(() => {
-  const fetchFilters = async () => {
-    try {
-      const majors = await hrApi.getAllMajors(token);
-      setMajorOptions(majors || []);
-      const schools = await hrApi.getAllSchools(token);
-      setSchoolOptions(schools || []);
-    } catch (err) {
-      console.error("Không thể tải danh sách filter:", err);
-    }
-  };
   if (token) fetchFilters();
 }, [token]);
+
 
   useEffect(() => {
     fetchInterns();
