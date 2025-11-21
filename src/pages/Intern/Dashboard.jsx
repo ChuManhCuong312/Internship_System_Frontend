@@ -1,16 +1,135 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import '../../styles/dashBoard.css';
 import avatar from "../../assets/avatar.png";
+import { AuthContext } from '../../context/AuthContext';
+import { getInternByUserId } from '../../api/internApi';
+import { getTodayAttendance, checkIn, checkOut } from '../../api/attendanceApi';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
+  const { user, token, loading: authLoading } = useContext(AuthContext);
+
+  const [internId, setInternId] = useState(null);
+  const [todayAttendance, setTodayAttendance] = useState(null);
+  const [hasCheckedIn, setHasCheckedIn] = useState(false);
+  const [hasCheckedOut, setHasCheckedOut] = useState(false);
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
+  const [attendanceError, setAttendanceError] = useState(null);
+
+  useEffect(() => {
+    const fetchInternId = async () => {
+      try {
+        if (authLoading || !token) return;
+
+        let userId = user?.userId;
+        if (!userId) {
+          const storedUserId = localStorage.getItem('userId');
+          if (storedUserId) {
+            userId = parseInt(storedUserId, 10);
+          }
+        }
+
+        if (!userId || Number.isNaN(userId)) {
+          setAttendanceError('Không tìm thấy thông tin thực tập sinh');
+          return;
+        }
+
+        const response = await getInternByUserId(token, userId);
+        const profile = response.internProfile || response;
+        const resolvedInternId =
+          profile.internId ||
+          profile.id ||
+          profile.internID ||
+          profile.intern_id;
+
+        if (!resolvedInternId) {
+          setAttendanceError('Không tìm thấy hồ sơ thực tập sinh');
+          return;
+        }
+
+        setInternId(resolvedInternId);
+      } catch (error) {
+        setAttendanceError('Không thể tải thông tin thực tập sinh');
+      }
+    };
+
+    fetchInternId();
+  }, [authLoading, token, user?.userId]);
+
+  useEffect(() => {
+    if (!token || !internId) return;
+    loadTodayAttendance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, internId]);
+
+  const loadTodayAttendance = async () => {
+    try {
+      setAttendanceLoading(true);
+      setAttendanceError(null);
+      const data = await getTodayAttendance(token, internId);
+      setTodayAttendance(data.attendance);
+      setHasCheckedIn(data.hasCheckedIn);
+      setHasCheckedOut(data.hasCheckedOut);
+    } catch (error) {
+      setAttendanceError('Không thể tải trạng thái chấm công hôm nay');
+      setTodayAttendance(null);
+      setHasCheckedIn(false);
+      setHasCheckedOut(false);
+    } finally {
+      setAttendanceLoading(false);
+    }
+  };
+
+  const handleQuickCheckIn = async () => {
+    try {
+      await checkIn(token, internId);
+      toast.success('Check-in thành công!');
+      loadTodayAttendance();
+    } catch (error) {
+      const message =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Lỗi khi check-in';
+      toast.error(message);
+    }
+  };
+
+  const handleQuickCheckOut = async () => {
+    try {
+      const result = await checkOut(token, internId);
+      const hours = Math.floor(result.workingMinutes / 60);
+      const minutes = result.workingMinutes % 60;
+      toast.success(`Check-out thành công! (Làm việc: ${hours}h ${minutes} phút)`);
+      loadTodayAttendance();
+    } catch (error) {
+      const message =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Lỗi khi check-out';
+      toast.error(message);
+    }
+  };
+
+  const formatTime = (value) => {
+    if (!value) return '--:--';
+    return value.substring(0, 5);
+  };
+
+  const checkInStatusText = attendanceLoading
+    ? 'Đang tải...'
+    : hasCheckedIn
+      ? (hasCheckedOut ? 'Đã hoàn tất' : 'Đã check-in')
+      : 'Chưa check-in';
+
   return (
     <div className="dashboard-layout">
       <InternSidebar />
       <div className="dashboard-content">
         <h2 className="page-title">Dashboard thực tập sinh</h2>
 
-        {/* Header Info */}
         <div className="stats-row">
           <div className="stat-card">
             <div className="stat-icon intern">📋</div>
@@ -23,7 +142,7 @@ const Dashboard = () => {
             <div className="stat-icon intern">✅</div>
             <div>
               <h4>Check-in hôm nay</h4>
-              <p className="stat-value">Đã checkin</p>
+              <p className="stat-value">{checkInStatusText}</p>
             </div>
           </div>
           <div className="stat-card">
@@ -42,7 +161,43 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        <div className="quick-checkin-card card">
+          <h4>Chấm công nhanh</h4>
+          {attendanceError && (
+            <p className="attendance-error-text">{attendanceError}</p>
+          )}
+          {!attendanceError && (
+            <>
+              <div className="attendance-times">
+                <div className="time-block">
+                  <span>Check-in</span>
+                  <strong>{formatTime(todayAttendance?.checkIn)}</strong>
+                </div>
+                <div className="time-block">
+                  <span>Check-out</span>
+                  <strong>{formatTime(todayAttendance?.checkOut)}</strong>
+                </div>
+              </div>
+              <div className="attendance-actions">
+                <button
+                  className="checkin-btn"
+                  onClick={handleQuickCheckIn}
+                  disabled={attendanceLoading || hasCheckedIn}
+                >
+                  {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
+                </button>
+                <button
+                  className="checkout-btn"
+                  onClick={handleQuickCheckOut}
+                  disabled={attendanceLoading || !hasCheckedIn || hasCheckedOut}
+                >
+                  {hasCheckedOut ? '✓ Đã check-out' : 'Check-out'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
         <div className="main-grid">
           <div className="card col-span-2">
             <h4>Nhiệm vụ gần đây</h4>
@@ -88,13 +243,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Bottom Section */}
         <div className="bottom-grid">
-          <div className="card">
-            <h4>Chấm công hôm nay</h4>
-            <p>Đã check-in lúc 08:15</p>
-            <button className="checkin-btn">Check-in</button>
-          </div>
           <div className="card">
             <h4>Thông báo mới</h4>
             <ul className="activity-list">
