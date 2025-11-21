@@ -21,10 +21,10 @@ const ProfileModal = ({
     <div className="form-group">
       <label>Họ tên *</label>
       <input
-        className="form-input"
+        className={`form-input ${isEdit ? "input-disabled" : ""}`}
         value={profileData?.full_name || ""}
-        onChange = {e => setProfileData({ ...profileData, full_name: e.target.value })}
-        disabled={isLoading}
+        onChange={e => setProfileData({ ...profileData, full_name: e.target.value })}
+        disabled={isEdit || isLoading}
       />
       {errors?.full_name && <p className="field-error">{errors.full_name}</p>}
     </div>
@@ -73,7 +73,7 @@ const ProfileModal = ({
           setProfileData({ ...profileData, school: newInputValue });
         }}
         renderInput={(params) => (
-          <TextField {...params} label="Trường *" variant="outlined" />
+          <TextField {...params} variant="outlined" className="form-input" />
         )}
         disabled={isLoading}
       />
@@ -94,7 +94,7 @@ const ProfileModal = ({
           setProfileData({ ...profileData, major: newInputValue });
         }}
         renderInput={(params) => (
-          <TextField {...params} label="Ngành *" variant="outlined" />
+          <TextField {...params} variant="outlined" className="form-input" />
         )}
         disabled={isLoading}
       />
