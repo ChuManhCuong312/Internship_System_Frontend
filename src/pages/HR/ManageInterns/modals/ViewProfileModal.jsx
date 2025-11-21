@@ -5,6 +5,13 @@ const ViewProfileModal = ({ intern, onClose }) => (
   <Modal title={`📋 Chi tiết hồ sơ: ${intern.fullName}`} onClose={onClose}>
     <div className="profile-details">
 
+     {/* Ảnh đại diện */}
+     {intern.avatar && (
+        <div className="profile-avatar">
+        <img src={intern.avatar} alt={intern.fullName} />
+     </div>
+     )}
+
       {/* Thông tin cá nhân */}
       <h3 className="section-title">👤 Thông tin cá nhân</h3>
       <div className="detail-row"><label>Họ tên:</label><span>{intern.fullName}</span></div>
