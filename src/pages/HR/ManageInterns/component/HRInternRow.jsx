@@ -14,7 +14,9 @@ const HRInternRow = ({
   onView,
   showDocuments = true,
   showApproveActions = false,
-  showStatus = true
+  showStatus = true,
+  isMatching = false,
+  appliedCriteria,
 }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -70,6 +72,16 @@ const HRInternRow = ({
     return `status-badge ${statusMap[status] || ""}`;
   };
 
+  const getButtonClass = (buttonType) => {
+    if (!appliedCriteria) return '';
+
+    if (buttonType === 'approve') {
+      return isMatching ? 'btn-bright' : 'btn-dim';
+    } else {
+      return !isMatching ? 'btn-bright' : 'btn-dim';
+    }
+  };
+
   return (
     <>
       <tr>
@@ -82,18 +94,17 @@ const HRInternRow = ({
 
         {showDocuments && (
           <td>
-            {intern.cvPath && (
-              <a href={intern.cvPath} target="_blank" rel="noopener noreferrer">
-                📄 CV
-              </a>
-            )}
-            {intern.cvPath && intern.permissionFile && " | "}
-            {intern.permissionFile && (
-              <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer">
-                📄 Đơn xin
-              </a>
+            {intern.status === "NO_FILE" ? (
+              <span className="doc-status">Chưa có</span>
+            ) : (
+              <div className="doc-list">
+                {intern.cvPath && <a href={intern.cvPath} target="_blank" rel="noopener noreferrer" className="doc-item">CV</a>}
+                {intern.permissionFile && <a href={intern.permissionFile} target="_blank" rel="noopener noreferrer" className="doc-item">Đơn xin</a>}
+                {intern.universityConfirm && <a href={intern.universityConfirm} target="_blank" rel="noopener noreferrer" className="doc-item">Xác nhận</a>}
+              </div>
             )}
           </td>
+
         )}
 
         <td>{intern.school}</td>
@@ -111,18 +122,20 @@ const HRInternRow = ({
             {showApproveActions && intern.status === "PENDING" ? (
               <>
                 <LoadingButton
-                  className="btn-approve"
+                  className={`btn-approve ${getButtonClass('approve')}`}
                   onClick={handleApprove}
                   isLoading={isApproving}
                   disabled={isRejecting}
+                  title={isMatching && appliedCriteria ? '✅ Phù hợp tiêu chí - Nên duyệt' : appliedCriteria && !isMatching ? '⚠️ Không phù hợp tiêu chí' : 'Duyệt hồ sơ'}
                 >
                   Duyệt
                 </LoadingButton>
                 <LoadingButton
-                  className="btn-reject"
+                  className={`btn-reject ${getButtonClass('reject')}`}
                   onClick={() => setShowRejectModal(true)}
                   isLoading={isRejecting}
                   disabled={isApproving}
+                  title={!isMatching && appliedCriteria ? '❌ Không phù hợp tiêu chí - Có thể từ chối' : appliedCriteria && isMatching ? '✅ Phù hợp tiêu chí' : 'Từ chối hồ sơ'}
                 >
                   Từ chối
                 </LoadingButton>
