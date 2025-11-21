@@ -1,5 +1,5 @@
 // src/pages/Auth/LoginPage.jsx
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import AuthLayout from "../../components/Auth/AuthLayout";
@@ -48,6 +48,23 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  const lastRoute = localStorage.getItem("lastRoute");
+
+  if (token) {
+    if (lastRoute) {
+      navigate(lastRoute, { replace: true });
+    } else {
+      // If no last route, go to dashboard by role
+      const role = localStorage.getItem("role") || user?.role;
+      if (role === "ADMIN") navigate("/admin/dashboard", { replace: true });
+      else if (role === "HR") navigate("/hr/dashboard", { replace: true });
+      else if (role === "MENTOR") navigate("/mentor/dashboard", { replace: true });
+      else navigate("/intern/dashboard", { replace: true });
+    }
+  }
+}, []);
 
   return (
     <AuthLayout>
