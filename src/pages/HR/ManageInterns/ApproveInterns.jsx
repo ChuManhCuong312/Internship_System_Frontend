@@ -96,23 +96,18 @@ const ApproveInterns = () => {
     return matches;
   };
 
-  useEffect(() => {
-    if (appliedCriteria) {
-      const matching = new Set();
-      interns.forEach((intern) => {
-        if (checkCriteria(intern)) {
-          matching.add(intern.internId);
-        }
-      });
-      setMatchingInterns(matching);
+useEffect(() => {
+  if (appliedCriteria) {
+    const filteredInterns = interns.filter(intern => checkCriteria(intern));
+    setInterns(filteredInterns);
 
-      if (matching.size > 0) {
-        toast.info(`🎯 Tìm thấy ${matching.size} hồ sơ phù hợp tiêu chí`);
-      } else {
-        toast.warning("⚠️ Không có hồ sơ nào phù hợp với tiêu chí đã chọn");
-      }
+    if (filteredInterns.length > 0) {
+      toast.info(`🎯 Tìm thấy ${filteredInterns.length} hồ sơ phù hợp tiêu chí`);
+    } else {
+      toast.warning("⚠️ Không có hồ sơ nào phù hợp với tiêu chí đã chọn");
     }
-  }, [appliedCriteria, interns]);
+  }
+}, [appliedCriteria]);
 
   const fetchInterns = async (resetPage = false) => {
     try {
@@ -159,6 +154,8 @@ const ApproveInterns = () => {
     setMajorFilter("");
     setSchoolFilter("");
     setPage(0);
+    setAppliedCriteria(null)
+    fetchInterns(true);
   };
 
   const handleAddProfilePage = () => {
@@ -173,6 +170,7 @@ const ApproveInterns = () => {
     setAppliedCriteria(null);
     setMatchingInterns(new Set());
     toast.info("✨ Đã xóa tiêu chí phê duyệt");
+    fetchInterns(true);
   };
 
   const handleUpdateIntern = async () => {
@@ -249,7 +247,6 @@ const ApproveInterns = () => {
           onOpenCriteria={() => setShowCriteriaModal(true)}
           appliedCriteria={appliedCriteria}
           onClearCriteria={handleClearCriteria}
-          matchingCount={matchingInterns.size}
         />
 
         <HRInternTable
