@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import '../../styles/dashBoard.css';
 import avatar from "../../assets/avatar.png";
@@ -129,12 +129,20 @@ const Dashboard = () => {
       <div className="dashboard-content">
         <h2 className="page-title">Dashboard thực tập sinh</h2>
 
+        {/* Header Info */}
         <div className="stats-row">
           <div className="stat-card">
             <div className="stat-icon intern">📋</div>
             <div>
               <h4>Nhiệm vụ đang làm</h4>
               <p className="stat-value">3/5</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon intern">✅</div>
+            <div>
+              <h4>Check-in hôm nay</h4>
+              <p className="stat-value">{checkInStatusText}</p>
             </div>
           </div>
           <div className="stat-card">
@@ -154,7 +162,7 @@ const Dashboard = () => {
         </div>
 
         <div className="quick-checkin-card card">
-          <h4>Chấm công</h4>
+          <h4>Chấm công nhanh</h4>
           {attendanceError && (
             <p className="attendance-error-text">{attendanceError}</p>
           )}
@@ -235,6 +243,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Bottom Section */}
         <div className="bottom-grid">
           <div className="card">
             <h4>Thông báo mới</h4>
