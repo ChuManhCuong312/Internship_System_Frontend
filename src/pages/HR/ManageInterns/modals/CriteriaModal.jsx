@@ -77,7 +77,7 @@ const CriteriaModal = ({ onClose, onApply, initialCriteria }) => {
                   checked={criteria.gpa.enabled}
                   onChange={() => handleCheckboxChange("gpa")}
                 />
-                <span className="criteria-title-text">📊 GPA</span>
+                <span className="criteria-title-text">GPA</span>
               </label>
             </div>
             {criteria.gpa.enabled && (
@@ -110,7 +110,7 @@ const CriteriaModal = ({ onClose, onApply, initialCriteria }) => {
                   checked={criteria.age.enabled}
                   onChange={() => handleCheckboxChange("age")}
                 />
-                <span className="criteria-title-text">🎂 Độ tuổi</span>
+                <span className="criteria-title-text">Độ tuổi</span>
               </label>
             </div>
             {criteria.age.enabled && (

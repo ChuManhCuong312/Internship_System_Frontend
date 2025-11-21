@@ -7,12 +7,21 @@ const ViewProfileModal = ({ intern, onClose }) => (
 
       {/* Thông tin cá nhân */}
       <h3 className="section-title">👤 Thông tin cá nhân</h3>
-      <div className="detail-row"><label>Họ tên:</label><span>{intern.fullName}</span></div>
-      <div className="detail-row"><label>Email:</label><span>{intern.email}</span></div>
-      <div className="detail-row"><label>Số điện thoại:</label><span>{intern.phone}</span></div>
-      <div className="detail-row"><label>Giới tính:</label><span>{intern.gender === "MALE" ? "Nam" : "Nữ"}</span></div>
-      <div className="detail-row"><label>Ngày sinh:</label><span>{new Date(intern.dob).toLocaleDateString('vi-VN')}</span></div>
-      <div className="detail-row"><label>Địa chỉ:</label><span>{intern.address}</span></div>
+      <div className="profile-header">
+        {intern.avatar && (
+          <div className="profile-avatar">
+            <img src={intern.avatar} alt={intern.fullName} />
+          </div>
+        )}
+        <div className="profile-info">
+          <div className="detail-row"><label>Họ tên:</label><span>{intern.fullName}</span></div>
+          <div className="detail-row"><label>Email:</label><span>{intern.email}</span></div>
+          <div className="detail-row"><label>Số điện thoại:</label><span>{intern.phone}</span></div>
+          <div className="detail-row"><label>Giới tính:</label><span>{intern.gender === "MALE" ? "Nam" : "Nữ"}</span></div>
+          <div className="detail-row"><label>Ngày sinh:</label><span>{new Date(intern.dob).toLocaleDateString('vi-VN')}</span></div>
+          <div className="detail-row"><label>Địa chỉ:</label><span>{intern.address}</span></div>
+        </div>
+      </div>
 
       {/* Thông tin học tập */}
       <h3 className="section-title">🎓 Thông tin học tập</h3>
