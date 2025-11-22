@@ -26,6 +26,7 @@ import Calendar from "./pages/Intern/Calendar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
+import LeaveRequest from "./pages/Intern/LeaveRequest";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -162,13 +163,14 @@ function App() {
               }
             />
             <Route
-              path="/intern/allowance"
+              path="/intern/leave-request"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
-                  <AllowanceRequest />
+                  <LeaveRequest />
                 </PrivateRoute>
-              }
+                         }
             />
+
             <Route
               path="/intern/support"
               element={
