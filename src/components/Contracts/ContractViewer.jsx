@@ -22,7 +22,7 @@ const ContractViewer = ({ contract, onConfirm }) => {
       </div>
 
       <Field label="Mã hợp đồng">{contract.code || contract.id}</Field>
-      <Field label="Ngày tạo">{new Date(contract.createdAt).toLocaleString()}</Field>
+      
       <Field label="Ngày hiệu lực">{contract.effectiveDate ? new Date(contract.effectiveDate).toLocaleDateString() : "-"}</Field>
       <Field label="Thời gian xác nhận">{contract.confirmedAt ? new Date(contract.confirmedAt).toLocaleString() : "Chưa xác nhận"}</Field>
 

@@ -3,11 +3,11 @@
 import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { toast } from 'react-toastify';
 import InternSidebar from '../../components/Layout/InternSidebar.jsx'; 
-// Đảm bảo các đường dẫn này chính xác và thêm .jsx nếu cần
-import ContractFilter from '../../components/Contract/ContractFilter.jsx'; 
-import ContractList from '../../components/Contract/ContractList.jsx'; 
-import ContractViewer from '../../components/Contract/ContractViewer.jsx'; 
-import ConfirmContractModal from '../../components/Contract/ConfirmContractModal.jsx'; 
+import ConfirmContractModal from '../../components/Contracts/ConfirmContractModal.jsx';
+import ContractFilter from '../../components/Contracts/ContractFilter.jsx';
+import ContractList from '../../components/Contracts/ContractList.jsx';
+import ContractStatusBadge from '../../components/Contracts/ContractStatusBadge.jsx';
+import ContractViewer from '../../components/Contracts/ContractViewer.jsx';
 import { AuthContext } from '../../context/AuthContext.jsx'; 
 import { getInternContracts, confirmContractApi } from '../../api/contractApi.js'; 
 import '../../styles/dashBoard.css'; 
@@ -32,6 +32,7 @@ const ContractPage = () => {
       // Backend controller có endpoint /intern/{internId}
       // Tôi giả định internId ở đây là userId của Intern
       const data = await getInternContracts(token, user.userId); 
+      console.log("DT: ", data.data);
       setContracts(data);
       // Mặc định chọn hợp đồng đầu tiên để hiển thị chi tiết
       if (data.length > 0) {
@@ -174,7 +175,7 @@ const ContractPage = () => {
                 code: selectedContract.id,
                 title: selectedContract.note || `Hợp đồng số ${selectedContract.id}`,
                 status: selectedContract.internConfirmStatus,
-                createdAt: selectedContract.createdAt,
+                
                 effectiveDate: selectedContract.confirmAt,
                 confirmedAt: selectedContract.confirmAt,
                 content: selectedContract.filePath // Hiển thị đường dẫn file hoặc nội dung

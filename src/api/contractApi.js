@@ -18,11 +18,14 @@ const axiosInstance = axios.create({
  */
 export const getInternContracts = async (token, internId) => {
   try {
-    const response = await axiosInstance.get(`/contracts/intern/${internId}`, {
+    const response = await axios.get(`/api/contracts/intern/${internId}`, {
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        
       },
     });
+    console.log("DT: ",response.data);
     // Giả định trả về một mảng chứa hợp đồng (để tương thích với ContractList)
     if (response.data) {
         // Nếu backend trả về 200 OK nhưng nội dung rỗng/null, trả về mảng rỗng
