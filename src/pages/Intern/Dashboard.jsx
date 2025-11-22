@@ -139,13 +139,6 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon intern">✅</div>
-            <div>
-              <h4>Check-in hôm nay</h4>
-              <p className="stat-value">{checkInStatusText}</p>
-            </div>
-          </div>
-          <div className="stat-card">
             <div className="stat-icon intern">📝</div>
             <div>
               <h4>Báo cáo tuần</h4>
@@ -162,7 +155,7 @@ const Dashboard = () => {
         </div>
 
         <div className="quick-checkin-card card">
-          <h4>Chấm công nhanh</h4>
+          <h4>Chấm công</h4>
           {attendanceError && (
             <p className="attendance-error-text">{attendanceError}</p>
           )}
