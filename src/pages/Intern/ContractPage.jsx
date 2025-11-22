@@ -53,39 +53,41 @@ const ContractPage = () => {
 
 
   // --- LOGIC LỌC HỢP ĐỒNG ---
-  const filteredContracts = useMemo(() => {
-    if (!contracts) return [];
+ // Trong file ContractPage.jsx
 
-    return contracts.filter(c => {
-      // Trạng thái hợp đồng của Intern được backend định nghĩa là internConfirmStatus
-      const confirmStatus = c.internConfirmStatus; 
-      
-      // Lọc theo trạng thái Intern Confirm Status (PENDING, APPROVED)
-      // Note: Trạng thái trong ContractFilter.jsx (PENDING, ACTIVE, COMPLETED...) 
-      // không hoàn toàn khớp với backend InternConfirmStatus (PENDING, APPROVED).
-      // Ta sẽ map: PENDING -> PENDING, ACTIVE/COMPLETED -> APPROVED.
-      let statusMatch = true;
-      if (filter.status) {
-          if (filter.status === 'PENDING') {
-            statusMatch = confirmStatus === 'PENDING';
-          } else if (filter.status === 'ACTIVE' || filter.status === 'COMPLETED') {
-            statusMatch = confirmStatus === 'APPROVED';
-          } 
-          // Các trạng thái khác (REJECTED, CANCELLED) sẽ không hiển thị trừ khi 
-          // backend có logic cụ thể cho các trạng thái đó.
-          // Tạm thời bỏ qua các trạng thái không xác định trong InternConfirmStatus.
-      }
-      
-      // Lọc theo tên/mã
-      // Giả định backend trả về field 'title' hoặc 'filePath' để tìm kiếm.
-      // Dùng chung trường q cho tìm kiếm.
-      const qMatch = !filter.q || 
-                     c.title?.toLowerCase().includes(filter.q.toLowerCase()) || 
-                     c.id?.toString().includes(filter.q.toLowerCase());
-      
-      return statusMatch && qMatch;
-    });
-  }, [contracts, filter]);
+const filteredContracts = useMemo(() => {
+  if (!contracts) return [];
+
+  // Chuẩn hóa chuỗi tìm kiếm: chữ thường + bỏ khoảng trắng thừa
+  const searchLower = filter.q ? filter.q.toLowerCase().trim() : "";
+
+  return contracts.filter(c => {
+    // 1. Logic lọc theo trạng thái (Giữ nguyên như cũ)
+    const confirmStatus = c.internConfirmStatus;
+    let statusMatch = true;
+    if (filter.status) {
+        if (filter.status === 'PENDING') {
+          statusMatch = confirmStatus === 'PENDING';
+        } else if (filter.status === 'ACTIVE' || filter.status === 'COMPLETED') {
+          statusMatch = confirmStatus === 'APPROVED';
+        } else {
+          // Nếu filter status khác các case trên, so sánh trực tiếp
+          statusMatch = confirmStatus === filter.status; 
+        }
+    }
+
+    // 2. Logic tìm kiếm (ĐÃ SỬA LỖI)
+    // Xác định tên hiển thị thực tế giống như lúc hiển thị trong bảng (ContractList)
+    // Nếu ở bảng bạn hiển thị c.note, thì ở đây phải tìm theo c.note
+    const displayTitle = c.note || c.title || `Hợp đồng số ${c.id}`; 
+    
+    const qMatch = !searchLower || 
+                   (displayTitle && displayTitle.toLowerCase().includes(searchLower)) || 
+                   (c.id && c.id.toString().includes(searchLower));
+    
+    return statusMatch && qMatch;
+  });
+}, [contracts, filter]);
 
   // --- LOGIC XỬ LÝ XÁC NHẬN ---
   const handleConfirm = async (contract) => {
