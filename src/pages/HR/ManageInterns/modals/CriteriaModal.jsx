@@ -54,7 +54,7 @@ const CriteriaModal = ({ onClose, onApply, initialCriteria }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content-criteria" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header-criteria">
-          <h2>⚙️ Thiết lập tiêu chí phê duyệt</h2>
+          <h2>Thiết lập tiêu chí phê duyệt</h2>
           <button className="modal-close-btn" onClick={onClose}>
             ×
           </button>
@@ -149,7 +149,7 @@ const CriteriaModal = ({ onClose, onApply, initialCriteria }) => {
           </div>
           <div className="modal-actions-group">
             <button className="btn-secondary-action" onClick={handleReset}>
-              🔄 Đặt lại
+              Đặt lại
             </button>
             <button className="btn-cancel-action" onClick={onClose}>
               Hủy
@@ -159,7 +159,7 @@ const CriteriaModal = ({ onClose, onApply, initialCriteria }) => {
               onClick={handleApply}
               disabled={getActiveCriteriaCount() === 0}
             >
-              ✅ Áp dụng tiêu chí
+              Áp dụng tiêu chí
             </button>
           </div>
         </div>
