@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import ContractFilter from '../../components/Contracts/ContractFilter';
-import ContractList from '../../components/Contract/ContractList';
+import ContractList from '../../components/Contracts/ContractList';
 import ContractViewer from '../../components/Contract/ContractViewer';
 import ConfirmContractModal from '../../components/Contract/ConfirmContractModal';
 import '../../styles/dashBoard.css'; // Giữ lại styles chung
