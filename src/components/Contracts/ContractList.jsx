@@ -11,7 +11,7 @@ const ContractList = ({ contracts, onSelect }) => {
             <th>#</th>
             <th>Tên hợp đồng</th>
             <th>Trạng thái</th>
-            <th>Ngày tạo</th>
+            
             <th>Ngày hiệu lực</th>
           </tr>
         </thead>
@@ -28,7 +28,7 @@ const ContractList = ({ contracts, onSelect }) => {
               <td>{idx + 1}</td>
               <td>{c.title}</td>
               <td><ContractStatusBadge status={c.status} /></td>
-              <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+              
               <td>{c.effectiveDate ? new Date(c.effectiveDate).toLocaleDateString() : "-"}</td>
             </tr>
           ))}
