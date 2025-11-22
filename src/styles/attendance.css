@@ -6,54 +6,6 @@
   margin-bottom: 24px;
 }
 
-/* Header Statistics Grid */
-.attendance-header-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-icon {
-  font-size: 32px;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f5f9;
-  border-radius: 10px;
-  flex-shrink: 0;
-}
-
-.stat-info h4 {
-  font-size: 13px;
-  color: #718096;
-  margin: 0 0 2px 0;
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-}
-
-.late-text {
-  color: #e53e3e;
-}
-
 /* Check-in Section */
 .checkin-section {
   margin-bottom: 24px;
@@ -121,7 +73,10 @@
 }
 
 .today-status {
-  text-align: center;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ margin-top: 12px;
 }
 
 .checkin-buttons {
@@ -179,33 +134,43 @@
 
 /* Status Badges */
 .status-badge {
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.on-time {
-  background: #e6fffa;
-  color: #22543d;
+ font-family: inherit;
+ display: inline-block;
+ padding: 6px 14px;
+ border-radius: 20px;
+ font-size: 20px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+ transition: all 0.3s ease;
 }
 
 .status-badge.late {
-  background: #fffaf0;
-  color: #9c4221;
+ background: #fffaf0;
+ color: #c53030;
+ font-weight: 700;
 }
+
+
+.status-badge.on-time {
+ background: #e6fffa;
+ color: #2c7a7b;
+ font-weight: 700;
+}
+
 
 .status-badge.incomplete {
-  background: #ecc94b;
-  color: #744210;
+ background: #fffbea;
+ color: #b7791f;
+ font-weight: 700;
 }
 
+
 .status-badge.absent {
-  background: #fff5f5;
-  color: #c53030;
+ background: #ffe5e5;
+ color: #c53030;
+ font-weight: 700;
 }
 
 /* History Section */
