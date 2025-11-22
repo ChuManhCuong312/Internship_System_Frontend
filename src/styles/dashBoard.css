@@ -160,9 +160,18 @@ body, html {
   margin-bottom: 20px;
 }
 
+.quick-checkin-card {
+max-width: 400px;
+  margin: 20px 0;
+}
+
+.quick-checkin-card h4 {
+  margin-bottom: 12px;
+}
+
 .bottom-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
