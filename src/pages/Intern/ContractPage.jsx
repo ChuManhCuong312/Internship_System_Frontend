@@ -3,7 +3,7 @@ import InternSidebar from '../../components/Layout/InternSidebar';
 import ContractFilter from '../../components/Contracts/ContractFilter';
 import ContractList from '../../components/Contracts/ContractList';
 import ContractViewer from '../../components/Contracts/ContractViewer';
-import ConfirmContractModal from '../../components/Contract/ConfirmContractModal';
+import ConfirmContractModal from '../../components/Contracts/ConfirmContractModal';
 import '../../styles/dashBoard.css'; // Giữ lại styles chung
 
 // Dữ liệu hợp đồng giả (Mock Data)
