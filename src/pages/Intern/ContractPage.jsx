@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
-import ContractFilter from '../../components/Contract/ContractFilter';
+import ContractFilter from '../../components/Contracts/ContractFilter';
 import ContractList from '../../components/Contract/ContractList';
 import ContractViewer from '../../components/Contract/ContractViewer';
 import ConfirmContractModal from '../../components/Contract/ConfirmContractModal';
