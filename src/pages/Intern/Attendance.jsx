@@ -256,45 +256,6 @@ const Attendance = () => {
       <div className="dashboard-content">
         <h2 className="page-title">Chấm công</h2>
 
-        {/* Header Statistics */}
-        <div className="attendance-header-grid">
-          <div className="stat-card">
-            <div className="stat-icon">📊</div>
-            <div className="stat-info">
-              <h4>Tổng ngày làm</h4>
-              <p className="stat-value">{statistics?.totalWorkingDays || 0} ngày</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">✅</div>
-            <div className="stat-info">
-              <h4>Đi đúng giờ</h4>
-              <p className="stat-value">{statistics?.onTimeDays || 0} ngày</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">⏰</div>
-            <div className="stat-info">
-              <h4>Đi muộn</h4>
-              <p className="stat-value late-text">{statistics?.lateDays || 0} ngày</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">📈</div>
-            <div className="stat-info">
-              <h4>Tỷ lệ đúng giờ</h4>
-              <p className="stat-value">
-                {statistics?.latePercentage
-                  ? `${(100 - statistics.latePercentage).toFixed(1)}%`
-                  : '100%'}
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Check-in/Check-out */}
         <div className="checkin-section">
           <div className="checkin-card">
