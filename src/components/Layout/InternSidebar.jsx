@@ -5,7 +5,10 @@ import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 import {
   FaHome, FaUser, FaCalendarAlt, FaClock, FaTasks,
-  FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars
+  FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars,
+  FaPage4,
+  FaPager,
+  FaBook
 } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { getInternByUserId } from '../../api/internApi';
@@ -172,6 +175,7 @@ const InternSidebar = () => {
 
         <li onClick={() => navigate("/intern/profiles")}>
           <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
+        <li onClick={() => navigate("/intern/contract")}><FaBook /> {expanded && <span>Hợp đồng</span>}</li>
         <li onClick={() => navigate("/intern/calendar")}><FaCalendarAlt /> {expanded && <span>Lịch & Chương trình</span>}</li>
         <li onClick={() => navigate("/intern/attendance")}><FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}</li>
         <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
