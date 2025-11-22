@@ -11,6 +11,7 @@ import ContractViewer from '../../components/Contracts/ContractViewer.jsx';
 import { AuthContext } from '../../context/AuthContext.jsx'; 
 import { getInternContracts, confirmContractApi } from '../../api/contractApi.js'; 
 import '../../styles/dashBoard.css'; 
+import '../../styles/contractPage.css';
 
 const ContractPage = () => {
   const { user, token } = useContext(AuthContext);
