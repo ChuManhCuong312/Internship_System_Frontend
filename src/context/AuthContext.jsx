@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }) => {
           Cookies.remove("user");
           Cookies.remove("userId");
           Cookies.remove("role");
+          Cookies.remove("internId");
         } else {
           // Parse stored user data from cookie
           const userData = JSON.parse(storedUser);
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }) => {
           console.log("Credentials restored from cookies:", {
             email: userData.email,
             userId: userData.userId,
+            internId: userData.internId,
             role: userData.role
           });
         }
@@ -59,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         Cookies.remove("user");
         Cookies.remove("userId");
         Cookies.remove("role");
+        Cookies.remove("internId");
       }
     } else {
       console.log("No stored credentials found");
@@ -92,7 +95,7 @@ export const AuthProvider = ({ children }) => {
         role: res.role,
         userId: res.userId,
         fullName: res.fullName || res["fullName:"],
-        internId: res.internId // Include internId if available
+        internId: res.internId // internId from login response (may be undefined)
       };
 
       // Store all sensitive data in secure cookies
