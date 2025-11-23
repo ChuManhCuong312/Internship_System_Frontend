@@ -16,8 +16,8 @@ const Allowances = () => {
   const [size, setSize] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [sortBy, setSortBy] = useState(null);
-  const [direction, setDirection] = useState("asc");
+  const [sortBy, setSortBy] = useState("dateApplied");
+  const [direction, setDirection] = useState("desc");
 
   // Modal states
   const [showModal, setShowModal] = useState(false);

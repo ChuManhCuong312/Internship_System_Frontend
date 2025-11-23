@@ -13,9 +13,35 @@ const MyAllowance = () => {
   const [size, setSize] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [internId, setInternId] = useState(null);
+  const [sortBy, setSortBy] = useState("dateApplied");
+  const [direction, setDirection] = useState("desc");
 
-  // Get internId from user profile
-  const internId = user?.internId;
+  // Fetch intern profile to get internId
+  useEffect(() => {
+    const fetchInternId = async () => {
+      try {
+        if (!token || !user?.userId) {
+          setLoading(false);
+          return;
+        }
+
+        // Import the API function
+        const { getInternByUserId } = await import('../../api/internApi');
+        const response = await getInternByUserId(token, user.userId);
+        
+        if (response?.internId || response?.id) {
+          setInternId(response.internId || response.id);
+        } else if (response?.internProfile?.internId) {
+          setInternId(response.internProfile.internId);
+        }
+      } catch (err) {
+        console.error('Error fetching intern profile:', err);
+      }
+    };
+
+    fetchInternId();
+  }, [token, user?.userId]);
 
   // Fetch allowances for current intern
   const fetchAllowances = async () => {
@@ -30,7 +56,9 @@ const MyAllowance = () => {
         token,
         internId,
         page,
-        size
+        size,
+        sortBy,
+        direction
       );
 
       // Handle both array and paginated responses
@@ -59,7 +87,7 @@ const MyAllowance = () => {
   useEffect(() => {
     setLoading(true);
     fetchAllowances();
-  }, [token, internId, page, size]);
+  }, [token, internId, page, size, sortBy, direction]);
 
   // Calculate statistics
   const totalAmount = allowances.reduce((sum, a) => sum + (a.amount || 0), 0);

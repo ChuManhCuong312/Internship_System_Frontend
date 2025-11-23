@@ -2,12 +2,19 @@
   display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
+  width: 100%;
+  overflow: hidden;
 }
 
 .allowance-content {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .allowance-header {
@@ -51,14 +58,21 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 50vh;
   margin-bottom: 30px;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
 }
 
 .allowance-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  min-width: 800px;
 }
 
 .allowance-table thead {
@@ -139,6 +153,11 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 20px;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .pagination-btn {
@@ -150,6 +169,8 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -165,8 +186,10 @@
 .pagination-info {
   color: #666;
   font-weight: 500;
-  min-width: 200px;
+  min-width: 120px;
   text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pagination-select {
@@ -178,6 +201,8 @@
   background: white;
   color: #333;
   transition: border-color 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pagination-select:focus {

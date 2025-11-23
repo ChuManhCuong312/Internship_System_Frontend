@@ -14,50 +14,63 @@ export const AuthProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
-   // Check  cookies
-   const cookieToken = Cookies.get("token");
+  // Cookie configuration for secure storage
+  const cookieOptions = {
+    expires: 1, // 1 day
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+    path: "/"
+  };
 
-   console.log("Checking for cookieToken token:", {
-     hasCookie: !!cookieToken
-   });
+  useEffect(() => {
+    // Check cookies for token and user data
+    const cookieToken = Cookies.get("token");
+    const storedUser = Cookies.get("user");
 
-   if (cookieToken) {
-     try {
-       const payload = jwtDecode(cookieToken);
-       // Kiểm tra hết hạn
-       if (payload.exp * 1000 < Date.now()) {
-         console.warn("Token expired");
-         Cookies.remove("token");
-       } else {
-         // Try to get userId from token payload, or fall back to stored userId
-         const userId = payload.userId;
-         const fullName = payload.fullName;
+    console.log("Checking for stored credentials:", {
+      hasToken: !!cookieToken,
+      hasUser: !!storedUser
+    });
 
-         setUser({
-           email: payload.sub || payload.email,
-           role: payload.role || "INTERN",
-           userId: userId,
-           fullName: fullName
-         });
-         setToken(cookieToken);
-         console.log("Token restored, user:", {
-           email: payload.sub || payload.email,
-           userId: userId
-         });
-       }
-     } catch (err) {
-       console.error("Invalid token", err);
-       Cookies.remove("token");
-     }
-   } else {
-     console.log("No cookieToken token found");
-   }
-   setLoading(false);
- }, []);
+    if (cookieToken && storedUser) {
+      try {
+        const payload = jwtDecode(cookieToken);
+        // Check token expiration
+        if (payload.exp * 1000 < Date.now()) {
+          console.warn("Token expired");
+          Cookies.remove("token");
+          Cookies.remove("user");
+          Cookies.remove("userId");
+          Cookies.remove("role");
+          Cookies.remove("internId");
+        } else {
+          // Parse stored user data from cookie
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+          setToken(cookieToken);
+          console.log("Credentials restored from cookies:", {
+            email: userData.email,
+            userId: userData.userId,
+            internId: userData.internId,
+            role: userData.role
+          });
+        }
+      } catch (err) {
+        console.error("Invalid token or user data", err);
+        Cookies.remove("token");
+        Cookies.remove("user");
+        Cookies.remove("userId");
+        Cookies.remove("role");
+        Cookies.remove("internId");
+      }
+    } else {
+      console.log("No stored credentials found");
+    }
+    setLoading(false);
+  }, []);
 
 
-  // Đăng nhập và lưu token
+  // Login and store all sensitive data in secure cookies
   const login = async (email, password) => {
     try {
       console.log("Attempting login for:", email);
@@ -67,7 +80,7 @@ export const AuthProvider = ({ children }) => {
       // Handle different token formats
       let jwt = res.token;
       if (typeof jwt === "string") {
-        jwt = jwt.replace("Bearer ", ""); // bỏ tiền tố "Bearer " nếu có
+        jwt = jwt.replace("Bearer ", ""); // Remove "Bearer " prefix if present
       }
 
       if (!jwt) {
@@ -76,32 +89,26 @@ export const AuthProvider = ({ children }) => {
 
       console.log("Token to store:", jwt.substring(0, 20) + "...");
 
-      // Store in both localStorage and cookies for reliability
-      Cookies.set("token", jwt, {
-        expires: 1, // 1 ngày
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-      });
-
-      console.log("Token stored cookies");
-
-      // Store full user data from login response
+      // Prepare user data
       const userData = {
         email: res.email,
         role: res.role,
         userId: res.userId,
-        fullName: res.fullName || res["fullName:"] // Handle both formats
+        fullName: res.fullName || res["fullName:"],
+        internId: res.internId // internId from login response (may be undefined)
       };
 
-      // Store userId and fullName in localStorage for persistence across page refreshes
-      // (since the JWT token doesn't contain userId)
-      if (userData.userId) {
-        localStorage.setItem("userId", String(userData.userId));
-      }
-      if (userData.fullName) {
-        localStorage.setItem("fullName", userData.fullName);
+      // Store all sensitive data in secure cookies
+      Cookies.set("token", jwt, cookieOptions);
+      Cookies.set("user", JSON.stringify(userData), cookieOptions);
+      Cookies.set("userId", String(userData.userId), cookieOptions);
+      Cookies.set("role", userData.role, cookieOptions);
+      
+      if (userData.internId) {
+        Cookies.set("internId", String(userData.internId), cookieOptions);
       }
 
+      console.log("All credentials stored in secure cookies");
       console.log("User data:", userData);
 
       setUser(userData);
@@ -111,18 +118,28 @@ export const AuthProvider = ({ children }) => {
       console.error("Login error:", err);
       // Clear any partial storage on error
       Cookies.remove("token");
+      Cookies.remove("user");
+      Cookies.remove("userId");
+      Cookies.remove("role");
+      Cookies.remove("internId");
       throw err;
     }
   };
 
   const logout = () => {
+    // Clear all sensitive data from cookies
     Cookies.remove("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("fullName");
+    Cookies.remove("user");
+    Cookies.remove("userId");
+    Cookies.remove("role");
+    Cookies.remove("internId");
+    
+    // Clear any remaining localStorage data
     localStorage.removeItem("lastRoute");
+    
     setUser(null);
     setToken(null);
-    console.log("User logged out, token cleared");
+    console.log("User logged out, all credentials cleared");
   };
 
   useEffect(() => {
