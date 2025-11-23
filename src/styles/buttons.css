@@ -11,8 +11,8 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
-  color: white;
+  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%) !important;
+  color: white !important;
   box-shadow: 0 4px 15px rgba(1, 87, 155, 0.3);
 }
 
@@ -42,7 +42,7 @@
 }
 
 .action-buttons button {
-  width: 110px;
+  min-width: 110px;
   padding: 8px 12px;
   border: none;
   border-radius: 8px;
@@ -51,10 +51,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  position: relative;
 }
 
 .btn-approve {
@@ -111,6 +112,78 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
   border-color: #ffa726;
+}
+.btn-view {
+  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(84, 110, 122, 0.3);
+}
+.btn-criteria {
+  background: #3b82f6;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.btn-criteria:hover {
+  background: #2563eb;
+}
+
+.btn-criteria-active {
+  background: #10b981;
+}
+.btn-confirm-reject {
+  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+}
+
+.btn-confirm-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(229, 57, 53, 0.4);
+}
+.btn-cancel {
+  background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%) !important;
+  color: #333 !important;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(189, 189, 189, 0.3);
+}
+
+.btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(189, 189, 189, 0.4);
 }
 
 

@@ -1,7 +1,9 @@
 /* Badges */
 .role-badge,
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -55,10 +57,34 @@ color: #c62828;
 border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
-=======
 .status-hợp-đồng-hoàn-tất {
   background: rgba(33, 150, 243, 0.2);
   color: #0d47a1;
   border: 1px solid rgba(33, 150, 243, 0.3);
 }
 
+.criteria-badge {
+  display: inline-flex;
+  align-items: center;
+justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #047857;
+  color: white;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.criteria-badge-clear {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: white;
+}
+
+.criteria-badge-clear:hover {
+  opacity: 0.8;
+}
