@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSpring, animated } from "@react-spring/web";
 import {
   FaHome, FaUser, FaChalkboardTeacher, FaTasks, FaClock,
-  FaLifeRing, FaChartBar, FaSignOutAlt, FaBars, FaRegUser
+  FaLifeRing, FaChartBar, FaSignOutAlt, FaBars, FaRegUser, FaMoneyBillWave
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
@@ -12,6 +12,7 @@ const HRSidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openProgramMenu, setOpenProgramMenu] = useState(false);
+  const [openBenefitsMenu, setOpenBenefitsMenu] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -66,7 +67,14 @@ const HRSidebar = () => {
         )}
         <li><FaTasks /> {expanded && <span>Công việc & Đánh giá</span>}</li>
         <li><FaClock /> {expanded && <span>Chấm công & Thời gian</span>}</li>
-        <li><FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}</li>
+        <li onClick={() => setOpenBenefitsMenu(!openBenefitsMenu)} className="menu-item">
+          <FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}
+        </li>
+        {expanded && openBenefitsMenu && (
+          <ul className="submenu">
+            <li><Link to="/hr/allowances">Quản lý trợ cấp</Link></li>
+          </ul>
+        )}
         <li><FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}</li>
         <li onClick={() => navigate("/Admin/InternProfile")}>
           <FaRegUser /> {expanded && <span>Tìm kiếm profile intern</span>}

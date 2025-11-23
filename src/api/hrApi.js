@@ -142,7 +142,60 @@ getAllMentors: async (token) => {
   return res.data;
 },
 
+// Allowance API methods
+getAllowances: async (token, page = 0, size = 10, sortBy = null, direction = "asc") => {
+  const params = { page, size };
+  if (sortBy) {
+    params.sortBy = sortBy;
+    params.direction = direction;
+  }
+  const res = await axios.get("http://localhost:8080/api/allowances", {
+    headers: { Authorization: `Bearer ${token}` },
+    params,
+  });
+  return res.data;
+},
 
+getAllowanceById: async (token, id) => {
+  const res = await axios.get(`http://localhost:8080/api/allowances/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+},
+
+getAllowancesByInternId: async (token, internId, page = 0, size = 10, sortBy = null, direction = "asc") => {
+  const params = { page, size };
+  if (sortBy) {
+    params.sortBy = sortBy;
+    params.direction = direction;
+  }
+  const res = await axios.get(`http://localhost:8080/api/allowances/intern/${internId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    params,
+  });
+  return res.data;
+},
+
+createAllowance: async (token, allowanceData) => {
+  const res = await axios.post("http://localhost:8080/api/allowances", allowanceData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+},
+
+updateAllowance: async (token, id, allowanceData) => {
+  const res = await axios.put(`http://localhost:8080/api/allowances/${id}`, allowanceData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+},
+
+deleteAllowance: async (token, id) => {
+  const res = await axios.delete(`http://localhost:8080/api/allowances/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+},
 
 };
 

@@ -20,9 +20,10 @@ import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import MyTasks from "./pages/Intern/MyTasks";
 import Attendance from "./pages/Intern/Attendance";
-import AllowanceRequest from "./pages/Intern/AllowanceRequest";
+import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
+import Allowances from "./pages/HR/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
@@ -117,6 +118,14 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/hr/allowances"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <Allowances />
+                </PrivateRoute>
+              }
+            />
 
             {/* Mentor routes */}
             <Route
@@ -165,7 +174,7 @@ function App() {
               path="/intern/allowance"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
-                  <AllowanceRequest />
+                  <MyAllowance />
                 </PrivateRoute>
               }
             />
