@@ -14,7 +14,64 @@ const ProfileModal = ({
   isLoading,
   schoolOptions = [],
   majorOptions = []
-}) => (
+}) => {
+      const handleGpaChange = (e) => {
+        let value = e.target.value;
+        
+        if (value === "") {
+          setProfileData({ ...profileData, gpa: "" });
+          return;
+        }
+
+        value = value.replace(/[^0-9.]/g, '');
+        
+        const parts = value.split('.');
+        if (parts.length > 2) {
+          value = parts[0] + '.' + parts.slice(1).join('');
+        }
+        
+        if (parts.length === 2 && parts[1].length > 2) {
+          value = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+
+        setProfileData({ ...profileData, gpa: value });
+      };
+
+      const handleGpaBlur = (e) => {
+        let value = e.target.value;
+
+        if (value === "" || value === null || value === undefined) {
+          setProfileData({ ...profileData, gpa: "" });
+          return;
+        }
+
+        const numValue = parseFloat(value);
+        
+        if (isNaN(numValue)) {
+          setProfileData({ ...profileData, gpa: "" });
+          return;
+        }
+
+        if (numValue > 4) {
+          value = "4";
+        } else if (numValue < 0) {
+          value = "0";
+        } else {
+
+          const rounded = Math.round((numValue + Number.EPSILON) * 100) / 100;
+          
+          if (Math.abs(rounded - Math.round(rounded)) < 0.001) {
+            value = Math.round(rounded).toString();
+          } else {
+            const formatted = rounded.toFixed(2);
+            value = formatted.replace(/\.?0+$/, '');
+          }
+        }
+
+        setProfileData({ ...profileData, gpa: value });
+      };
+
+      return (
   <Modal title={isEdit ? `Chỉnh sửa hồ sơ: ${intern?.fullName || ""}` : "Thêm hồ sơ mới"} onClose={onClose}>
 
     {/* Họ tên */}
@@ -103,28 +160,21 @@ const ProfileModal = ({
 
     {/* GPA */}
     <div className="form-group">
-      <label>GPA *</label>
-      <input
-        type="number"
-        step="0.01"
-        min="0.01"
-        max="4"
-        className="form-input"
-        value={profileData?.gpa || ""}
-        onChange={e => setProfileData({ ...profileData, gpa: e.target.value })}
-        onInput={e => {
-          if (parseFloat(e.target.value) > 4) {
-            e.target.value = "4";
-          }
-          if (parseFloat(e.target.value) < 0) {
-            e.target.value = "0.01";
-          }
-        }}
-        disabled={isLoading}
-        required
-      />
-      {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
-    </div>
+            <label>GPA *</label>
+            <input
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*\.?[0-9]{0,2}"
+              className="form-input"
+              value={profileData?.gpa || ""}
+              onChange={handleGpaChange}
+              onBlur={handleGpaBlur}
+              placeholder="0.00 - 4.00"
+              disabled={isLoading}
+              required
+            />
+            {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
+          </div>
 
     {/* Số điện thoại */}
     <div className="form-group">
@@ -166,5 +216,5 @@ const ProfileModal = ({
     </div>
   </Modal>
 );
-
+};
 export default ProfileModal;

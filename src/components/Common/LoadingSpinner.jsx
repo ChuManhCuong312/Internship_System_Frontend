@@ -15,15 +15,17 @@ export const LoadingSpinner = ({ size = "medium", fullScreen = false }) => {
   return <div className={`spinner ${sizeClass}`}></div>;
 };
 
-export const LoadingButton = ({ isLoading, children, className, ...props }) => {
+export const LoadingButton = ({ isLoading, children, className = "", ...props }) => {
   return (
     <button
       {...props}
-      className={className}
+      className={`loading-button ${className}`}
       disabled={isLoading || props.disabled}
     >
-      {isLoading && <span className="spinner-small spinner-inline"></span>}
-      <span>{children}</span>
+      <div className="loading-button-content">
+        {isLoading && <span className="spinner-small"></span>}
+        <span>{children}</span>
+      </div>
     </button>
   );
 };
