@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSpring, animated } from "@react-spring/web";
 import {
@@ -9,7 +9,10 @@ import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
 
 const HRSidebar = () => {
-  const [expanded, setExpanded] = useState(true);
+    const [expanded, setExpanded] = useState(() => {
+      const saved = localStorage.getItem("hrSidebarExpanded");
+      return saved ? JSON.parse(saved) : false;
+    });
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openProgramMenu, setOpenProgramMenu] = useState(false);
   const [openBenefitsMenu, setOpenBenefitsMenu] = useState(false);
@@ -28,12 +31,19 @@ const HRSidebar = () => {
     .slice(0, 2)
     .toUpperCase();
 
+useEffect(() => {
+  localStorage.setItem("hrSidebarExpanded", JSON.stringify(expanded));
+}, [expanded]);
+
   return (
-    <animated.div className="sidebar" style={sidebarStyle}>
+    <animated.div
+      className="sidebar"
+      style={sidebarStyle}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
+
       <div className="sidebar-header">
-        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
-          <FaBars />
-        </button>
         <div className="avatar-container">
           <div className="avatar-initials">{initials}</div>
           {expanded && (
