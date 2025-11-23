@@ -1,4 +1,5 @@
 import allowanceApi from "../../api/allowanceApi";
+import notificationApi from "../../api/notificationApi";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -48,14 +49,31 @@ export const handleSaveAllowance = async (
         cancelButtonText: "Hủy",
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await allowanceApi.createAllowance(token, formData);
+          const allowanceResponse = await allowanceApi.createAllowance(token, formData);
           toast.success("Thêm trợ cấp thành công");
+          
+          // Send notification to intern
+          try {
+            const notificationData = {
+              internId: formData.internId,
+              title: "Trợ cấp mới",
+              message: `Bạn đã nhận trợ cấp mới: ${formData.type} - ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(formData.amount)}`,
+              type: "ALLOWANCE",
+              relatedId: allowanceResponse?.allowanceId || null,
+              isRead: false,
+            };
+            await notificationApi.createNotification(token, notificationData);
+            console.log("Notification sent to intern");
+          } catch (notifErr) {
+            console.warn("Could not send notification:", notifErr.message);
+          }
+          
           onSuccess();
 
           // Show success alert
           await Swal.fire({
             title: "Thành công!",
-            text: "Trợ cấp đã được thêm mới.",
+            text: "Trợ cấp đã được thêm mới và thông báo đã được gửi.",
             icon: "success",
             confirmButtonColor: "#3085d6",
           });

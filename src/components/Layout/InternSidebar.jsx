@@ -3,6 +3,7 @@ import { useSpring, animated } from '@react-spring/web';
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
+import Cookies from 'js-cookie';
 import {
   FaHome, FaUser, FaCalendarAlt, FaClock, FaTasks,
   FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars,
@@ -12,6 +13,7 @@ import {
 } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { getInternByUserId } from '../../api/internApi';
+import notificationApi from '../../api/notificationApi';
 import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
@@ -26,11 +28,51 @@ const InternSidebar = () => {
   const navigate = useNavigate();
   const { user, token, logout, loading: authLoading } = useContext(AuthContext);
   const [internData, setInternData] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [internId, setInternId] = useState(null);
 
   // Save expanded state to localStorage
   useEffect(() => {
     localStorage.setItem('sidebarExpanded', JSON.stringify(expanded));
   }, [expanded]);
+
+  // Get internId from cookie
+  useEffect(() => {
+    try {
+      const cookieInternId = Cookies.get('internId');
+      if (cookieInternId) {
+        setInternId(parseInt(cookieInternId));
+      } else if (user?.internId) {
+        setInternId(user.internId);
+      }
+    } catch (err) {
+      console.error('Error getting intern ID:', err);
+    }
+  }, [user]);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (!token || !internId) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await notificationApi.getUnreadNotifications(token, internId);
+        if (Array.isArray(response)) {
+          setUnreadCount(response.length);
+        } else if (response.content) {
+          setUnreadCount(response.content.length);
+        }
+      } catch (err) {
+        console.error('Error fetching unread count:', err);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [token, internId]);
 
   // Fetch intern data to get avatar
   useEffect(() => {
@@ -198,7 +240,22 @@ const toggleAttendanceSubmenu = () => {
                )}
         <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
         <li onClick={() => navigate("/intern/allowance")}><FaLifeRing /> {expanded && <span>Quyền lợi & Phụ cấp</span>}</li>
-        <li><FaBell /> {expanded && <span>Thông báo</span>}</li>
+        <li onClick={() => navigate("/intern/notifications")} style={{ position: 'relative' }}>
+          <FaBell /> 
+          {unreadCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              width: '10px',
+              height: '10px',
+              backgroundColor: '#ef4444',
+              borderRadius: '50%',
+              display: 'inline-block'
+            }}></span>
+          )}
+          {expanded && <span>Thông báo</span>}
+        </li>
         <li onClick={() => navigate("/intern/support")}><FaRobot /> {expanded && <span>Hỗ trợ</span>}</li>
       </ul>
       {/* Footer */}

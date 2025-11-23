@@ -23,6 +23,7 @@ import Attendance from "./pages/Intern/Attendance";
 import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
+import Notifications from "./pages/Intern/Notifications";
 import Allowances from "./components/Allowances/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -201,6 +202,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
                   <Calendar />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/notifications"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <Notifications />
                 </PrivateRoute>
               }
             />
