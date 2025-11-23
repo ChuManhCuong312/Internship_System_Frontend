@@ -127,6 +127,14 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/hr/contracts"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <ManageContracts />
+                </PrivateRoute>
+              }
+            />
 
             {/* Mentor routes */}
             <Route
