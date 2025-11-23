@@ -197,6 +197,24 @@ deleteAllowance: async (token, id) => {
   return res.data;
 },
 
+filterAllowances: async (token, filters = {}, page = 0, size = 10) => {
+  const params = { page, size };
+  
+  // Add filter parameters if provided
+  if (filters.internId) params.internId = filters.internId;
+  if (filters.type) params.type = filters.type;
+  if (filters.minAmount) params.minAmount = filters.minAmount;
+  if (filters.maxAmount) params.maxAmount = filters.maxAmount;
+  if (filters.startDate) params.startDate = filters.startDate;
+  if (filters.endDate) params.endDate = filters.endDate;
+  
+  const res = await axios.get("http://localhost:8080/api/allowances/filter/search", {
+    headers: { Authorization: `Bearer ${token}` },
+    params,
+  });
+  return res.data;
+},
+
 };
 
 export default hrApi;
