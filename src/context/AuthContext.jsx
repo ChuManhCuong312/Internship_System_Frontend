@@ -90,13 +90,36 @@ export const AuthProvider = ({ children }) => {
       console.log("Token to store:", jwt.substring(0, 20) + "...");
 
       // Prepare user data
-      const userData = {
+      let userData = {
         email: res.email,
         role: res.role,
         userId: res.userId,
         fullName: res.fullName || res["fullName:"],
         internId: res.internId // internId from login response (may be undefined)
       };
+
+      // If user is INTERN and internId is not in login response, fetch it from API
+      if (userData.role === "INTERN" && !userData.internId) {
+        try {
+          const internResponse = await axios.get(
+            `http://localhost:8080/api/interns/user/${userData.userId}`,
+            { headers: { Authorization: `Bearer ${jwt}` } }
+          );
+          // Handle different response structures
+          if (internResponse.data?.internProfile?.internId) {
+            userData.internId = internResponse.data.internProfile.internId;
+            console.log("Fetched internId from internProfile:", userData.internId);
+          } else if (internResponse.data?.internId) {
+            userData.internId = internResponse.data.internId;
+            console.log("Fetched internId from root:", userData.internId);
+          } else if (internResponse.data?.id) {
+            userData.internId = internResponse.data.id;
+            console.log("Fetched internId (as id) from API:", userData.internId);
+          }
+        } catch (err) {
+          console.warn("Could not fetch internId from API:", err.message);
+        }
+      }
 
       // Store all sensitive data in secure cookies
       Cookies.set("token", jwt, cookieOptions);

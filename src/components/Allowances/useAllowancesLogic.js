@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import hrApi from "../../api/hrApi";
+import allowanceApi from "../../api/allowanceApi";
 import { toast } from "react-toastify";
 
 export const useAllowancesLogic = (token) => {
@@ -46,7 +46,7 @@ export const useAllowancesLogic = (token) => {
       }
 
       const currentPage = resetPage ? 0 : page;
-      const response = await hrApi.getAllowances(
+      const response = await allowanceApi.getAllowances(
         token,
         currentPage,
         size,
@@ -79,7 +79,7 @@ export const useAllowancesLogic = (token) => {
   const fetchFilteredAllowances = async (filters, currentPage = 0) => {
     try {
       setLoading(true);
-      const response = await hrApi.filterAllowances(token, filters, currentPage, size);
+      const response = await allowanceApi.filterAllowances(token, filters, currentPage, size);
 
       // Handle response
       if (response.content) {

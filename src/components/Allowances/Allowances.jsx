@@ -8,7 +8,7 @@ import AllowancesModal from "./AllowancesModal";
 import { useAllowancesLogic } from "./useAllowancesLogic";
 import { handleSaveAllowance, handleDeleteAllowance } from "./AllowancesActions";
 import { exportAllowancesToExcel } from "../../utils/excelExport";
-import hrApi from "../../api/hrApi";
+import allowanceApi from "../../api/allowanceApi";
 import { toast } from "react-toastify";
 import "../../styles/allowances.css";
 
@@ -22,7 +22,7 @@ const Allowances = () => {
       setIsExporting(true);
       
       // Fetch all allowances without pagination
-      const response = await hrApi.getAllAllowancesForExport(token);
+      const response = await allowanceApi.getAllAllowancesForExport(token);
       const allData = response.content || response;
       
       if (!allData || allData.length === 0) {

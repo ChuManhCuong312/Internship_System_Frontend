@@ -175,9 +175,17 @@ function App() {
               path="/intern/leave-request"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
+                  <LeaveRequest />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/allowance"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
                   <MyAllowance />
                 </PrivateRoute>
-                         }
+              }
             />
 
             <Route
