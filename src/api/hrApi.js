@@ -215,6 +215,19 @@ filterAllowances: async (token, filters = {}, page = 0, size = 10) => {
   return res.data;
 },
 
+getAllAllowancesForExport: async (token, sortBy = "dateApplied", direction = "desc") => {
+  const params = { page: 0, size: 10000 };
+  if (sortBy) {
+    params.sortBy = sortBy;
+    params.direction = direction;
+  }
+  const res = await axios.get("http://localhost:8080/api/allowances", {
+    headers: { Authorization: `Bearer ${token}` },
+    params,
+  });
+  return res.data;
+},
+
 };
 
 export default hrApi;
