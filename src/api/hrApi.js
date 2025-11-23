@@ -1,4 +1,5 @@
 import axios from "axios";
+import allowanceApi from "./allowanceApi.js";
 
 const API_URL = "http://localhost:8080/api/hr/interns";
 const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
@@ -142,92 +143,12 @@ getAllMentors: async (token) => {
   return res.data;
 },
 
-// Allowance API methods
-getAllowances: async (token, page = 0, size = 10, sortBy = null, direction = "asc") => {
-  const params = { page, size };
-  if (sortBy) {
-    params.sortBy = sortBy;
-    params.direction = direction;
-  }
-  const res = await axios.get("http://localhost:8080/api/allowances", {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
-getAllowanceById: async (token, id) => {
-  const res = await axios.get(`http://localhost:8080/api/allowances/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-getAllowancesByInternId: async (token, internId, page = 0, size = 10, sortBy = null, direction = "asc") => {
-  const params = { page, size };
-  if (sortBy) {
-    params.sortBy = sortBy;
-    params.direction = direction;
-  }
-  const res = await axios.get(`http://localhost:8080/api/allowances/intern/${internId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
-createAllowance: async (token, allowanceData) => {
-  const res = await axios.post("http://localhost:8080/api/allowances", allowanceData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-updateAllowance: async (token, id, allowanceData) => {
-  const res = await axios.put(`http://localhost:8080/api/allowances/${id}`, allowanceData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-deleteAllowance: async (token, id) => {
-  const res = await axios.delete(`http://localhost:8080/api/allowances/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-filterAllowances: async (token, filters = {}, page = 0, size = 10) => {
-  const params = { page, size };
-  
-  // Add filter parameters if provided
-  if (filters.internId) params.internId = filters.internId;
-  if (filters.type) params.type = filters.type;
-  if (filters.minAmount) params.minAmount = filters.minAmount;
-  if (filters.maxAmount) params.maxAmount = filters.maxAmount;
-  if (filters.startDate) params.startDate = filters.startDate;
-  if (filters.endDate) params.endDate = filters.endDate;
-  
-  const res = await axios.get("http://localhost:8080/api/allowances/filter/search", {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
-getAllAllowancesForExport: async (token, sortBy = "dateApplied", direction = "desc") => {
-  const params = { page: 0, size: 10000 };
-  if (sortBy) {
-    params.sortBy = sortBy;
-    params.direction = direction;
-  }
-  const res = await axios.get("http://localhost:8080/api/allowances", {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
 };
 
-export default hrApi;
+// Merge allowance API methods for backward compatibility
+const hrApiWithAllowance = {
+  ...hrApi,
+  ...allowanceApi,
+};
+
+export default hrApiWithAllowance;

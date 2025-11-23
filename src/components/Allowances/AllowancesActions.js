@@ -1,4 +1,4 @@
-import hrApi from "../../api/hrApi";
+import allowanceApi from "../../api/allowanceApi";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -22,7 +22,7 @@ export const handleSaveAllowance = async (
         cancelButtonText: "Hủy",
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await hrApi.updateAllowance(token, editingAllowance.allowanceId, formData);
+          await allowanceApi.updateAllowance(token, editingAllowance.allowanceId, formData);
           toast.success("Cập nhật trợ cấp thành công");
           onSuccess();
 
@@ -48,7 +48,7 @@ export const handleSaveAllowance = async (
         cancelButtonText: "Hủy",
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await hrApi.createAllowance(token, formData);
+          await allowanceApi.createAllowance(token, formData);
           toast.success("Thêm trợ cấp thành công");
           onSuccess();
 
@@ -82,7 +82,7 @@ export const handleDeleteAllowance = async (id, token, onSuccess) => {
     });
 
     if (result.isConfirmed) {
-      await hrApi.deleteAllowance(token, id);
+      await allowanceApi.deleteAllowance(token, id);
       toast.success("Xóa trợ cấp thành công");
       onSuccess();
 
