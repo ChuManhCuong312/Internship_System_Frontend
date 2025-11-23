@@ -1,0 +1,489 @@
+/* Contract Management Page Styles */
+
+.contract-content {
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.contract-header {
+  margin-bottom: 24px;
+}
+
+.contract-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #004d40;
+}
+
+/* Filters */
+.contract-filters {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contract-filters .search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.contract-filters .search-input:focus {
+  outline: none;
+  border-color: #00acc1;
+  box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.1);
+}
+
+.contract-filters .filter-select {
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.contract-filters .filter-select:focus {
+  outline: none;
+  border-color: #00acc1;
+}
+
+.clear-filter-btn {
+  padding: 10px 16px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.clear-filter-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Table Container */
+.contract-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.contract-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 1000px;
+}
+
+.contract-table thead {
+  background: linear-gradient(135deg, #00acc1 0%, #00838f 100%);
+  color: white;
+}
+
+.contract-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.contract-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s ease;
+}
+
+.contract-table tbody tr:hover {
+  background: #f5f7fb;
+}
+
+.contract-table td {
+  padding: 16px;
+  vertical-align: middle;
+}
+
+/* Contract Link */
+.contract-link {
+  color: #00acc1;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contract-link:hover {
+  color: #00838f;
+  text-decoration: underline;
+}
+
+.no-contract {
+  color: #999;
+  font-style: italic;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-not-upload {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-uploaded {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* Note Cell */
+.note-cell {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-upload {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.btn-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-download {
+  background: #28a745;
+  color: white;
+}
+
+.btn-download:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.btn-replace {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-replace:hover {
+  background: #e0a800;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* Upload Modal Form */
+.upload-contract-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.upload-contract-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upload-contract-form label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.upload-contract-form .file-hint {
+  font-weight: 400;
+  color: #666;
+  font-size: 12px;
+}
+
+.upload-contract-form .form-input,
+.upload-contract-form .form-textarea {
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.upload-contract-form .form-input:focus,
+.upload-contract-form .form-textarea:focus {
+  outline: none;
+  border-color: #00acc1;
+  box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.1);
+}
+
+.upload-contract-form .readonly {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.upload-contract-form .file-input {
+  padding: 10px;
+  border: 2px dashed #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.upload-contract-form .file-input:hover {
+  border-color: #00acc1;
+}
+
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f5f7fb;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.file-preview .file-name {
+  flex: 1;
+  font-weight: 500;
+  color: #333;
+}
+
+.file-preview .file-size {
+  color: #666;
+  font-size: 12px;
+}
+
+.btn-remove-file {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.3s ease;
+}
+
+.btn-remove-file:hover {
+  background: #c82333;
+}
+
+.current-contract-info {
+  padding: 12px;
+  background: #f5f7fb;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.current-contract-link {
+  color: #00acc1;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.current-contract-link:hover {
+  color: #00838f;
+  text-decoration: underline;
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.modal-actions .btn-cancel {
+  padding: 10px 20px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.modal-actions .btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+.modal-actions .btn-submit {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #00acc1 0%, #00838f 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.modal-actions .btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 172, 193, 0.4);
+}
+
+.modal-actions .btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  padding: 10px 16px;
+  background: #00acc1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #00838f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 172, 193, 0.4);
+}
+
+.pagination-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-select {
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contract-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contract-filters .search-input {
+    width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+

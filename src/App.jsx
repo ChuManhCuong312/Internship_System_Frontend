@@ -24,6 +24,7 @@ import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
 import Allowances from "./pages/HR/Allowances";
+import ManageContracts from "./pages/HR/ManageContracts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
@@ -124,6 +125,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <Allowances />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/contracts"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <ManageContracts />
                 </PrivateRoute>
               }
             />
