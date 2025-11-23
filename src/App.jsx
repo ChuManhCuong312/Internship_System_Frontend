@@ -23,7 +23,7 @@ import Attendance from "./pages/Intern/Attendance";
 import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
-import Allowances from "./pages/HR/Allowances";
+import Allowances from "./components/Allowances/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
