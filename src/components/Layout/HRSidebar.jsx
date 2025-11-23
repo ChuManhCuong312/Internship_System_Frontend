@@ -83,6 +83,7 @@ useEffect(() => {
         {expanded && openBenefitsMenu && (
           <ul className="submenu">
             <li><Link to="/hr/allowances">Quản lý trợ cấp</Link></li>
+            <li><Link to="/hr/contracts">Quản lý hợp đồng</Link></li>
           </ul>
         )}
         <li><FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}</li>
