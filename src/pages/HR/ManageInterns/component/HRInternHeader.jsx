@@ -1,5 +1,6 @@
 import React from "react";
-import "../../../../styles/manageUsers.css";
+import "../../../../styles/manageInterns.css";
+import "../../../../styles/buttons.css";
 
 const HRInternHeader = ({
   title = "Quản lý hồ sơ thực tập sinh",
