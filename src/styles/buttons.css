@@ -177,4 +177,25 @@
   box-shadow: 0 6px 15px rgba(189, 189, 189, 0.4);
 }
 
+.clear-filter-btn {
+  background: none !important;
+  border: none !important;
+  color: #d32f2f;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 !important;
+  margin: 0;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.clear-filter-btn:hover {
+  color: #b71c1c;
+  text-decoration: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
