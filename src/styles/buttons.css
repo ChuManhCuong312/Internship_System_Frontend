@@ -1,19 +1,13 @@
-.btn-primary,
-.btn-secondary {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
 .btn-primary {
   background: linear-gradient(135deg, #0288d1 0%, #01579b 100%) !important;
   color: white !important;
   box-shadow: 0 4px 15px rgba(1, 87, 155, 0.3);
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn-primary:hover {
@@ -68,9 +62,26 @@
   color: white;
 }
 
-.btn-edit {
-  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
-  color: white;
+.btn-edit,
+.btn-view {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.action-buttons .btn-edit {
+  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%) !important;
+  color: white !important;
+}
+
+.action-buttons .btn-view {
+  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%) !important;
+  color: white !important;
+}
+
+.action-buttons .btn-edit:hover,
+.action-buttons .btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-delete {
@@ -80,11 +91,6 @@
 
 .btn-unlock {
   background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
-  color: white;
-}
-
-.btn-view {
-  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
   color: white;
 }
 
@@ -113,22 +119,7 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
   border-color: #ffa726;
 }
-.btn-view {
-  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  font-weight: 500;
-}
 
-.btn-view:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(84, 110, 122, 0.3);
-}
 .btn-criteria {
   background: #3b82f6;
   color: white;

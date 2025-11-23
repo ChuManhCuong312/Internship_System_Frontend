@@ -4,6 +4,8 @@ import { AuthContext } from "../../../../context/AuthContext";
 import RejectModal from "../modals/RejectModal";
 import { LoadingButton } from "../../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
+import "../../../../styles/buttons.css";
+import "../../../../styles/badges.css";
 
 const HRInternRow = ({
   intern,
@@ -72,16 +74,6 @@ const HRInternRow = ({
     return `status-badge ${statusMap[status] || ""}`;
   };
 
-  const getButtonClass = (buttonType) => {
-    if (!appliedCriteria) return '';
-
-    if (buttonType === 'approve') {
-      return isMatching ? 'btn-bright' : 'btn-dim';
-    } else {
-      return !isMatching ? 'btn-bright' : 'btn-dim';
-    }
-  };
-
   return (
     <>
       <tr>
@@ -122,7 +114,7 @@ const HRInternRow = ({
             {showApproveActions && intern.status === "PENDING" ? (
               <>
                 <LoadingButton
-                  className={`btn-approve ${getButtonClass('approve')}`}
+                  className="btn-approve"
                   onClick={handleApprove}
                   isLoading={isApproving}
                   disabled={isRejecting}
@@ -131,7 +123,7 @@ const HRInternRow = ({
                   Duyệt
                 </LoadingButton>
                 <LoadingButton
-                  className={`btn-reject ${getButtonClass('reject')}`}
+                  className="btn-reject"
                   onClick={() => setShowRejectModal(true)}
                   isLoading={isRejecting}
                   disabled={isApproving}
