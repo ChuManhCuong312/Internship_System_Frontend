@@ -23,8 +23,8 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 15px;
-  padding: 48px;
-  max-width: 1800px;
+  padding: 25px;
+  max-width: 900px !important;
   width: 99%;
   max-height: 92vh;
   overflow-y: auto;
@@ -60,16 +60,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px !important;
   border-bottom: 2px solid rgba(1, 87, 155, 0.2);
   background: white !important;
   background-image: none !important;
+  padding: 15px !important;
 }
 
 .modal-header h3 {
   color: #01579b;
-  margin: 0;
   font-size: 22px;
 }
 

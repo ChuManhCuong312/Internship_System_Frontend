@@ -82,7 +82,7 @@ const HRInternHeader = ({
                   className={`btn-criteria ${appliedCriteria ? "btn-criteria-active" : ""}`}
                   onClick={onOpenCriteria}
                 >
-                  ⚙️ Tiêu chí
+                  Tiêu chí
                   {appliedCriteria && (
                     <span className="criteria-badge">
                       {matchingCount} phù hợp
