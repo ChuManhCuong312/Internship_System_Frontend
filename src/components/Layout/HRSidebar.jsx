@@ -71,7 +71,7 @@ useEffect(() => {
         </li>
         {expanded && openProgramMenu && (
           <ul className="submenu">
-            <li><Link to="#">Quản lý chương trình thực tập</Link></li>
+            <li><Link to="/hr/program">Quản lý chương trình thực tập</Link></li>
             <li><Link to="/hr/mentor-assigns">Phân công mentor</Link></li>
           </ul>
         )}
