@@ -23,8 +23,8 @@ import Attendance from "./pages/Intern/Attendance";
 import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
-import Allowances from "./pages/HR/Allowances";
-import ManageContracts from "./pages/HR/ManageContracts";
+import Notifications from "./pages/Intern/Notifications";
+import Allowances from "./components/Allowances/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
@@ -184,9 +184,17 @@ function App() {
               path="/intern/leave-request"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
+                  <LeaveRequest />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/allowance"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
                   <MyAllowance />
                 </PrivateRoute>
-                         }
+              }
             />
 
             <Route
@@ -202,6 +210,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
                   <Calendar />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/notifications"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <Notifications />
                 </PrivateRoute>
               }
             />
