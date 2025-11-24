@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import { AuthContext } from '../../context/AuthContext';
-import hrApi from '../../api/hrApi';
+import allowanceApi from '../../api/allowanceApi';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 import '../../styles/myAllowance.css';
 
 const MyAllowance = () => {
@@ -17,31 +18,29 @@ const MyAllowance = () => {
   const [sortBy, setSortBy] = useState("dateApplied");
   const [direction, setDirection] = useState("desc");
 
-  // Fetch intern profile to get internId
+  // Get internId from cookie or user context
   useEffect(() => {
-    const fetchInternId = async () => {
-      try {
-        if (!token || !user?.userId) {
-          setLoading(false);
-          return;
-        }
-
-        // Import the API function
-        const { getInternByUserId } = await import('../../api/internApi');
-        const response = await getInternByUserId(token, user.userId);
-        
-        if (response?.internId || response?.id) {
-          setInternId(response.internId || response.id);
-        } else if (response?.internProfile?.internId) {
-          setInternId(response.internProfile.internId);
-        }
-      } catch (err) {
-        console.error('Error fetching intern profile:', err);
+    try {
+      // Try to get internId from cookie first
+      const cookieInternId = Cookies.get('internId');
+      if (cookieInternId) {
+        setInternId(parseInt(cookieInternId));
+        return;
       }
-    };
 
-    fetchInternId();
-  }, [token, user?.userId]);
+      // Fallback to user context
+      if (user?.internId) {
+        setInternId(user.internId);
+        return;
+      }
+
+      // If no internId found, set loading to false
+      setLoading(false);
+    } catch (err) {
+      console.error('Error getting intern ID:', err);
+      setLoading(false);
+    }
+  }, [user]);
 
   // Fetch allowances for current intern
   const fetchAllowances = async () => {
@@ -52,7 +51,7 @@ const MyAllowance = () => {
         return;
       }
 
-      const response = await hrApi.getAllowancesByInternId(
+      const response = await allowanceApi.getAllowancesByInternId(
         token,
         internId,
         page,

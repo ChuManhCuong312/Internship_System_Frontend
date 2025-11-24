@@ -8,7 +8,8 @@ import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
 import ApproveInterns from "./pages/HR/ManageInterns/ApproveInterns";
-import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns"
+import Programs from "./pages/HR/ProgramTeam/ProgramManagement";
+import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -23,12 +24,13 @@ import Attendance from "./pages/Intern/Attendance";
 import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
-import Allowances from "./pages/HR/Allowances";
-import ManageContracts from "./pages/HR/ManageContracts";
+import Notifications from "./pages/Intern/Notifications";
+import Allowances from "./components/Allowances/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
+import ManageContracts from "./pages/HR/ManageContracts"
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -121,6 +123,14 @@ function App() {
               }
             />
             <Route
+              path="/hr/program"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <Programs />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/hr/allowances"
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
@@ -184,9 +194,17 @@ function App() {
               path="/intern/leave-request"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
+                  <LeaveRequest />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/allowance"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
                   <MyAllowance />
                 </PrivateRoute>
-                         }
+              }
             />
 
             <Route
@@ -202,6 +220,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
                   <Calendar />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/notifications"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <Notifications />
                 </PrivateRoute>
               }
             />
