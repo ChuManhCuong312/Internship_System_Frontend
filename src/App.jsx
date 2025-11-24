@@ -29,6 +29,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
+import ManageContracts from "./pages/HR/ManageContracts"
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
