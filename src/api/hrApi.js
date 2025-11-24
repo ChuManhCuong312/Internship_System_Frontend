@@ -1,4 +1,5 @@
 import axios from "axios";
+import allowanceApi from "./allowanceApi.js";
 
 const API_URL = "http://localhost:8080/api/hr/interns";
 const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
@@ -142,141 +143,12 @@ getAllMentors: async (token) => {
   return res.data;
 },
 
-// Allowance API methods
-getAllowances: async (token, page = 0, size = 10, sortBy = null, direction = "asc") => {
-  const params = { page, size };
-  if (sortBy) {
-    params.sortBy = sortBy;
-    params.direction = direction;
-  }
-  const res = await axios.get("http://localhost:8080/api/allowances", {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
-getAllowanceById: async (token, id) => {
-  const res = await axios.get(`http://localhost:8080/api/allowances/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-getAllowancesByInternId: async (token, internId, page = 0, size = 10, sortBy = null, direction = "asc") => {
-  const params = { page, size };
-  if (sortBy) {
-    params.sortBy = sortBy;
-    params.direction = direction;
-  }
-  const res = await axios.get(`http://localhost:8080/api/allowances/intern/${internId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
-createAllowance: async (token, allowanceData) => {
-  const res = await axios.post("http://localhost:8080/api/allowances", allowanceData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-updateAllowance: async (token, id, allowanceData) => {
-  const res = await axios.put(`http://localhost:8080/api/allowances/${id}`, allowanceData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-deleteAllowance: async (token, id) => {
-  const res = await axios.delete(`http://localhost:8080/api/allowances/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-},
-
-// Contract API methods
-getContracts: async (token, { searchTerm, status, page = 0, size = 10 } = {}) => {
-  const params = { page, size };
-  if (searchTerm) params.searchTerm = searchTerm;
-  if (status) params.status = status;
-
-  const res = await axios.get("http://localhost:8080/api/hr/contracts", {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
-  return res.data;
-},
-
-uploadContract: async (token, internId, file, note = "") => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("internId", internId);
-  if (note) formData.append("note", note);
-
-  const res = await axios.post(
-    `http://localhost:8080/api/hr/contracts/${internId}/upload`,
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return res.data;
-},
-
-replaceContract: async (token, documentId, file, note = "") => {
-  const formData = new FormData();
-  formData.append("file", file);
-  if (note) formData.append("note", note);
-
-  const res = await axios.patch(
-    `http://localhost:8080/api/hr/contracts/${documentId}/replace`,
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return res.data;
-},
-
-deleteContract: async (token, documentId) => {
-  const res = await axios.delete(
-    `http://localhost:8080/api/hr/contracts/${documentId}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-  return res.data;
-},
-
-downloadContract: async (token, documentId) => {
-  const res = await axios.get(
-    `http://localhost:8080/api/hr/contracts/${documentId}/download`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: "blob",
-    }
-  );
-  return res.data;
-},
-
-updateContractNote: async (token, documentId, note) => {
-  const res = await axios.patch(
-    `http://localhost:8080/api/hr/contracts/${documentId}/note`,
-    { note },
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-  return res.data;
-},
-
 };
 
-export default hrApi;
+// Merge allowance API methods for backward compatibility
+const hrApiWithAllowance = {
+  ...hrApi,
+  ...allowanceApi,
+};
+
+export default hrApiWithAllowance;
