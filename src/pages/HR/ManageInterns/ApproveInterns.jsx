@@ -10,6 +10,7 @@ import CandidatesModal from "./modals/CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
 import CriteriaModal from "./modals/CriteriaModal";
 import { HrContext } from "../../../context/HrContext";
+import "../../../styles/pagination.css";
 
 const ApproveInterns = () => {
   const { token } = useContext(AuthContext);
