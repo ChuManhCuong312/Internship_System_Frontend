@@ -13,6 +13,8 @@ import { getInternByUserId } from '../../api/internApi';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import '../../styles/attendance.css';
+import '../../styles/badges.css';
+import '../../styles/buttons.css';
 
 const Attendance = () => {
   const { user, token, loading: authLoading } = useContext(AuthContext);
@@ -194,6 +196,8 @@ const Attendance = () => {
       LATE: { label: 'Muộn', class: 'late' },
       INCOMPLETE: { label: 'Chưa hoàn thành', class: 'incomplete' },
       ABSENT: { label: 'Vắng', class: 'absent' },
+      INSUFFICIENT: { label: 'Không đủ giờ', class: 'insufficient' },
+      LATE_INSUFFICIENT: { label: 'Muộn + thiếu giờ', class: 'late-insufficient' },
     };
 
     const { label, class: className } = statusMap[status] || statusMap.INCOMPLETE;
@@ -293,7 +297,7 @@ const Attendance = () => {
 
             <div className="checkin-buttons">
               <button
-                className={`btn-primary ${hasCheckedIn ? 'disabled' : ''}`}
+                className={`btn-checkin ${hasCheckedIn ? 'disabled' : ''}`}
                 onClick={handleCheckIn}
                 disabled={hasCheckedIn}
               >
@@ -301,7 +305,7 @@ const Attendance = () => {
               </button>
 
               <button
-                className={`btn-secondary ${!hasCheckedIn || hasCheckedOut ? 'disabled' : ''}`}
+                className={`btn-checkout ${!hasCheckedIn || hasCheckedOut ? 'disabled' : ''}`}
                 onClick={handleCheckOut}
                 disabled={!hasCheckedIn || hasCheckedOut}
               >

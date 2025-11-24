@@ -192,3 +192,80 @@
   box-shadow: none !important;
 }
 
+.checkin-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.btn-primary:hover:not(.disabled) {
+  background: #f7fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary {
+  background: #f9fafb;
+  color: #1a202c;
+  border: 1px solid #cbd5e0;
+}
+
+.btn-secondary:hover:not(.disabled) {
+  background: #edf2f7;
+  transform: translateY(-1px);
+}
+
+.btn-primary.disabled,
+.btn-secondary.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Check-in button */
+.btn-checkin {
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 50px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-checkin:hover:not(.disabled) {
+  background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+}
+
+.btn-checkin.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Check-out button */
+.btn-checkout {
+  background: linear-gradient(135deg, #ff7043 0%, #e64a19 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 50px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-checkout:hover:not(.disabled) {
+  background: linear-gradient(135deg, #ff8a65 0%, #f4511e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 74, 25, 0.4);
+}
+
+.btn-checkout.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
