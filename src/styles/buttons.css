@@ -1,13 +1,8 @@
 .btn-primary {
-  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 15px rgba(1, 87, 155, 0.3);
-  padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+  background: #f3f4f6 !important;
+  color: #00335b !important;
+  border: 1px solid rgba(1, 87, 155, 0.3) !important;
+  max-width: 200px;
 }
 
 .btn-primary:hover {
@@ -69,13 +64,14 @@
 }
 
 .action-buttons .btn-edit {
-  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%) !important;
+  background: #01579b;
   color: white !important;
 }
 
 .action-buttons .btn-view {
-  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%) !important;
-  color: white !important;
+  background: #f3f4f6;
+  color: #00335b !important;
+  border: 1px solid rgba(1, 87, 155, 0.3);
 }
 
 .action-buttons .btn-edit:hover,
@@ -121,18 +117,15 @@
 }
 
 .btn-criteria {
-  background: #3b82f6;
-  color: white;
-  padding: 10px 20px;
+  background: #01579b !important;
+  color: white !important;
+  max-width: 200px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.2s ease;
+  border-radius: 10px;
 }
 
 .btn-criteria:hover {
