@@ -22,10 +22,6 @@
   }
 }
 
-.notification-icon {
-  font-size: 24px;
-}
-
 .notification-text {
   flex: 1;
   color: #856404;
