@@ -40,25 +40,19 @@ const ContractPage = () => {
     try {
       let internIdToUse = currentInternId;
 
-      // BƯỚC 1: Tìm Intern ID nếu chưa có
+      // BƯỚC 1: Tìm Intern ID
       if (!internIdToUse) {
         try {
           const responseData = await getInternByUserId(token, user.userId);
-          
-          // Xử lý DTO: lấy object internProfile bên trong nếu có
           const profile = responseData.internProfile || responseData; 
-          
-          // --- SỬA LỖI: Kiểm tra cả 'id' và 'internId' ---
-          const foundId = profile.id || profile.internId;
+          const foundId = profile.id || profile.internId; //
           
           if (foundId) {
             internIdToUse = foundId;
             setCurrentInternId(internIdToUse);
             console.log("✅ Tìm thấy Intern ID:", internIdToUse);
           } else {
-            console.warn("⚠️ Cấu trúc phản hồi API:", responseData);
-            console.warn("⚠️ Profile extracted:", profile);
-            throw new Error("Không tìm thấy trường ID (id/internId) trong hồ sơ thực tập");
+            throw new Error("Không tìm thấy ID trong hồ sơ thực tập");
           }
         } catch (error) {
           console.error("Lỗi lấy Intern Profile:", error);
@@ -70,12 +64,11 @@ const ContractPage = () => {
         }
       }
 
-      // BƯỚC 2: Lấy Hợp đồng bằng Intern ID tìm được
+      // BƯỚC 2: Lấy Hợp đồng
       if (internIdToUse) {
         const contractData = await getInternContracts(token, internIdToUse);
         setContracts(contractData);
       }
-
       setSelectedContract(null);
     } catch (err) {
       console.error("Failed to fetch data:", err);
@@ -96,7 +89,7 @@ const ContractPage = () => {
 
     return contracts.filter(c => {
       const id = getContractId(c);
-      const confirmStatus = c.internConfirmStatus; //
+      const confirmStatus = c.internConfirmStatus;
       let statusMatch = true;
       
       if (filter.status) {
@@ -114,13 +107,16 @@ const ContractPage = () => {
     });
   }, [contracts, filter]);
 
-  // --- 3. LOGIC XÁC NHẬN ---
+  // --- 3. LOGIC XÁC NHẬN (ĐÃ FIX LỖI) ---
   const handleConfirm = async (contract) => {
     const contractId = getContractId(contract);
     if (!contractId) return toast.error("Lỗi dữ liệu: Không tìm thấy ID hợp đồng");
 
-    const status = (contract.internConfirmStatus || '').toString().trim().toUpperCase();
-    if (status !== 'PENDING') {
+    
+    const original = contracts.find(c => getContractId(c) === contractId) || contract;
+    const status = (original.internConfirmStatus || '').toString().trim().toUpperCase();
+
+    if (status && status !== 'PENDING') {
       toast.warn("Hợp đồng này không ở trạng thái chờ xác nhận.");
       setIsModalOpen(false);
       return;
@@ -129,13 +125,20 @@ const ContractPage = () => {
     try {
       const apiResponse = await confirmContractApi(token, contractId);
       
-      // Update state cục bộ
+      // Update UI
       const updateList = (prev) => prev.map(c => 
         getContractId(c) === contractId ? { ...c, internConfirmStatus: 'APPROVED', confirmAt: new Date().toISOString() } : c
       );
 
       setContracts(updateList);
-      setSelectedContract(prev => ({ ...prev, internConfirmStatus: 'APPROVED', confirmAt: new Date().toISOString() }));
+      
+      // Cập nhật selectedContract bằng object đầy đủ đã update
+      const updatedFullContract = { 
+          ...original, 
+          internConfirmStatus: 'APPROVED', 
+          confirmAt: new Date().toISOString() 
+      };
+      setSelectedContract(updatedFullContract);
       
       toast.success("Xác nhận hợp đồng thành công!");
       setIsModalOpen(false);
@@ -145,8 +148,7 @@ const ContractPage = () => {
     }
   };
 
-  const handleOpenConfirmModal = (contract) => {
-    setSelectedContract(contract);
+  const handleOpenConfirmModal = () => {
     setIsModalOpen(true);
   };
 
@@ -168,7 +170,6 @@ const ContractPage = () => {
       <div className="dashboard-content">
         <h2 style={{ marginBottom: 20 }}>📑 Quản lý Hợp đồng</h2>
         
-        {/* VIEW CHÍNH */}
         <div className="contract-main-view">
           <ContractFilter filter={filter} onChange={setFilter} />
           
@@ -185,31 +186,30 @@ const ContractPage = () => {
                 };
               })} 
               onSelect={(contractData) => {
+                  // Khi click vào dòng -> Lưu object GỐC ĐẦY ĐỦ vào state
                   const fullContract = contracts.find(c => getContractId(c) === contractData.id);
                   setSelectedContract(fullContract);
               }} 
           />
         </div>
 
-        {/* POPUP VIEWER */}
         {selectedContract && (
           <ContractViewer 
             contract={{
               id: getContractId(selectedContract),
               code: getContractId(selectedContract),
               title: selectedContract.note || `Hợp đồng số ${getContractId(selectedContract)}`,
-              status: selectedContract.internConfirmStatus,
+              status: selectedContract.internConfirmStatus, // Mapping status cho Viewer
               effectiveDate: selectedContract.confirmAt,
               confirmedAt: selectedContract.confirmAt,
               content: selectedContract.filePath
             }} 
-            onConfirm={handleOpenConfirmModal}
+            onConfirm={handleOpenConfirmModal} // Gọi hàm mở modal
             onClose={() => setSelectedContract(null)} 
           />
         )}
       </div>
 
-      {/* MODAL CONFIRM */}
       <ConfirmContractModal 
         open={isModalOpen}
         contract={selectedContract ? {
