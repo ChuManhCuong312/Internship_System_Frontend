@@ -9,6 +9,7 @@ const HRInternTable = ({
   fetchInterns,
   onEdit,
   onView,
+  onApprove,
   showDocuments = true,
   showApproveActions = false,
   showStatus = true,
@@ -66,6 +67,7 @@ const HRInternTable = ({
                 onStatusChange={fetchInterns}
                 onEdit={onEdit}
                 onView={onView}
+                onApprove={onApprove}
                 showDocuments={showDocuments}
                 showApproveActions={showApproveActions}
                 showStatus={showStatus}

@@ -9,6 +9,7 @@ import HRInternHeader from "../ManageInterns/component/HRInternHeader";
 import CandidatesModal from "./modals/CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
 import CriteriaModal from "./modals/CriteriaModal";
+import ApproveModal from "./modals/ApproveModal";
 import { HrContext } from "../../../context/HrContext";
 import "../../../styles/pagination.css";
 
@@ -35,6 +36,9 @@ const ApproveInterns = () => {
 
   const [appliedCriteria, setAppliedCriteria] = useState(null);
   const [matchingInterns, setMatchingInterns] = useState(new Set());
+
+const [approvingIntern, setApprovingIntern] = useState(null);
+const [isApproving, setIsApproving] = useState(false);
 
   const validateIntern = (intern) => {
     const newErrors = {};
@@ -204,6 +208,21 @@ useEffect(() => {
     }
   };
 
+const handleApproveIntern = async () => {
+  try {
+    setIsApproving(true);
+    await hrApi.approveIntern(token, approvingIntern.internId);
+    toast.success("Duyệt hồ sơ thành công ✅");
+    setApprovingIntern(null);
+    fetchInterns();
+  } catch (err) {
+    console.error("Error approving intern:", err);
+    toast.error("Duyệt hồ sơ thất bại ❌");
+  } finally {
+    setIsApproving(false);
+  }
+};
+
   if (loading) {
     return (
       <div className="dashboard-layout">
@@ -255,6 +274,7 @@ useEffect(() => {
           size={size}
           fetchInterns={fetchInterns}
           onEdit={setEditingIntern}
+          onApprove={setApprovingIntern}
           showDocuments={true}
           showApproveActions={true}
           showStatus={true}
@@ -279,6 +299,15 @@ useEffect(() => {
             initialCriteria={appliedCriteria}
           />
         )}
+
+    {approvingIntern && (
+      <ApproveModal
+        intern={approvingIntern}
+        onClose={() => setApprovingIntern(null)}
+        onConfirm={handleApproveIntern}
+        isLoading={isApproving}
+      />
+    )}
 
         {editingIntern && (
           <ProfileModal
