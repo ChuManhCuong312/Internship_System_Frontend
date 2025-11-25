@@ -169,6 +169,11 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
                 setInternData(prev => ({ ...prev, ...updated }));
                 setIsEditing(false);
                 showToast("Cập nhật hồ sơ thành công!", "success");
+                
+                // Làm mới trang sau 1 giây để hiển thị dữ liệu cập nhật
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             }
         } catch (err) {
             console.error("Error saving profile:", err);
