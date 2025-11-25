@@ -12,6 +12,7 @@ import {
   FaBook
 } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
+import { NotificationContext } from '../../context/NotificationContext';
 import { getInternByUserId } from '../../api/internApi';
 import notificationApi from '../../api/notificationApi';
 import '../../styles/sideBar.css';
@@ -26,9 +27,10 @@ const InternSidebar = () => {
    return saved ? JSON.parse(saved) : false;
  });
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, token, logout, loading: authLoading } = useContext(AuthContext);
+  const { unreadCount, setUnreadCount } = useContext(NotificationContext);
   const [internData, setInternData] = useState(null);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [internId, setInternId] = useState(null);
 
   // Save expanded state to localStorage
