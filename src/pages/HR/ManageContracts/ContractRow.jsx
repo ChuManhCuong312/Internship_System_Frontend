@@ -67,21 +67,21 @@ const ContractRow = ({
                 onClick={() => onDownload(contract)}
                 title="Tải xuống"
               >
-                ⬇️
+                Tải xuống
               </button>
               <button
                 className="btn-replace"
                 onClick={() => onReplace(contract, true)}
                 title="Thay thế"
               >
-                🔄
+                Sửa
               </button>
               <button
                 className="btn-delete"
                 onClick={() => onDelete(contract)}
                 title="Xóa"
               >
-                🗑️
+                Xóa
               </button>
             </>
           ) : (
@@ -90,7 +90,7 @@ const ContractRow = ({
               onClick={() => onUpload(contract, false)}
               title="Upload hợp đồng"
             >
-              📤 Upload
+              Tải lên
             </button>
           )}
         </div>

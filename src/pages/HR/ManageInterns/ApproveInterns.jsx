@@ -9,6 +9,7 @@ import HRInternHeader from "../ManageInterns/component/HRInternHeader";
 import CandidatesModal from "./modals/CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
 import CriteriaModal from "./modals/CriteriaModal";
+import ApproveModal from "./modals/ApproveModal";
 import { HrContext } from "../../../context/HrContext";
 import "../../../styles/pagination.css";
 
@@ -36,6 +37,9 @@ const ApproveInterns = () => {
   const [appliedCriteria, setAppliedCriteria] = useState(null);
   const [matchingInterns, setMatchingInterns] = useState(new Set());
 
+const [approvingIntern, setApprovingIntern] = useState(null);
+const [isApproving, setIsApproving] = useState(false);
+
   const validateIntern = (intern) => {
     const newErrors = {};
     if (!intern.fullName?.trim()) newErrors.full_name = "Họ tên bắt buộc";
@@ -43,16 +47,7 @@ const ApproveInterns = () => {
     if (!intern.dob) newErrors.dob = "Ngày sinh bắt buộc";
     if (!intern.major) newErrors.major = "Ngành bắt buộc";
     if (!intern.gpa || intern.gpa <= 0 || intern.gpa > 4) newErrors.gpa = "GPA phải từ 0.01 đến 4";
-    if (!intern.phone?.match(/^0\d{9}$/)) {
-      newErrors.phone = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
-    } else {
-      const isDuplicate = interns.some(
-        (i) => i.phone === intern.phone && i.internId !== intern.internId
-      );
-      if (isDuplicate) {
-        newErrors.phone = "Số điện thoại đã tồn tại";
-      }
-    }
+    if (!intern.phone) newErrors.phone = "Số điện thoại bắt buộc";
     if (!intern.address?.trim()) newErrors.address = "Địa chỉ bắt buộc";
     return newErrors;
   };
@@ -178,33 +173,55 @@ useEffect(() => {
     const newErrors = validateIntern(editingIntern);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      Object.values(newErrors).forEach(msg => toast.error(msg));
       return;
     }
     try {
       setIsUpdating(true);
-
       const updateData = {
-        school: editingIntern.school,
-        major: editingIntern.major,
-        dob: editingIntern.dob,
-        address: editingIntern.address,
-        gender: editingIntern.gender,
-        gpa: parseFloat(editingIntern.gpa),
-        phone: editingIntern.phone,
-      };
-
+                  school: editingIntern.school,
+                  major: editingIntern.major,
+                  dob: editingIntern.dob,
+                  address: editingIntern.address,
+                  gender: editingIntern.gender,
+                  gpa: parseFloat(editingIntern.gpa),
+                  phone: editingIntern.phone,
+                };
       await hrApi.updateInternProfile(token, editingIntern.internId, updateData);
       toast.success("Cập nhật hồ sơ thành công ✅");
       setEditingIntern(null);
       fetchInterns();
     } catch (err) {
       console.error("Error updating intern:", err);
-      toast.error("Cập nhật hồ sơ thất bại ❌");
+      if (err.response?.status === 400) {
+        let msg = err.response.data;
+        if (typeof msg === "string") {
+          const match = msg.match(/interpolatedMessage='([^']+)'/);
+          if (match) msg = match[1];
+        }
+        toast.error(msg || "Dữ liệu không hợp lệ ❌");
+      } else {
+        toast.error("Cập nhật hồ sơ thất bại ❌");
+      }
     } finally {
       setIsUpdating(false);
     }
   };
 
+const handleApproveIntern = async () => {
+  try {
+    setIsApproving(true);
+    await hrApi.updateInternStatus(token, approvingIntern.internId, "APPROVED");
+    toast.success("Duyệt hồ sơ thành công ✅");
+    setApprovingIntern(null);
+    fetchInterns();
+  } catch (err) {
+    console.error("Error approving intern:", err);
+    toast.error("Duyệt hồ sơ thất bại ❌");
+  } finally {
+    setIsApproving(false);
+  }
+};
   if (loading) {
     return (
       <div className="dashboard-layout">
@@ -256,6 +273,7 @@ useEffect(() => {
           size={size}
           fetchInterns={fetchInterns}
           onEdit={setEditingIntern}
+          onApprove={setApprovingIntern}
           showDocuments={true}
           showApproveActions={true}
           showStatus={true}
@@ -280,6 +298,15 @@ useEffect(() => {
             initialCriteria={appliedCriteria}
           />
         )}
+
+    {approvingIntern && (
+      <ApproveModal
+        intern={approvingIntern}
+        onClose={() => setApprovingIntern(null)}
+        onConfirm={handleApproveIntern}
+        isLoading={isApproving}
+      />
+    )}
 
         {editingIntern && (
           <ProfileModal
