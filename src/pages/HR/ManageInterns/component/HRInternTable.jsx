@@ -1,5 +1,6 @@
 import React from "react";
 import HRInternRow from "./HRInternRow";
+import "../../../../styles/buttons.css";
 
 const HRInternTable = ({
   interns,

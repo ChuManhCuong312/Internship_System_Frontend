@@ -12,7 +12,7 @@ body, html {
 
 .dashboard-content {
   flex: 1;
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  background: #ffff;
   padding: 24px;
   overflow-y: auto;
   font-family: "Inter", sans-serif;
@@ -83,6 +83,7 @@ body, html {
   cursor: pointer;
   width: 100%;
   transition: background 0.2s ease;
+    padding: 10 12px;
 }
 .checkin-btn:hover {
   background-color: #0056b3;
@@ -103,6 +104,7 @@ body, html {
   cursor: pointer;
   width: 100%;
   transition: background 0.2s ease;
+    padding: 0 12px;
 }
 
 .checkout-btn:hover {
@@ -119,6 +121,7 @@ body, html {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+  padding: 0 12px;
 }
 
 .time-block {
@@ -144,6 +147,7 @@ body, html {
 .attendance-actions {
   display: flex;
   gap: 12px;
+  margin-top: 12px;
 }
 
 .attendance-error-text {
@@ -163,10 +167,12 @@ body, html {
 .quick-checkin-card {
 max-width: 400px;
   margin: 20px 0;
+   padding: 20px;
 }
 
 .quick-checkin-card h4 {
   margin-bottom: 12px;
+    padding: 0 12px;
 }
 
 .bottom-grid {

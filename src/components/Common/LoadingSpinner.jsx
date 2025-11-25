@@ -22,10 +22,7 @@ export const LoadingButton = ({ isLoading, children, className = "", ...props })
       className={`loading-button ${className}`}
       disabled={isLoading || props.disabled}
     >
-      <div className="loading-button-content">
-        {isLoading && <span className="spinner-small"></span>}
-        <span>{children}</span>
-      </div>
+      {children}
     </button>
   );
 };
