@@ -1,0 +1,139 @@
+.emptyState {
+  display: flex;
+  height: 24rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 2px dashed #d1d5db;
+  background-color: #f9fafb;
+}
+
+.emptyStateContent {
+  text-align: center;
+}
+
+.emptyStateTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.emptyStateSubtitle {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 1rem;
+}
+
+.timelineConnector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.timelineDot {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  border: 4px solid #ffffff;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dotProgram {
+  background-color: #3b82f6;
+}
+
+.dotTask {
+  background-color: #22c55e;
+}
+
+.dotDeadline {
+  background-color: #ef4444;
+}
+
+.timelineLine {
+  height: 4rem;
+  width: 0.25rem;
+  background-color: #e5e7eb;
+}
+
+.eventCard {
+  flex: 1;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+}
+
+.eventProgram {
+  background-color: #f0f9ff;
+}
+
+.eventTask {
+  background-color: #f0fdf4;
+}
+
+.eventDeadline {
+  background-color: #fef2f2;
+}
+
+.eventCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.eventType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4b5563;
+}
+
+.eventTitle {
+  margin-top: 0.25rem;
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.eventDescription {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.eventDate {
+  text-align: right;
+}
+
+.eventDateMain {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.eventDateDue {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.eventDetails {
+  margin-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
