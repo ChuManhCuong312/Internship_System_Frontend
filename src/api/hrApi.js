@@ -1,10 +1,10 @@
 import axios from "axios";
 import allowanceApi from "./allowanceApi.js";
 
-const API_URL = "http://localhost:8081/api/hr/interns";
-const API_URL_MENTOR_ASSIGN = "http://localhost:8081/api/hr/mentor-assignments";
-const API_URL_MENTOR = "http://localhost:8081/api/mentors";
-const API_URL_CONTRACTS = "http://localhost:8081/api/hr/contracts";
+const API_URL = "http://localhost:8080/api/hr/interns";
+const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
+const API_URL_MENTOR = "http://localhost:8080/api/mentors";
+const API_URL_CONTRACTS = "http://localhost:8080/api/hr/contracts";
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
