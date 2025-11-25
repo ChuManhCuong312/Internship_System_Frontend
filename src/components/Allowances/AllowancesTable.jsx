@@ -20,7 +20,7 @@ const AllowancesTable = ({
             <th onClick={() => onSort("internId")}>
               ID TTS {sortBy === "internId" && (direction === "asc" ? "↑" : "↓")}
             </th>
-            <th>Tên TTS</th>
+            <th>Tên thực tập sinh</th>
             <th onClick={() => onSort("type")}>
               Loại {sortBy === "type" && (direction === "asc" ? "↑" : "↓")}
             </th>
