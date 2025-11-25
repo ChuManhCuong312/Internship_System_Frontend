@@ -10,7 +10,7 @@ export const useAllowancesLogic = (token) => {
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [sortBy, setSortBy] = useState("allowanceId");
-  const [direction, setDirection] = useState("asc");
+  const [direction, setDirection] = useState("desc");
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
