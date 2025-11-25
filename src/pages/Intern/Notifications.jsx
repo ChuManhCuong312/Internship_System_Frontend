@@ -39,13 +39,23 @@ const Notifications = () => {
         setLoading(true);
         const response = await notificationApi.getInternNotifications(token, internId);
         
+        // Normalize data: convert 'read' field to 'isRead'
+        const normalizeNotifications = (data) => {
+          return data.map(n => ({
+            ...n,
+            isRead: n.isRead !== undefined ? n.isRead : n.read
+          }));
+        };
+        
         if (Array.isArray(response)) {
-          setNotifications(response);
-          const unread = response.filter(n => !n.isRead).length;
+          const normalized = normalizeNotifications(response);
+          setNotifications(normalized);
+          const unread = normalized.filter(n => !n.isRead).length;
           setUnreadCount(unread);
         } else if (response.content) {
-          setNotifications(response.content);
-          const unread = response.content.filter(n => !n.isRead).length;
+          const normalized = normalizeNotifications(response.content);
+          setNotifications(normalized);
+          const unread = normalized.filter(n => !n.isRead).length;
           setUnreadCount(unread);
         }
       } catch (err) {
@@ -83,6 +93,31 @@ const Notifications = () => {
     return colors[type] || '#667eea';
   };
 
+  const handleMarkAsRead = async (notificationId, isRead) => {
+    if (isRead) return; // Nếu đã đọc rồi thì không làm gì
+
+    try {
+      const response = await notificationApi.markNotificationAsRead(token, notificationId);
+      
+      // Cập nhật state notifications
+      setNotifications(prev => 
+        prev.map(n => 
+          n.notificationId === notificationId 
+            ? { ...n, isRead: true, read: true }
+            : n
+        )
+      );
+      
+      // Cập nhật unreadCount
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      toast.success('Đã đánh dấu thông báo đã đọc');
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+      toast.error('Không thể đánh dấu thông báo đã đọc');
+    }
+  };
+
   if (loading) {
     return (
       <div className="notification-layout">
@@ -115,6 +150,8 @@ const Notifications = () => {
                 <div 
                   key={notification.notificationId} 
                   className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
+                  onClick={() => handleMarkAsRead(notification.notificationId, notification.isRead)}
+                  style={{ cursor: 'pointer' }}
                 >
                   <div className="notification-icon">
                     <span style={{ fontSize: '24px' }}>
