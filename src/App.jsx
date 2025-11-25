@@ -8,7 +8,8 @@ import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
 import ApproveInterns from "./pages/HR/ManageInterns/ApproveInterns";
-import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns"
+import Programs from "./pages/HR/ProgramTeam/ProgramManagement";
+import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -20,13 +21,16 @@ import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import MyTasks from "./pages/Intern/MyTasks";
 import Attendance from "./pages/Intern/Attendance";
-import AllowanceRequest from "./pages/Intern/AllowanceRequest";
+import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
-import ContractPage from "./pages/Intern/ContractPage";
+import Notifications from "./pages/Intern/Notifications";
+import Allowances from "./components/Allowances/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
+import LeaveRequest from "./pages/Intern/LeaveRequest";
+import ManageContracts from "./pages/HR/ManageContracts"
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -118,6 +122,30 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/hr/program"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <Programs />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/allowances"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <Allowances />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/contracts"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <ManageContracts />
+                </PrivateRoute>
+              }
+            />
 
             {/* Mentor routes */}
             <Route
@@ -163,13 +191,22 @@ function App() {
               }
             />
             <Route
-              path="/intern/allowance"
+              path="/intern/leave-request"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
-                  <AllowanceRequest />
+                  <LeaveRequest />
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/intern/allowance"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <MyAllowance />
+                </PrivateRoute>
+              }
+            />
+
             <Route
               path="/intern/support"
               element={
@@ -187,10 +224,10 @@ function App() {
               }
             />
             <Route
-              path="/intern/contract"
+              path="/intern/notifications"
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
-                  <ContractPage />
+                  <Notifications />
                 </PrivateRoute>
               }
             />

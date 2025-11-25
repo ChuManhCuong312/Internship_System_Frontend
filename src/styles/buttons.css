@@ -1,19 +1,8 @@
-.btn-primary,
-.btn-secondary {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
 .btn-primary {
-  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(1, 87, 155, 0.3);
+  background: #f3f4f6 !important;
+  color: #00335b !important;
+  border: 1px solid rgba(1, 87, 155, 0.3) !important;
+  max-width: 200px;
 }
 
 .btn-primary:hover {
@@ -42,7 +31,7 @@
 }
 
 .action-buttons button {
-  width: 110px;
+  min-width: 110px;
   padding: 8px 12px;
   border: none;
   border-radius: 8px;
@@ -51,10 +40,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  position: relative;
 }
 
 .btn-approve {
@@ -67,9 +57,27 @@
   color: white;
 }
 
-.btn-edit {
-  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
-  color: white;
+.btn-edit,
+.btn-view {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.action-buttons .btn-edit {
+  background: #01579b;
+  color: white !important;
+}
+
+.action-buttons .btn-view {
+  background: #f3f4f6;
+  color: #00335b !important;
+  border: 1px solid rgba(1, 87, 155, 0.3);
+}
+
+.action-buttons .btn-edit:hover,
+.action-buttons .btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-delete {
@@ -79,11 +87,6 @@
 
 .btn-unlock {
   background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
-  color: white;
-}
-
-.btn-view {
-  background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
   color: white;
 }
 
@@ -113,4 +116,156 @@
   border-color: #ffa726;
 }
 
+.btn-criteria {
+  background: #01579b !important;
+  color: white !important;
+  max-width: 200px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+}
 
+.btn-criteria:hover {
+  background: #2563eb;
+}
+
+.btn-criteria-active {
+  background: #10b981;
+}
+.btn-confirm-reject {
+  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+}
+
+.btn-confirm-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(229, 57, 53, 0.4);
+}
+.btn-cancel {
+  background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%) !important;
+  color: #333 !important;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(189, 189, 189, 0.3);
+}
+
+.btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(189, 189, 189, 0.4);
+}
+
+.clear-filter-btn {
+  background: none !important;
+  border: none !important;
+  color: #d32f2f;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 !important;
+  margin: 0;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.clear-filter-btn:hover {
+  color: #b71c1c;
+  text-decoration: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.checkin-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.btn-primary:hover:not(.disabled) {
+  background: #f7fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary {
+  background: #f9fafb;
+  color: #1a202c;
+  border: 1px solid #cbd5e0;
+}
+
+.btn-secondary:hover:not(.disabled) {
+  background: #edf2f7;
+  transform: translateY(-1px);
+}
+
+.btn-primary.disabled,
+.btn-secondary.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Check-in button */
+.btn-checkin {
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 50px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-checkin:hover:not(.disabled) {
+  background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+}
+
+.btn-checkin.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Check-out button */
+.btn-checkout {
+  background: linear-gradient(135deg, #ff7043 0%, #e64a19 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 50px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-checkout:hover:not(.disabled) {
+  background: linear-gradient(135deg, #ff8a65 0%, #f4511e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 74, 25, 0.4);
+}
+
+.btn-checkout.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

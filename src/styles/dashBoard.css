@@ -12,7 +12,7 @@ body, html {
 
 .dashboard-content {
   flex: 1;
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  background: #ffff;
   padding: 24px;
   overflow-y: auto;
   font-family: "Inter", sans-serif;
@@ -83,9 +83,77 @@ body, html {
   cursor: pointer;
   width: 100%;
   transition: background 0.2s ease;
+    padding: 10 12px;
 }
 .checkin-btn:hover {
   background-color: #0056b3;
+}
+
+.checkin-btn:disabled {
+  background-color: #aac8ff;
+  cursor: not-allowed;
+}
+
+.checkout-btn {
+  background-color: #10b981;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s ease;
+    padding: 0 12px;
+}
+
+.checkout-btn:hover {
+  background-color: #059669;
+}
+
+.checkout-btn:disabled {
+  background-color: #8de4c4;
+  cursor: not-allowed;
+}
+
+.attendance-times {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0 12px;
+}
+
+.time-block {
+  flex: 1;
+  background: #f5f7fb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.time-block span {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.time-block strong {
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.attendance-error-text {
+  color: #e53e3e;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
 /* === Layout grids === */
@@ -96,9 +164,20 @@ body, html {
   margin-bottom: 20px;
 }
 
+.quick-checkin-card {
+max-width: 400px;
+  margin: 20px 0;
+   padding: 20px;
+}
+
+.quick-checkin-card h4 {
+  margin-bottom: 12px;
+    padding: 0 12px;
+}
+
 .bottom-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 

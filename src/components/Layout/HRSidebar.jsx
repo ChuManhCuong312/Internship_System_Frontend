@@ -1,17 +1,21 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSpring, animated } from "@react-spring/web";
 import {
   FaHome, FaUser, FaChalkboardTeacher, FaTasks, FaClock,
-  FaLifeRing, FaChartBar, FaSignOutAlt, FaBars, FaRegUser
+  FaLifeRing, FaChartBar, FaSignOutAlt, FaBars, FaRegUser, FaMoneyBillWave
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
 
 const HRSidebar = () => {
-  const [expanded, setExpanded] = useState(true);
+    const [expanded, setExpanded] = useState(() => {
+      const saved = localStorage.getItem("hrSidebarExpanded");
+      return saved ? JSON.parse(saved) : false;
+    });
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openProgramMenu, setOpenProgramMenu] = useState(false);
+  const [openBenefitsMenu, setOpenBenefitsMenu] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -27,12 +31,19 @@ const HRSidebar = () => {
     .slice(0, 2)
     .toUpperCase();
 
+useEffect(() => {
+  localStorage.setItem("hrSidebarExpanded", JSON.stringify(expanded));
+}, [expanded]);
+
   return (
-    <animated.div className="sidebar" style={sidebarStyle}>
+    <animated.div
+      className="sidebar"
+      style={sidebarStyle}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
+
       <div className="sidebar-header">
-        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
-          <FaBars />
-        </button>
         <div className="avatar-container">
           <div className="avatar-initials">{initials}</div>
           {expanded && (
@@ -60,13 +71,21 @@ const HRSidebar = () => {
         </li>
         {expanded && openProgramMenu && (
           <ul className="submenu">
-            <li><Link to="#">Quản lý chương trình thực tập</Link></li>
+            <li><Link to="/hr/program">Quản lý chương trình thực tập</Link></li>
             <li><Link to="/hr/mentor-assigns">Phân công mentor</Link></li>
           </ul>
         )}
         <li><FaTasks /> {expanded && <span>Công việc & Đánh giá</span>}</li>
         <li><FaClock /> {expanded && <span>Chấm công & Thời gian</span>}</li>
-        <li><FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}</li>
+        <li onClick={() => setOpenBenefitsMenu(!openBenefitsMenu)} className="menu-item">
+          <FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}
+        </li>
+        {expanded && openBenefitsMenu && (
+          <ul className="submenu">
+            <li><Link to="/hr/allowances">Quản lý trợ cấp</Link></li>
+            <li><Link to="/hr/contracts">Quản lý hợp đồng</Link></li>
+          </ul>
+        )}
         <li><FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}</li>
         <li onClick={() => navigate("/Admin/InternProfile")}>
           <FaRegUser /> {expanded && <span>Tìm kiếm profile intern</span>}
