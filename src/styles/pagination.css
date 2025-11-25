@@ -13,14 +13,13 @@
 }
 
 .pagination-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  padding: 8px 16px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  background: linear-gradient(135deg, #0288d1 0%, #01579b 100%) !important;
+  color: white !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
 }
 
 .pagination-btn:hover:not(:disabled) {
