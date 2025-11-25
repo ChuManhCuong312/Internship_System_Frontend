@@ -240,3 +240,49 @@
   color: #666;
   cursor: not-allowed;
 }
+
+.approve-modal {
+  margin-bottom: 20px;
+}
+
+.approve-modal__section {
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.approve-modal__section--documents {
+  background-color: #f0f9ff;
+}
+
+.approve-modal__heading {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.warning-box {
+  padding: 16px;
+  background-color: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.warning-box p {
+  margin: 8px 0 0 0;
+}
+
+.highlight-value {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.doc-status {
+  color: #6b7280;
+  font-size: 14px;
+  font-style: italic;
+}
