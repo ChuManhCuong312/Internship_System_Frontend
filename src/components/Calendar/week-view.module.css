@@ -1,0 +1,202 @@
+.emptyState {
+  display: flex;
+  height: 24rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 2px dashed #d1d5db;
+  background-color: #f9fafb;
+}
+
+.emptyStateContent {
+  text-align: center;
+}
+
+.emptyStateTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.emptyStateSubtitle {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.week {
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.dayHeaderCell {
+  border-right: 1px solid #e5e7eb;
+  padding: 1rem;
+  text-align: center;
+}
+
+.dayHeaderCell:last-child {
+  border-right: none;
+}
+
+.dayHeaderToday {
+  background-color: #f0f9ff;
+}
+
+.dayName {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+.dayDateNumber {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-top: 0.25rem;
+  color: #111827;
+}
+
+.dayDateToday {
+  color: #2563eb;
+}
+
+.dayMonth {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.weekContent {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  min-height: 24rem;
+}
+
+.dayColumn {
+  border-right: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  background-color: #ffffff;
+}
+
+.dayColumn:last-child {
+  border-right: none;
+}
+
+.dayColumnToday {
+  background-color: #f0f9ff;
+}
+
+.dayColumnAlt {
+  background-color: #f9fafb;
+}
+
+.eventsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.noEvents {
+  font-size: 0.75rem;
+  color: #d1d5db;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.eventItem {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-left: 4px solid;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.eventItem:hover {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.eventProgram {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-left-color: #1e3a8a;
+}
+
+.eventTask {
+  background-color: #22c55e;
+  color: #ffffff;
+  border-left-color: #15803d;
+}
+
+.eventDeadline {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-left-color: #7f1d1d;
+}
+
+.eventTitle {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventDueDate {
+  margin-top: 0.25rem;
+  opacity: 0.9;
+}
+
+.eventSummary {
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  padding: 0.75rem 1rem;
+}
+
+.summaryLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.summaryBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.summaryBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badgeProgram {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badgeTask {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badgeDeadline {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
