@@ -43,16 +43,8 @@ const validateIntern = (intern) => {
   if (!intern.dob) newErrors.dob = "Ngày sinh bắt buộc";
   if (!intern.major) newErrors.major = "Ngành bắt buộc";
   if (!intern.gpa || intern.gpa <= 0 || intern.gpa > 4) newErrors.gpa = "GPA phải từ 0.01 đến 4";
-if (!intern.phone?.match(/^0\d{9}$/)) {
-    newErrors.phone = "Số điện thoại phải bắt đầu bằng 0 và có 10 số";
-  } else {
-    const isDuplicate = interns.some(
-      (i) => i.phone === intern.phone && i.internId !== intern.internId
-    );
-    if (isDuplicate) {
-      newErrors.phone = "Số điện thoại đã tồn tại";
-    }
-  }  if (!intern.address?.trim()) newErrors.address = "Địa chỉ bắt buộc";
+  if (!intern.phone) newErrors.phone = "Số điện thoại bắt buộc";
+  if (!intern.address?.trim()) newErrors.address = "Địa chỉ bắt buộc";
   return newErrors;
 };
 
@@ -122,48 +114,35 @@ useEffect(() => {
   };
 
   const handleUpdateIntern = async () => {
-      const newErrors = validateIntern(editingIntern);
-        if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          return;
-        }
+    const newErrors = validateIntern(editingIntern);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      Object.values(newErrors).forEach(msg => toast.error(msg));
+      return;
+    }
     try {
       setIsUpdating(true);
-
-      const schoolValue = editingIntern.school === "OTHER"
-        ? editingIntern.customSchool
-        : editingIntern.school;
-
-      const majorValue = editingIntern.major === "OTHER"
-        ? editingIntern.customMajor
-        : editingIntern.major;
       const updateData = {
-        school: editingIntern.school,
-        major: editingIntern.major,
-        dob: editingIntern.dob,
-        address: editingIntern.address,
-        gender: editingIntern.gender,
-        gpa: parseFloat(editingIntern.gpa),
-        phone: editingIntern.phone
-      };
-
+            school: editingIntern.school,
+            major: editingIntern.major,
+            dob: editingIntern.dob,
+            address: editingIntern.address,
+            gender: editingIntern.gender,
+            gpa: parseFloat(editingIntern.gpa),
+            phone: editingIntern.phone,
+          };
       await hrApi.updateInternProfile(token, editingIntern.internId, updateData);
       toast.success("Cập nhật hồ sơ thành công ✅");
       setEditingIntern(null);
       fetchInterns();
     } catch (err) {
       console.error("Error updating intern:", err);
-
       if (err.response?.status === 400) {
         let msg = err.response.data;
-
         if (typeof msg === "string") {
           const match = msg.match(/interpolatedMessage='([^']+)'/);
-          if (match) {
-            msg = match[1];
-          }
+          if (match) msg = match[1];
         }
-
         toast.error(msg || "Dữ liệu không hợp lệ ❌");
       } else {
         toast.error("Cập nhật hồ sơ thất bại ❌");
