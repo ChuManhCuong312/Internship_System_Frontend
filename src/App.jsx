@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 import MentorDashboard from "./pages/Mentor/Dashboard";
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
@@ -56,6 +57,7 @@ function App() {
   return (
     <UserProvider>
       <InternsProvider>
+        <NotificationProvider>
           <HrProvider>
         <Router>
           <Routes>
@@ -248,6 +250,7 @@ function App() {
                     />
         </Router>
          </HrProvider>
+        </NotificationProvider>
       </InternsProvider>
     </UserProvider>
   );

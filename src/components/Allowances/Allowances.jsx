@@ -41,7 +41,7 @@ const Allowances = () => {
   };
 
   const handleSave = async () => {
-    const newErrors = logic.validateForm();
+    const newErrors = await logic.validateForm();
     if (Object.keys(newErrors).length > 0) {
       logic.setErrors(newErrors);
       return;
@@ -120,6 +120,9 @@ const Allowances = () => {
           onFilterChange={handleFilterChange}
           onApplyFilter={logic.handleApplyFilter}
           onResetFilter={logic.handleResetFilter}
+          internSuggestions={logic.internSuggestions}
+          onSearchInterns={logic.handleSearchInterns}
+          onSelectIntern={logic.handleSelectIntern}
         />
 
         <AllowancesTable
@@ -155,6 +158,9 @@ const Allowances = () => {
           }}
           onSave={handleSave}
           onClose={logic.handleCloseModal}
+          internSuggestions={logic.internSuggestions}
+          onSearchInterns={logic.handleSearchInterns}
+          onSelectIntern={logic.handleSelectIntern}
         />
       </div>
     </div>
