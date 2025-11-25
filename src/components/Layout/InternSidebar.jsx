@@ -228,7 +228,15 @@ const toggleAttendanceSubmenu = () => {
         <li onClick={() => navigate("/intern/profiles")}>
           <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
         <li onClick={() => navigate("/intern/contract")}><FaBook /> {expanded && <span>Hợp đồng</span>}</li>
-        <li onClick={() => navigate("/intern/calendar")}><FaCalendarAlt /> {expanded && <span>Lịch & Chương trình</span>}</li>
+        <li onClick={() => navigate("/intern/calendar")}>
+                  <FaCalendarAlt />
+                  {expanded && <span>Lịch</span>}
+                </li>
+
+                <li onClick={() => navigate("/intern/program")}>
+                  <FaTasks />
+                  {expanded && <span>Chương trình</span>}
+                </li>
         <li onClick={() => setAttendanceSubmenuOpen(!attendanceSubmenuOpen)} className="menu-item">
                  <FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}
                </li>
@@ -238,7 +246,7 @@ const toggleAttendanceSubmenu = () => {
                    <li><Link to="/intern/leave-request">Nghỉ phép</Link></li>
                  </ul>
                )}
-        <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li>
+{/*         <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li> */}
         <li onClick={() => navigate("/intern/allowance")}><FaLifeRing /> {expanded && <span>Quyền lợi & Phụ cấp</span>}</li>
         <li onClick={() => navigate("/intern/notifications")} style={{ position: 'relative' }}>
           <FaBell /> 
