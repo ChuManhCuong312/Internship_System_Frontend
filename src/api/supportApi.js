@@ -59,10 +59,14 @@ export const filterSupportRequests = async (token, filters) => {
 };
 
 // Duyệt support request
-export const approveSupportRequest = async (token, id, hrId) => {
+export const approveSupportRequest = async (token, id, hrId, responseText) => {
     try {
+        let url = `${API_BASE_URL}/api/support-requests/${id}/approve?hrId=${hrId}`;
+        if (responseText) {
+            url += `&response=${encodeURIComponent(responseText)}`;
+        }
         const response = await axios.put(
-            `${API_BASE_URL}/api/support-requests/${id}/approve?hrId=${hrId}`,
+            url,
             {},
             {
                 headers: {
@@ -77,10 +81,10 @@ export const approveSupportRequest = async (token, id, hrId) => {
 };
 
 // Từ chối support request
-export const rejectSupportRequest = async (token, id, hrId, rejectionReason) => {
+export const rejectSupportRequest = async (token, id, hrId, responseText) => {
     try {
         const response = await axios.put(
-            `${API_BASE_URL}/api/support-requests/${id}/reject?hrId=${hrId}&rejectionReason=${encodeURIComponent(rejectionReason)}`,
+            `${API_BASE_URL}/api/support-requests/${id}/reject?hrId=${hrId}&response=${encodeURIComponent(responseText)}`,
             {},
             {
                 headers: {
