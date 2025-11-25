@@ -1,0 +1,147 @@
+.container {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.header {
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #ffffff;
+}
+
+.headerContent {
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.subtitle {
+  margin-top: 0.25rem;
+  color: #4b5563;
+}
+
+.controls {
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  padding: 1rem 1.5rem;
+}
+
+.controlsInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.viewButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.viewButtonActive {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.viewButtonInactive {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.viewButtonInactive:hover {
+  background-color: #f3f4f6;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.todayButton {
+  min-width: 96px;
+  background-color: transparent !important;
+}
+
+.dateDisplay {
+  margin-left: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+.legend {
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  padding: 1rem 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendDotProgram {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background-color: #3b82f6;
+}
+
+.legendDotTask {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background-color: #22c55e;
+}
+
+.legendDotDeadline {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background-color: #ef4444;
+}
+
+.legendLabel {
+  font-size: 0.875rem;
+  color: #374151;
+}
+.navButton {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 4px;
+}
+
+.navButton:hover {
+  background-color: #f0f0f0;
+}
+
+.todayButton {
+  font-weight: bold;
+  border-color: #1d4ed8;
+  color: #1d4ed8;
+}

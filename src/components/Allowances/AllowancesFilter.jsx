@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const AllowancesFilter = ({
   showFilter,
@@ -8,7 +8,11 @@ const AllowancesFilter = ({
   onFilterChange,
   onApplyFilter,
   onResetFilter,
+  internSuggestions = [],
+  onSearchInterns = () => {},
+  onSelectIntern = () => {},
 }) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
   if (!showFilter) {
     return null;
   }
@@ -17,13 +21,39 @@ const AllowancesFilter = ({
     <div className="filter-container">
       <div className="filter-row">
         <div className="filter-group">
-          <label>ID Thực tập sinh</label>
-          <input
-            type="number"
-            value={filterData.internId}
-            onChange={(e) => onFilterChange("internId", e.target.value)}
-            placeholder="Nhập ID"
-          />
+          <label>Tên Thực tập sinh</label>
+          <div className="autocomplete-container">
+            <input
+              type="text"
+              value={filterData.internName || ""}
+              onChange={(e) => {
+                onFilterChange("internName", e.target.value);
+                onSearchInterns(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              placeholder="Nhập tên thực tập sinh"
+            />
+            {showSuggestions && internSuggestions.length > 0 && (
+              <div className="suggestions-list">
+                {internSuggestions.map((intern) => (
+                  <div
+                    key={intern.internId}
+                    className="suggestion-item"
+                    onClick={() => {
+                      onFilterChange("internName", intern.fullName);
+                      onFilterChange("internId", intern.internId);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    <div className="suggestion-name">{intern.fullName}</div>
+                    <div className="suggestion-id">ID: {intern.internId}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="filter-group">
           <label>Loại trợ cấp</label>
