@@ -23,11 +23,12 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 15px;
-  padding: 30px;
-  max-width: 900px;
-  width: 90%;
-  max-height: 85vh;
+  padding: 25px;
+  max-width: 900px !important;
+  width: 99%;
+  max-height: 92vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.5);
   animation: slideUp 0.3s ease;
@@ -39,6 +40,16 @@
 
 .modal-small { max-width: 400px; }
 
+.modal-content .users-table-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.modal-content .users-table {
+  width: 100%;
+  min-width: 0;
+}
+
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
@@ -49,19 +60,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-top: -10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px !important;
   border-bottom: 2px solid rgba(1, 87, 155, 0.2);
-  font-family: 'Inter', 'Roboto', 'Segoe UI', Arial, sans-serif;
-    font-weight: 600;
-    font-size: 22px;
-    color: #01579b;
-    margin: 0;
+  background: white !important;
+  background-image: none !important;
+  padding: 15px !important;
 }
 
 .modal-header h3 {
   color: #01579b;
-  margin: 0;
   font-size: 22px;
 }
 

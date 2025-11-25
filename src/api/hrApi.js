@@ -4,14 +4,26 @@ import allowanceApi from "./allowanceApi.js";
 const API_URL = "http://localhost:8080/api/hr/interns";
 const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
 const API_URL_MENTOR = "http://localhost:8080/api/mentors";
+const API_URL_CONTRACTS = "http://localhost:8080/api/hr/contracts";
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
 
+
 const hrApi = {
+  // Lấy danh sách interns
   AllInterns: async (token, page = 0, size = 10) => {
     const response = await axios.get(API_URL, {
+      ...authHeader(token),
+      params: { page, size },
+    });
+    return response.data;
+  },
+
+  // Lấy danh sách contracts
+  getContracts: async (token, page = 0, size = 10) => {
+    const response = await axios.get(API_URL_CONTRACTS, {
       ...authHeader(token),
       params: { page, size },
     });

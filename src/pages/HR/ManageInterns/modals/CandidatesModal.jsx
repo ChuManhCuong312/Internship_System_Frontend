@@ -100,9 +100,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
       newErrors.gpa = "GPA phải là số trong khoảng 0.01 - 4.0";
     }
 
-    if (!profileData.phone || !/^0\d{9}$/.test(profileData.phone)) {
-      newErrors.phone = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số";
-    }
+       if (!profileData.phone) newErrors.phone = "Số điện thoại bắt buộc";
 
     if (!profileData.address || profileData.address.length < 5) {
       newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
@@ -110,6 +108,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      Object.values(newErrors).forEach(msg => toast.error(msg));
       return;
     }
 
@@ -156,50 +155,52 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <Modal title="Ứng viên chưa có hồ sơ" onClose={onClose} className="modal-large">
+    <Modal title="Ứng viên chưa có hồ sơ" onClose={onClose} className="modal-content">
       {loading ? (
         <div className="loading-card">
           <LoadingSpinner size="medium" />
           <p className="loading-text">Đang tải danh sách ứng viên...</p>
         </div>
       ) : (
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Họ tên</th>
-              <th>Email</th>
-              <th>Số điện thoại</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {candidates.length > 0 ? (
-              candidates.map((c, idx) => (
-                <tr key={c.userId}>
-                  <td>{idx + 1}</td>
-                  <td>{c.fullName}</td>
-                  <td>{c.email}</td>
-                  <td>{c.phone}</td>
-                  <td>
-                    <button
-                      className="btn-primary"
-                      onClick={() => handleOpenProfileModal(c)}
-                    >
-                      ➕ Thêm hồ sơ
-                    </button>
+        <div className="users-table-container" style={{ marginBottom: 0 }}>
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {candidates.length > 0 ? (
+                candidates.map((c, idx) => (
+                  <tr key={c.userId}>
+                    <td>{idx + 1}</td>
+                    <td>{c.fullName}</td>
+                    <td>{c.email}</td>
+                    <td>{c.phone}</td>
+                    <td>
+                      <button
+                        className="btn-save"
+                        onClick={() => handleOpenProfileModal(c)}
+                      >
+                       Thêm hồ sơ
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center" }}>
+                    Không có ứng viên nào chưa có hồ sơ
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
-                  Không có ứng viên nào chưa có hồ sơ
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {selectedCandidate && (

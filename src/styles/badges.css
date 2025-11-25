@@ -88,3 +88,55 @@ justify-content: center;
 .criteria-badge-clear:hover {
   opacity: 0.8;
 }
+
+/* Status Badges */
+.status-badge {
+ font-family: inherit;
+ display: inline-block;
+ padding: 6px 14px;
+ border-radius: 20px;
+ font-size: 20px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+ transition: all 0.3s ease;
+}
+
+.status-badge.late {
+ background: #fffaf0;
+ color: #c53030;
+ font-weight: 700;
+}
+
+
+.status-badge.on-time {
+ background: #e6fffa;
+ color: #2c7a7b;
+ font-weight: 700;
+}
+
+
+.status-badge.incomplete {
+ background: #fffbea;
+ color: #b7791f;
+ font-weight: 700;
+}
+
+
+.status-badge.absent {
+ background: #ffe5e5;
+ color: #c53030;
+ font-weight: 700;
+}
+.status-badge.insufficient {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 700;
+}
+
+.status-badge.late-insufficient {
+  background: #fef3c7;
+  color: #b45309;
+  font-weight: 700;
+}
