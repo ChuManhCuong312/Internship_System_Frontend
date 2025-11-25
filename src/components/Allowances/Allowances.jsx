@@ -21,20 +21,30 @@ const Allowances = () => {
     try {
       setIsExporting(true);
       
-      // Fetch all allowances without pagination
+      // Fetch all allowances for export
       const response = await allowanceApi.getAllAllowancesForExport(token);
-      const allData = response.content || response;
+      
+      // Extract data from response
+      let allData = [];
+      if (response.data) {
+        allData = response.data;
+      } else if (response.content) {
+        allData = response.content;
+      } else if (Array.isArray(response)) {
+        allData = response;
+      }
       
       if (!allData || allData.length === 0) {
         toast.warning("Không có dữ liệu để xuất");
         return;
       }
       
+      console.log("Exporting", allData.length, "allowances");
       await exportAllowancesToExcel(allData);
-      toast.success("Xuất Excel thành công");
+      toast.success(`Xuất Excel thành công (${allData.length} bản ghi)`);
     } catch (error) {
       console.error("Error exporting:", error);
-      toast.error("Lỗi khi xuất Excel");
+      toast.error("Lỗi khi xuất Excel: " + error.message);
     } finally {
       setIsExporting(false);
     }
