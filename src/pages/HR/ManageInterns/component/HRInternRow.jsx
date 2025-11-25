@@ -14,6 +14,7 @@ const HRInternRow = ({
   onStatusChange,
   onEdit,
   onView,
+  onApprove,
   showDocuments = true,
   showApproveActions = false,
   showStatus = true,
@@ -115,7 +116,7 @@ const HRInternRow = ({
               <>
                 <LoadingButton
                   className="btn-approve"
-                  onClick={handleApprove}
+                  onClick={() => onApprove(intern)}
                   isLoading={isApproving}
                   disabled={isRejecting}
                   title={isMatching && appliedCriteria ? '✅ Phù hợp tiêu chí - Nên duyệt' : appliedCriteria && !isMatching ? '⚠️ Không phù hợp tiêu chí' : 'Duyệt hồ sơ'}
