@@ -1,7 +1,9 @@
 /* Badges */
 .role-badge,
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -55,10 +57,86 @@ color: #c62828;
 border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
-=======
 .status-hợp-đồng-hoàn-tất {
   background: rgba(33, 150, 243, 0.2);
   color: #0d47a1;
   border: 1px solid rgba(33, 150, 243, 0.3);
 }
 
+.criteria-badge {
+  display: inline-flex;
+  align-items: center;
+justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #047857;
+  color: white;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.criteria-badge-clear {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: white;
+}
+
+.criteria-badge-clear:hover {
+  opacity: 0.8;
+}
+
+/* Status Badges */
+.status-badge {
+ font-family: inherit;
+ display: inline-block;
+ padding: 6px 14px;
+ border-radius: 20px;
+ font-size: 20px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+ transition: all 0.3s ease;
+}
+
+.status-badge.late {
+ background: #fffaf0;
+ color: #c53030;
+ font-weight: 700;
+}
+
+
+.status-badge.on-time {
+ background: #e6fffa;
+ color: #2c7a7b;
+ font-weight: 700;
+}
+
+
+.status-badge.incomplete {
+ background: #fffbea;
+ color: #b7791f;
+ font-weight: 700;
+}
+
+
+.status-badge.absent {
+ background: #ffe5e5;
+ color: #c53030;
+ font-weight: 700;
+}
+.status-badge.insufficient {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 700;
+}
+
+.status-badge.late-insufficient {
+  background: #fef3c7;
+  color: #b45309;
+  font-weight: 700;
+}

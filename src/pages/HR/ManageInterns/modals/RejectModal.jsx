@@ -22,7 +22,7 @@ const RejectModal = ({ intern, reason, setReason, error, onClose, onConfirm, isL
         Hủy
       </button>
       <LoadingButton
-        className="btn-reject"
+        className="btn-confirm-reject"
         onClick={onConfirm}
         isLoading={isLoading}
       >

@@ -18,7 +18,7 @@
 
 .manage-users-header .page-title {
   margin: 0 0 15px 0;
-  color: #01579b;
+  color: #00457b;
   font-size: 28px;
   font-weight: 600;
 }
@@ -39,6 +39,7 @@
   backdrop-filter: blur(5px);
   font-size: 14px;
   transition: all 0.3s ease;
+  border: 2px solid rgba(1, 87, 155, 0.2) !important;
 }
 
 .search-input:focus {
@@ -56,6 +57,7 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 2px solid rgba(1, 87, 155, 0.2) !important;
 }
 
 .filter-select:focus {
@@ -180,10 +182,11 @@
 
 
 .mentor-assign-container {
-  display: flex;
-  flex: 1;
-  height: 100vh;
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+    flex: 1;
+    background: #ffff;
+    padding: 24px;
+    overflow-y: auto;
+    font-family: "Inter", sans-serif;
 }
 
 .left-nav {

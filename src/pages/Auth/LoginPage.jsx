@@ -5,6 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthCard from "../../components/Auth/AuthCard";
 import SocialLoginButtons from "../../components/Auth/SocialLoginButtons";
+import Cookies from "js-cookie";
 import "../../styles/auth.css";
 import PasswordInput from "../../components/Common/PasswordInput";
 
@@ -49,22 +50,24 @@ const LoginPage = () => {
     }
   };
 useEffect(() => {
-  const token = localStorage.getItem("token");
+  // Check if user is already logged in via cookies
+  const token = Cookies.get("token");
+  const role = Cookies.get("role");
   const lastRoute = localStorage.getItem("lastRoute");
 
-  if (token) {
+  if (token && role) {
+    // User is already authenticated
     if (lastRoute) {
       navigate(lastRoute, { replace: true });
     } else {
-      // If no last route, go to dashboard by role
-      const role = localStorage.getItem("role") || user?.role;
+      // Redirect to dashboard based on role
       if (role === "ADMIN") navigate("/admin/dashboard", { replace: true });
       else if (role === "HR") navigate("/hr/dashboard", { replace: true });
       else if (role === "MENTOR") navigate("/mentor/dashboard", { replace: true });
       else navigate("/intern/dashboard", { replace: true });
     }
   }
-}, []);
+}, [navigate]);
 
   return (
     <AuthLayout>
