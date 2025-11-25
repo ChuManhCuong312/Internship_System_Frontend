@@ -41,7 +41,7 @@ const Allowances = () => {
   };
 
   const handleSave = async () => {
-    const newErrors = logic.validateForm();
+    const newErrors = await logic.validateForm();
     if (Object.keys(newErrors).length > 0) {
       logic.setErrors(newErrors);
       return;

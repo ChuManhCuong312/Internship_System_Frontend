@@ -9,8 +9,8 @@ export const useAllowancesLogic = (token) => {
   const [size, setSize] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [sortBy, setSortBy] = useState("dateApplied");
-  const [direction, setDirection] = useState("desc");
+  const [sortBy, setSortBy] = useState("allowanceId");
+  const [direction, setDirection] = useState("asc");
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -40,6 +40,9 @@ export const useAllowancesLogic = (token) => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [activeFilters, setActiveFilters] = useState(null);
 
+  // Autocomplete states
+  const [internSuggestions, setInternSuggestions] = useState([]);
+
   // Fetch allowances
   const fetchAllowances = async (resetPage = false) => {
     try {
@@ -49,6 +52,8 @@ export const useAllowancesLogic = (token) => {
       }
 
       const currentPage = resetPage ? 0 : page;
+      console.log("Fetching allowances - page:", currentPage, "size:", size, "sortBy:", sortBy, "direction:", direction);
+      
       const response = await allowanceApi.getAllowances(
         token,
         currentPage,
@@ -56,6 +61,8 @@ export const useAllowancesLogic = (token) => {
         sortBy,
         direction
       );
+
+      console.log("Allowances response:", response);
 
       // Handle both paginated and non-paginated responses
       if (response.data) {
@@ -90,7 +97,11 @@ export const useAllowancesLogic = (token) => {
   const fetchFilteredAllowances = async (filters, currentPage = 0) => {
     try {
       setLoading(true);
+      console.log("Fetching filtered allowances - filters:", filters, "page:", currentPage, "size:", size);
+      
       const response = await allowanceApi.filterAllowances(token, filters, currentPage, size);
+
+      console.log("Filtered allowances response:", response);
 
       // Handle response
       if (response.data) {
@@ -128,8 +139,8 @@ export const useAllowancesLogic = (token) => {
     }
   }, [token, page, size, sortBy, direction, activeFilters]);
 
-  // Validate form
-  const validateForm = () => {
+  // Validate form and lookup intern
+  const validateForm = async () => {
     const newErrors = {};
     if (!formData.internName || formData.internName.trim() === "")
       newErrors.internName = "Tên thực tập sinh bắt buộc";
@@ -140,6 +151,7 @@ export const useAllowancesLogic = (token) => {
     if (!formData.amount || formData.amount <= 0)
       newErrors.amount = "Số tiền phải lớn hơn 0";
     if (!formData.dateApplied) newErrors.dateApplied = "Ngày áp dụng bắt buộc";
+
     return newErrors;
   };
 
@@ -203,12 +215,11 @@ export const useAllowancesLogic = (token) => {
       if (filterData.startDate) filters.startDate = filterData.startDate;
       if (filterData.endDate) filters.endDate = filterData.endDate;
 
+      console.log("Applying filters:", filters);
+
       // Save active filters and reset page
       setActiveFilters(filters);
       setPage(0);
-
-      // Fetch filtered data
-      await fetchFilteredAllowances(filters, 0);
 
       toast.success("Lọc trợ cấp thành công");
       setShowFilter(false);

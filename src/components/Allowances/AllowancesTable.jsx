@@ -8,6 +8,7 @@ const AllowancesTable = ({
   onEdit,
   onDelete,
 }) => {
+
   return (
     <div className="allowance-table-container">
       <table className="allowance-table">
