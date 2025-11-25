@@ -211,7 +211,7 @@ useEffect(() => {
 const handleApproveIntern = async () => {
   try {
     setIsApproving(true);
-    await hrApi.approveIntern(token, approvingIntern.internId);
+    await hrApi.updateInternStatus(token, approvingIntern.internId, "APPROVED");
     toast.success("Duyệt hồ sơ thành công ✅");
     setApprovingIntern(null);
     fetchInterns();
@@ -222,7 +222,6 @@ const handleApproveIntern = async () => {
     setIsApproving(false);
   }
 };
-
   if (loading) {
     return (
       <div className="dashboard-layout">
