@@ -182,10 +182,11 @@
 
 
 .mentor-assign-container {
-  display: flex;
-  flex: 1;
-  height: 100vh;
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+    flex: 1;
+    background: #ffff;
+    padding: 24px;
+    overflow-y: auto;
+    font-family: "Inter", sans-serif;
 }
 
 .left-nav {

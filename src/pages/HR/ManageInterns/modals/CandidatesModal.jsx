@@ -100,9 +100,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
       newErrors.gpa = "GPA phải là số trong khoảng 0.01 - 4.0";
     }
 
-    if (!profileData.phone || !/^0\d{9}$/.test(profileData.phone)) {
-      newErrors.phone = "Số điện thoại phải bắt đầu từ 0 và có 10 chữ số";
-    }
+       if (!profileData.phone) newErrors.phone = "Số điện thoại bắt buộc";
 
     if (!profileData.address || profileData.address.length < 5) {
       newErrors.address = "Địa chỉ phải có ít nhất 5 ký tự";
@@ -110,6 +108,7 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      Object.values(newErrors).forEach(msg => toast.error(msg));
       return;
     }
 
