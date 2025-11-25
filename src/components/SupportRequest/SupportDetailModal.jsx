@@ -8,8 +8,7 @@ import '../../styles/supportRequest.css';
 const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) => {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
-    const [showRejectForm, setShowRejectForm] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState('');
+    const [response, setResponse] = useState('');
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
 
@@ -32,20 +31,20 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
     const handleApprove = async () => {
         setIsApproving(true);
         try {
-            await onApprove(request.supportId);
+            await onApprove(request.supportId, response);
         } finally {
             setIsApproving(false);
         }
     };
 
     const handleReject = async () => {
-        if (!rejectionReason.trim()) {
-            alert('Vui lòng nhập lý do từ chối');
+        if (!response.trim()) {
+            alert('Vui lòng nhập phản hồi để từ chối');
             return;
         }
         setIsRejecting(true);
         try {
-            await onReject(request.supportId, rejectionReason);
+            await onReject(request.supportId, response);
         } finally {
             setIsRejecting(false);
         }
@@ -109,10 +108,17 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                     </div>
                 </div>
 
-                {/* Lý do từ chối (nếu có) */}
-                {request.rejectionReason && (
-                    <div className="detail-section rejection-section">
-                        <h3>Lý do từ chối</h3>
+                {/* Phản hồi (Hiển thị nếu đã xử lý) */}
+                {(request.status !== 'PENDING' && request.response) && (
+                    <div className="detail-section response-section">
+                        <h3>Phản hồi từ HR</h3>
+                        <p>{request.response}</p>
+                    </div>
+                )}
+                 {/* Hỗ trợ backward compatibility nếu response chưa có nhưng rejectionReason có */}
+                 {(request.status === 'REJECTED' && !request.response && request.rejectionReason) && (
+                    <div className="detail-section response-section">
+                        <h3>Phản hồi từ HR (Lý do từ chối)</h3>
                         <p>{request.rejectionReason}</p>
                     </div>
                 )}
@@ -148,16 +154,16 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                     )}
                 </div>
 
-                {/* Form từ chối */}
-                {showRejectForm && request.status === 'PENDING' && (
-                    <div className="detail-section reject-form-section">
-                        <h3>Lý do từ chối</h3>
+                {/* Form nhập phản hồi (Chỉ hiện khi PENDING) */}
+                {request.status === 'PENDING' && (
+                    <div className="detail-section response-form-section">
+                        <h3>Phản hồi</h3>
                         <textarea
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Nhập lý do từ chối..."
+                            value={response}
+                            onChange={(e) => setResponse(e.target.value)}
+                            placeholder="Nhập phản hồi hoặc lý do từ chối..."
                             rows={4}
-                            className="reject-textarea"
+                            className="response-textarea"
                         />
                     </div>
                 )}
@@ -172,7 +178,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                         Đóng
                     </button>
 
-                    {request.status === 'PENDING' && !showRejectForm && (
+                    {request.status === 'PENDING' && (
                         <>
                             <LoadingButton
                                 className="btn-save"
@@ -182,34 +188,13 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                             >
                                 Duyệt
                             </LoadingButton>
-                            <button
-                                className="btn-danger"
-                                onClick={() => setShowRejectForm(true)}
-                                disabled={isApproving || isRejecting}
-                            >
-                                Từ chối
-                            </button>
-                        </>
-                    )}
-
-                    {showRejectForm && request.status === 'PENDING' && (
-                        <>
-                            <button
-                                className="btn-cancel"
-                                onClick={() => {
-                                    setShowRejectForm(false);
-                                    setRejectionReason('');
-                                }}
-                                disabled={isRejecting}
-                            >
-                                Hủy
-                            </button>
                             <LoadingButton
                                 className="btn-danger"
                                 onClick={handleReject}
                                 isLoading={isRejecting}
+                                disabled={isApproving}
                             >
-                                Xác nhận từ chối
+                                Từ chối
                             </LoadingButton>
                         </>
                     )}
