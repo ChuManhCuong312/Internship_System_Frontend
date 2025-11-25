@@ -120,6 +120,9 @@ const Allowances = () => {
           onFilterChange={handleFilterChange}
           onApplyFilter={logic.handleApplyFilter}
           onResetFilter={logic.handleResetFilter}
+          internSuggestions={logic.internSuggestions}
+          onSearchInterns={logic.handleSearchInterns}
+          onSelectIntern={logic.handleSelectIntern}
         />
 
         <AllowancesTable

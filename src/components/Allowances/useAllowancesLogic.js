@@ -24,10 +24,12 @@ export const useAllowancesLogic = (token) => {
     note: "",
   });
   const [errors, setErrors] = useState({});
+  const [internSuggestions, setInternSuggestions] = useState([]);
 
   // Filter states
   const [showFilter, setShowFilter] = useState(false);
   const [filterData, setFilterData] = useState({
+    internName: "",
     internId: "",
     type: "",
     minAmount: "",
@@ -63,14 +65,22 @@ export const useAllowancesLogic = (token) => {
       console.log("Allowances response:", response);
 
       // Handle both paginated and non-paginated responses
-      if (response.content) {
+      if (response.data) {
+        // New format: { data: [...], totalAllowances, currentPage, pageSize, totalPages }
+        setAllowances(response.data);
+        setTotalElements(response.totalAllowances || 0);
+        setTotalPages(response.totalPages || Math.ceil((response.totalAllowances || 0) / size) || 1);
+      } else if (response.content) {
+        // Old format: { content: [...], totalElements, totalPages }
         setAllowances(response.content);
-        setTotalElements(response.totalElements || 0);
-        setTotalPages(response.totalPages || 0);
+        const total = response.totalElements || 0;
+        const pages = response.totalPages || Math.ceil(total / size) || 1;
+        setTotalElements(total);
+        setTotalPages(pages);
       } else if (Array.isArray(response)) {
         setAllowances(response);
         setTotalElements(response.length);
-        setTotalPages(1);
+        setTotalPages(Math.ceil(response.length / size) || 1);
       }
 
       if (resetPage) setPage(0);
@@ -94,14 +104,22 @@ export const useAllowancesLogic = (token) => {
       console.log("Filtered allowances response:", response);
 
       // Handle response
-      if (response.content) {
+      if (response.data) {
+        // New format: { data: [...], totalAllowances, currentPage, pageSize, totalPages }
+        setAllowances(response.data);
+        setTotalElements(response.totalAllowances || 0);
+        setTotalPages(response.totalPages || Math.ceil((response.totalAllowances || 0) / size) || 1);
+      } else if (response.content) {
+        // Old format: { content: [...], totalElements, totalPages }
         setAllowances(response.content);
-        setTotalElements(response.totalElements || 0);
-        setTotalPages(response.totalPages || 0);
+        const total = response.totalElements || 0;
+        const pages = response.totalPages || Math.ceil(total / size) || 1;
+        setTotalElements(total);
+        setTotalPages(pages);
       } else if (Array.isArray(response)) {
         setAllowances(response);
         setTotalElements(response.length);
-        setTotalPages(1);
+        setTotalPages(Math.ceil(response.length / size) || 1);
       }
     } catch (err) {
       console.error("Error filtering allowances:", err);
@@ -149,6 +167,7 @@ export const useAllowancesLogic = (token) => {
     });
     setEditingAllowance(null);
     setErrors({});
+    setInternSuggestions([]);
   };
 
   // Handle modal close
@@ -172,7 +191,7 @@ export const useAllowancesLogic = (token) => {
   const handleEditAllowance = (allowance) => {
     setEditingAllowance(allowance);
     setFormData({
-      internName: allowance.internName,
+      internName: allowance.internName || "",
       internId: allowance.internId,
       type: allowance.type,
       amount: allowance.amount,
@@ -215,6 +234,7 @@ export const useAllowancesLogic = (token) => {
   // Handle reset filter
   const handleResetFilter = () => {
     setFilterData({
+      internName: "",
       internId: "",
       type: "",
       minAmount: "",
@@ -225,6 +245,7 @@ export const useAllowancesLogic = (token) => {
     setActiveFilters(null);
     setIsFiltering(false);
     setPage(0);
+    setInternSuggestions([]);
     fetchAllowances(true);
   };
 

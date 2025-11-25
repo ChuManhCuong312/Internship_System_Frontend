@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const AllowancesModal = ({
   showModal,
@@ -8,9 +8,9 @@ const AllowancesModal = ({
   onFormChange,
   onSave,
   onClose,
-  internSuggestions,
-  onSearchInterns,
-  onSelectIntern,
+  internSuggestions = [],
+  onSearchInterns = () => {},
+  onSelectIntern = () => {},
 }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   if (!showModal) {
@@ -36,27 +36,16 @@ const AllowancesModal = ({
                 value={formData.internName}
                 onChange={(e) => {
                   onFormChange("internName", e.target.value);
-                  if (e.target.value.trim().length > 0) {
-                    onSearchInterns(e.target.value);
-                    setShowSuggestions(true);
-                  } else {
-                    setShowSuggestions(false);
-                  }
+                  onSearchInterns(e.target.value);
+                  setShowSuggestions(true);
                 }}
-                onFocus={() => {
-                  if (formData.internName.trim().length > 0 && internSuggestions.length > 0) {
-                    setShowSuggestions(true);
-                  }
-                }}
-                onBlur={() => {
-                  setTimeout(() => setShowSuggestions(false), 200);
-                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder="Nhập tên thực tập sinh"
                 className={errors.internName ? "input-error" : ""}
-                autoComplete="off"
               />
               {showSuggestions && internSuggestions.length > 0 && (
-                <div className="suggestions-dropdown">
+                <div className="suggestions-list">
                   {internSuggestions.map((intern) => (
                     <div
                       key={intern.internId}
@@ -66,7 +55,8 @@ const AllowancesModal = ({
                         setShowSuggestions(false);
                       }}
                     >
-                      {intern.fullName}
+                      <div className="suggestion-name">{intern.fullName}</div>
+                      <div className="suggestion-id">ID: {intern.internId}</div>
                     </div>
                   ))}
                 </div>
