@@ -24,6 +24,8 @@ import AllowanceRequest from "./pages/Intern/AllowanceRequest";
 import SupportRequest from "./pages/Intern/SupportRequest";
 import Calendar from "./pages/Intern/Calendar";
 import ContractPage from "./pages/Intern/ContractPage";
+import Notifications from "./pages/Intern/Notifications";
+import Allowances from "./components/Allowances/Allowances";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
@@ -191,6 +193,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["INTERN"]}>
                   <ContractPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/intern/notifications"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <Notifications />
                 </PrivateRoute>
               }
             />
