@@ -55,24 +55,40 @@
 
 /* Table Styles */
 .allowance-table-container {
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 250, 0.95) 100%);
   border-radius: 15px;
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  overflow-x: auto;
+  overflow: hidden;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .allowance-table {
   width: 100%;
   border-collapse: collapse;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .allowance-table thead {
   background: rgb(129 219 229 / 20%);
   backdrop-filter: blur(5px);
+  flex-shrink: 0;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.allowance-table tbody {
+  display: block;
+  overflow-y: auto;
+  flex: 1;
+  width: 100%;
 }
 
 .allowance-table th {
@@ -91,6 +107,9 @@
 .allowance-table tbody tr {
   border-bottom: 1px solid #e0e0e0;
   transition: background 0.2s ease;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .allowance-table tbody tr:hover {
@@ -103,6 +122,7 @@
   vertical-align: middle;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   color: #333;
+  display: table-cell;
 }
 
 .allowance-table .amount {
@@ -569,6 +589,61 @@
   }
 }
 
+/* Autocomplete Styles */
+.autocomplete-container {
+  position: relative;
+  width: 100%;
+}
+
+.autocomplete-container input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.autocomplete-container input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f7fa;
+  color: #667eea;
+  font-weight: 500;
+}
+
 @media (max-width: 480px) {
   .allowance-table-container {
     overflow-x: auto;
@@ -587,4 +662,68 @@
   .modal-header h3 {
     font-size: 18px;
   }
+}
+
+/* Autocomplete Styles */
+.autocomplete-container {
+  position: relative;
+  width: 100%;
+}
+
+.autocomplete-container input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.autocomplete-container input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f5f7fa;
+}
+
+.suggestion-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.suggestion-id {
+  font-size: 12px;
+  color: #999;
 }
