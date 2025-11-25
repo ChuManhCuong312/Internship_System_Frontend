@@ -16,6 +16,7 @@ export const useAllowancesLogic = (token) => {
   const [showModal, setShowModal] = useState(false);
   const [editingAllowance, setEditingAllowance] = useState(null);
   const [formData, setFormData] = useState({
+    internName: "",
     internId: "",
     type: "",
     amount: "",
@@ -23,10 +24,12 @@ export const useAllowancesLogic = (token) => {
     note: "",
   });
   const [errors, setErrors] = useState({});
+  const [internSuggestions, setInternSuggestions] = useState([]);
 
   // Filter states
   const [showFilter, setShowFilter] = useState(false);
   const [filterData, setFilterData] = useState({
+    internName: "",
     internId: "",
     type: "",
     minAmount: "",
@@ -55,14 +58,22 @@ export const useAllowancesLogic = (token) => {
       );
 
       // Handle both paginated and non-paginated responses
-      if (response.content) {
+      if (response.data) {
+        // New format: { data: [...], totalAllowances, currentPage, pageSize, totalPages }
+        setAllowances(response.data);
+        setTotalElements(response.totalAllowances || 0);
+        setTotalPages(response.totalPages || Math.ceil((response.totalAllowances || 0) / size) || 1);
+      } else if (response.content) {
+        // Old format: { content: [...], totalElements, totalPages }
         setAllowances(response.content);
-        setTotalElements(response.totalElements || 0);
-        setTotalPages(response.totalPages || 0);
+        const total = response.totalElements || 0;
+        const pages = response.totalPages || Math.ceil(total / size) || 1;
+        setTotalElements(total);
+        setTotalPages(pages);
       } else if (Array.isArray(response)) {
         setAllowances(response);
         setTotalElements(response.length);
-        setTotalPages(1);
+        setTotalPages(Math.ceil(response.length / size) || 1);
       }
 
       if (resetPage) setPage(0);
@@ -82,14 +93,22 @@ export const useAllowancesLogic = (token) => {
       const response = await allowanceApi.filterAllowances(token, filters, currentPage, size);
 
       // Handle response
-      if (response.content) {
+      if (response.data) {
+        // New format: { data: [...], totalAllowances, currentPage, pageSize, totalPages }
+        setAllowances(response.data);
+        setTotalElements(response.totalAllowances || 0);
+        setTotalPages(response.totalPages || Math.ceil((response.totalAllowances || 0) / size) || 1);
+      } else if (response.content) {
+        // Old format: { content: [...], totalElements, totalPages }
         setAllowances(response.content);
-        setTotalElements(response.totalElements || 0);
-        setTotalPages(response.totalPages || 0);
+        const total = response.totalElements || 0;
+        const pages = response.totalPages || Math.ceil(total / size) || 1;
+        setTotalElements(total);
+        setTotalPages(pages);
       } else if (Array.isArray(response)) {
         setAllowances(response);
         setTotalElements(response.length);
-        setTotalPages(1);
+        setTotalPages(Math.ceil(response.length / size) || 1);
       }
     } catch (err) {
       console.error("Error filtering allowances:", err);
@@ -112,8 +131,10 @@ export const useAllowancesLogic = (token) => {
   // Validate form
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.internName || formData.internName.trim() === "")
+      newErrors.internName = "Tên thực tập sinh bắt buộc";
     if (!formData.internId || formData.internId === "")
-      newErrors.internId = "ID thực tập sinh bắt buộc";
+      newErrors.internName = "Vui lòng chọn thực tập sinh từ danh sách";
     if (!formData.type || formData.type === "")
       newErrors.type = "Loại trợ cấp bắt buộc";
     if (!formData.amount || formData.amount <= 0)
@@ -125,6 +146,7 @@ export const useAllowancesLogic = (token) => {
   // Reset form
   const resetForm = () => {
     setFormData({
+      internName: "",
       internId: "",
       type: "",
       amount: "",
@@ -133,6 +155,7 @@ export const useAllowancesLogic = (token) => {
     });
     setEditingAllowance(null);
     setErrors({});
+    setInternSuggestions([]);
   };
 
   // Handle modal close
@@ -156,6 +179,7 @@ export const useAllowancesLogic = (token) => {
   const handleEditAllowance = (allowance) => {
     setEditingAllowance(allowance);
     setFormData({
+      internName: allowance.internName || "",
       internId: allowance.internId,
       type: allowance.type,
       amount: allowance.amount,
@@ -199,6 +223,7 @@ export const useAllowancesLogic = (token) => {
   // Handle reset filter
   const handleResetFilter = () => {
     setFilterData({
+      internName: "",
       internId: "",
       type: "",
       minAmount: "",
@@ -209,7 +234,33 @@ export const useAllowancesLogic = (token) => {
     setActiveFilters(null);
     setIsFiltering(false);
     setPage(0);
+    setInternSuggestions([]);
     fetchAllowances(true);
+  };
+
+  // Search interns by name
+  const handleSearchInterns = async (searchTerm) => {
+    try {
+      if (!searchTerm.trim()) {
+        setInternSuggestions([]);
+        return;
+      }
+      const results = await allowanceApi.searchInternsByName(token, searchTerm);
+      setInternSuggestions(results || []);
+    } catch (error) {
+      console.error("Error searching interns:", error);
+      setInternSuggestions([]);
+    }
+  };
+
+  // Handle intern selection from dropdown
+  const handleSelectIntern = (intern) => {
+    setFormData({
+      ...formData,
+      internName: intern.fullName,
+      internId: intern.internId,
+    });
+    setInternSuggestions([]);
   };
 
   return {
@@ -229,6 +280,7 @@ export const useAllowancesLogic = (token) => {
     showFilter,
     filterData,
     isFiltering,
+    internSuggestions,
 
     // Setters
     setAllowances,
@@ -258,5 +310,7 @@ export const useAllowancesLogic = (token) => {
     handleEditAllowance,
     handleApplyFilter,
     handleResetFilter,
+    handleSearchInterns,
+    handleSelectIntern,
   };
 };

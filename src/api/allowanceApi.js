@@ -99,6 +99,15 @@ const allowanceApi = {
     });
     return res.data;
   },
+
+  // Search interns by name
+  searchInternsByName: async (token, name) => {
+    const res = await axios.get(`${API_URL}/search/interns`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { name },
+    });
+    return res.data;
+  },
 };
 
 export default allowanceApi;
