@@ -68,9 +68,9 @@ const ManageSupportRequests = () => {
         setShowDetailModal(true);
     };
 
-    const handleApprove = async (id) => {
+    const handleApprove = async (id, response) => {
         try {
-            await approveSupportRequest(token, id, hrId);
+            await approveSupportRequest(token, id, hrId, response);
             fetchSupportRequests();
             setShowDetailModal(false);
             alert('Đã duyệt yêu cầu hỗ trợ thành công!');
@@ -79,9 +79,9 @@ const ManageSupportRequests = () => {
         }
     };
 
-    const handleReject = async (id, reason) => {
+    const handleReject = async (id, response) => {
         try {
-            await rejectSupportRequest(token, id, hrId, reason);
+            await rejectSupportRequest(token, id, hrId, response);
             fetchSupportRequests();
             setShowDetailModal(false);
             alert('Đã từ chối yêu cầu hỗ trợ!');
