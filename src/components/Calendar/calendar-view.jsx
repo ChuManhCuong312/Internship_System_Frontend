@@ -1,8 +1,6 @@
-import { MOCK_EVENTS } from "./MOCK_EVENTS"
-
 import styles from "./calendar-view.module.css"
 
-export default function CalendarView({ currentDate }) {
+export default function CalendarView({ currentDate, events }) {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 
@@ -19,7 +17,7 @@ export default function CalendarView({ currentDate }) {
     days.push(new Date(year, month, i))
   }
 
-  const hasProgram = MOCK_EVENTS.some((e) => e.type === "program")
+  const hasProgram = events.some((e) => e.type === "program")
 
   if (!hasProgram) {
     return (
@@ -33,7 +31,7 @@ export default function CalendarView({ currentDate }) {
   }
 
   const getEventsForDate = (date) => {
-    return MOCK_EVENTS.filter((event) => event.date.toDateString() === date.toDateString())
+    return events.filter((event) => new Date(event.date).toDateString() === date.toDateString())
   }
 
   const getEventColor = (type) => {
@@ -46,16 +44,15 @@ export default function CalendarView({ currentDate }) {
   }
 
   const getDayBgColor = (date) => {
-    const events = getEventsForDate(date)
-    if (events.length === 0) return ""
-    if (events.some((e) => e.type === "deadline")) return styles.dayDeadline
-    if (events.some((e) => e.type === "task")) return styles.dayTask
+    const dayEvents = getEventsForDate(date)
+    if (dayEvents.length === 0) return ""
+    if (dayEvents.some((e) => e.type === "deadline")) return styles.dayDeadline
+    if (dayEvents.some((e) => e.type === "task")) return styles.dayTask
     return styles.dayProgram
   }
 
   return (
     <div className={styles.calendar}>
-      {/* Day headers */}
       <div className={styles.dayHeaders}>
         {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
           <div key={day} className={styles.dayHeader}>
@@ -64,7 +61,6 @@ export default function CalendarView({ currentDate }) {
         ))}
       </div>
 
-      {/* Calendar days */}
       <div className={styles.calendarGrid}>
         {days.map((date, i) => (
           <div key={i} className={`${styles.calendarDay} ${date ? getDayBgColor(date) : styles.dayOther}`}>
