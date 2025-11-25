@@ -286,7 +286,7 @@ export default function ProgramManagement() {
   return (
       <div className="dashboard-layout">
               <HRSidebar />
-    <div className="program-management-container">
+    <div className="dashboard-content">
       <div className="max-width-container">
         {/* Header */}
         <div className="header-section">
