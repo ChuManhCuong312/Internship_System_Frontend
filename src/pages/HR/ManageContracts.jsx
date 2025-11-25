@@ -107,11 +107,11 @@ const ManageContracts = () => {
       if (documentId) {
         // Replace existing contract
         result = await hrApi.replaceContract(token, documentId, file, note);
-        toast.success("Thay thế hợp đồng thành công ✅");
+        toast.success("Thay thế hợp đồng thành công");
       } else {
         // Upload new contract
         result = await hrApi.uploadContract(token, internId, file, note);
-        toast.success("Upload hợp đồng thành công ✅");
+        toast.success("Upload hợp đồng thành công");
       }
 
       setShowUploadModal(false);
@@ -119,7 +119,7 @@ const ManageContracts = () => {
       fetchContracts();
     } catch (err) {
       console.error("Error uploading contract:", err);
-      toast.error(err.response?.data?.message || "Upload hợp đồng thất bại ❌");
+      toast.error(err.response?.data?.message || "Upload hợp đồng thất bại");
     } finally {
       setUploading(false);
     }
@@ -149,11 +149,11 @@ const ManageContracts = () => {
       try {
         const documentId = contract.documentId || contract.document_id;
         await hrApi.deleteContract(token, documentId);
-        toast.success("Xóa hợp đồng thành công ✅");
+        toast.success("Xóa hợp đồng thành công");
         fetchContracts();
       } catch (err) {
         console.error("Error deleting contract:", err);
-        toast.error("Xóa hợp đồng thất bại ❌");
+        toast.error("Xóa hợp đồng thất bại");
       }
     }
   };
@@ -184,10 +184,10 @@ const ManageContracts = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      toast.success("Tải xuống hợp đồng thành công ✅");
+      toast.success("Tải xuống hợp đồng thành công");
     } catch (err) {
       console.error("Error downloading contract:", err);
-      toast.error("Tải xuống hợp đồng thất bại ❌");
+      toast.error("Tải xuống hợp đồng thất bại");
     }
   };
 
@@ -278,20 +278,6 @@ const ManageContracts = () => {
             <div className="pagination-info">
               Trang {page + 1} / {totalPages} (Tổng: {totalElements} bản ghi)
             </div>
-
-            <select
-              value={size}
-              onChange={(e) => {
-                setSize(parseInt(e.target.value));
-                setPage(0);
-              }}
-              className="pagination-select"
-            >
-              <option value={5}>5 bản ghi</option>
-              <option value={10}>10 bản ghi</option>
-              <option value={20}>20 bản ghi</option>
-              <option value={50}>50 bản ghi</option>
-            </select>
 
             <button
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
