@@ -2,13 +2,26 @@ import ExcelJS from "exceljs";
 
 export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấp.xlsx") => {
   try {
+    // Validate input
+    if (!Array.isArray(allowances)) {
+      throw new Error("Dữ liệu không hợp lệ: allowances phải là một mảng");
+    }
+
+    if (allowances.length === 0) {
+      throw new Error("Không có dữ liệu để xuất");
+    }
+
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Trợ cấp");
 
+    // Sort allowances by ID descending (cao đến thấp)
+    const sortedAllowances = [...allowances].sort((a, b) => b.allowanceId - a.allowanceId);
+
     // Set column widths
     worksheet.columns = [
+      { header: "STT", key: "stt", width: 8 },
       { header: "ID", key: "allowanceId", width: 10 },
-      { header: "ID Thực tập sinh", key: "internId", width: 15 },
+      { header: "Tên Thực tập sinh", key: "internName", width: 20 },
       { header: "Loại trợ cấp", key: "type", width: 15 },
       { header: "Số tiền (VND)", key: "amount", width: 18 },
       { header: "Ngày áp dụng", key: "dateApplied", width: 15 },
@@ -26,13 +39,14 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
     headerRow.alignment = { horizontal: "center", vertical: "center" };
 
     // Add data rows
-    allowances.forEach((allowance, index) => {
+    sortedAllowances.forEach((allowance, index) => {
       const row = worksheet.addRow({
+        stt: index + 1,
         allowanceId: allowance.allowanceId,
-        internId: allowance.internId,
+        internName: allowance.internName || "",
         type: allowance.type,
         amount: allowance.amount,
-        dateApplied: new Date(allowance.dateApplied).toLocaleDateString("vi-VN"),
+        dateApplied: new Date(allowance.dateApplied),
         note: allowance.note || "",
       });
 
@@ -49,11 +63,15 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
       row.getCell("amount").numFmt = '#,##0';
       row.getCell("amount").alignment = { horizontal: "right" };
 
-      // Center align other columns
-      row.getCell("allowanceId").alignment = { horizontal: "center" };
-      row.getCell("internId").alignment = { horizontal: "center" };
-      row.getCell("type").alignment = { horizontal: "center" };
+      // Format date column
+      row.getCell("dateApplied").numFmt = 'dd/mm/yyyy';
       row.getCell("dateApplied").alignment = { horizontal: "center" };
+
+      // Center align other columns
+      row.getCell("stt").alignment = { horizontal: "center" };
+      row.getCell("allowanceId").alignment = { horizontal: "center" };
+      row.getCell("internName").alignment = { horizontal: "left" };
+      row.getCell("type").alignment = { horizontal: "center" };
     });
 
     // Add summary row
