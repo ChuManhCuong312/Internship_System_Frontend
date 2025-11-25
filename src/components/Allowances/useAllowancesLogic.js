@@ -40,9 +40,6 @@ export const useAllowancesLogic = (token) => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [activeFilters, setActiveFilters] = useState(null);
 
-  // Autocomplete states
-  const [internSuggestions, setInternSuggestions] = useState([]);
-
   // Fetch allowances
   const fetchAllowances = async (resetPage = false) => {
     try {

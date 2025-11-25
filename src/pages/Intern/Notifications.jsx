@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { NotificationContext } from '../../context/NotificationContext';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import notificationApi from '../../api/notificationApi';
 import { toast } from 'react-toastify';
@@ -8,10 +9,10 @@ import '../../styles/notifications.css';
 
 const Notifications = () => {
   const { token, user } = useContext(AuthContext);
+  const { setUnreadCount } = useContext(NotificationContext);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [internId, setInternId] = useState(null);
-  const [unreadCount, setUnreadCount] = useState(0);
 
   // Get internId from cookie
   useEffect(() => {
@@ -100,16 +101,21 @@ const Notifications = () => {
       const response = await notificationApi.markNotificationAsRead(token, notificationId);
       
       // Cập nhật state notifications
-      setNotifications(prev => 
-        prev.map(n => 
+      setNotifications(prev => {
+        const updated = prev.map(n => 
           n.notificationId === notificationId 
             ? { ...n, isRead: true, read: true }
             : n
-        )
-      );
-      
-      // Cập nhật unreadCount
-      setUnreadCount(prev => Math.max(0, prev - 1));
+        );
+        
+        // Tính số thông báo chưa đọc còn lại
+        const remainingUnread = updated.filter(n => !n.isRead).length;
+        
+        // Cập nhật unreadCount trong context
+        setUnreadCount(remainingUnread);
+        
+        return updated;
+      });
       
       toast.success('Đã đánh dấu thông báo đã đọc');
     } catch (err) {
