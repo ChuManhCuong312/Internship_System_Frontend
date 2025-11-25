@@ -5,6 +5,10 @@ import HRSidebar from "../../../components/Layout/HRSidebar";
 import Pagination from "../../../components/Common/Pagination";
 import hrApi from "../../../api/hrApi";
 import { AuthContext } from "../../../context/AuthContext";
+import ProgramFormModal from "./modals/ProgramFormModal";
+import TeamManagementModal from "./modals/TeamManagementModal";
+import AddEditTeamModal from "./modals/AddEditTeamModal";
+import AddInternModal from "./modals/AddInternModal";
 
 
 
@@ -288,12 +292,12 @@ export default function ProgramManagement() {
         <div className="header-section">
           <div className="header-content">
             <div>
-              <h1 className="header-title">Program Management</h1>
-              <p className="header-subtitle">Manage internship programs, teams, and assignments</p>
+              <h1 className="header-title">Quản lý chương trình thực tập</h1>
+              <p className="header-subtitle">Quản lý thực tập sinh, teams, và phân công mentor</p>
             </div>
             <button className="btn btn-primary" onClick={handleAddProgram}>
               <Plus size={16} />
-              Add Program
+              Thêm Chương trình
             </button>
           </div>
 
@@ -304,7 +308,7 @@ export default function ProgramManagement() {
                 <Search size={16} className="search-icon" />
                 <input
                   type="text"
-                  placeholder="Search programs by name..."
+                  placeholder="Tìm chương trình theo tên..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="search-input"
@@ -317,7 +321,7 @@ export default function ProgramManagement() {
                   onChange={(e) => setFilterDepartment(e.target.value)}
                   className="select"
                 >
-                  <option value="all-departments">All departments</option>
+                  <option value="all-departments">Lọc theo phòng ban</option>
                   {allDepartments.map((dept) => (
                     <option key={dept} value={dept}>
                       {dept}
@@ -326,7 +330,7 @@ export default function ProgramManagement() {
                 </select>
 
                 <select value={filterMentor} onChange={(e) => setFilterMentor(e.target.value)} className="select">
-                  <option value="all-mentors">All mentors</option>
+                  <option value="all-mentors">Lọc theo mentor</option>
                   {allMentorNames.map((mentor) => (
                     <option key={mentor} value={mentor}>
                       {mentor}
@@ -345,7 +349,7 @@ export default function ProgramManagement() {
                       setFilterMentor("all-mentors")
                     }}
                   >
-                    Reset Filters
+                    Bỏ bộ lọc
                   </button>
                 </div>
               )}
@@ -357,7 +361,7 @@ export default function ProgramManagement() {
         <div className="programs-list">
           {filteredPrograms.length === 0 ? (
             <div className="card empty-state">
-              <p className="empty-state-text">No programs found</p>
+              <p className="empty-state-text">Không tìm thấy chương trình</p>
             </div>
           ) : (
             filteredPrograms.map((program) => (
@@ -382,20 +386,20 @@ export default function ProgramManagement() {
                           setIsTeamManagementOpen(true)
                         }}
                       >
-                        View Teams
+                        Xem teams
                       </button>
                       <button
                         className="dropdown-item"
                         onClick={() => handleEditProgram(program)}
                         disabled={isDatePassed(program.start_date)}
                       >
-                        Edit Program
+                        Cập nhật chương trình
                       </button>
                       <button className="dropdown-item" onClick={() => handleCloneProgram(program)}>
-                        Clone Program
+                        Sao chép chương trình
                       </button>
                       <button className="dropdown-item danger" onClick={() => handleDeleteProgram(program.program_id)}>
-                        Delete Program
+                        Xoá chương trình
                       </button>
                     </div>
                   </div>
@@ -405,19 +409,23 @@ export default function ProgramManagement() {
 
                 <div className="program-stats">
                   <div className="stat-item">
-                    <p className="stat-label">Department</p>
+                    <p className="stat-label">Phòng ban</p>
                     <p className="stat-value">{program.department}</p>
                   </div>
                   <div className="stat-item">
-                    <p className="stat-label">Start Date</p>
+                    <p className="stat-label">Ngày bắt đầu</p>
                     <p className="stat-value">{program.start_date}</p>
                   </div>
                   <div className="stat-item">
-                    <p className="stat-label">Mentors</p>
+                    <p className="stat-label">Ngày kết thúc</p>
+                    <p className="stat-value">{program.end_date}</p>
+                  </div>
+                  <div className="stat-item">
+                    <p className="stat-label">Số lượng mentor</p>
                     <p className="stat-value">{program.mentors.length}</p>
                   </div>
                   <div className="stat-item">
-                    <p className="stat-label">Teams</p>
+                    <p className="stat-label">Số lượng teams</p>
                     <p className="stat-value">{program.teams.length}</p>
                   </div>
                 </div>
@@ -427,423 +435,59 @@ export default function ProgramManagement() {
         </div>
       </div>
 
-      {/* Add/Edit Program Modal */}
-      {(isAddProgramOpen || isEditProgramOpen) && (
-        <div
-          className="modal-overlay"
-          onClick={() => {
-            setIsAddProgramOpen(false)
-            setIsEditProgramOpen(false)
-          }}
-        >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">{selectedProgram ? "Edit Program" : "Add New Program"}</h2>
-              <button
-                className="btn-close"
-                onClick={() => {
-                  setIsAddProgramOpen(false)
-                  setIsEditProgramOpen(false)
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
+      <ProgramFormModal
+        isOpen={isAddProgramOpen || isEditProgramOpen}
+        onClose={() => {
+            setIsAddProgramOpen(false);
+            setIsEditProgramOpen(false);
+        }}
+        onSave={handleSaveProgram}
+        formData={formData}
+        setFormData={setFormData}
+        selectedProgram={selectedProgram}
+        allDepartments={allDepartments}
+        isDatePassed={isDatePassed}
+      />
 
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Program Name</label>
-                <input
-                  type="text"
-                  value={formData.name || ""}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="form-input"
-                />
-              </div>
+      <TeamManagementModal
+        isOpen={isTeamManagementOpen}
+        onClose={() => setIsTeamManagementOpen(false)}
+        selectedProgram={selectedProgram}
+        handleAddTeam={handleAddTeam}
+        handleEditTeam={handleEditTeam}
+        handleDeleteTeam={handleDeleteTeam}
+        mockMentors={mockMentors}
+      />
 
-              <div className="form-group">
-                <label>Department</label>
-                <select
-                  value={formData.department || ""}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="select"
-                >
-                  <option value="">Select Department</option>
-                  {allDepartments.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
-                </select>
-              </div>
+      <AddEditTeamModal
+        isOpen={isAddTeamOpen || isEditTeamOpen}
+        onClose={() => {
+            setIsAddTeamOpen(false);
+            setIsEditTeamOpen(false);
+        }}
+        onSave={handleSaveTeam}
+        selectedTeam={selectedTeam}
+        teamFormData={teamFormData}
+        setTeamFormData={setTeamFormData}
+        teamMentorSearch={teamMentorSearch}
+        setTeamMentorSearch={setTeamMentorSearch}
+        mockMentors={mockMentors}
+        handleRemoveIntern={handleRemoveIntern}
+        setIsAddInternOpen={setIsAddInternOpen}
+      />
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date</label>
-                  <input
-                    type="date"
-                    value={formData.start_date || ""}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                    className="form-input"
-                    disabled={selectedProgram && isDatePassed(selectedProgram.start_date)}
-                  />
-                  {selectedProgram && isDatePassed(selectedProgram.start_date) && (
-                    <p className="form-hint">Start date is locked (program already started)</p>
-                  )}
-                </div>
+      <AddInternModal
+        isOpen={isAddInternOpen}
+        onClose={() => setIsAddInternOpen(false)}
+        internSearchQuery={internSearchQuery}
+        handleInternSearch={handleInternSearch}
+        showInternSuggestions={showInternSuggestions}
+        internSuggestions={internSuggestions}
+        handleSelectIntern={handleSelectIntern}
+        internFormData={internFormData}
+        handleAddIntern={handleAddIntern}
+      />
 
-                <div className="form-group">
-                  <label>End Date</label>
-                  <input
-                    type="date"
-                    value={formData.end_date || ""}
-                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Details</label>
-                <textarea
-                  value={formData.detail || ""}
-                  onChange={(e) => setFormData({ ...formData, detail: e.target.value })}
-                  className="form-textarea"
-                  rows={3}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Max Interns</label>
-                <input
-                  type="number"
-                  value={formData.max_interns || ""}
-                  onChange={(e) => setFormData({ ...formData, max_interns: Number.parseInt(e.target.value) })}
-                  className="form-input"
-                />
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setIsAddProgramOpen(false)
-                  setIsEditProgramOpen(false)
-                }}
-              >
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={handleSaveProgram}>
-                Save Program
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Team Management Modal */}
-      {isTeamManagementOpen && selectedProgram && (
-        <div className="modal-overlay" onClick={() => setIsTeamManagementOpen(false)}>
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Teams</h2>
-              <button className="btn-close" onClick={() => setIsTeamManagementOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              {/* Teams Section */}
-              <div className="teams-section">
-                <div className="section-header">
-                  <h3>Teams</h3>
-                  <button className="btn btn-primary btn-small" onClick={handleAddTeam}>
-                    <Plus size={16} />
-                    Add Team
-                  </button>
-                </div>
-
-                <div className="teams-list">
-                  {selectedProgram.teams.map((team) => {
-                    const assignedMentor = mockMentors.find((m) => m.mentor_id === team.mentor_id)
-                    return (
-                      <div key={team.team_id} className="team-card">
-                        <div className="team-header">
-                          <div>
-                            <h4 className="team-name">{team.name}</h4>
-                            <p className="team-description">{team.description}</p>
-                            {assignedMentor && (
-                              <div className="team-mentor-info">
-                                <span className="mentor-badge">
-                                  Mentor: <strong>{assignedMentor.name}</strong> ({assignedMentor.department})
-                                </span>
-                              </div>
-                            )}
-                            {!assignedMentor && <p className="team-no-mentor">No mentor assigned</p>}
-                          </div>
-                          <div className="dropdown-menu-container">
-                            <button className="btn-icon">
-                              <MoreVertical size={16} />
-                            </button>
-                            <div className="dropdown-menu">
-                              <button className="dropdown-item" onClick={() => handleEditTeam(team)}>
-                                Edit Team
-                              </button>
-                              <button className="dropdown-item danger" onClick={() => handleDeleteTeam(team.team_id)}>
-                                Delete Team
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="team-stats">
-                          <span className="interns-count">{team.interns?.length || 0} interns</span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setIsTeamManagementOpen(false)}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add/Edit Team Modal */}
-      {(isAddTeamOpen || isEditTeamOpen) && (
-        <div
-          className="modal-overlay"
-          onClick={() => {
-            setIsAddTeamOpen(false)
-            setIsEditTeamOpen(false)
-          }}
-        >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">{selectedTeam ? "Edit Team" : "Add New Team"}</h2>
-              <button
-                className="btn-close"
-                onClick={() => {
-                  setIsAddTeamOpen(false)
-                  setIsEditTeamOpen(false)
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Team Name</label>
-                <input
-                  type="text"
-                  value={teamFormData.name || ""}
-                  onChange={(e) => setTeamFormData({ ...teamFormData, name: e.target.value })}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  value={teamFormData.description || ""}
-                  onChange={(e) => setTeamFormData({ ...teamFormData, description: e.target.value })}
-                  className="form-textarea"
-                  rows={2}
-                />
-              </div>
-
-              {/* Mentor Autocomplete Search */}
-              <div className="form-group">
-                <label>Assign Mentor to Team</label>
-                <div className="autocomplete-container">
-                  <input
-                    type="text"
-                    placeholder="Search mentor by name..."
-                    value={teamMentorSearch}
-                    onChange={(e) => setTeamMentorSearch(e.target.value)}
-                    className="form-input"
-                  />
-
-                  {teamMentorSearch && (
-                    <div className="suggestions-list">
-                      {mockMentors
-                        .filter((mentor) => mentor.name.toLowerCase().includes(teamMentorSearch.toLowerCase()))
-                        .map((mentor) => (
-                          <div
-                            key={mentor.mentor_id}
-                            className="suggestion-item"
-                            onClick={() => {
-                              setTeamFormData({ ...teamFormData, mentor_id: mentor.mentor_id })
-                              setTeamMentorSearch(mentor.name)
-                            }}
-                          >
-                            <div>
-                              <p className="suggestion-name">{mentor.name}</p>
-                              <p className="suggestion-info">{mentor.department}</p>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-
-                  {teamFormData.mentor_id && (
-                    <div className="selected-mentor">
-                      <span className="mentor-badge">
-                        {mockMentors.find((m) => m.mentor_id === teamFormData.mentor_id)?.name}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTeamFormData({ ...teamFormData, mentor_id: null })
-                          setTeamMentorSearch("")
-                        }}
-                        className="btn-remove"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {selectedTeam && (
-                <div className="interns-section">
-                  <div className="section-header">
-                    <h4>Team Interns</h4>
-                    <button className="btn btn-primary btn-small" onClick={() => setIsAddInternOpen(true)}>
-                      <Plus size={16} />
-                      Add Intern
-                    </button>
-                  </div>
-
-                  <div className="interns-list">
-                    {selectedTeam.interns &&
-                      selectedTeam.interns.map((intern) => (
-                        <div key={intern.intern_id} className="intern-item">
-                          <div>
-                            <p className="intern-name">{intern.name}</p>
-                            <p className="intern-info">{intern.phone}</p>
-                          </div>
-                          <button className="btn-remove" onClick={() => handleRemoveIntern(intern.intern_id)}>
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setIsAddTeamOpen(false)
-                  setIsEditTeamOpen(false)
-                }}
-              >
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={handleSaveTeam}>
-                Save Team
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Intern Modal */}
-      {isAddInternOpen && (
-        <div className="modal-overlay" onClick={() => setIsAddInternOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Add Intern to Team</h2>
-              <button className="btn-close" onClick={() => setIsAddInternOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Search Intern by Name</label>
-                <div className="search-container-form">
-                  <input
-                    type="text"
-                    placeholder="Type intern name..."
-                    value={internSearchQuery}
-                    onChange={(e) => handleInternSearch(e.target.value)}
-                    className="form-input"
-                  />
-
-                  {showInternSuggestions && internSuggestions.length > 0 && (
-                    <div className="suggestions-list">
-                      {internSuggestions.map((intern) => (
-                        <div
-                          key={intern.intern_id}
-                          className="suggestion-item"
-                          onClick={() => handleSelectIntern(intern)}
-                        >
-                          <div>
-                            <p className="suggestion-name">{intern.name}</p>
-                            <p className="suggestion-info">
-                              <Phone size={14} /> {intern.phone}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {Object.keys(internFormData).length > 0 && (
-                <div className="selected-intern">
-                  <div className="intern-details">
-                    <p className="detail-label">Name:</p>
-                    <p className="detail-value">{internFormData.name}</p>
-                  </div>
-                  <div className="intern-details">
-                    <p className="detail-label">Phone:</p>
-                    <p className="detail-value">{internFormData.phone}</p>
-                  </div>
-                  <div className="intern-details">
-                    <p className="detail-label">Email:</p>
-                    <p className="detail-value">{internFormData.email}</p>
-                  </div>
-                  <div className="intern-details">
-                    <p className="detail-label">Major:</p>
-                    <p className="detail-value">{internFormData.major}</p>
-                  </div>
-                  <div className="intern-details">
-                    <p className="detail-label">School:</p>
-                    <p className="detail-value">{internFormData.school}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setIsAddInternOpen(false)}>
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleAddIntern}
-                disabled={Object.keys(internFormData).length === 0}
-              >
-                Add Intern
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
     </div>
   )
