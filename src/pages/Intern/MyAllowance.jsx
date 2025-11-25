@@ -60,16 +60,34 @@ const MyAllowance = () => {
         direction
       );
 
-      // Handle both array and paginated responses
+      console.log('API Response:', response);
+
+      // Handle multiple response formats
       if (Array.isArray(response)) {
+        console.log('Response is array, length:', response.length);
         setAllowances(response);
         setTotalElements(response.length);
         setTotalPages(1);
-      } else if (response.content) {
+      } else if (response?.data && Array.isArray(response.data)) {
+        // New format: { data: [...], totalAllowances, currentPage, pageSize, totalPages }
+        console.log('Response has data array, length:', response.data.length);
+        setAllowances(response.data);
+        setTotalElements(response.totalAllowances || 0);
+        setTotalPages(response.totalPages || 1);
+      } else if (response?.content && Array.isArray(response.content)) {
+        // Old format: { content: [...], totalElements, totalPages }
+        console.log('Response has content array, length:', response.content.length);
         setAllowances(response.content);
         setTotalElements(response.totalElements || 0);
         setTotalPages(response.totalPages || 1);
+      } else if (response?.allowanceId) {
+        // Single allowance object returned
+        console.log('Single allowance object returned');
+        setAllowances([response]);
+        setTotalElements(1);
+        setTotalPages(1);
       } else {
+        console.log('No valid data found in response');
         setAllowances([]);
         setTotalElements(0);
         setTotalPages(0);
