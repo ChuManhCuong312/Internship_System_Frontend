@@ -140,3 +140,17 @@ justify-content: center;
   color: #b45309;
   font-weight: 700;
 }
+
+  .status-badge.present {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-badge.early {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  .status-badge.absent {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }

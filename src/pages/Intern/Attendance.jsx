@@ -87,10 +87,24 @@ const Attendance = () => {
     loadData();
   }, [token, internId, selectedMonth, selectedYear]);
 
-  const loadData = async () => {
+  const refreshTodayAttendance = async () => {
+    const todayData = await getTodayAttendance(token, internId);
+    setTodayAttendance(todayData.attendance);
+    setHasCheckedIn(Boolean(todayData.hasCheckedIn));
+    setHasCheckedOut(Boolean(todayData.hasCheckedOut));
+    return todayData;
+  };
+
+  const loadData = async ({ showSpinner = true, skipToday = false } = {}) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       setError(null);
+
+      if (!skipToday) {
+        await refreshTodayAttendance();
+      }
 
       const startDate = new Date(selectedYear, selectedMonth - 1, 1);
       const endDate = new Date(selectedYear, selectedMonth, 0);
@@ -98,57 +112,73 @@ const Attendance = () => {
       const endDateStr = endDate.toISOString().slice(0, 10);
 
       const results = await Promise.allSettled([
-        getTodayAttendance(token, internId),
         getAttendanceByDateRange(token, internId, startDateStr, endDateStr),
         getAttendanceStatistics(token, internId),
         getMonthlyStatistics(token, internId, selectedYear, selectedMonth),
       ]);
 
       if (results[0].status === 'fulfilled') {
-        const todayData = results[0].value;
-        setTodayAttendance(todayData.attendance);
-        setHasCheckedIn(todayData.hasCheckedIn);
-        setHasCheckedOut(todayData.hasCheckedOut);
-      } else {
-        setTodayAttendance(null);
-        setHasCheckedIn(false);
-        setHasCheckedOut(false);
-      }
-
-      if (results[1].status === 'fulfilled') {
-        const historyData = results[1].value;
+        const historyData = results[0].value;
         const list = Array.isArray(historyData) ? historyData : [];
         setHistory(list.slice(0, 10));
       } else {
         setHistory([]);
       }
 
-      if (results[2].status === 'fulfilled') {
-        const statsData = results[2].value;
+      if (results[1].status === 'fulfilled') {
+        const statsData = results[1].value;
         setStatistics(statsData);
       } else {
         setStatistics(null);
       }
 
-      if (results[3].status === 'fulfilled') {
-        const monthlyData = results[3].value;
+      if (results[2].status === 'fulfilled') {
+        const monthlyData = results[2].value;
         setMonthlyStats(monthlyData);
       } else {
         setMonthlyStats(null);
       }
 
     } catch (error) {
+      if (!skipToday) {
+        setTodayAttendance(null);
+        setHasCheckedIn(false);
+        setHasCheckedOut(false);
+      }
       setError('Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
+  };
+
+  const resolveAttendancePayload = (payload) => {
+    if (!payload) return {};
+    if (payload.attendance) return payload.attendance;
+    return payload;
   };
 
   const handleCheckIn = async () => {
     try {
       const result = await checkIn(token, internId);
+      const attendancePayload = resolveAttendancePayload(result);
+      const resolvedCheckIn =
+        attendancePayload.checkIn ||
+        attendancePayload.checkInTime ||
+        attendancePayload.check_in ||
+        new Date().toISOString().substring(11, 16);
+
+      setHasCheckedIn(true);
+      setHasCheckedOut(false);
+      setTodayAttendance((prev) => ({
+        ...(prev || {}),
+        ...attendancePayload,
+        checkIn: resolvedCheckIn,
+      }));
       toast.success('Check-in thành công!');
-      loadData();
+      await refreshTodayAttendance();
+      await loadData({ showSpinner: false, skipToday: true });
     } catch (error) {
       const message =
         error.response?.data?.error ||
@@ -162,10 +192,27 @@ const Attendance = () => {
   const handleCheckOut = async () => {
     try {
       const result = await checkOut(token, internId);
-      const hours = Math.floor(result.workingMinutes / 60);
-      const minutes = result.workingMinutes % 60;
+      const attendancePayload = resolveAttendancePayload(result);
+      const resolvedCheckOut =
+        attendancePayload.checkOut ||
+        attendancePayload.checkOutTime ||
+        attendancePayload.check_out ||
+        new Date().toISOString().substring(11, 16);
+
+      setHasCheckedOut(true);
+      setTodayAttendance((prev) => ({
+        ...(prev || {}),
+        ...attendancePayload,
+        checkOut: resolvedCheckOut,
+      }));
+
+      const workedMinutes =
+        attendancePayload.workingMinutes ?? result.workingMinutes ?? 0;
+      const hours = Math.floor(workedMinutes / 60);
+      const minutes = workedMinutes % 60;
       toast.success(`Check-out thành công! (Làm việc: ${hours}h ${minutes} phút)`);
-      loadData();
+      await refreshTodayAttendance();
+      await loadData({ showSpinner: false, skipToday: true });
     } catch (error) {
       const message =
         error.response?.data?.error ||

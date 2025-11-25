@@ -16,6 +16,8 @@ const HRSidebar = () => {
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openProgramMenu, setOpenProgramMenu] = useState(false);
   const [openBenefitsMenu, setOpenBenefitsMenu] = useState(false);
+  const [openAttendanceMenu, setOpenAttendanceMenu] = useState(false);
+
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -76,7 +78,15 @@ useEffect(() => {
           </ul>
         )}
         <li><FaTasks /> {expanded && <span>Công việc & Đánh giá</span>}</li>
-        <li><FaClock /> {expanded && <span>Chấm công & Thời gian</span>}</li>
+        <li onClick={() => setOpenAttendanceMenu(!openAttendanceMenu)} className="menu-item">
+                  <FaClock /> {expanded && <span>Chấm công & Thời gian</span>}
+                </li>
+                {expanded && openAttendanceMenu && (
+                  <ul className="submenu">
+                    <li><Link to="/hr/attendance-management">Quản lý chấm công</Link></li>
+                    <li><Link to="/hr/leave-management">Quản lý nghỉ phép</Link></li>
+                  </ul>
+                )}
         <li onClick={() => setOpenBenefitsMenu(!openBenefitsMenu)} className="menu-item">
           <FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}
         </li>

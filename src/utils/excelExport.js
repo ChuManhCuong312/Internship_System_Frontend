@@ -5,7 +5,6 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Trợ cấp");
 
-    // Set column widths
     worksheet.columns = [
       { header: "ID", key: "allowanceId", width: 10 },
       { header: "ID Thực tập sinh", key: "internId", width: 15 },
@@ -15,7 +14,6 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
       { header: "Ghi chú", key: "note", width: 30 },
     ];
 
-    // Style header row
     const headerRow = worksheet.getRow(1);
     headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
     headerRow.fill = {
@@ -25,7 +23,6 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
     };
     headerRow.alignment = { horizontal: "center", vertical: "center" };
 
-    // Add data rows
     allowances.forEach((allowance, index) => {
       const row = worksheet.addRow({
         allowanceId: allowance.allowanceId,
@@ -36,7 +33,6 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
         note: allowance.note || "",
       });
 
-      // Alternate row colors
       if (index % 2 === 0) {
         row.fill = {
           type: "pattern",
@@ -45,18 +41,15 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
         };
       }
 
-      // Format amount column as currency
       row.getCell("amount").numFmt = '#,##0';
       row.getCell("amount").alignment = { horizontal: "right" };
 
-      // Center align other columns
       row.getCell("allowanceId").alignment = { horizontal: "center" };
       row.getCell("internId").alignment = { horizontal: "center" };
       row.getCell("type").alignment = { horizontal: "center" };
       row.getCell("dateApplied").alignment = { horizontal: "center" };
     });
 
-    // Add summary row
     const summaryRow = worksheet.addRow({});
     summaryRow.getCell("type").value = "Tổng cộng:";
     summaryRow.getCell("type").font = { bold: true };
@@ -70,13 +63,11 @@ export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấ
       fgColor: { argb: "FFE8E8FF" },
     };
 
-    // Generate file
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    // Download
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
