@@ -249,7 +249,7 @@
 .programs-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 2 columns */
-  gap: 1rem; /* space between cards */
+  gap: 50px; /* space between cards */
 }
 @media (max-width: 768px) {
   .programs-list {
