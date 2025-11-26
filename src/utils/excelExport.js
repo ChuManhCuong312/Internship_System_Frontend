@@ -1,5 +1,91 @@
 import ExcelJS from "exceljs";
 
+export const exportToCSV = (header, rows, filename = "data.csv") => {
+  if (!Array.isArray(header) || !Array.isArray(rows)) {
+    throw new Error("Dữ liệu CSV không hợp lệ");
+  }
+
+  const toCsvRow = (values) =>
+    values
+      .map((value) => {
+        const safe = String(value ?? "").replace(/"/g, '""');
+        return `"${safe}` + `"`;
+      })
+      .join(",");
+
+  const csvContent = [toCsvRow(header), ...rows.map((r) => toCsvRow(r))].join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
+export const exportTableToExcel = async (
+  header,
+  rows,
+  filename = "data.xlsx",
+  sheetName = "Dữ liệu"
+) => {
+  if (!Array.isArray(header) || !Array.isArray(rows)) {
+    throw new Error("Dữ liệu Excel không hợp lệ");
+  }
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+
+  // Thêm header
+  const headerRow = worksheet.addRow(header);
+  headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  headerRow.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF667eea" },
+  };
+  headerRow.alignment = { horizontal: "center", vertical: "center" };
+
+  // Thêm dữ liệu
+  rows.forEach((row, index) => {
+    const excelRow = worksheet.addRow(row);
+
+    // Zebra rows
+    if (index % 2 === 0) {
+      excelRow.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF5F7FA" },
+      };
+    }
+  });
+
+  // Auto fit độ rộng cột tương đối
+  worksheet.columns.forEach((column) => {
+    let maxLength = 10;
+    column.eachCell({ includeEmpty: true }, (cell) => {
+      const cellValue = cell.value ? cell.value.toString() : "";
+      maxLength = Math.max(maxLength, cellValue.length);
+    });
+    column.width = maxLength + 2;
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
 export const exportAllowancesToExcel = async (allowances, filename = "Trợ_cấp.xlsx") => {
   try {
     // Validate input
