@@ -52,7 +52,27 @@ export default function ProgramManagement() {
   const [mentorSearch, setMentorSearch] = useState("");
   const [teamMentorSearch, setTeamMentorSearch] = useState("");
 
-  const allDepartments = ["Engineering", "Product", "Data Science", "Design", "Marketing", "Finance"];
+  const [allDepartments, setAllDepartments] = useState([]);
+  const [assignedMentors, setAssignedMentors] = useState([]);
+
+  // ---------------- LOAD DEPARTMENTS & ASSIGNED MENTORS ----------------
+  useEffect(() => {
+    if (!token) return;
+
+    const loadFilters = async () => {
+      try {
+        const deps = await hrApi.getDepartments(token);
+        setAllDepartments(deps);
+
+        const mentors = await hrApi.getAssignedMentorsDropdown(token);
+        setAssignedMentors(mentors); // [{ mentorId, mentorName }]
+      } catch (err) {
+        console.error("Error loading filter lists:", err);
+      }
+    };
+
+    loadFilters();
+  }, [token]);
 
   // ---------------- FETCH PROGRAMS ----------------
   useEffect(() => {
@@ -62,8 +82,11 @@ export default function ProgramManagement() {
 
         if (searchTerm) {
           data = await hrApi.searchPrograms(token, searchTerm); // optionally add pagination in backend
+        // Filter by department (backend)
         } else if (filterDepartment !== "all-departments") {
           data = await hrApi.filterProgramsByDepartment(token, filterDepartment);
+
+        // Filter by mentor (backend)
         } else if (filterMentor !== "all-mentors") {
           data = await hrApi.filterProgramsByMentor(token, filterMentor);
         } else {
@@ -93,11 +116,10 @@ export default function ProgramManagement() {
 
   // ---------------- FILTER PROGRAMS ----------------
   const filteredPrograms = programs.filter((program) => {
-    const matchesSearch = program.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = filterDepartment === "all-departments" || program.department === filterDepartment;
-    const matchesMentor =
-      filterMentor === "all-mentors" || program.mentors?.some((m) => m.name === filterMentor);
-    return matchesSearch && matchesDepartment && matchesMentor;
+    if (!program?.name) return false; // safeguard
+    return searchTerm
+      ? program.name.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
   });
 
   // ---------------- PROGRAM ACTIONS ----------------
@@ -304,6 +326,12 @@ const handleCloneProgram = async (program) => {
     setShowInternSuggestions(false);
   };
 
+  const formatLocalDate = (dateString) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-CA");
+    // en-CA outputs YYYY-MM-DD
+  };
+
   return (
     <div className="dashboard-layout">
       <HRSidebar />
@@ -353,14 +381,11 @@ const handleCloneProgram = async (program) => {
                     className="select"
                   >
                     <option value="all-mentors">Lọc theo mentor</option>
-                    {/** You need a list of mentors here, for example fetched from API or overview */}
-                    {Object.values(programOverview)
-                      .flatMap(p => p.mentorNames || [])
-                      .filter((v, i, a) => a.indexOf(v) === i) // unique
-                      .map((mentor) => (
-                        <option key={mentor} value={mentor}>{mentor}</option>
-                      ))
-                    }
+                    {assignedMentors.map((m) => (
+                      <option key={m.mentorId} value={m.mentorId}>
+                        {m.fullName}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -445,11 +470,11 @@ const handleCloneProgram = async (program) => {
                     </div>
                     <div className="stat-item">
                       <p className="stat-label">Ngày bắt đầu</p>
-                      <p className="stat-value">{program.startDate}</p>
+                      <p className="stat-value">{formatLocalDate(program.startDate)}</p>
                     </div>
                     <div className="stat-item">
                       <p className="stat-label">Ngày kết thúc</p>
-                      <p className="stat-value">{program.endDate}</p>
+                      <p className="stat-value">{formatLocalDate(program.endDate)}</p>
                     </div>
                     <div className="stat-item">
                       <p className="stat-label">Số lượng mentor</p>
