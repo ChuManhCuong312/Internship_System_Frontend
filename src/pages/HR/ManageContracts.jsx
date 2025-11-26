@@ -85,8 +85,27 @@ const ManageContracts = () => {
 
     try {
       setUploading(true);
-      
-        // Validate file
+      // If no file provided and this is a replace operation (has documentId),
+      // treat it as a note-only update and call the note endpoint.
+      const documentId = selectedContract.documentId || selectedContract.document_id;
+      const internId = selectedContract.internId || selectedContract.intern_id;
+
+      if (!file) {
+        if (documentId) {
+          // Update note only
+          await hrApi.updateContractNote(token, documentId, note);
+          toast.success("Cập nhật ghi chú hợp đồng thành công");
+          setShowUploadModal(false);
+          setSelectedContract(null);
+          fetchContracts();
+          return;
+        }
+        // No file and no existing document -> must provide file for new upload
+        toast.error("Vui lòng chọn file hợp đồng");
+        return;
+      }
+
+      // Validate file
       const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         toast.error("Kích thước file không được vượt quá 10MB");
@@ -101,9 +120,6 @@ const ManageContracts = () => {
       }
 
       let result;
-      const documentId = selectedContract.documentId || selectedContract.document_id;
-      const internId = selectedContract.internId || selectedContract.intern_id;
-      
       if (documentId) {
         // Replace existing contract
         result = await hrApi.replaceContract(token, documentId, file, note);
