@@ -123,12 +123,74 @@ const hrApi = {
       },
 
   // Lấy danh sách contracts
-  getContracts: async (token, page = 0, size = 10) => {
+  // Accepts either (token, page, size) OR (token, { searchTerm, status, page, size })
+  getContracts: async (token, optionsOrPage = 0, size = 10) => {
+    const params = {};
+    if (typeof optionsOrPage === "object") {
+      const { searchTerm, status, page = 0, size: s = 10 } = optionsOrPage || {};
+      if (searchTerm) params.searchTerm = searchTerm;
+      if (status) params.status = status;
+      params.page = page;
+      params.size = s;
+    } else {
+      params.page = optionsOrPage || 0;
+      params.size = size || 10;
+    }
+
     const response = await axios.get(API_URL_CONTRACTS, {
       ...authHeader(token),
-      params: { page, size },
+      params,
     });
     return response.data;
+  },
+
+  // Upload a new contract for an intern
+  uploadContract: async (token, internId, file, note) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (note) formData.append("note", note);
+
+    const res = await axios.post(`${API_URL_CONTRACTS}/${internId}/upload`, formData, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
+
+  // Replace existing contract document
+  replaceContract: async (token, documentId, file, note) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (note) formData.append("note", note);
+
+    const res = await axios.patch(`${API_URL_CONTRACTS}/${documentId}/replace`, formData, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
+
+  // Update contract note without uploading a new file
+  updateContractNote: async (token, documentId, note) => {
+    const res = await axios.patch(`${API_URL_CONTRACTS}/${documentId}/note`, { note }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
+
+  // Delete contract
+  deleteContract: async (token, documentId) => {
+    const res = await axios.delete(`${API_URL_CONTRACTS}/${documentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
+
+  // Download contract file as blob
+  downloadContract: async (token, documentId) => {
+    const res = await axios.get(`${API_URL_CONTRACTS}/${documentId}/download`, {
+      headers: { Authorization: `Bearer ${token}` },
+      responseType: "blob",
+    });
+    return res.data;
   },
 
   searchInterns: async (token, { searchTerm, major, school, status, page = 0, size = 10 }) => {

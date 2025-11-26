@@ -74,7 +74,7 @@ const ContractTable = ({
             <th>SĐT</th>
             <th>Hợp đồng</th>
             <th>Trạng thái</th>
-            <th>Ngày tạo</th>
+            <th>Thời gian tạo</th>
             <th>Chú thích</th>
             <th>Hành động</th>
           </tr>
