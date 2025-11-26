@@ -98,6 +98,13 @@ const hrApi = {
         return res.data;
       },
 
+      getDepartments: async (token) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/department`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // list of strings
+      },
+
       // Filter programs by mentor
       filterProgramsByMentor: async (token, mentorId) => {
         const res = await axios.get(`${API_URL_PROGRAM}/filter/mentor`, {
@@ -106,17 +113,15 @@ const hrApi = {
         });
         return res.data;
       },
-      getMentorsForProgramFilters: async (token) => {
-        try {
-          const res = await axios.get(`${API_URL_MENTOR}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          return res.data; // returns the list of mentors
-        } catch (err) {
-          console.error("Failed to fetch mentors for filters:", err);
-          throw err;
-        }
+
+      // Fetch mentors who are assigned to at least 1 program
+      getAssignedMentorsDropdown: async (token) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/mentor-assigned`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // list of { mentorId, mentorName }
       },
+
   // Lấy danh sách contracts
   getContracts: async (token, page = 0, size = 10) => {
     const response = await axios.get(API_URL_CONTRACTS, {
