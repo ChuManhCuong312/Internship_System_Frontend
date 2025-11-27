@@ -105,6 +105,8 @@
 .month-selector {
   display: flex;
   gap: 10px;
+  margin-left: auto;
+  align-items: center;
 }
 
 .month-select,
@@ -292,5 +294,19 @@
 
   .stat-value {
     font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .history-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .month-selector {
+    margin-left: 0;
+    justify-content: flex-end;
+    width: 100%;
+    flex-wrap: wrap;
   }
 }
