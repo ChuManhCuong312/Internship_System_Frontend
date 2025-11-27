@@ -118,7 +118,6 @@ const Attendance = () => {
       if (results[1].status === 'fulfilled') {
         const historyData = results[1].value;
         const list = Array.isArray(historyData) ? historyData : [];
-        setHistory(list.slice(0, 10));
       } else {
         setHistory([]);
       }
@@ -318,7 +317,9 @@ const Attendance = () => {
         {/* History Table */}
         <div className="history-section">
           <div className="history-header">
-            <h3>Lịch sử chấm công (10 ngày gần nhất)</h3>
+            <h3>
+              Lịch sử chấm công tháng {selectedMonth}/{selectedYear}
+            </h3>
             <div className="month-selector">
               <select
                 value={selectedMonth}
