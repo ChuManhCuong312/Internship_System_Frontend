@@ -232,32 +232,23 @@ const AttendanceManagement = () => {
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
-        <h2 className="page-title">Quản lý chấm công</h2>
-
         <div className="history-section">
-          <div className="history-header">
+          <div className="manage-users-header">
+            <h2 className="page-title">Quản lý chấm công</h2>
             <h3>
               {mode === "daily"
                 ? "Danh sách chấm công theo ngày"
                 : "Thống kê chấm công theo tháng"}
             </h3>
             <div className="month-selector">
-              <div className="mode-switch">
-                <button
-                  className={`btn-primary ${mode === "daily" ? "active" : ""}`}
-                  onClick={() => setMode("daily")}
-                >
-                  Theo ngày
-                </button>
-                <button
-                  className={`btn-secondary ${
-                    mode === "monthly" ? "active" : ""
-                  }`}
-                  onClick={() => setMode("monthly")}
-                >
-                  Theo tháng
-                </button>
-              </div>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value)}
+                className="month-select"
+              >
+                <option value="daily">Theo ngày</option>
+                <option value="monthly">Theo tháng</option>
+              </select>
 
               {mode === "daily" ? (
                 <input
@@ -295,7 +286,7 @@ const AttendanceManagement = () => {
 
               <button
                 type="button"
-                className="btn-secondary"
+                className="btn-primary"
                 onClick={handleExportCSV}
                 disabled={!records || records.length === 0}
               >

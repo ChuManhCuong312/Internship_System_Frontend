@@ -9,8 +9,8 @@ const AttendanceTable = ({
   calculateWorkingMinutes,
 }) => {
   return (
-    <div className="table-container">
-      <table className="attendance-table">
+    <div className="users-table-container">
+      <table className="users-table">
         <thead>
           <tr>
             {mode === "daily" ? (
