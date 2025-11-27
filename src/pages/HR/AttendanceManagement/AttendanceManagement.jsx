@@ -278,12 +278,14 @@ const AttendanceManagement = () => {
       <div className="dashboard-content">
         <div className="history-section">
           <div className="manage-users-header">
-            <h2 className="page-title">Quản lý chấm công</h2>
-            <h3>
-              {mode === "daily"
-                ? "Danh sách chấm công theo ngày"
-                : "Thống kê chấm công theo tháng"}
-            </h3>
+              <h2 className="page-title">Quản lý chấm công</h2>
+                <h3>
+                   {mode === "daily"
+                    ? "Danh sách chấm công theo ngày"
+                    : "Thống kê chấm công theo tháng"}
+                  </h3>
+              <div className="header-top">
+
             <div className="month-selector">
               <select
                 value={mode}
@@ -338,7 +340,7 @@ const AttendanceManagement = () => {
               </button>
             </div>
           </div>
-
+</div>
           {loading && (
             <div className="loading-spinner">Đang tải dữ liệu chấm công...</div>
           )}
