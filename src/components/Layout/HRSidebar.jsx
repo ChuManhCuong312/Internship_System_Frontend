@@ -66,9 +66,9 @@ const [openTaskMenu, setOpenTaskMenu] = useState(() => {
     localStorage.setItem("hrBenefitsMenuOpen", JSON.stringify(openBenefitsMenu));
   }, [openBenefitsMenu]);
 
-useEffect(() => {
-  localStorage.setItem("hrTaskMenuOpen", JSON.stringify(openTaskMenu));
-}, [openTaskMenu]);
+  useEffect(() => {
+    localStorage.setItem("hrTaskMenuOpen", JSON.stringify(openTaskMenu));
+  }, [openTaskMenu]);
 
   useEffect(() => {
     const path = location.pathname;
@@ -81,7 +81,7 @@ useEffect(() => {
       setOpenProgramMenu(true);
     }
 
-    if (path.includes('/hr/attendance')) {
+    if (path.includes('/hr/attendance') || path.includes('/hr/leave-requests')) {
       setOpenTaskMenu(true);
     }
 
@@ -102,6 +102,10 @@ useEffect(() => {
     setOpenBenefitsMenu(!openBenefitsMenu);
   };
 
+  const handleTaskMenuToggle = () => {
+    setOpenTaskMenu(!openTaskMenu);
+  };
+
   const isActive = (path) => {
     return location.pathname === path;
   };
@@ -113,10 +117,6 @@ useEffect(() => {
   const handleMouseLeave = () => {
     setExpanded(false);
   };
-
-const handleTaskMenuToggle = () => {
-  setOpenTaskMenu(!openTaskMenu);
-};
 
   return (
     <animated.div
@@ -181,7 +181,7 @@ const handleTaskMenuToggle = () => {
 
         <li
           onClick={handleTaskMenuToggle}
-          className={`menu-item ${isParentActive(['/hr/attendance']) ? 'active' : ''}`}
+          className={`menu-item ${isParentActive(['/hr/attendance', '/hr/leave-requests']) ? 'active' : ''}`}
         >
           <FaTasks /> {expanded && <span>Chấm công & Nghỉ phép</span>}
         </li>
@@ -189,6 +189,9 @@ const handleTaskMenuToggle = () => {
           <ul className="submenu">
             <li className={isActive('/hr/attendance') ? 'active' : ''}>
               <Link to="/hr/attendance">Quản lý chấm công</Link>
+            </li>
+            <li className={isActive('/hr/leave-requests') ? 'active' : ''}>
+              <Link to="/hr/leave-requests">Quản lý đơn nghỉ phép</Link>
             </li>
           </ul>
         )}
