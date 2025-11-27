@@ -20,7 +20,11 @@ export default function ProgramFormModal({
   const today = new Date();
   const minStartDate = new Date(today);
   minStartDate.setDate(today.getDate() + 14);
-  const minStartDateStr = minStartDate.toISOString().split("T")[0];
+  const formatLocalDate = (date) => {
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
+  };
+  const minStartDateStr = formatLocalDate(minStartDate);
 
   // Auto-set end date to startDate + 1 month
   useEffect(() => {
@@ -35,6 +39,27 @@ export default function ProgramFormModal({
       }
     }
   }, [formData.startDate]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (selectedProgram) {
+        // Pre-fill with existing program data
+        setFormData({
+          name: selectedProgram.name,
+          department: selectedProgram.department,
+          startDate: selectedProgram.startDate?.split("T")[0], // keep only date part
+          endDate: selectedProgram.endDate?.split("T")[0],
+          detail: selectedProgram.detail,
+          maxInterns: selectedProgram.maxInterns,
+        });
+      } else {
+        // Reset for create mode
+        setFormData({});
+      }
+      setShowNameError(false);
+    }
+  }, [isOpen, selectedProgram]);
+
 
   // Calculate min end date for input validation
   const minEndDateStr = useMemo(() => {
@@ -132,7 +157,11 @@ export default function ProgramFormModal({
                   setFormData({ ...formData, startDate: e.target.value, endDate: "" })
                 }
                 className="form-input"
-                min={minStartDateStr}
+                min={
+                  selectedProgram
+                    ? selectedProgram.startDate?.split("T")[0] // old start date in edit mode
+                    : minStartDateStr // today + 2 weeks in create mode
+                }
                 disabled={isUpdateDisabled}
               />
             </div>
