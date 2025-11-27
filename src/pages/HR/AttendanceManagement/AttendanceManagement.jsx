@@ -27,6 +27,11 @@ const AttendanceManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [records, setRecords] = useState([]);
+  const [allRecords, setAllRecords] = useState([]);
+
+  // Filter states
+  const [searchName, setSearchName] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -41,7 +46,11 @@ const AttendanceManagement = () => {
     } else {
       fetchMonthly();
     }
-  }, [token, mode, selectedDate, selectedMonth, selectedYear, page, size]);
+  }, [token, mode, selectedDate, selectedMonth, selectedYear]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [allRecords, searchName, filterStatus, page, size]);
 
   const fetchDaily = async () => {
     if (!token || !selectedDate) return;
@@ -49,17 +58,11 @@ const AttendanceManagement = () => {
       setLoading(true);
       setError(null);
       const data = await getDailyAttendanceForHR(token, selectedDate);
-
-      const allRecords = Array.isArray(data) ? data : [];
-      const startIndex = page * size;
-      const endIndex = startIndex + size;
-      const paginatedRecords = allRecords.slice(startIndex, endIndex);
-
-      setRecords(paginatedRecords);
-      setTotalElements(allRecords.length);
-      setTotalPages(Math.ceil(allRecords.length / size));
+      const fetchedRecords = Array.isArray(data) ? data : [];
+      setAllRecords(fetchedRecords);
     } catch (e) {
       setError("Không thể tải danh sách chấm công ngày.");
+      setAllRecords([]);
       setRecords([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -78,18 +81,11 @@ const AttendanceManagement = () => {
         selectedYear,
         selectedMonth
       );
-
-      // Xử lý phân trang phía client
-      const allRecords = Array.isArray(data) ? data : [];
-      const startIndex = page * size;
-      const endIndex = startIndex + size;
-      const paginatedRecords = allRecords.slice(startIndex, endIndex);
-
-      setRecords(paginatedRecords);
-      setTotalElements(allRecords.length);
-      setTotalPages(Math.ceil(allRecords.length / size));
+      const fetchedRecords = Array.isArray(data) ? data : [];
+      setAllRecords(fetchedRecords);
     } catch (e) {
       setError("Không thể tải thống kê chấm công tháng.");
+      setAllRecords([]);
       setRecords([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -98,9 +94,51 @@ const AttendanceManagement = () => {
     }
   };
 
+  const applyFilters = () => {
+    let filtered = [...allRecords];
+
+    if (searchName.trim()) {
+      const searchLower = searchName.toLowerCase().trim();
+      filtered = filtered.filter((record) => {
+        const name = (
+          record.internName ||
+          record.fullName ||
+          record.name ||
+          record.intern_name ||
+          ""
+        ).toLowerCase();
+        return name.includes(searchLower);
+      });
+    }
+
+    if (mode === "daily" && filterStatus) {
+      filtered = filtered.filter((record) => {
+        const status = record.status;
+
+        if (filterStatus === "LATE") {
+          return status === "LATE" || status === "LATE_INSUFFICIENT";
+        }
+
+        if (filterStatus === "INSUFFICIENT") {
+          return status === "INSUFFICIENT" || status === "LATE_INSUFFICIENT";
+        }
+
+        return status === filterStatus;
+      });
+    }
+
+    const startIndex = page * size;
+    const endIndex = startIndex + size;
+    const paginatedRecords = filtered.slice(startIndex, endIndex);
+
+    setRecords(paginatedRecords);
+    setTotalElements(filtered.length);
+    setTotalPages(Math.ceil(filtered.length / size));
+  };
+
   useEffect(() => {
     setPage(0);
-  }, [mode, selectedDate, selectedMonth, selectedYear]);
+  }, [mode, selectedDate, selectedMonth, selectedYear, searchName, filterStatus]);
 
   const formatTime = (time) => {
     if (!time) return "--:--";
@@ -154,22 +192,40 @@ const AttendanceManagement = () => {
   };
 
   const handleExportCSV = async () => {
-    if (!records || records.length === 0) {
-      toast.warning("Không có dữ liệu để xuất");
-      return;
+    let exportRecords = [...allRecords];
+
+    if (searchName.trim()) {
+      const searchLower = searchName.toLowerCase().trim();
+      exportRecords = exportRecords.filter((record) => {
+        const name = (
+          record.internName ||
+          record.fullName ||
+          record.name ||
+          record.intern_name ||
+          ""
+        ).toLowerCase();
+        return name.includes(searchLower);
+      });
     }
 
-    let allRecords = [];
-    try {
-      if (mode === "daily") {
-        const data = await getDailyAttendanceForHR(token, selectedDate);
-        allRecords = Array.isArray(data) ? data : [];
-      } else {
-        const data = await getMonthlyAttendanceForHR(token, selectedYear, selectedMonth);
-        allRecords = Array.isArray(data) ? data : [];
-      }
-    } catch (e) {
-      toast.error("Không thể lấy dữ liệu để xuất");
+    if (mode === "daily" && filterStatus) {
+      exportRecords = exportRecords.filter((record) => {
+        const status = record.status;
+
+        if (filterStatus === "LATE") {
+          return status === "LATE" || status === "LATE_INSUFFICIENT";
+        }
+
+        if (filterStatus === "INSUFFICIENT") {
+          return status === "INSUFFICIENT" || status === "LATE_INSUFFICIENT";
+        }
+
+        return status === filterStatus;
+      });
+    }
+
+    if (!exportRecords || exportRecords.length === 0) {
+      toast.warning("Không có dữ liệu để xuất");
       return;
     }
 
@@ -187,7 +243,7 @@ const AttendanceManagement = () => {
         "Trạng thái",
       ];
 
-      rows = allRecords.map((record) => {
+      rows = exportRecords.map((record) => {
         const name =
           record.internName ||
           record.fullName ||
@@ -225,7 +281,7 @@ const AttendanceManagement = () => {
 
       const monthLabel = `${selectedMonth}/${selectedYear}`;
 
-      rows = allRecords.map((record) => {
+      rows = exportRecords.map((record) => {
         const name =
           record.internName ||
           record.fullName ||
@@ -265,11 +321,16 @@ const AttendanceManagement = () => {
 
     try {
       await exportTableToExcel(header, rows, fileName, sheetName);
-      toast.success(`Xuất Excel thành công (${allRecords.length} bản ghi)`);
+      toast.success(`Xuất Excel thành công (${exportRecords.length} bản ghi)`);
     } catch (error) {
       console.error("Error exporting attendance CSV:", error);
       toast.error("Lỗi khi xuất Excel: " + (error.message || "Không xác định"));
     }
+  };
+
+  const handleClearFilters = () => {
+    setSearchName("");
+    setFilterStatus("");
   };
 
   return (
@@ -278,69 +339,104 @@ const AttendanceManagement = () => {
       <div className="dashboard-content">
         <div className="history-section">
           <div className="manage-users-header">
-              <h2 className="page-title">Quản lý chấm công</h2>
-                <h3>
-                   {mode === "daily"
-                    ? "Danh sách chấm công theo ngày"
-                    : "Thống kê chấm công theo tháng"}
-                  </h3>
-              <div className="header-top">
+            <h2 className="page-title">Quản lý chấm công</h2>
+            <h3>
+              {mode === "daily"
+                ? "Danh sách chấm công theo ngày"
+                : "Thống kê chấm công theo tháng"}
+            </h3>
+            <div className="header-top">
+              <input
+                type="text"
+                placeholder="Tìm kiếm theo tên..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="search-input"
+              />
 
-            <div className="month-selector">
-              <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
-                className="month-select"
-              >
-                <option value="daily">Theo ngày</option>
-                <option value="monthly">Theo tháng</option>
-              </select>
-
-              {mode === "daily" ? (
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="month-select"
-                />
-              ) : (
-                <>
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                    className="month-select"
-                  >
-                    {[...Array(12)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        Tháng {i + 1}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                    className="year-select"
-                  >
-                    {[2023, 2024, 2025].map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </>
+              {mode === "daily" && (
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Tất cả trạng thái</option>
+                  <option value="ON_TIME">Đúng giờ</option>
+                  <option value="LATE">Muộn</option>
+                  <option value="INCOMPLETE">Chưa hoàn thành</option>
+                  <option value="ABSENT">Vắng</option>
+                  <option value="INSUFFICIENT">Không đủ giờ</option>
+                  <option value="LATE_INSUFFICIENT">Muộn + thiếu giờ</option>
+                </select>
               )}
 
+              <div className="month-selector">
+                <select
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="daily">Theo ngày</option>
+                  <option value="monthly">Theo tháng</option>
+                </select>
+
+                {mode === "daily" ? (
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="filter-select"
+                  />
+                ) : (
+                  <>
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                      className="filter-select"
+                    >
+                      {[...Array(12)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          Tháng {i + 1}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(Number(e.target.value))}
+                      className="year-select"
+                    >
+                      {[2023, 2024, 2025].map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleExportCSV}
+                  disabled={!records || records.length === 0}
+                >
+                  Xuất Excel
+                </button>
+              </div>
+            </div>
+
+            {/* Clear filter button - always visible */}
+            <div className="clear-filter-container">
               <button
                 type="button"
-                className="btn-primary"
-                onClick={handleExportCSV}
-                disabled={!records || records.length === 0}
+                className="clear-filter-btn"
+                onClick={handleClearFilters}
               >
-                Xuất Excel
+                ✖ Clear filter
               </button>
             </div>
           </div>
-</div>
+
           {loading && (
             <div className="loading-spinner">Đang tải dữ liệu chấm công...</div>
           )}
