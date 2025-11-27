@@ -5,6 +5,8 @@ const API_URL = "http://localhost:8080/api/hr/interns";
 const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
 const API_URL_MENTOR = "http://localhost:8080/api/mentors";
 const API_URL_CONTRACTS = "http://localhost:8080/api/hr/contracts";
+const API_URL_PROGRAM = "http://localhost:8080/api/programs";
+const API_URL_TEAMS = "http://localhost:8080/api/teams";
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
@@ -20,6 +22,105 @@ const hrApi = {
     });
     return response.data;
   },
+
+    // --------- PROGRAM METHODS ---------
+    getAllPrograms: async (token, { page = 1, size = 10, sortBy = "programId", sortDir = "asc" } = {}) => {
+      const res = await axios.get(API_URL_PROGRAM, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { page, size, sortBy, sortDir },
+      });
+      return res.data; // returns { data, currentPage, totalItems, totalPages }
+    },
+
+    createProgram: async (token, programData) => {
+      const res = await axios.post(`${API_URL_PROGRAM}/create`, programData, authHeader(token));
+      return res.data;
+    },
+
+    updateProgram: async (token, programId, programData) => {
+      const res = await axios.put(`${API_URL_PROGRAM}/${programId}`, programData, authHeader(token));
+      return res.data;
+    },
+
+    deleteProgram: async (token, programId) => {
+      const res = await axios.delete(`${API_URL_PROGRAM}/${programId}`, authHeader(token));
+      return res.data;
+    },
+
+    getCloneTemplate: async (token, programId) => {
+      const res = await axios.get(`${API_URL_PROGRAM}/${programId}/clone-template`, authHeader(token));
+      return res.data;
+    },
+
+    cloneProgram: async (token, cloneData) => {
+      const res = await axios.post(`${API_URL_PROGRAM}/clone`, cloneData, authHeader(token));
+      return res.data;
+    },
+
+
+    // Program Overview
+      getProgramOverview: async (token, programId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/overview`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // returns { totalTeams, totalInterns, totalMentors, mentorNames }
+      },
+
+      getTeamsInProgram: async (token, programId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/teams`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+      },
+
+      getMentorsForProgram: async (token, programId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/mentors`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+      },
+
+      // Search programs by name
+      searchPrograms: async (token, name) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { name },
+        });
+        return res.data;
+      },
+
+      // Filter programs by department
+      filterProgramsByDepartment: async (token, department) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/filter/department`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { department },
+        });
+        return res.data;
+      },
+
+      getDepartments: async (token) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/department`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // list of strings
+      },
+
+      // Filter programs by mentor
+      filterProgramsByMentor: async (token, mentorId) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/filter/mentor`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { mentorId },
+        });
+        return res.data;
+      },
+
+      // Fetch mentors who are assigned to at least 1 program
+      getAssignedMentorsDropdown: async (token) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/mentor-assigned`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // list of { mentorId, mentorName }
+      },
 
   // Lấy danh sách contracts
   // Accepts either (token, page, size) OR (token, { searchTerm, status, page, size })
