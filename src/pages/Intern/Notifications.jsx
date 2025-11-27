@@ -94,6 +94,20 @@ const Notifications = () => {
     return colors[type] || '#667eea';
   };
 
+  const getNotificationLabel = (type) => {
+    const labels = {
+      ALLOWANCE: 'Trợ cấp',
+      TASK: 'Công việc',
+      ATTENDANCE: 'Điểm danh',
+      LEAVE: 'Đơn xin nghỉ',
+      LEAVE_REQUEST: 'Đơn xin nghỉ',
+      PROFILE_STATUS: 'Hồ sơ',
+      SYSTEM: 'Hệ thống',
+      OTHER: 'Khác',
+    };
+    return labels[type] || type || 'Thông báo';
+  };
+
   const handleMarkAsRead = async (notificationId, isRead) => {
     if (isRead) return; // Nếu đã đọc rồi thì không làm gì
 
@@ -171,7 +185,7 @@ const Notifications = () => {
                       <span className="notification-type" style={{ 
                         backgroundColor: getNotificationColor(notification.type) 
                       }}>
-                        {notification.type}
+                        {getNotificationLabel(notification.type)}
                       </span>
                     </div>
                     <p className="notification-message">{notification.message}</p>
