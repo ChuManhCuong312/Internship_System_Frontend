@@ -18,7 +18,7 @@ const AllowancesTable = ({
               STT {sortBy === "allowanceId" && (direction === "asc" ? "↑" : "↓")}
             </th>
 
-           {/* <th onClick={() => onSort("internId")}>
+            {/* <th onClick={() => onSort("internId")}>
               ID TTS {sortBy === "internId" && (direction === "asc" ? "↑" : "↓")}
             </th> */}
             <th>Tên thực tập sinh</th>
@@ -40,7 +40,6 @@ const AllowancesTable = ({
             allowances.map((allowance) => (
               <tr key={allowance.allowanceId}>
                 <td>{allowance.allowanceId}</td>
-                <td>{allowance.internId}</td>
                 <td>{allowance.internName || "-"}</td>
                 <td>{allowance.type}</td>
                 <td className="amount">
