@@ -68,10 +68,10 @@ export default function AddEditTeamModal({
                     .filter((mentor) => mentor.name.toLowerCase().includes(teamMentorSearch.toLowerCase()))
                     .map((mentor) => (
                       <div
-                        key={mentor.mentor_id}
+                        key={mentor.mentorId}
                         className="suggestion-item"
                         onClick={() => {
-                          setTeamFormData({ ...teamFormData, mentor_id: mentor.mentor_id });
+                          setTeamFormData({ ...teamFormData, mentorId: mentor.mentorId });
                           setTeamMentorSearch(mentor.name);
                         }}
                       >
@@ -84,15 +84,15 @@ export default function AddEditTeamModal({
                 </div>
               )}
 
-              {teamFormData.mentor_id && (
+              {teamFormData.mentorId && (
                 <div className="selected-mentor">
                   <span className="mentor-badge">
-                    {mockMentors.find((m) => m.mentor_id === teamFormData.mentor_id)?.name}
+                    {mockMentors.find((m) => m.mentorId === teamFormData.mentorId)?.name}
                   </span>
                   <button
                     type="button"
                     onClick={() => {
-                      setTeamFormData({ ...teamFormData, mentor_id: null });
+                      setTeamFormData({ ...teamFormData, mentorId: null });
                       setTeamMentorSearch("");
                     }}
                     className="btn-remove"
@@ -117,12 +117,12 @@ export default function AddEditTeamModal({
               <div className="interns-list">
                 {selectedTeam.interns &&
                   selectedTeam.interns.map((intern) => (
-                    <div key={intern.intern_id} className="intern-item">
+                    <div key={intern.internId} className="intern-item">
                       <div>
                         <p className="intern-name">{intern.name}</p>
                         <p className="intern-info">{intern.phone}</p>
                       </div>
-                      <button className="btn-remove" onClick={() => handleRemoveIntern(intern.intern_id)}>
+                      <button className="btn-remove" onClick={() => handleRemoveIntern(intern.internId)}>
                         <X size={16} />
                       </button>
                     </div>

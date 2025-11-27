@@ -154,21 +154,38 @@ export default function ProgramManagement() {
 
   const handleSaveProgram = async () => {
     try {
+      // Helper function to format date as LocalDateTime with current time
+          const formatDateTime = (dateStr) => {
+            if (!dateStr) return null;
+            const date = new Date(dateStr);
+            date.setHours(23, 59, 59, 0); // end of day
+            const pad = (n) => n.toString().padStart(2, "0");
+            return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+          };
+
+      // Prepare payload with formatted dates
+      const payload = {
+        ...formData,
+        startDate: formatDateTime(formData.startDate),
+        endDate: formatDateTime(formData.endDate),
+      };
+      console.log(payload.startDate);
       if (selectedProgram) {
         // Update program
-        const updatedProgram = await hrApi.updateProgram(token, selectedProgram.programId, formData);
-        setPrograms(prevPrograms => {
-          // Move updated program to top
-          const others = prevPrograms.filter(p => p.programId !== updatedProgram.programId);
+        const updatedProgram = await hrApi.updateProgram(token, selectedProgram.programId, payload);
+        setPrograms((prevPrograms) => {
+          const others = prevPrograms.filter((p) => p.programId !== updatedProgram.programId);
           return [updatedProgram, ...others];
         });
         setIsEditProgramOpen(false);
       } else {
         // Create new program
-        const newProgram = await hrApi.createProgram(token, formData);
-        setPrograms(prevPrograms => [newProgram, ...prevPrograms]); // prepend to top
+        const newProgram = await hrApi.createProgram(token, payload);
+        setPrograms((prevPrograms) => [newProgram, ...prevPrograms]); // prepend to top
         setIsAddProgramOpen(false);
       }
+
+      // Reset form
       setFormData({});
     } catch (err) {
       console.error("Error saving program:", err);
