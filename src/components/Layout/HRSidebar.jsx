@@ -14,7 +14,6 @@ const HRSidebar = () => {
     return saved ? JSON.parse(saved) : false;
   });
 
-  // Lưu trạng thái mở/đóng của các submenu vào localStorage
   const [openProfileMenu, setOpenProfileMenu] = useState(() => {
     const saved = localStorage.getItem("hrProfileMenuOpen");
     return saved ? JSON.parse(saved) : false;
@@ -29,6 +28,11 @@ const HRSidebar = () => {
     const saved = localStorage.getItem("hrBenefitsMenuOpen");
     return saved ? JSON.parse(saved) : false;
   });
+
+const [openTaskMenu, setOpenTaskMenu] = useState(() => {
+  const saved = localStorage.getItem("hrTaskMenuOpen");
+  return saved ? JSON.parse(saved) : false;
+});
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -46,12 +50,10 @@ const HRSidebar = () => {
     .slice(0, 2)
     .toUpperCase();
 
-  // Lưu trạng thái expanded vào localStorage
   useEffect(() => {
     localStorage.setItem("hrSidebarExpanded", JSON.stringify(expanded));
   }, [expanded]);
 
-  // Lưu trạng thái các submenu vào localStorage
   useEffect(() => {
     localStorage.setItem("hrProfileMenuOpen", JSON.stringify(openProfileMenu));
   }, [openProfileMenu]);
@@ -64,7 +66,10 @@ const HRSidebar = () => {
     localStorage.setItem("hrBenefitsMenuOpen", JSON.stringify(openBenefitsMenu));
   }, [openBenefitsMenu]);
 
-  // Tự động mở submenu dựa trên route hiện tại
+useEffect(() => {
+  localStorage.setItem("hrTaskMenuOpen", JSON.stringify(openTaskMenu));
+}, [openTaskMenu]);
+
   useEffect(() => {
     const path = location.pathname;
 
@@ -74,6 +79,10 @@ const HRSidebar = () => {
 
     if (path.includes('/hr/program') || path.includes('/hr/mentor-assigns')) {
       setOpenProgramMenu(true);
+    }
+
+    if (path.includes('/hr/attendance')) {
+      setOpenTaskMenu(true);
     }
 
     if (path.includes('/hr/allowances') || path.includes('/hr/contracts')) {
@@ -93,12 +102,10 @@ const HRSidebar = () => {
     setOpenBenefitsMenu(!openBenefitsMenu);
   };
 
-  // Helper function để check active route
   const isActive = (path) => {
     return location.pathname === path;
   };
 
-  // Helper function để check active menu cha
   const isParentActive = (paths) => {
     return paths.some(path => location.pathname.includes(path));
   };
@@ -106,6 +113,10 @@ const HRSidebar = () => {
   const handleMouseLeave = () => {
     setExpanded(false);
   };
+
+const handleTaskMenuToggle = () => {
+  setOpenTaskMenu(!openTaskMenu);
+};
 
   return (
     <animated.div
@@ -168,8 +179,19 @@ const HRSidebar = () => {
           </ul>
         )}
 
-        <li><FaTasks /> {expanded && <span>Công việc & Đánh giá</span>}</li>
-        <li><FaClock /> {expanded && <span>Chấm công & Thời gian</span>}</li>
+        <li
+          onClick={handleTaskMenuToggle}
+          className={`menu-item ${isParentActive(['/hr/attendance']) ? 'active' : ''}`}
+        >
+          <FaTasks /> {expanded && <span>Chấm công & Nghỉ phép</span>}
+        </li>
+        {expanded && openTaskMenu && (
+          <ul className="submenu">
+            <li className={isActive('/hr/attendance') ? 'active' : ''}>
+              <Link to="/hr/attendance">Quản lý chấm công</Link>
+            </li>
+          </ul>
+        )}
 
         <li
           onClick={handleBenefitsMenuToggle}

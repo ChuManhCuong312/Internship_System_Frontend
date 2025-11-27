@@ -32,6 +32,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
 import ManageContracts from "./pages/HR/ManageContracts"
+import AttendanceManagement from "./pages/HR/AttendanceManagement/AttendanceManagement";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -148,6 +149,15 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/hr/attendance"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <AttendanceManagement />
+                </PrivateRoute>
+              }
+            />
+
 
             {/* Mentor routes */}
             <Route

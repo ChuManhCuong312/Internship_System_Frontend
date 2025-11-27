@@ -105,6 +105,8 @@
 .month-selector {
   display: flex;
   gap: 10px;
+  margin-left: auto;
+  align-items: center;
 }
 
 .month-select,
@@ -281,6 +283,13 @@
   }
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 480px) {
   .attendance-header-grid {
     grid-template-columns: 1fr;
@@ -294,3 +303,17 @@
     font-size: 20px;
   }
 }
+
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .month-selector {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
