@@ -320,10 +320,21 @@ const LeaveManagement = () => {
                                   </span>
                                 </div>
                               )}
+                            {item.status === "REJECTED" &&
+                              (item.hrName || item.processedBy) && (
+                                <div className="card-info-row">
+                                  <span>
+                                    <strong>Người từ chối: </strong>
+                                    {item.hrName
+                                      ? `${item.hrName} (ID HR: ${item.processedBy})`
+                                      : `ID HR: ${item.processedBy}`}
+                                  </span>
+                                </div>
+                              )}
                           </div>
 
                           {item.status === "PENDING" && (
-                            <div className="card-actions">
+                            <div className="card-actions action-buttons">
                               <button
                                 type="button"
                                 className="btn-approve"
