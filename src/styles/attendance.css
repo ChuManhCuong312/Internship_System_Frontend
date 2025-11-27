@@ -105,7 +105,6 @@
 .month-selector {
   display: flex;
   gap: 10px;
-  margin-left: auto;
   align-items: center;
 }
 
@@ -285,9 +284,11 @@
 
 .header-top {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
 }
 
 @media (max-width: 480px) {
