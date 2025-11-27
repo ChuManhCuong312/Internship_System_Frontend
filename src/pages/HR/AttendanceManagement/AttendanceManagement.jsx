@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import HRSidebar from "../../../components/Layout/HRSidebar";
-import  AttendanceTable from "./AttendanceTable";
+import AttendanceTable from "./AttendanceTable";
 import "../../../styles/dashBoard.css";
 import "../../../styles/attendance.css";
 import "../../../styles/badges.css";
@@ -28,6 +28,11 @@ const AttendanceManagement = () => {
   const [error, setError] = useState(null);
   const [records, setRecords] = useState([]);
 
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
   useEffect(() => {
     if (!token) return;
 
@@ -36,7 +41,7 @@ const AttendanceManagement = () => {
     } else {
       fetchMonthly();
     }
-  }, [token, mode, selectedDate, selectedMonth, selectedYear]);
+  }, [token, mode, selectedDate, selectedMonth, selectedYear, page, size]);
 
   const fetchDaily = async () => {
     if (!token || !selectedDate) return;
@@ -44,10 +49,20 @@ const AttendanceManagement = () => {
       setLoading(true);
       setError(null);
       const data = await getDailyAttendanceForHR(token, selectedDate);
-      setRecords(Array.isArray(data) ? data : []);
+
+      const allRecords = Array.isArray(data) ? data : [];
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedRecords = allRecords.slice(startIndex, endIndex);
+
+      setRecords(paginatedRecords);
+      setTotalElements(allRecords.length);
+      setTotalPages(Math.ceil(allRecords.length / size));
     } catch (e) {
       setError("Không thể tải danh sách chấm công ngày.");
       setRecords([]);
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
@@ -63,14 +78,29 @@ const AttendanceManagement = () => {
         selectedYear,
         selectedMonth
       );
-      setRecords(Array.isArray(data) ? data : []);
+
+      // Xử lý phân trang phía client
+      const allRecords = Array.isArray(data) ? data : [];
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedRecords = allRecords.slice(startIndex, endIndex);
+
+      setRecords(paginatedRecords);
+      setTotalElements(allRecords.length);
+      setTotalPages(Math.ceil(allRecords.length / size));
     } catch (e) {
       setError("Không thể tải thống kê chấm công tháng.");
       setRecords([]);
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [mode, selectedDate, selectedMonth, selectedYear]);
 
   const formatTime = (time) => {
     if (!time) return "--:--";
@@ -129,6 +159,20 @@ const AttendanceManagement = () => {
       return;
     }
 
+    let allRecords = [];
+    try {
+      if (mode === "daily") {
+        const data = await getDailyAttendanceForHR(token, selectedDate);
+        allRecords = Array.isArray(data) ? data : [];
+      } else {
+        const data = await getMonthlyAttendanceForHR(token, selectedYear, selectedMonth);
+        allRecords = Array.isArray(data) ? data : [];
+      }
+    } catch (e) {
+      toast.error("Không thể lấy dữ liệu để xuất");
+      return;
+    }
+
     let header = [];
     let rows = [];
 
@@ -143,7 +187,7 @@ const AttendanceManagement = () => {
         "Trạng thái",
       ];
 
-      rows = records.map((record) => {
+      rows = allRecords.map((record) => {
         const name =
           record.internName ||
           record.fullName ||
@@ -181,7 +225,7 @@ const AttendanceManagement = () => {
 
       const monthLabel = `${selectedMonth}/${selectedYear}`;
 
-      rows = records.map((record) => {
+      rows = allRecords.map((record) => {
         const name =
           record.internName ||
           record.fullName ||
@@ -221,7 +265,7 @@ const AttendanceManagement = () => {
 
     try {
       await exportTableToExcel(header, rows, fileName, sheetName);
-      toast.success(`Xuất Excel thành công (${records.length} bản ghi)`);
+      toast.success(`Xuất Excel thành công (${allRecords.length} bản ghi)`);
     } catch (error) {
       console.error("Error exporting attendance CSV:", error);
       toast.error("Lỗi khi xuất Excel: " + (error.message || "Không xác định"));
@@ -304,14 +348,38 @@ const AttendanceManagement = () => {
           )}
 
           {!loading && !error && (
-            <AttendanceTable
-              mode={mode}
-              records={records}
-              formatDate={formatDate}
-              formatTime={formatTime}
-              getStatusBadge={getStatusBadge}
-              calculateWorkingMinutes={calculateWorkingMinutes}
-            />
+            <>
+              <AttendanceTable
+                mode={mode}
+                records={records}
+                formatDate={formatDate}
+                formatTime={formatTime}
+                getStatusBadge={getStatusBadge}
+                calculateWorkingMinutes={calculateWorkingMinutes}
+              />
+
+              <div className="pagination">
+                <button
+                  className="pagination-btn"
+                  disabled={page === 0}
+                  onClick={() => setPage(page - 1)}
+                >
+                  Trang trước
+                </button>
+
+                <span className="pagination-info">
+                  Trang {page + 1} / {totalPages || 1} ({totalElements} bản ghi)
+                </span>
+
+                <button
+                  className="pagination-btn"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() => setPage(page + 1)}
+                >
+                  Trang sau
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
