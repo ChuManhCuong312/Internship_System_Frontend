@@ -33,7 +33,7 @@ import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
 import ManageContracts from "./pages/HR/ManageContracts"
 import AttendanceManagement from "./pages/HR/AttendanceManagement/AttendanceManagement";
-
+import ContractPage from "./pages/Intern/ContractPage.jsx"
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
 
@@ -243,7 +243,14 @@ function App() {
                 </PrivateRoute>
               }
             />
-
+            <Route
+              path="/intern/contracts"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <ContractPage />
+                </PrivateRoute>
+              }
+            />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
