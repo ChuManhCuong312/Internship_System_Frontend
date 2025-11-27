@@ -79,6 +79,12 @@ const LeaveManagement = () => {
       });
     }
 
+    filtered.sort((a, b) => {
+      const timeA = a.requestDate ? new Date(a.requestDate).getTime() : 0;
+      const timeB = b.requestDate ? new Date(b.requestDate).getTime() : 0;
+      return timeB - timeA;
+    });
+
     const startIndex = page * size;
     const endIndex = startIndex + size;
     const paginated = filtered.slice(startIndex, endIndex);
@@ -275,7 +281,7 @@ const LeaveManagement = () => {
                           <div className="card-header">
                             <div className="card-date">
                               <span>
-                                #{item.leaveId} • {name}
+                                {name}
                               </span>
                             </div>
                             {getStatusBadge(item.status)}
