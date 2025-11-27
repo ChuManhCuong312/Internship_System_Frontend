@@ -21,7 +21,7 @@ export default function AssignMentorModal({
     const filtered = mockMentors.filter(
       (m) =>
         m.name.toLowerCase().includes(search.toLowerCase()) &&
-        !assignedMentors.find((am) => am.mentor_id === m.mentor_id)
+        !assignedMentors.find((am) => am.mentorId === m.mentorId)
     );
     setResults(filtered);
   }, [search, mockMentors, assignedMentors]);
@@ -55,7 +55,7 @@ export default function AssignMentorModal({
               <div className="suggestions-list">
                 {results.map((mentor) => (
                   <div
-                    key={mentor.mentor_id}
+                    key={mentor.mentorId}
                     className="suggestion-item"
                     onClick={() => {
                       onAssign(mentor);
