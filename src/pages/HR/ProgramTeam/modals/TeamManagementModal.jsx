@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { X, Plus, MoreVertical } from "lucide-react";
 import AssignMentorModal from "./AssignMentorModal";
+import hrApi from "../../../../api/hrApi";
+import { AuthContext } from "../../../../context/AuthContext";
 
 export default function TeamManagementModal({
   isOpen,
@@ -8,32 +10,73 @@ export default function TeamManagementModal({
   selectedProgram,
   handleAddTeam,
   handleEditTeam,
-  handleDeleteTeam,
-  mockMentors
+  handleDeleteTeam
 }) {
-  const [assignedProgramMentors, setAssignedProgramMentors] = useState(
-    selectedProgram?.mentors || []
-  );
+  const { token } = useContext(AuthContext);
+
+  const [assignedProgramMentors, setAssignedProgramMentors] = useState([]);
+  const [availableMentors, setAvailableMentors] = useState([]);
   const [showAssignMentorForm, setShowAssignMentorForm] = useState(false);
   const [mentorSearch, setMentorSearch] = useState("");
 
+  // Load mentors when modal opens
+  useEffect(() => {
+    if (!isOpen || !selectedProgram || !token) return;
+
+    const fetchMentors = async () => {
+      try {
+        const programMentors = await hrApi.getMentorsForProgram(
+          token,
+          selectedProgram.programId
+        );
+        setAssignedProgramMentors(programMentors);
+
+        const allMentors = await hrApi.getAssignedMentorsDropdown(token);
+        setAvailableMentors(allMentors);
+      } catch (err) {
+        console.error("Error fetching mentors:", err);
+      }
+    };
+
+    fetchMentors();
+  }, [isOpen, selectedProgram, token]);
+
   if (!isOpen || !selectedProgram) return null;
 
-  // Filter mentors based on search input
-  const mentorResults = mockMentors.filter(
+  // Filter mentors based on search input (safe access)
+  const mentorResults = availableMentors.filter(
     (m) =>
-      m.name.toLowerCase().includes(mentorSearch.toLowerCase()) &&
-      !assignedProgramMentors.find((am) => am.mentor_id === m.mentor_id)
+      (m.mentorName?.toLowerCase() || "").includes(
+        mentorSearch.toLowerCase()
+      ) &&
+      !assignedProgramMentors.find((am) => am.mentorId === m.mentorId)
   );
 
-  const assignMentorToProgram = (mentor) => {
-    setAssignedProgramMentors([...assignedProgramMentors, mentor]);
-    setMentorSearch("");
-    setShowAssignMentorForm(false);
+  const assignMentorToProgram = async (mentor) => {
+    try {
+      // Replace with actual API for assigning mentor
+      await hrApi.cloneProgram(token, {
+        programId: selectedProgram.programId,
+        mentorId: mentor.mentorId
+      });
+      setAssignedProgramMentors((prev) => [...prev, mentor]);
+      setMentorSearch("");
+      setShowAssignMentorForm(false);
+    } catch (err) {
+      console.error("Error assigning mentor:", err);
+    }
   };
 
-  const removeProgramMentor = (mentorId) => {
-    setAssignedProgramMentors(assignedProgramMentors.filter((m) => m.mentor_id !== mentorId));
+  const removeProgramMentor = async (mentorId) => {
+    try {
+      // Replace with actual API endpoint for removing mentor
+      await hrApi.deleteProgram(token, mentorId);
+      setAssignedProgramMentors((prev) =>
+        prev.filter((m) => m.mentorId !== mentorId)
+      );
+    } catch (err) {
+      console.error("Error removing mentor:", err);
+    }
   };
 
   return (
@@ -41,7 +84,7 @@ export default function TeamManagementModal({
       <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">Quản lý Team và phân công</h2>
-          <button className="btn-close" onClick={onClose}>
+          <button className="btn-close" onClick={onClose} aria-label="Đóng">
             <X size={20} />
           </button>
         </div>
@@ -65,17 +108,16 @@ export default function TeamManagementModal({
                 <p>Chưa có mentor được phân công</p>
               )}
               {assignedProgramMentors.map((m) => (
-                <div key={m.mentor_id} className="mentor-card">
+                <div key={m.mentorId} className="mentor-card">
                   <div>
                     <p>
-                      <strong>{m.name}</strong> ({m.department})
+                      <strong>{m.mentorName}</strong>
                     </p>
-                    <p>Email: {m.email}</p>
-                    <p>Phone: {m.phone}</p>
                   </div>
                   <button
                     className="btn-remove"
-                    onClick={() => removeProgramMentor(m.mentor_id)}
+                    onClick={() => removeProgramMentor(m.mentorId)}
+                    aria-label={`Xóa mentor ${m.mentorName}`}
                   >
                     <X size={16} />
                   </button>
@@ -88,7 +130,7 @@ export default function TeamManagementModal({
               isOpen={showAssignMentorForm}
               onClose={() => setShowAssignMentorForm(false)}
               onAssign={assignMentorToProgram}
-              mockMentors={mockMentors}
+              mockMentors={mentorResults} // now filtered API data
               assignedMentors={assignedProgramMentors}
             />
           </div>
@@ -103,55 +145,60 @@ export default function TeamManagementModal({
             </div>
 
             <div className="teams-list">
-              {selectedProgram.teams.map((team) => {
-                const assignedMentor = mockMentors.find(
-                  (m) => m.mentor_id === team.mentor_id
-                );
-                return (
-                  <div key={team.team_id} className="team-card">
-                    <div className="team-header">
-                      <div>
-                        <h4 className="team-name">{team.name}</h4>
-                        <p className="team-description">{team.description}</p>
-                        {assignedMentor ? (
-                          <div className="team-mentor-info">
-                            <span className="mentor-badge">
-                              Mentor: <strong>{assignedMentor.name}</strong> (
-                              {assignedMentor.department})
-                            </span>
+              {selectedProgram?.teams?.length > 0 ? (
+                selectedProgram.teams.map((team) => {
+                  const assignedMentor = assignedProgramMentors.find(
+                    (m) => m.mentorId === team.mentorId
+                  );
+                  return (
+                    <div key={team.teamId} className="team-card">
+                      <div className="team-header">
+                        <div>
+                          <h4 className="team-name">{team.name}</h4>
+                          <p className="team-description">{team.description}</p>
+                          {assignedMentor ? (
+                            <div className="team-mentor-info">
+                              <span className="mentor-badge">
+                                Mentor: <strong>{assignedMentor.mentorName}</strong>
+                              </span>
+                            </div>
+                          ) : (
+                            <p className="team-no-mentor">Không có mentor để phân công</p>
+                          )}
+                        </div>
+                        <div className="dropdown-menu-container">
+                          <button className="btn-icon">
+                            <MoreVertical size={16} />
+                          </button>
+                          <div className="dropdown-menu">
+                            <button
+                              key={`edit-${team.teamId}`}
+                              className="dropdown-item"
+                              onClick={() => handleEditTeam(team)}
+                            >
+                              Cập nhật thông tin Team
+                            </button>
+                            <button
+                              key={`delete-${team.teamId}`}
+                              className="dropdown-item danger"
+                              onClick={() => handleDeleteTeam(team.teamId)}
+                            >
+                              Xoá team
+                            </button>
                           </div>
-                        ) : (
-                          <p className="team-no-mentor">Không có mentor để phân công</p>
-                        )}
-                      </div>
-                      <div className="dropdown-menu-container">
-                        <button className="btn-icon">
-                          <MoreVertical size={16} />
-                        </button>
-                        <div className="dropdown-menu">
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleEditTeam(team)}
-                          >
-                            Cập nhật thông tin Team
-                          </button>
-                          <button
-                            className="dropdown-item danger"
-                            onClick={() => handleDeleteTeam(team.team_id)}
-                          >
-                            Xoá team
-                          </button>
                         </div>
                       </div>
+                      <div className="team-stats">
+                        <span className="interns-count">
+                          {team.interns?.length || 0} TTS
+                        </span>
+                      </div>
                     </div>
-                    <div className="team-stats">
-                      <span className="interns-count">
-                        {team.interns?.length || 0} TTS
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <p>Chưa có team nào trong chương trình</p>
+              )}
             </div>
           </div>
         </div>
