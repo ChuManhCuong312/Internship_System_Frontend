@@ -283,6 +283,13 @@
   }
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 480px) {
   .attendance-header-grid {
     grid-template-columns: 1fr;
@@ -298,15 +305,15 @@
 }
 
 @media (max-width: 768px) {
-  .history-header {
+  .header-top {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
   .month-selector {
-    margin-left: 0;
-    justify-content: flex-end;
     width: 100%;
-    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
+
