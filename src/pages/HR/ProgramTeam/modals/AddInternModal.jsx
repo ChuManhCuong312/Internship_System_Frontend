@@ -41,7 +41,7 @@ export default function AddInternModal({
                 <div className="suggestions-list">
                   {internSuggestions.map((intern) => (
                     <div
-                      key={intern.intern_id}
+                      key={intern.internId}
                       className="suggestion-item"
                       onClick={() => handleSelectIntern(intern)}
                     >
