@@ -4,6 +4,10 @@ import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import MentorDashboard from "./pages/Mentor/Dashboard";
+import MentorInterns from "./pages/Mentor/MentorInterns";
+import MentorTasks from "./pages/Mentor/ManageTasks";
+import MentorFeedback from "./pages/Mentor/MentorFeedback";
+import MentorEvaluations from "./pages/Mentor/EvaluateIntern";
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
@@ -174,6 +178,38 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["MENTOR"]}>
                   <MentorDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/mentor/interns"
+              element={
+                <PrivateRoute allowedRoles={["MENTOR"]}>
+                  <MentorInterns />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/mentor/tasks"
+              element={
+                <PrivateRoute allowedRoles={["MENTOR"]}>
+                  <MentorTasks />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/mentor/feedback"
+              element={
+                <PrivateRoute allowedRoles={["MENTOR"]}>
+                  <MentorFeedback />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/mentor/evaluations"
+              element={
+                <PrivateRoute allowedRoles={["MENTOR"]}>
+                  <MentorEvaluations />
                 </PrivateRoute>
               }
             />
