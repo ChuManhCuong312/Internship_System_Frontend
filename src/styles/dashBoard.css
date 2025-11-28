@@ -12,7 +12,7 @@ body, html {
 
 .dashboard-content {
   flex: 1;
-  background: #ffff;
+  background: #ffff !important;
   padding: 24px;
   overflow-y: auto;
   font-family: "Inter", sans-serif;

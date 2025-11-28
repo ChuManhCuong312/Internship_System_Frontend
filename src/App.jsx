@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 import MentorDashboard from "./pages/Mentor/Dashboard";
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
@@ -31,7 +32,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
 import ManageContracts from "./pages/HR/ManageContracts"
-
+import AttendanceManagement from "./pages/HR/AttendanceManagement/AttendanceManagement";
+import LeaveManagement from "./pages/HR/LeaveManagement/LeaveManagement";
+import ContractPage from "./pages/Intern/ContractPage.jsx"
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
 
@@ -56,6 +59,7 @@ function App() {
   return (
     <UserProvider>
       <InternsProvider>
+        <NotificationProvider>
           <HrProvider>
         <Router>
           <Routes>
@@ -146,6 +150,23 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/hr/attendance"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <AttendanceManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/leave-requests"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <LeaveManagement />
+                </PrivateRoute>
+              }
+            />
+
 
             {/* Mentor routes */}
             <Route
@@ -231,7 +252,14 @@ function App() {
                 </PrivateRoute>
               }
             />
-
+            <Route
+              path="/intern/contracts"
+              element={
+                <PrivateRoute allowedRoles={["INTERN"]}>
+                  <ContractPage />
+                </PrivateRoute>
+              }
+            />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
@@ -248,6 +276,7 @@ function App() {
                     />
         </Router>
          </HrProvider>
+        </NotificationProvider>
       </InternsProvider>
     </UserProvider>
   );

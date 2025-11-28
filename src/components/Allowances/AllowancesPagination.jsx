@@ -8,7 +8,7 @@ const AllowancesPagination = ({
   onPageChange,
   onSizeChange,
 }) => {
-  if (totalPages <= 1) {
+  if (totalElements === 0) {
     return null;
   }
 

@@ -1,0 +1,126 @@
+.emptyState {
+  display: flex;
+  height: 24rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 2px dashed #d1d5db;
+  background-color: #f9fafb;
+}
+
+.emptyStateContent {
+  text-align: center;
+}
+
+.emptyStateTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.emptyStateSubtitle {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.calendar {
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+}
+
+.dayHeaders {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.dayHeader {
+  border-right: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.dayHeader:last-child {
+  border-right: none;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+}
+
+.calendarDay {
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  min-height: 8rem;
+  background-color: #ffffff;
+}
+
+.calendarDay:last-child {
+  border-right: none;
+}
+
+.dayOther {
+  background-color: #f3f4f6;
+}
+
+.dayProgram {
+  background-color: #f0f9ff;
+}
+
+.dayTask {
+  background-color: #f0fdf4;
+}
+
+.dayDeadline {
+  background-color: #fef2f2;
+}
+
+.dayNumber {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.eventsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.eventBadge {
+  border-radius: 0.25rem;
+  border: 1px solid;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.eventProgram {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.eventTask {
+  background-color: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.eventDeadline {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
