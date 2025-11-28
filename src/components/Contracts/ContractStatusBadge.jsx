@@ -1,13 +1,11 @@
 import React from "react";
-import StatusBadge from "../Common/StatusBadge";
 
-// Wrapper để map status tiếng Việt/English nếu cần mở rộng
 const normalize = (status) => {
   if (!status) return "unknown";
-  // Chuẩn hóa về các class friendly
   const map = {
     PENDING: "Đang chờ",
     ACTIVE: "Đang hiệu lực",
+    APPROVED: "Đang hiệu lực",
     REJECTED: "Bị từ chối",
     CANCELLED: "Đã huỷ",
     COMPLETED: "Hoàn thành",
@@ -16,8 +14,19 @@ const normalize = (status) => {
 };
 
 const ContractStatusBadge = ({ status }) => {
-  return <StatusBadge status={normalize(status)} />;
+  const label = normalize(status);
+  
+  let statusClass = "unknown";
+  if (status === 'PENDING') statusClass = 'pending';
+  // Cả ACTIVE và APPROVED đều hiện màu xanh
+  if (status === 'ACTIVE' || status === 'APPROVED') statusClass = 'active';
+  if (status === 'REJECTED' || status === 'CANCELLED') statusClass = 'rejected';
+
+  return (
+    <span className={`status-badge ${statusClass}`}>
+      {label}
+    </span>
+  );
 };
 
 export default ContractStatusBadge;
-

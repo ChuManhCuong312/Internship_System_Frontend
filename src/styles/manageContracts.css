@@ -97,7 +97,7 @@
 
 .contract-table th {
   padding: 16px;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -114,6 +114,7 @@
 .contract-table td {
   padding: 16px;
   vertical-align: middle;
+  text-align: center;
 }
 
 /* Contract Link */

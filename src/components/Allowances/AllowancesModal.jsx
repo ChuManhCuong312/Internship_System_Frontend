@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const AllowancesModal = ({
   showModal,
@@ -8,7 +8,11 @@ const AllowancesModal = ({
   onFormChange,
   onSave,
   onClose,
+  internSuggestions = [],
+  onSearchInterns = () => {},
+  onSelectIntern = () => {},
 }) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
   if (!showModal) {
     return null;
   }
@@ -25,17 +29,40 @@ const AllowancesModal = ({
 
         <div className="modal-body">
           <div className="form-group">
-            <label>ID Thực tập sinh *</label>
-            <input
-              type="number"
-              value={formData.internId}
-              onChange={(e) =>
-                onFormChange("internId", parseInt(e.target.value) || "")
-              }
-              placeholder="Nhập ID thực tập sinh"
-              className={errors.internId ? "input-error" : ""}
-            />
-            {errors.internId && <span className="error-text">{errors.internId}</span>}
+            <label>Tên Thực tập sinh *</label>
+            <div className="autocomplete-container">
+              <input
+                type="text"
+                value={formData.internName}
+                onChange={(e) => {
+                  onFormChange("internName", e.target.value);
+                  onSearchInterns(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Nhập tên thực tập sinh"
+                className={errors.internName ? "input-error" : ""}
+              />
+              {showSuggestions && internSuggestions.length > 0 && (
+                <div className="suggestions-list">
+                  {internSuggestions.map((intern) => (
+                    <div
+                      key={intern.internId}
+                      className="suggestion-item"
+                      onClick={() => {
+                        onSelectIntern(intern);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <div className="suggestion-name">{intern.fullName}</div>
+                      <div className="suggestion-id">ID: {intern.internId}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {errors.internName && <span className="error-text">{errors.internName}</span>}
           </div>
 
           <div className="form-group">
