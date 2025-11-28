@@ -221,8 +221,13 @@ const ApproveInterns = () => {
       setIsApproving(true);
       await hrApi.updateInternStatus(token, approvingIntern.internId, "APPROVED");
       toast.success("Duyệt hồ sơ thành công ✅");
+      setInterns((prev) =>
+        prev.filter((intern) => intern.internId !== approvingIntern.internId)
+      );
+      setSelectedInterns((prev) =>
+        prev.filter((intern) => intern.internId !== approvingIntern.internId)
+      );
       setApprovingIntern(null);
-      fetchInterns();
     } catch (err) {
       console.error("Error approving intern:", err);
       toast.error("Duyệt hồ sơ thất bại ❌");
@@ -244,8 +249,15 @@ const ApproveInterns = () => {
         )
       );
       toast.success("Duyệt hồ sơ thành công ✅");
+      setInterns((prev) =>
+        prev.filter(
+          (intern) =>
+            !selectedInterns.some(
+              (selected) => selected.internId === intern.internId
+            )
+        )
+      );
       setSelectedInterns([]);
-      fetchInterns();
     } catch (err) {
       console.error("Error approving interns:", err);
       toast.error("Duyệt hồ sơ thất bại ❌");
@@ -277,11 +289,18 @@ const ApproveInterns = () => {
         )
       );
       toast.success("Từ chối hồ sơ thành công");
+      setInterns((prev) =>
+        prev.filter(
+          (intern) =>
+            !selectedInterns.some(
+              (selected) => selected.internId === intern.internId
+            )
+        )
+      );
       setIsQuickRejectOpen(false);
       setSelectedInterns([]);
       setQuickRejectReason("");
       setQuickRejectError("");
-      fetchInterns();
     } catch (err) {
       console.error("Error rejecting interns:", err);
       toast.error("Từ chối hồ sơ thất bại ❌");
