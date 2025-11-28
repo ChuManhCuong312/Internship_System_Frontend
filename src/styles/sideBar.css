@@ -6,6 +6,9 @@
   flex-direction: column;
   justify-content: flex-start;
   overflow: hidden;
+  position: relative;
+  z-index: 100;
+  pointer-events: auto;
 }
 
 .sidebar-header {
@@ -81,6 +84,9 @@
   color: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
+  pointer-events: auto;
+  position: relative;
+  user-select: none;
 }
 
 .sidebar-menu li svg {
