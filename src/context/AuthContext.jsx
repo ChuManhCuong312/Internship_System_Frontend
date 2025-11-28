@@ -166,19 +166,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-      const interceptor = axios.interceptors.response.use(
-        res => res,
-        err => {
-          if (err.response && err.response.status === 401) {
-            logout();
-            window.location.href = "/login";
-          }
-          return Promise.reject(err);
+    const interceptor = axios.interceptors.response.use(
+      res => res,
+      err => {
+        const originalRequest = err.config;
+        // Skip redirect if it's the login request
+        if (err.response && err.response.status === 401 && !originalRequest.url.includes("/login")) {
+          logout();
+          window.location.href = "/login";
         }
-      );
+        return Promise.reject(err);
+      }
+    );
 
-      return () => axios.interceptors.response.eject(interceptor);
-    }, []);
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
   return (
     <AuthContext.Provider value={{ user, token, login, logout, setUser, loading }}>
       {children}
