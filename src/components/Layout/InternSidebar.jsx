@@ -229,7 +229,7 @@ const toggleAttendanceSubmenu = () => {
 
         <li onClick={() => navigate("/intern/profiles")}>
           <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
-        <li onClick={() => navigate("/intern/contract")}><FaBook /> {expanded && <span>Hợp đồng</span>}</li>
+        <li onClick={() => navigate("/intern/contracts")}><FaBook /> {expanded && <span>Hợp đồng</span>}</li>
         <li onClick={() => navigate("/intern/calendar")}>
                   <FaCalendarAlt />
                   {expanded && <span>Lịch</span>}
