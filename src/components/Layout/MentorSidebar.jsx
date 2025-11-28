@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
   FaClipboardList,
@@ -10,12 +10,12 @@ import {
   FaSignOutAlt,
   FaBars,
 } from "react-icons/fa";
-import avatar from "../../assets/avatar.png";
 import "../../styles/sideBar.css";
 
 const MentorSidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const sidebarStyle = useSpring({
     width: expanded ? 250 : 60,
@@ -31,7 +31,6 @@ const MentorSidebar = () => {
           <FaBars />
         </button>
         <div className="avatar-container">
-          <img src={avatar} alt="Mentor Avatar" />
           {expanded && (
             <div className="avatar-info">
               <h4>Mentor</h4>
@@ -43,19 +42,49 @@ const MentorSidebar = () => {
 
       {/* Menu */}
       <ul className="sidebar-menu">
-        <li onClick={() => navigate("/mentor/dashboard")}>
+        <li
+          className={location.pathname === "/mentor/dashboard" ? "active" : ""}
+          onClick={() => {
+            console.log("Navigating to dashboard");
+            navigate("/mentor/dashboard");
+          }}
+        >
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
-        <li onClick={() => navigate("/mentor/interns")}>
+        <li
+          className={location.pathname === "/mentor/interns" ? "active" : ""}
+          onClick={() => {
+            console.log("Navigating to interns");
+            navigate("/mentor/interns");
+          }}
+        >
           <FaUserGraduate /> {expanded && <span>Thực tập sinh</span>}
         </li>
-        <li onClick={() => navigate("/mentor/tasks")}>
+        <li
+          className={location.pathname === "/mentor/tasks" ? "active" : ""}
+          onClick={() => {
+            console.log("Navigating to tasks");
+            navigate("/mentor/tasks");
+          }}
+        >
           <FaClipboardList /> {expanded && <span>Giao nhiệm vụ</span>}
         </li>
-        <li onClick={() => navigate("/mentor/feedback")}>
+        <li
+          className={location.pathname === "/mentor/feedback" ? "active" : ""}
+          onClick={() => {
+            console.log("Navigating to feedback");
+            navigate("/mentor/feedback");
+          }}
+        >
           <FaRegCommentDots /> {expanded && <span>Phản hồi báo cáo</span>}
         </li>
-        <li onClick={() => navigate("/mentor/evaluations")}>
+        <li
+          className={location.pathname === "/mentor/evaluations" ? "active" : ""}
+          onClick={() => {
+            console.log("Navigating to evaluations");
+            navigate("/mentor/evaluations");
+          }}
+        >
           <FaChartBar /> {expanded && <span>Đánh giá cuối kỳ</span>}
         </li>
       </ul>
