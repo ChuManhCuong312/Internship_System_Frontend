@@ -19,7 +19,7 @@ import '../../styles/sideBar.css';
 
 const InternSidebar = () => {
   const [expanded, setExpanded] = useState(() => {
-    const saved = localStorage.getItem('sidebarExpanded');
+    const saved = localStorage.getItem('internSidebarExpanded');
     return saved ? JSON.parse(saved) : false;
   });
  const [attendanceSubmenuOpen, setAttendanceSubmenuOpen] = useState(() => {
@@ -35,8 +35,12 @@ const InternSidebar = () => {
 
   // Save expanded state to localStorage
   useEffect(() => {
-    localStorage.setItem('sidebarExpanded', JSON.stringify(expanded));
+    localStorage.setItem('internSidebarExpanded', JSON.stringify(expanded));
   }, [expanded]);
+
+  useEffect(() => {
+    localStorage.setItem('attendanceSubmenuOpen', JSON.stringify(attendanceSubmenuOpen));
+  }, [attendanceSubmenuOpen]);
 
   // Get internId from cookie
   useEffect(() => {
@@ -119,6 +123,13 @@ const InternSidebar = () => {
     fetchInternData();
   }, [token, user?.userId, authLoading]);
 
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/intern/attendance') || path.includes('/intern/leave-request')) {
+      setAttendanceSubmenuOpen(true);
+    }
+  }, [location.pathname]);
+
   // Animation cho width
   const sidebarStyle = useSpring({
     width: expanded ? 250 : 60,
@@ -165,12 +176,19 @@ const InternSidebar = () => {
       }
     });
   };
-const toggleAttendanceSubmenu = () => {
-   setAttendanceSubmenuOpen(!attendanceSubmenuOpen);
- };
- const isActiveRoute = (path) => {
-   return location.pathname === path;
- };
+
+  const toggleAttendanceSubmenu = () => {
+    setAttendanceSubmenuOpen(!attendanceSubmenuOpen);
+  };
+
+  const isActiveRoute = (path) => {
+    return location.pathname === path;
+  };
+
+  const isAttendanceParentActive = () => {
+    const path = location.pathname;
+    return path.includes('/intern/attendance') || path.includes('/intern/leave-request');
+  };
 
   return (
     <animated.div 
@@ -225,32 +243,73 @@ const toggleAttendanceSubmenu = () => {
       </div>
       <ul className="sidebar-menu">
 
-        <li onClick={() => navigate("/intern/dashboard")}><FaHome /> {expanded && <span>Trang chủ</span>}</li>
+        <li
+          onClick={() => navigate("/intern/dashboard")}
+          className={isActiveRoute("/intern/dashboard") ? "active" : ""}
+        >
+          <FaHome /> {expanded && <span>Trang chủ</span>}
+        </li>
 
-        <li onClick={() => navigate("/intern/profiles")}>
-          <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}</li>
-        <li onClick={() => navigate("/intern/contracts")}><FaBook /> {expanded && <span>Hợp đồng</span>}</li>
-        <li onClick={() => navigate("/intern/calendar")}>
-                  <FaCalendarAlt />
-                  {expanded && <span>Lịch</span>}
-                </li>
+        <li
+          onClick={() => navigate("/intern/profiles")}
+          className={isActiveRoute("/intern/profiles") ? "active" : ""}
+        >
+          <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}
+        </li>
 
-                <li onClick={() => navigate("/intern/program")}>
-                  <FaTasks />
-                  {expanded && <span>Chương trình</span>}
-                </li>
-        <li onClick={() => setAttendanceSubmenuOpen(!attendanceSubmenuOpen)} className="menu-item">
-                 <FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}
-               </li>
-               {expanded && attendanceSubmenuOpen && (
-                 <ul className="submenu">
-                   <li><Link to="/intern/attendance">Chấm công</Link></li>
-                   <li><Link to="/intern/leave-request">Nghỉ phép</Link></li>
-                 </ul>
-               )}
+        <li
+          onClick={() => navigate("/intern/contracts")}
+          className={isActiveRoute("/intern/contracts") ? "active" : ""}
+        >
+          <FaBook /> {expanded && <span>Hợp đồng</span>}
+        </li>
+
+        <li
+          onClick={() => navigate("/intern/calendar")}
+          className={isActiveRoute("/intern/calendar") ? "active" : ""}
+        >
+          <FaCalendarAlt />
+          {expanded && <span>Lịch</span>}
+        </li>
+
+        <li
+          onClick={() => navigate("/intern/program")}
+          className={isActiveRoute("/intern/program") ? "active" : ""}
+        >
+          <FaTasks />
+          {expanded && <span>Chương trình</span>}
+        </li>
+
+        <li
+          onClick={() => setAttendanceSubmenuOpen(!attendanceSubmenuOpen)}
+          className={`menu-item ${isAttendanceParentActive() ? 'active' : ''}`}
+        >
+          <FaClock /> {expanded && <span>Chấm công & Nghỉ phép</span>}
+        </li>
+        {expanded && attendanceSubmenuOpen && (
+          <ul className="submenu">
+            <li className={isActiveRoute("/intern/attendance") ? "active" : ""}>
+              <Link to="/intern/attendance">Chấm công</Link>
+            </li>
+            <li className={isActiveRoute("/intern/leave-request") ? "active" : ""}>
+              <Link to="/intern/leave-request">Nghỉ phép</Link>
+            </li>
+          </ul>
+        )}
 {/*         <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li> */}
-        <li onClick={() => navigate("/intern/allowance")}><FaLifeRing /> {expanded && <span>Quyền lợi & Phụ cấp</span>}</li>
-        <li onClick={() => navigate("/intern/notifications")} style={{ position: 'relative' }}>
+
+        <li
+          onClick={() => navigate("/intern/allowance")}
+          className={isActiveRoute("/intern/allowance") ? "active" : ""}
+        >
+          <FaLifeRing /> {expanded && <span>Quyền lợi & Phụ cấp</span>}
+        </li>
+
+        <li
+          onClick={() => navigate("/intern/notifications")}
+          style={{ position: 'relative' }}
+          className={isActiveRoute("/intern/notifications") ? "active" : ""}
+        >
           <FaBell /> 
           {unreadCount > 0 && (
             <span style={{
@@ -266,7 +325,13 @@ const toggleAttendanceSubmenu = () => {
           )}
           {expanded && <span>Thông báo</span>}
         </li>
-        <li onClick={() => navigate("/intern/support")}><FaRobot /> {expanded && <span>Hỗ trợ</span>}</li>
+
+        <li
+          onClick={() => navigate("/intern/support")}
+          className={isActiveRoute("/intern/support") ? "active" : ""}
+        >
+          <FaRobot /> {expanded && <span>Hỗ trợ</span>}
+        </li>
       </ul>
       {/* Footer */}
       <div className="sidebar-footer">

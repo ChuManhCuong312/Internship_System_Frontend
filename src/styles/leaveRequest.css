@@ -1,17 +1,19 @@
 .leave-request-page {
  display: flex;
- min-height: 100vh;
- background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+ height: 100vh;
+ width: 100%;
+ background-color: #f5f7fa;
+ overflow: hidden;
 }
 
 
 .leave-request-wrapper {
- flex: 1;
- margin-left: 60px;
- padding: 24px;
- width: calc(100% - 60px);
- min-height: 100vh;
- background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  flex: 1;
+  padding: 24px;
+  height: 100vh;
+  background-color: #f5f7fa;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 
