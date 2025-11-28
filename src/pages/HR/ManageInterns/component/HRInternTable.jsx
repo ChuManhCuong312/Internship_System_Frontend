@@ -15,7 +15,12 @@ const HRInternTable = ({
   showStatus = true,
   matchingInterns,
   appliedCriteria,
+  enableSelection = false,
+  selectedInternIds = [],
+  onToggleSelectIntern,
+  onToggleSelectAll,
 }) => {
+
   const translateStatus = (status) => {
     switch (status) {
       case "PENDING":
@@ -33,7 +38,8 @@ const HRInternTable = ({
     }
   };
 
-  const totalColumns = 8 + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
+  const baseColumns = enableSelection ? 9 : 8;
+  const totalColumns = baseColumns + (showDocuments ? 1 : 0) + (showStatus ? 1 : 0);
 
   const isMatching = (internId) => {
     return appliedCriteria && matchingInterns && matchingInterns.has(internId);
@@ -44,6 +50,22 @@ const HRInternTable = ({
       <table className="users-table">
         <thead>
           <tr>
+            {enableSelection && (
+              <th>
+                <input
+                  type="checkbox"
+                  checked={
+                    Array.isArray(selectedInternIds) &&
+                    selectedInternIds.length > 0 &&
+                    interns &&
+                    selectedInternIds.length === interns.length
+                  }
+                  onChange={(e) =>
+                    onToggleSelectAll && onToggleSelectAll(e.target.checked)
+                  }
+                />
+              </th>
+            )}
             <th>STT</th>
             <th>Họ tên</th>
             <th>Email</th>
@@ -73,6 +95,9 @@ const HRInternTable = ({
                 showStatus={showStatus}
                 isMatching={isMatching(intern.internId)}
                 appliedCriteria={appliedCriteria}
+                enableSelection={enableSelection}
+                selectedInternIds={selectedInternIds}
+                onToggleSelectIntern={onToggleSelectIntern}
               />
             ))
           ) : (
