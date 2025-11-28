@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useSpring, animated } from "@react-spring/web";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -10,10 +10,16 @@ import {
   FaSignOutAlt,
   FaBars,
 } from "react-icons/fa";
+import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
 
 const MentorSidebar = () => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(() => {
+    const saved = localStorage.getItem("mentorSidebarExpanded");
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,18 +29,36 @@ const MentorSidebar = () => {
     config: { tension: 220, friction: 20 },
   });
 
+  const initials = (user?.fullName || user?.email || "Mentor")
+    .split(" ")
+    .map(word => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  useEffect(() => {
+    localStorage.setItem("mentorSidebarExpanded", JSON.stringify(expanded));
+  }, [expanded]);
+
+  const handleMouseLeave = () => {
+    setExpanded(false);
+  };
+
   return (
-    <animated.div className="sidebar" style={sidebarStyle}>
+    <animated.div
+      className="sidebar"
+      style={sidebarStyle}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={handleMouseLeave}
+    >
       {/* Header */}
       <div className="sidebar-header">
-        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
-          <FaBars />
-        </button>
         <div className="avatar-container">
+          <div className="avatar-initials">{initials}</div>
           {expanded && (
             <div className="avatar-info">
-              <h4>Mentor</h4>
-              <p>Hướng dẫn thực tập</p>
+              <h4>{user?.fullName || user?.email || "Mentor"}</h4>
+              <p>{user?.role === "MENTOR" ? "Mentor" : user?.role}</p>
             </div>
           )}
         </div>
@@ -44,46 +68,31 @@ const MentorSidebar = () => {
       <ul className="sidebar-menu">
         <li
           className={location.pathname === "/mentor/dashboard" ? "active" : ""}
-          onClick={() => {
-            console.log("Navigating to dashboard");
-            navigate("/mentor/dashboard");
-          }}
+          onClick={() => navigate("/mentor/dashboard")}
         >
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
         <li
           className={location.pathname === "/mentor/interns" ? "active" : ""}
-          onClick={() => {
-            console.log("Navigating to interns");
-            navigate("/mentor/interns");
-          }}
+          onClick={() => navigate("/mentor/interns")}
         >
           <FaUserGraduate /> {expanded && <span>Thực tập sinh</span>}
         </li>
         <li
           className={location.pathname === "/mentor/tasks" ? "active" : ""}
-          onClick={() => {
-            console.log("Navigating to tasks");
-            navigate("/mentor/tasks");
-          }}
+          onClick={() => navigate("/mentor/tasks")}
         >
           <FaClipboardList /> {expanded && <span>Giao nhiệm vụ</span>}
         </li>
         <li
           className={location.pathname === "/mentor/feedback" ? "active" : ""}
-          onClick={() => {
-            console.log("Navigating to feedback");
-            navigate("/mentor/feedback");
-          }}
+          onClick={() => navigate("/mentor/feedback")}
         >
           <FaRegCommentDots /> {expanded && <span>Phản hồi báo cáo</span>}
         </li>
         <li
           className={location.pathname === "/mentor/evaluations" ? "active" : ""}
-          onClick={() => {
-            console.log("Navigating to evaluations");
-            navigate("/mentor/evaluations");
-          }}
+          onClick={() => navigate("/mentor/evaluations")}
         >
           <FaChartBar /> {expanded && <span>Đánh giá cuối kỳ</span>}
         </li>
@@ -91,7 +100,10 @@ const MentorSidebar = () => {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        <button onClick={() => navigate("/login")}>
+        <button onClick={() => {
+          logout();
+          navigate("/login");
+        }}>
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>

@@ -4,10 +4,10 @@ import { AuthContext } from "./context/AuthContext.jsx";
 import { InternsProvider } from "./context/InternsContext.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import MentorDashboard from "./pages/Mentor/Dashboard";
-import MentorInterns from "./pages/Mentor/MentorInterns";
-import MentorTasks from "./pages/Mentor/ManageTasks";
+import InternProgress from "./pages/Mentor/InternProgress";
+import ManageTasks from "./pages/Mentor/ManageTasks";
 import MentorFeedback from "./pages/Mentor/MentorFeedback";
-import MentorEvaluations from "./pages/Mentor/EvaluateIntern";
+import EvaluateIntern from "./pages/Mentor/EvaluateIntern";
 import Dashboard from "./pages/Intern/Dashboard";
 import MyProfile from "./pages/Intern/MyProfile";
 import HRDashboard from "./pages/HR/Dashboard";
@@ -65,253 +65,255 @@ function App() {
       <InternsProvider>
         <NotificationProvider>
           <HrProvider>
-        <Router>
-          <Routes>
-            {/* Default route */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Router>
+              <Routes>
+                {/* Default route */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
 
-            {/* Auth routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/verify-otp" element={<VerifyOtpPage />} />
-            <Route path="/oauth-success" element={<OAuthSuccess />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-
-
-            {/* Admin routes */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                <PrivateRoute allowedRoles={["ADMIN"]}>
-                  <AdminDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/admin/manageusers"
-              element={
-                <PrivateRoute allowedRoles={["ADMIN"]}>
-                  <ManageUsers />
-                </PrivateRoute>
-              }
-            />
-
-            {/* HR routes */}
-            <Route
-              path="/hr/dashboard"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <HRDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/manage-interns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ManageInterns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/approve-interns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ApproveInterns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/mentor-assigns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <MentorAssigns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/program"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <Programs />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/allowances"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <Allowances />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/contracts"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ManageContracts />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/attendance"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <AttendanceManagement />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/leave-requests"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <LeaveManagement />
-                </PrivateRoute>
-              }
-            />
+                {/* Auth routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/verify-otp" element={<VerifyOtpPage />} />
+                <Route path="/oauth-success" element={<OAuthSuccess />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
 
-            {/* Mentor routes */}
-            <Route
-              path="/mentor/dashboard"
-              element={
-                <PrivateRoute allowedRoles={["MENTOR"]}>
-                  <MentorDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/mentor/interns"
-              element={
-                <PrivateRoute allowedRoles={["MENTOR"]}>
-                  <MentorInterns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/mentor/tasks"
-              element={
-                <PrivateRoute allowedRoles={["MENTOR"]}>
-                  <MentorTasks />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/mentor/feedback"
-              element={
-                <PrivateRoute allowedRoles={["MENTOR"]}>
-                  <MentorFeedback />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/mentor/evaluations"
-              element={
-                <PrivateRoute allowedRoles={["MENTOR"]}>
-                  <MentorEvaluations />
-                </PrivateRoute>
-              }
-            />
+                {/* Admin routes */}
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <PrivateRoute allowedRoles={["ADMIN"]}>
+                      <AdminDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/admin/manageusers"
+                  element={
+                    <PrivateRoute allowedRoles={["ADMIN"]}>
+                      <ManageUsers />
+                    </PrivateRoute>
+                  }
+                />
 
-            {/* Intern routes */}
-            <Route
-              path="/intern/dashboard"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/profiles"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <MyProfile />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/tasks"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <MyTasks />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/attendance"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <Attendance />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/leave-request"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <LeaveRequest />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/allowance"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <MyAllowance />
-                </PrivateRoute>
-              }
-            />
+                {/* HR routes */}
+                <Route
+                  path="/hr/dashboard"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <HRDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/manage-interns"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <ManageInterns />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/approve-interns"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <ApproveInterns />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/mentor-assigns"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <MentorAssigns />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/program"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <Programs />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/allowances"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <Allowances />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/contracts"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <ManageContracts />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/attendance"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <AttendanceManagement />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/leave-requests"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <LeaveManagement />
+                    </PrivateRoute>
+                  }
+                />
 
-            <Route
-              path="/intern/support"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <SupportRequest />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/calendar"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <Calendar />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/notifications"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <Notifications />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/intern/contracts"
-              element={
-                <PrivateRoute allowedRoles={["INTERN"]}>
-                  <ContractPage />
-                </PrivateRoute>
-              }
-            />
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-           <ToastContainer
-                      position="top-right"
-                      autoClose={3000}
-                      hideProgressBar={false}
-                      newestOnTop={false}
-                      closeOnClick
-                      rtl={false}
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                    />
-        </Router>
-         </HrProvider>
+
+                {/* Mentor routes */}
+                <Route
+                  path="/mentor/dashboard"
+                  element={
+                    <PrivateRoute allowedRoles={["MENTOR"]}>
+                      <MentorDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/mentor/interns"
+                  element={
+                    <PrivateRoute allowedRoles={["MENTOR"]}>
+                      <InternProgress />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/mentor/tasks"
+                  element={
+                    <PrivateRoute allowedRoles={["MENTOR"]}>
+                      <ManageTasks />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/mentor/feedback"
+                  element={
+                    <PrivateRoute allowedRoles={["MENTOR"]}>
+                      <MentorFeedback />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/mentor/evaluations"
+                  element={
+                    <PrivateRoute allowedRoles={["MENTOR"]}>
+                      <EvaluateIntern />
+                    </PrivateRoute>
+                  }
+                />
+
+
+                {/* Intern routes */}
+                <Route
+                  path="/intern/dashboard"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <Dashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/profiles"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <MyProfile />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/tasks"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <MyTasks />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/attendance"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <Attendance />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/leave-request"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <LeaveRequest />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/allowance"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <MyAllowance />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/intern/support"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <SupportRequest />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/calendar"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <Calendar />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/notifications"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <Notifications />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/contracts"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <ContractPage />
+                    </PrivateRoute>
+                  }
+                />
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              </Routes>
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+              />
+            </Router>
+          </HrProvider>
         </NotificationProvider>
       </InternsProvider>
     </UserProvider>
