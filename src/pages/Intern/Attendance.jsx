@@ -118,6 +118,7 @@ const Attendance = () => {
       if (results[1].status === 'fulfilled') {
         const historyData = results[1].value;
         const list = Array.isArray(historyData) ? historyData : [];
+        setHistory(list);
       } else {
         setHistory([]);
       }
