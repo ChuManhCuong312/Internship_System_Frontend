@@ -4,6 +4,8 @@ import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
 import { LoadingSpinner, LoadingTable, LoadingButton } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+
 import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
 import CandidatesModal from "./modals/CandidatesModal";
@@ -241,6 +243,22 @@ const ApproveInterns = () => {
       toast.warning("Vui lòng chọn ít nhất một hồ sơ để duyệt");
       return;
     }
+
+    const result = await Swal.fire({
+      title: "Duyệt nhanh hồ sơ",
+      text: "Bạn có chắc chắn duyệt những hồ sơ đã chọn?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#10b981",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Duyệt nhanh",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
     try {
       setIsQuickApproving(true);
       await Promise.all(
