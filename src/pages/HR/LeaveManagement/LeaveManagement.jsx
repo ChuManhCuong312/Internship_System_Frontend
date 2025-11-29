@@ -16,7 +16,7 @@ import Swal from "sweetalert2";
 
 const LeaveManagement = () => {
   const { token, user } = useContext(AuthContext);
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState("PENDING");
   const [searchName, setSearchName] = useState("");
 
   const [loading, setLoading] = useState(false);
