@@ -78,7 +78,15 @@ const LeaveRequest = () => {
    try {
      setLoading(true);
      const data = await getMyLeaveRequests(token, internId);
-     setLeaveRequests(Array.isArray(data) ? data : []);
+     let list = Array.isArray(data) ? data : [];
+
+     list = [...list].sort((a, b) => {
+       const idA = a.leaveId ?? 0;
+       const idB = b.leaveId ?? 0;
+       return idB - idA; // mã đơn lớn hơn (mới hơn) lên trước
+     });
+
+     setLeaveRequests(list);
    } catch (error) {
      console.error('Error fetching leave requests:', error);
      toast.error('Không thể lấy danh sách đơn nghỉ phép');
