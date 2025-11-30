@@ -5,7 +5,7 @@ import { InternsProvider } from "./context/InternsContext.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import MentorDashboard from "./pages/Mentor/Dashboard";
 import InternProgress from "./pages/Mentor/InternProgress";
-import ManageTasks from "./pages/Mentor/ManageTasks";
+import Tasks from "./pages/Mentor/Tasks";
 import MentorFeedback from "./pages/Mentor/MentorFeedback";
 import EvaluateIntern from "./pages/Mentor/EvaluateIntern";
 import Dashboard from "./pages/Intern/Dashboard";
@@ -193,7 +193,7 @@ function App() {
                   path="/mentor/tasks"
                   element={
                     <PrivateRoute allowedRoles={["MENTOR"]}>
-                      <ManageTasks />
+                      <Tasks />
                     </PrivateRoute>
                   }
                 />
