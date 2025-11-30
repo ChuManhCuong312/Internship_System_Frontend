@@ -13,7 +13,9 @@ import CriteriaModal from "./modals/CriteriaModal";
 import ApproveModal from "./modals/ApproveModal";
 import RejectModal from "./modals/RejectModal";
 import QuickApproveModal from "./modals/QuickApproveModal";
+import ViewProfileModal from "./modals/ViewProfileModal";
 import { HrContext } from "../../../context/HrContext";
+
 import "../../../styles/pagination.css";
 
 const ApproveInterns = () => {
@@ -53,6 +55,8 @@ const ApproveInterns = () => {
   const [quickRejectError, setQuickRejectError] = useState("");
   const [isQuickRejecting, setIsQuickRejecting] = useState(false);
 
+  const [viewingIntern, setViewingIntern] = useState(null);
+
   const validateIntern = (intern) => {
     const newErrors = {};
     if (!intern.fullName?.trim()) newErrors.full_name = "Họ tên bắt buộc";
@@ -77,13 +81,12 @@ const ApproveInterns = () => {
     return age;
   };
 
-  // Check if intern matches criteria
   const checkCriteria = (intern) => {
     if (!appliedCriteria) return false;
 
     let matches = true;
 
-    // Check GPA
+
     if (appliedCriteria.gpa?.enabled && appliedCriteria.gpa?.value) {
       const gpaValue = parseFloat(appliedCriteria.gpa.value);
       const internGpa = parseFloat(intern.gpa);
@@ -248,8 +251,12 @@ const ApproveInterns = () => {
     setIsQuickApproveOpen(true);
   };
 
-  const handleQuickApproveConfirm = async () => {
-    if (!selectedInterns || selectedInterns.length === 0) {
+  const handleQuickApproveConfirm = async (internsToApprove) => {
+    const targetInterns = Array.isArray(internsToApprove) && internsToApprove.length > 0
+      ? internsToApprove
+      : selectedInterns;
+
+    if (!targetInterns || targetInterns.length === 0) {
       setIsQuickApproveOpen(false);
       return;
     }
@@ -257,7 +264,7 @@ const ApproveInterns = () => {
     try {
       setIsQuickApproving(true);
       await Promise.all(
-        selectedInterns.map((intern) =>
+        targetInterns.map((intern) =>
           hrApi.updateInternStatus(token, intern.internId, "APPROVED")
         )
       );
@@ -265,7 +272,7 @@ const ApproveInterns = () => {
       setInterns((prev) =>
         prev.filter(
           (intern) =>
-            !selectedInterns.some(
+            !targetInterns.some(
               (selected) => selected.internId === intern.internId
             )
         )
@@ -452,6 +459,13 @@ const ApproveInterns = () => {
           />
         )}
 
+        {viewingIntern && (
+          <ViewProfileModal
+            intern={viewingIntern}
+            onClose={() => setViewingIntern(null)}
+          />
+        )}
+
         {showCriteriaModal && (
           <CriteriaModal
             onClose={() => setShowCriteriaModal(false)}
@@ -475,6 +489,8 @@ const ApproveInterns = () => {
             onClose={() => setIsQuickApproveOpen(false)}
             onConfirm={handleQuickApproveConfirm}
             isLoading={isQuickApproving}
+            onToggleSelectIntern={handleToggleSelectIntern}
+            onViewIntern={setViewingIntern}
           />
         )}
 
