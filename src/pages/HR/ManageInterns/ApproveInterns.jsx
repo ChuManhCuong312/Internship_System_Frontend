@@ -4,7 +4,6 @@ import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
 import { LoadingSpinner, LoadingTable, LoadingButton } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2";
 
 import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
@@ -13,6 +12,7 @@ import ProfileModal from "./modals/ProfileModal";
 import CriteriaModal from "./modals/CriteriaModal";
 import ApproveModal from "./modals/ApproveModal";
 import RejectModal from "./modals/RejectModal";
+import QuickApproveModal from "./modals/QuickApproveModal";
 import { HrContext } from "../../../context/HrContext";
 import "../../../styles/pagination.css";
 
@@ -45,6 +45,8 @@ const ApproveInterns = () => {
 
   const [selectedInterns, setSelectedInterns] = useState([]);
   const [isQuickApproving, setIsQuickApproving] = useState(false);
+
+  const [isQuickApproveOpen, setIsQuickApproveOpen] = useState(false);
 
   const [isQuickRejectOpen, setIsQuickRejectOpen] = useState(false);
   const [quickRejectReason, setQuickRejectReason] = useState("");
@@ -238,24 +240,17 @@ const ApproveInterns = () => {
     }
   };
 
-  const handleQuickApprove = async () => {
+  const handleOpenQuickApprove = () => {
     if (!selectedInterns || selectedInterns.length === 0) {
       toast.warning("Vui lòng chọn ít nhất một hồ sơ để duyệt");
       return;
     }
+    setIsQuickApproveOpen(true);
+  };
 
-    const result = await Swal.fire({
-      title: "Duyệt nhanh hồ sơ",
-      text: "Bạn có chắc chắn duyệt những hồ sơ đã chọn?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#10b981",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Duyệt nhanh",
-      cancelButtonText: "Hủy",
-    });
-
-    if (!result.isConfirmed) {
+  const handleQuickApproveConfirm = async () => {
+    if (!selectedInterns || selectedInterns.length === 0) {
+      setIsQuickApproveOpen(false);
       return;
     }
 
@@ -276,6 +271,7 @@ const ApproveInterns = () => {
         )
       );
       setSelectedInterns([]);
+      setIsQuickApproveOpen(false);
     } catch (err) {
       console.error("Error approving interns:", err);
       toast.error("Duyệt hồ sơ thất bại ❌");
@@ -410,7 +406,7 @@ const ApproveInterns = () => {
             <div className="action-buttons">
               <LoadingButton
                 className="btn-approve"
-                onClick={handleQuickApprove}
+                onClick={handleOpenQuickApprove}
                 isLoading={isQuickApproving}
                 disabled={!selectedInterns || selectedInterns.length === 0 || isQuickRejecting}
               >
@@ -470,6 +466,15 @@ const ApproveInterns = () => {
             onClose={() => setApprovingIntern(null)}
             onConfirm={handleApproveIntern}
             isLoading={isApproving}
+          />
+        )}
+
+        {isQuickApproveOpen && selectedInterns && selectedInterns.length > 0 && (
+          <QuickApproveModal
+            interns={selectedInterns}
+            onClose={() => setIsQuickApproveOpen(false)}
+            onConfirm={handleQuickApproveConfirm}
+            isLoading={isQuickApproving}
           />
         )}
 
