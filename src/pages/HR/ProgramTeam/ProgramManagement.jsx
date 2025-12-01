@@ -10,6 +10,7 @@ import DeleteConfirmModal from "./modals/DeleteConfirmModal";
 import hrApi from "../../../api/hrApi";
 import { AuthContext } from "../../../context/AuthContext";
 import Pagination from "../../../components/Common/Pagination";
+import AssignMentorToProgramModal from "./modals/AssignMentorToProgramModal";
 
 export default function ProgramManagement() {
   const { token } = useContext(AuthContext);
@@ -27,7 +28,6 @@ export default function ProgramManagement() {
   const [programOverview, setProgramOverview] = useState({});
   const [mentorsList, setMentorsList] = useState([]);
 
-
   // Modal state
   const [isAddProgramOpen, setIsAddProgramOpen] = useState(false);
   const [isEditProgramOpen, setIsEditProgramOpen] = useState(false);
@@ -40,7 +40,10 @@ export default function ProgramManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [programToDelete, setProgramToDelete] = useState(null);
 
+  const [isAssignMentorProgramOpen, setIsAssignMentorProgramOpen] = useState(false);
+
   // Selected program/team & forms
+  const [viewingProgramTeams, setViewingProgramTeams] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [formData, setFormData] = useState({});
@@ -54,6 +57,7 @@ export default function ProgramManagement() {
 
   const [allDepartments, setAllDepartments] = useState([]);
   const [assignedMentors, setAssignedMentors] = useState([]);
+
 
   // ---------------- LOAD DEPARTMENTS & ASSIGNED MENTORS ----------------
   useEffect(() => {
@@ -230,7 +234,59 @@ const handleCloneProgram = async (program) => {
 
   const isDatePassed = (startDate) => new Date(startDate) < new Date();
 
+const openAssignMentorProgramModal = async (program) => {
+  setSelectedProgram(program);
+  try {
+    const assigned = await hrApi.getMentorsAssignedToProgram(token, program.programId);
+    setSelectedProgram((prev) => ({ ...prev, mentorPrograms: assigned }));
+  } catch (err) {
+    console.error("Error fetching assigned mentors:", err);
+  }
+  setIsAssignMentorProgramOpen(true);
+};
+
+const handleAssignProgramMentor = async (updatedMentors) => {
+  try {
+    // Re-fetch the updated program overview or mentors list
+    const updatedProgramMentors = await hrApi.getMentorsAssignedToProgram(
+      token,
+      selectedProgram.programId
+    );
+
+    // Update the selected program in state
+    setPrograms((prevPrograms) =>
+      prevPrograms.map((p) =>
+        p.programId === selectedProgram.programId
+          ? { ...p, mentorPrograms: updatedProgramMentors }
+          : p
+      )
+    );
+
+    // Optionally, update programOverview for counts/names
+    const overview = await hrApi.getProgramOverview(token, selectedProgram.programId);
+    setProgramOverview((prev) => ({
+      ...prev,
+      [selectedProgram.programId]: overview,
+    }));
+  } catch (err) {
+    console.error("Error refreshing program mentors:", err);
+  }
+};
+
+
   // ---------------- TEAM ACTIONS ----------------
+const handleViewTeams = async (program) => {
+  try {
+    const teams = await hrApi.getTeamsInProgram(token, program.programId);
+
+    // Set both viewing state and selected program
+    setViewingProgramTeams({ ...program, teams });
+    setSelectedProgram({ ...program, teams }); // <-- important
+  } catch (err) {
+    console.error("Error fetching teams:", err);
+  }
+};
+
   const handleAddTeam = () => {
     setTeamFormData({});
     setIsAddTeamOpen(true);
@@ -242,43 +298,104 @@ const handleCloneProgram = async (program) => {
     setIsEditTeamOpen(true);
   };
 
-  const handleDeleteTeam = (teamId) => {
-    if (selectedProgram) {
-      const updatedProgram = {
-        ...selectedProgram,
-        teams: selectedProgram.teams.filter((t) => t.teamId !== teamId),
-      };
-      setPrograms(programs.map((p) => (p.programId === selectedProgram.programId ? updatedProgram : p)));
-      setSelectedProgram(updatedProgram);
-    }
-  };
+const handleDeleteTeam = async (teamId) => {
+  if (!selectedProgram) return;
 
-  const handleSaveTeam = () => {
-    if (!selectedProgram) return;
-    let updatedProgram = selectedProgram;
+  try {
+    await hrApi.deleteTeam(token, teamId);
 
-    if (selectedTeam) {
-      updatedProgram = {
-        ...selectedProgram,
-        teams: selectedProgram.teams.map((t) =>
-          t.teamId === selectedTeam.teamId ? { ...t, ...teamFormData } : t
-        ),
-      };
-      setIsEditTeamOpen(false);
-    } else {
-      const newTeam = {
-        teamId: Math.max(0, ...selectedProgram.teams.map((t) => t.teamId)) + 1,
-        ...teamFormData,
-        interns: [],
-      };
-      updatedProgram = { ...selectedProgram, teams: [...selectedProgram.teams, newTeam] };
-      setIsAddTeamOpen(false);
-    }
+    const updatedProgram = {
+      ...selectedProgram,
+      teams: selectedProgram.teams.filter((t) => t.teamId !== teamId),
+    };
 
-    setPrograms(programs.map((p) => (p.programId === selectedProgram.programId ? updatedProgram : p)));
+    // Update all relevant states
+    setPrograms((prev) =>
+      prev.map((p) =>
+        p.programId === selectedProgram.programId ? updatedProgram : p
+      )
+    );
     setSelectedProgram(updatedProgram);
-    setTeamFormData({});
-  };
+    setViewingProgramTeams(updatedProgram); // ✅ update the Teams page immediately
+  } catch (err) {
+    console.error("Error deleting team:", err);
+  }
+};
+
+
+ const handleSaveTeam = async () => {
+   if (!selectedProgram) return;
+
+   try {
+     let updatedProgram;
+
+     if (selectedTeam) {
+       // Update team
+       const updatedTeam = await hrApi.updateTeam(
+         token,
+         selectedTeam.teamId,
+         { ...teamFormData }
+       );
+
+       updatedProgram = {
+         ...selectedProgram,
+         teams: selectedProgram.teams.map((t) =>
+           t.teamId === selectedTeam.teamId ? updatedTeam : t
+         ),
+       };
+       setIsEditTeamOpen(false);
+     } else {
+       // Create team
+       const newTeam = await hrApi.createTeam(token, {
+         programId: selectedProgram.programId,
+         ...teamFormData,
+       });
+
+       updatedProgram = {
+         ...selectedProgram,
+         teams: [...(selectedProgram.teams || []), newTeam],
+       };
+       setIsAddTeamOpen(false);
+     }
+
+     // Update all relevant states
+     setPrograms((prev) =>
+       prev.map((p) =>
+         p.programId === selectedProgram.programId ? updatedProgram : p
+       )
+     );
+     setSelectedProgram(updatedProgram);
+     setViewingProgramTeams(updatedProgram); // ✅ update the Teams page
+     setTeamFormData({ mentorId: null });
+   } catch (err) {
+     console.error("Error saving team:", err);
+   }
+ };
+
+const handleAssignMentorToTeam = async (mentorId, teamId) => {
+  try {
+    await hrApi.assignMentorToTeam(token, selectedProgram.programId, mentorId);
+
+    // update local state
+    const updatedProgram = {
+      ...selectedProgram,
+      teams: selectedProgram.teams.map((t) =>
+        t.teamId === teamId ? { ...t, mentorId } : t
+      ),
+    };
+    setSelectedProgram(updatedProgram);
+    setPrograms((prev) =>
+      prev.map((p) =>
+        p.programId === selectedProgram.programId ? updatedProgram : p
+      )
+    );
+  } catch (err) {
+    console.error("Error assigning mentor:", err);
+  }
+};
+
+
+
 
   // ---------------- INTERN ACTIONS ----------------
   const handleAddIntern = () => {
@@ -350,6 +467,7 @@ const handleCloneProgram = async (program) => {
   };
 
   return (
+
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
@@ -358,73 +476,90 @@ const handleCloneProgram = async (program) => {
           <div className="header-section">
             <div className="header-content">
               <div>
-                <h1 className="header-title">Quản lý chương trình thực tập</h1>
-                <p className="header-subtitle">Quản lý thực tập sinh, teams, và phân công mentor</p>
+                <h1 className="header-title">
+                  {!viewingProgramTeams
+                    ? "Quản lý chương trình thực tập"
+                    : `Teams of ${viewingProgramTeams.name}`}
+                </h1>
+                <p className="header-subtitle">
+                  {!viewingProgramTeams
+                    ? "Quản lý thực tập sinh, teams, và phân công mentor"
+                    : "Quản lý các teams và phân công mentor trong chương trình này"}
+                </p>
               </div>
-              <button className="btn btn-primary" onClick={handleAddProgram}>
-                <Plus size={16} /> Thêm Chương trình
+              <button
+                className={`btn ${!viewingProgramTeams ? "btn-primary" : "btn-secondary"}`}
+                onClick={!viewingProgramTeams ? handleAddProgram : handleAddTeam}
+              >
+                <Plus size={16} /> {!viewingProgramTeams ? "Thêm Chương trình" : "Thêm Team"}
               </button>
             </div>
 
             {/* Search & Filters */}
-            <div className="card filter-card">
-              <div className="filter-content">
-                <div className="search-container">
-                  <Search size={16} className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Tìm chương trình theo tên..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                  />
-                </div>
-
-                <div className="filter-grid">
-                  <select
-                    value={filterDepartment}
-                    onChange={(e) => setFilterDepartment(e.target.value)}
-                    className="select"
-                  >
-                    <option value="all-departments">Lọc theo phòng ban</option>
-                    {allDepartments.map((dept) => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={filterMentor}
-                    onChange={(e) => setFilterMentor(e.target.value)}
-                    className="select"
-                  >
-                    <option value="all-mentors">Lọc theo mentor</option>
-                    {assignedMentors.map((m) => (
-                      <option key={m.mentorId} value={m.mentorId}>
-                        {m.fullName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {(searchTerm || filterDepartment !== "all-departments") && (
-                  <div className="filter-actions">
-                    <button
-                      className="btn btn-secondary btn-small"
-                      onClick={() => {
-                        setSearchTerm("");
-                        setFilterDepartment("all-departments");
-                        setFilterMentor("all-mentors");
-                      }}
-                    >
-                      Bỏ bộ lọc
-                    </button>
+            {!viewingProgramTeams && (
+              <div className="card filter-card">
+                <div className="filter-content">
+                  <div className="search-container">
+                    <Search size={16} className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Tìm chương trình theo tên..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
                   </div>
-                )}
+
+                  <div className="filter-grid">
+                    <select
+                      value={filterDepartment}
+                      onChange={(e) => setFilterDepartment(e.target.value)}
+                      className="select"
+                    >
+                      <option value="all-departments">Lọc theo phòng ban</option>
+                      {allDepartments.map((dept) => (
+                        <option key={dept} value={dept}>
+                          {dept}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={filterMentor}
+                      onChange={(e) => setFilterMentor(e.target.value)}
+                      className="select"
+                    >
+                      <option value="all-mentors">Lọc theo mentor</option>
+                      {assignedMentors.map((m) => (
+                        <option key={m.mentorId} value={m.mentorId}>
+                          {m.fullName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {(searchTerm || filterDepartment !== "all-departments") && (
+                    <div className="filter-actions">
+                      <button
+                        className="btn btn-secondary btn-small"
+                        onClick={() => {
+                          setSearchTerm("");
+                          setFilterDepartment("all-departments");
+                          setFilterMentor("all-mentors");
+                        }}
+                      >
+                        Bỏ bộ lọc
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
+
           {/* Programs List */}
+          {!viewingProgramTeams ? (
           <div className="programs-list">
             {filteredPrograms.length === 0 ? (
               <div className="card empty-state">
@@ -447,13 +582,19 @@ const handleCloneProgram = async (program) => {
                       <div className="dropdown-menu">
                         <button
                           className="dropdown-item"
+                          onClick={() => handleViewTeams(program)}
+                        >
+                          View Teams
+                        </button>
+                        <button
+                          className="dropdown-item"
                           onClick={() => {
-                            setSelectedProgram(program);
-                            setIsTeamManagementOpen(true);
+                            openAssignMentorProgramModal(program)
                           }}
                         >
-                          Xem teams
+                          Phân công Mentor
                         </button>
+
                         <button
                           className="dropdown-item"
                           onClick={() => handleEditProgram(program)}
@@ -525,6 +666,71 @@ const handleCloneProgram = async (program) => {
               ))
             )}
           </div>
+          ) : (
+
+            <div className="teams-page">
+              <div className="header-section">
+
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setViewingProgramTeams(null)}
+                >
+                  Back to Programs
+                </button>
+              </div>
+
+              <div className="teams-list">
+                {viewingProgramTeams.teams && viewingProgramTeams.teams.length > 0 ? (
+                  viewingProgramTeams.teams.map((team, idx) => (
+                    <div key={team.teamId} className="card team-card">
+                      <div className="team-card-header">
+                        <span className="team-stt">Team {idx + 1}</span>
+                        <h3>{team.name}</h3>
+                        <div className="team-mentors">
+                          {assignedMentors
+                            .filter((m) => m.mentorId === team.mentorId)
+                            .map((m) => (
+                              <span key={m.mentorId} className="mentor-badge">
+                                {m.fullName}
+                              </span>
+                            ))}
+                        </div>
+                        <div className="dropdown-menu-container">
+                          <button className="btn-icon">
+                            <MoreVertical size={16} />
+                          </button>
+                          <div className="dropdown-menu">
+                            <button className="dropdown-item">
+                              View Intern
+                            </button>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleEditTeam(team)}
+                            >
+                              Update Team
+                            </button>
+                            <button
+                              className="dropdown-item danger"
+                              onClick={() => handleDeleteTeam(team.teamId)}
+                            >
+                              Delete Team
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="team-description">{team.description}</p>
+                      <p className="team-interns-count">
+                        Interns: {team.interns?.length || 0}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No teams in this program.</p>
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* MODALS */}
@@ -549,6 +755,16 @@ const handleCloneProgram = async (program) => {
           programName={programToDelete?.name}
         />
 
+        {isAssignMentorProgramOpen && (
+            <AssignMentorToProgramModal
+                isOpen={isAssignMentorProgramOpen}
+                onClose={() => setIsAssignMentorProgramOpen(false)}
+                onAssign={handleAssignProgramMentor}
+                assignedMentors={selectedProgram?.mentorPrograms || []}
+                programId={selectedProgram?.programId}
+            />
+        )}
+
         <TeamManagementModal
           isOpen={isTeamManagementOpen}
           onClose={() => setIsTeamManagementOpen(false)}
@@ -568,6 +784,11 @@ const handleCloneProgram = async (program) => {
           selectedTeam={selectedTeam}
           teamFormData={teamFormData}
           setTeamFormData={setTeamFormData}
+          teamMentorSearch={teamMentorSearch}
+          setTeamMentorSearch={setTeamMentorSearch}
+          selectedProgram={selectedProgram} // pass the currently viewed program
+          token={token} // pass token explicitly
+          programMentors={selectedProgram?.mentorPrograms || []} // mentors assigned to this program
         />
 
         <AddInternModal
@@ -581,12 +802,14 @@ const handleCloneProgram = async (program) => {
           internFormData={internFormData}
           handleAddIntern={handleAddIntern}
         />
+        {!viewingProgramTeams && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           totalItems={totalItems}
           onPageChange={(page) => setCurrentPage(page)}
         />
+        )}
       </div>
     </div>
   );
