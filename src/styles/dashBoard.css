@@ -13,7 +13,7 @@ body, html {
 
 .dashboard-content {
   flex: 1;
-  background: #ffff !important;
+  background: #f3f4f6 !important;
   padding: 24px;
   overflow-y: auto;
   font-family: "Inter", sans-serif;
@@ -41,23 +41,37 @@ body, html {
   background: #fff;
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15,23,42,0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(15,23,42,0.08);
 }
 
 .stat-icon {
-  font-size: 30px;
-  padding: 16px;
-  border-radius: 12px;
-  color: #fff;
+  font-size: 28px;
+  padding: 10px;
+  border-radius: 9999px;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.stat-icon.hr { background-color: #00acc1; }
-.stat-icon.mentor { background-color: #26a69a; }
-.stat-icon.intern { background-color: #66bb6a; }
+.stat-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+}
+
+.stat-icon.hr,
+.stat-icon.mentor,
+.stat-icon.intern {
+  background-color: #ffffff;
+}
 
 .stat-value {
   font-size: 28px;
