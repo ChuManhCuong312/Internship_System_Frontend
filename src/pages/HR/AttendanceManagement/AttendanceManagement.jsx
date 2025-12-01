@@ -16,10 +16,10 @@ import { toast } from "react-toastify";
 const AttendanceManagement = () => {
   const { token } = useContext(AuthContext);
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+
   const [mode, setMode] = useState("daily");
-  const [selectedDate, setSelectedDate] = useState(
-    () => new Date().toISOString().slice(0, 10)
-  );
+  const [selectedDate, setSelectedDate] = useState(() => todayStr);
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().getMonth() + 1
   );
@@ -384,6 +384,7 @@ const AttendanceManagement = () => {
                   <input
                     type="date"
                     value={selectedDate}
+                    max={todayStr}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="filter-select"
                   />
