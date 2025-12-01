@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/tasks";
+const API_URL = "http://localhost:8081/api/tasks";
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
@@ -52,6 +52,12 @@ const taskApi = {
   // Update task
   updateTask: async (token, taskId, taskData) => {
     const res = await axios.put(`${API_URL}/${taskId}`, taskData, authHeader(token));
+    return res.data;
+  },
+
+  // Update task status (PATCH)
+  updateTaskStatus: async (token, taskId, status) => {
+    const res = await axios.patch(`${API_URL}/${taskId}/status`, status, authHeader(token));
     return res.data;
   },
 
