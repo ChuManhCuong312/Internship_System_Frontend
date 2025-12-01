@@ -550,6 +550,69 @@
   }
 }
 
+/* Assigned Teams Section */
+.assignedTeamsSection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.assignedTeamsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.assignedTeamCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.assignedTeamHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.assignedTeamName {
+  font-weight: 600;
+  color: #334155;
+  font-size: 14px;
+}
+
+.assignedTeamMentor {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.assignedTeamInterns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.internTag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #4f46e5;
+  font-weight: 500;
+}
+
+.noTeamsAssigned {
+  color: #94a3b8;
+  font-size: 14px;
+  font-style: italic;
+  margin-top: 8px;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 20px 16px;

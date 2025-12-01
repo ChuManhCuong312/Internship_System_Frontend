@@ -2,6 +2,9 @@ import React, { useState, useContext, useEffect, useCallback } from 'react';
 import TaskModal from '../../../components/Tasks/TaskModal';
 import { AuthContext } from '../../../context/AuthContext';
 import taskApi from '../../../api/taskApi';
+import teamApi from '../../../api/teamApi';
+import mentorApi from '../../../api/mentorApi';
+import programApi from '../../../api/programApi';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import styles from './TasksManagementPage.module.css';
@@ -9,10 +12,11 @@ import styles from './TasksManagementPage.module.css';
 const TasksManagementPage = ({ programId, onBack }) => {
   const { user, token } = useContext(AuthContext);
   const [mentorId, setMentorId] = useState(null);
-  const [programs, setPrograms] = useState([]);
+  const [currentProgram, setCurrentProgram] = useState(null);
   const [teams, setTeams] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [taskAssignments, setTaskAssignments] = useState([]); // Team assignments for selected task
   const [showFilter, setShowFilter] = useState(false);
   const [filterData, setFilterData] = useState({
     status: '',
@@ -30,13 +34,6 @@ const TasksManagementPage = ({ programId, onBack }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [activeFilters, setActiveFilters] = useState(null);
 
-  // Get mentor ID from user
-  useEffect(() => {
-    if (user?.userId) {
-      setMentorId(user.userId);
-    }
-  }, [user]);
-
   // Fetch tasks by program ID
   const fetchTasks = useCallback(async () => {
     if (!token || !programId) return;
@@ -44,16 +41,32 @@ const TasksManagementPage = ({ programId, onBack }) => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Fetching tasks for programId:', programId);
       const response = await taskApi.getTasksByProgram(token, programId, page, size);
+      console.log('Tasks response:', response);
 
-      if (response.content) {
+      // Handle PaginatedTaskDTO format: { data, totalTasks, currentPage, pageSize, totalPages }
+      if (response.data && Array.isArray(response.data)) {
+        setTasks(response.data);
+        setTotalElements(response.totalTasks || 0);
+        setTotalPages(response.totalPages || 0);
+      } 
+      // Handle Spring Page format: { content, totalElements, totalPages }
+      else if (response.content) {
         setTasks(response.content);
         setTotalElements(response.totalElements || 0);
         setTotalPages(response.totalPages || 0);
-      } else if (Array.isArray(response)) {
+      } 
+      // Handle array response (no pagination)
+      else if (Array.isArray(response)) {
         setTasks(response);
         setTotalElements(response.length);
         setTotalPages(1);
+      } else {
+        // Handle case where response is empty or unexpected format
+        setTasks([]);
+        setTotalElements(0);
+        setTotalPages(0);
       }
     } catch (err) {
       console.error('Error fetching tasks:', err);
@@ -72,15 +85,29 @@ const TasksManagementPage = ({ programId, onBack }) => {
       setLoading(true);
       setError(null);
       const response = await taskApi.filterTasks(token, { ...filters, programId }, page, size);
+      console.log('Filtered tasks response:', response);
 
-      if (response.content) {
+      // Handle PaginatedTaskDTO format
+      if (response.data && Array.isArray(response.data)) {
+        setTasks(response.data);
+        setTotalElements(response.totalTasks || 0);
+        setTotalPages(response.totalPages || 0);
+      } 
+      // Handle Spring Page format
+      else if (response.content) {
         setTasks(response.content);
         setTotalElements(response.totalElements || 0);
         setTotalPages(response.totalPages || 0);
-      } else if (Array.isArray(response)) {
+      } 
+      // Handle array response
+      else if (Array.isArray(response)) {
         setTasks(response);
         setTotalElements(response.length);
         setTotalPages(1);
+      } else {
+        setTasks([]);
+        setTotalElements(0);
+        setTotalPages(0);
       }
     } catch (err) {
       console.error('Error fetching filtered tasks:', err);
@@ -103,11 +130,48 @@ const TasksManagementPage = ({ programId, onBack }) => {
   // Create task
   const createTask = useCallback(async (taskData) => {
     try {
-      const response = await taskApi.createTask(token, { ...taskData, programId, mentorId });
-      toast.success('Giao nhiệm vụ thành công!');
+      // Format deadline to ISO string for LocalDateTime
+      const formattedDeadline = taskData.deadline ? new Date(taskData.deadline).toISOString() : null;
+      
+      // Extract teamIds before sending to task API
+      const { teamIds, ...taskPayload } = taskData;
+      
+      const payload = {
+        ...taskPayload,
+        programId,
+        mentorId,
+        assignedBy: mentorId, // assignedBy is the mentor who creates the task
+        deadline: formattedDeadline,
+      };
+      
+      console.log('Creating task with payload:', payload);
+      
+      const response = await taskApi.createTask(token, payload);
+      const createdTaskId = response.taskId;
+      
+      // Create team assignments if teams were selected
+      if (teamIds && teamIds.length > 0 && createdTaskId) {
+        console.log('Creating team assignments for taskId:', createdTaskId, 'teamIds:', teamIds);
+        
+        for (const teamId of teamIds) {
+          try {
+            await taskApi.createTeamAssignment(token, {
+              taskId: createdTaskId,
+              teamId: teamId,
+            });
+          } catch (assignErr) {
+            console.error('Error creating team assignment:', assignErr);
+          }
+        }
+        toast.success(`Giao nhiệm vụ thành công cho ${teamIds.length} nhóm!`);
+      } else {
+        toast.success('Giao nhiệm vụ thành công!');
+      }
+      
       fetchTasks();
       return response;
     } catch (err) {
+      console.error('Error creating task:', err.response?.data || err);
       const message = err.response?.data?.message || 'Lỗi khi giao nhiệm vụ';
       toast.error(message);
       throw err;
@@ -117,11 +181,22 @@ const TasksManagementPage = ({ programId, onBack }) => {
   // Update task
   const updateTask = useCallback(async (taskId, taskData) => {
     try {
-      const response = await taskApi.updateTask(token, taskId, taskData);
+      // Format deadline to ISO string for LocalDateTime
+      const formattedDeadline = taskData.deadline ? new Date(taskData.deadline).toISOString() : null;
+      
+      const payload = {
+        ...taskData,
+        deadline: formattedDeadline,
+      };
+      
+      console.log('Updating task with payload:', payload);
+      
+      const response = await taskApi.updateTask(token, taskId, payload);
       toast.success('Cập nhật nhiệm vụ thành công!');
       fetchTasks();
       return response;
     } catch (err) {
+      console.error('Error updating task:', err.response?.data || err);
       const message = err.response?.data?.message || 'Lỗi khi cập nhật nhiệm vụ';
       toast.error(message);
       throw err;
@@ -154,21 +229,72 @@ const TasksManagementPage = ({ programId, onBack }) => {
     setPage(0);
   }, []);
 
-  // Fetch programs and teams from API
+  // Get mentor ID from user
   useEffect(() => {
-    // TODO: Replace with actual API calls when endpoints are available
-    setPrograms([
-      { programId: 1, programName: 'Chương trình thực tập 2024' },
-      { programId: 2, programName: 'Chương trình phát triển kỹ năng' },
-      { programId: 3, programName: 'Chương trình quốc tế' },
-    ]);
+    const fetchMentorId = async () => {
+      if (!token || !user?.userId) return;
+      try {
+        const mentorData = await mentorApi.getMentorByUserId(token, user.userId);
+        if (mentorData?.mentorId) {
+          setMentorId(mentorData.mentorId);
+        }
+      } catch (err) {
+        console.error('Error fetching mentor ID:', err);
+      }
+    };
+    fetchMentorId();
+  }, [token, user]);
 
-    setTeams([
-      { teamId: 1, teamName: 'Nhóm Frontend' },
-      { teamId: 2, teamName: 'Nhóm Backend' },
-      { teamId: 3, teamName: 'Nhóm Design' },
-    ]);
-  }, []);
+  // Fetch program info and teams
+  useEffect(() => {
+    const fetchProgramAndTeams = async () => {
+      if (!token || !programId) return;
+      
+      try {
+        // Fetch program info
+        const programsResponse = await programApi.getAllPrograms(token, 1, 100);
+        const programs = programsResponse.data || [];
+        const program = programs.find(p => p.programId === programId);
+        if (program) {
+          setCurrentProgram(program);
+        }
+
+        // Fetch teams for this program
+        const teamsResponse = await teamApi.getTeamsByProgram(token, programId);
+        setTeams(Array.isArray(teamsResponse) ? teamsResponse : []);
+      } catch (err) {
+        console.error('Error fetching program/teams:', err);
+      }
+    };
+    fetchProgramAndTeams();
+  }, [token, programId]);
+
+  // Fetch team assignments when a task is selected
+  const fetchTaskAssignments = useCallback(async (taskId) => {
+    if (!token || !taskId) {
+      setTaskAssignments([]);
+      return;
+    }
+    
+    try {
+      const assignments = await taskApi.getAssignmentsByTaskId(token, taskId);
+      console.log('Task assignments:', assignments);
+      setTaskAssignments(Array.isArray(assignments) ? assignments : []);
+    } catch (err) {
+      console.error('Error fetching task assignments:', err);
+      setTaskAssignments([]);
+    }
+  }, [token]);
+
+  // Handle task selection
+  const handleSelectTask = useCallback((task) => {
+    setSelectedTask(task);
+    if (task) {
+      fetchTaskAssignments(task.taskId);
+    } else {
+      setTaskAssignments([]);
+    }
+  }, [fetchTaskAssignments]);
 
   const handleOpenModal = (task = null) => {
     setSelectedTask(task);
@@ -268,9 +394,6 @@ const TasksManagementPage = ({ programId, onBack }) => {
     done: tasks.filter(t => t.status === 'DONE').length,
   };
 
-  // Get program name
-  const currentProgram = programs.find(p => p.programId === programId);
-
   return (
     <div className={styles.container}>
       {/* Back Button */}
@@ -281,7 +404,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.programInfo}>
-          <h1 className={styles.programName}>{currentProgram?.programName || 'Quản lý Nhiệm vụ'}</h1>
+          <h1 className={styles.programName}>{currentProgram?.name || 'Quản lý Nhiệm vụ'}</h1>
           <p className={styles.programDetails}>Tổng {stats.total} nhiệm vụ</p>
         </div>
       </div>
@@ -371,7 +494,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
                   <button
                     key={task.taskId}
                     className={`${styles.taskItem} ${selectedTask?.taskId === task.taskId ? styles.active : ''} ${isOverdue(task.deadline) && task.status !== 'DONE' ? styles.overdue : ''}`}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => handleSelectTask(task)}
                   >
                     <div className={styles.taskItemContent}>
                       <p className={styles.taskItemTitle}>{task.title}</p>
@@ -450,6 +573,35 @@ const TasksManagementPage = ({ programId, onBack }) => {
                     <p className={styles.description}>{selectedTask.description}</p>
                   </div>
                 )}
+
+                {/* Assigned Teams Section */}
+                <div className={styles.assignedTeamsSection}>
+                  <h3 className={styles.sectionTitle}>Nhóm được giao ({taskAssignments.length})</h3>
+                  {taskAssignments.length > 0 ? (
+                    <div className={styles.assignedTeamsList}>
+                      {taskAssignments.map(assignment => {
+                        const team = teams.find(t => t.teamId === assignment.teamId);
+                        return (
+                          <div key={assignment.id} className={styles.assignedTeamCard}>
+                            <div className={styles.assignedTeamHeader}>
+                              <span className={styles.assignedTeamName}>Nhóm #{assignment.teamId}</span>
+                              {team && <span className={styles.assignedTeamMentor}>👤 {team.mentorName}</span>}
+                            </div>
+                            {team && team.interns && team.interns.length > 0 && (
+                              <div className={styles.assignedTeamInterns}>
+                                {team.interns.map((intern, idx) => (
+                                  <span key={idx} className={styles.internTag}>{intern.name}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className={styles.noTeamsAssigned}>Chưa giao cho nhóm nào</p>
+                  )}
+                </div>
               </div>
 
               <div className={styles.actionSection}>
@@ -481,8 +633,8 @@ const TasksManagementPage = ({ programId, onBack }) => {
         onClose={handleCloseModal}
         onSubmit={handleSubmitTask}
         task={selectedTask}
-        programs={programs}
         teams={teams}
+        programName={currentProgram?.name || ''}
       />
     </div>
   );
