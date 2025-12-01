@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { X, Plus, MoreVertical } from "lucide-react";
-import AssignMentorModal from "./AssignMentorModal";
+
 import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 
