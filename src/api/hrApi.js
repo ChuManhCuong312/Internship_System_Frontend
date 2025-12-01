@@ -122,6 +122,81 @@ const hrApi = {
         return res.data; // list of { mentorId, mentorName }
       },
 
+      // hrApi.js
+      searchMentors: async (token, name) => {
+        const res = await axios.get(`${API_URL_TEAMS}/mentors/search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { name },
+        });
+        return res.data; // array of MentorInfoDTO
+      },
+
+      assignMentorToTeam: async (token, programId, mentorId) => {
+        const res = await axios.post(
+          `${API_URL_TEAMS}/assign-mentor`,
+          { programId, mentorId },
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      removeMentorFromProgram: async (token, programId, mentorId) => {
+        const res = await axios.delete(`${API_URL_TEAMS}/${programId}/mentors/${mentorId}`,
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      assignMentorToProgram: async (token, programId, mentorId) => {
+        const res = await axios.post(
+          `${API_URL_PROGRAM}/${programId}/assign-mentor/${mentorId}`,
+          {},
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      getMentorsAssignedToProgram: async (token, programId) => {
+        const res = await axios.get(
+          `${API_URL_PROGRAM}/${programId}/mentors`,
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      // Create a team
+      createTeam: async (token, createTeamData) => {
+        const res = await axios.post(`${API_URL_TEAMS}/teams/create`, createTeamData, authHeader(token));
+        return res.data;
+      },
+
+      // Update a team
+      updateTeam: async (token, teamId, updateTeamData) => {
+        const res = await axios.put(`${API_URL_TEAMS}/teams/${teamId}`, updateTeamData, authHeader(token));
+        return res.data;
+      },
+
+      // Delete a team
+      deleteTeam: async (token, teamId) => {
+        const res = await axios.delete(`${API_URL_TEAMS}/teams/${teamId}`, authHeader(token));
+        return res.data;
+      },
+
+      // Remove intern from team (optional later)
+      removeInternFromTeam: async (token, teamId, internId) => {
+        const res = await axios.delete(`${API_URL_TEAMS}/teams/${teamId}/interns/${internId}`, authHeader(token));
+        return res.data;
+      },
+
+      searchMentorsInProgram: async (token, programId, query) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/mentors/search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { q: query },
+        });
+        return res.data; // returns array of MentorInfoDTO
+      },
+
+
   // Lấy danh sách contracts
   // Accepts either (token, page, size) OR (token, { searchTerm, status, page, size })
   getContracts: async (token, optionsOrPage = 0, size = 10) => {

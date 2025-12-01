@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
+import Swal from "sweetalert2";
 
 const HRSidebar = () => {
   const [expanded, setExpanded] = useState(() => {
@@ -29,10 +30,10 @@ const HRSidebar = () => {
     return saved ? JSON.parse(saved) : false;
   });
 
-const [openTaskMenu, setOpenTaskMenu] = useState(() => {
-  const saved = localStorage.getItem("hrTaskMenuOpen");
-  return saved ? JSON.parse(saved) : false;
-});
+  const [openTaskMenu, setOpenTaskMenu] = useState(() => {
+    const saved = localStorage.getItem("hrTaskMenuOpen");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -116,6 +117,24 @@ const [openTaskMenu, setOpenTaskMenu] = useState(() => {
 
   const handleMouseLeave = () => {
     setExpanded(false);
+  };
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: 'Đăng xuất',
+      text: 'Bạn có chắc chắn muốn đăng xuất?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Có, đăng xuất',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        navigate("/login");
+      }
+    });
   };
 
   return (
@@ -223,10 +242,7 @@ const [openTaskMenu, setOpenTaskMenu] = useState(() => {
       </ul>
 
       <div className="sidebar-footer">
-        <button onClick={() => {
-          logout();
-          navigate("/login");
-        }}>
+        <button onClick={handleLogout}>
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>

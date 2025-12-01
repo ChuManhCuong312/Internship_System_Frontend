@@ -286,3 +286,40 @@
   font-size: 14px;
   font-style: italic;
 }
+
+/* Quick approve modal list */
+.quick-approve-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-approve-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.quick-approve-icon {
+  color: #10b981;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.quick-approve-text {
+  color: #111827;
+  font-size: 14px;
+}
+
+/* Quick approve modal table wrapper: inner scroll */
+.quick-approve-table-wrapper {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.quick-approve-table-container {
+  margin-bottom: 0;
+}

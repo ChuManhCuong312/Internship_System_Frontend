@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
+import LatestNotificationsWidget from '../../components/Dashboard/LatestNotificationsWidget';
 import '../../styles/dashBoard.css';
 import avatar from "../../assets/avatar.png";
 import { AuthContext } from '../../context/AuthContext';
@@ -238,14 +239,7 @@ const Dashboard = () => {
 
         {/* Bottom Section */}
         <div className="bottom-grid">
-          <div className="card">
-            <h4>Thông báo mới</h4>
-            <ul className="activity-list">
-              <li>Mentor A đã phản hồi báo cáo tuần</li>
-              <li>Buổi review kỹ năng vào thứ 5</li>
-              <li>Thêm nhiệm vụ mới từ phòng IT</li>
-            </ul>
-          </div>
+          <LatestNotificationsWidget token={token} internId={internId} />
           <div className="card">
             <h4>Lịch</h4>
             <ul className="activity-list">

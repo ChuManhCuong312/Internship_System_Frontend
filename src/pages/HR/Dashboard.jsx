@@ -1,12 +1,63 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import HRSidebar from "../../components/Layout/HRSidebar";
 import "../../styles/dashBoard.css";
 import { Pie, Bar } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
+import { AuthContext } from "../../context/AuthContext";
+import hrApi from "../../api/hrApi";
+import { getAllLeaveRequestsForHR } from "../../api/leaveRequestApi";
+import { toast } from "react-toastify";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const HRDashboard = () => {
+  const { token } = useContext(AuthContext);
+  const [pendingInterns, setPendingInterns] = useState(0);
+  const [pendingLeaves, setPendingLeaves] = useState(0);
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!token) return;
+
+      try {
+        setLoadingStats(true);
+
+        const [internRes, leaveRes] = await Promise.all([
+          hrApi.searchInterns(token, {
+            status: "PENDING",
+            page: 0,
+            size: 1000,
+          }),
+          getAllLeaveRequestsForHR(token, "PENDING"),
+        ]);
+
+        let internPendingCount = 0;
+        if (internRes) {
+          if (typeof internRes.totalElements === "number") {
+            internPendingCount = internRes.totalElements;
+          } else if (typeof internRes.totalItems === "number") {
+            internPendingCount = internRes.totalItems;
+          } else if (Array.isArray(internRes.content)) {
+            internPendingCount = internRes.content.length;
+          }
+        }
+
+        const leavePendingCount = Array.isArray(leaveRes) ? leaveRes.length : 0;
+
+        setPendingInterns(internPendingCount);
+        setPendingLeaves(leavePendingCount);
+      } catch (err) {
+        console.error("Error loading HR dashboard stats:", err);
+        toast.error("Không thể tải thống kê dashboard HR");
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [token]);
+
   return (
     <div className="dashboard-layout">
       <HRSidebar />
@@ -19,9 +70,25 @@ const HRDashboard = () => {
           <div className="stat-card">
             <div className="stat-icon intern">🎓</div>
             <div>
-              <h4>Thực tập sinh</h4>
-              <p className="stat-value">42</p>
-              <span>42 đang tham gia / 10 chờ duyệt</span>
+              <h4>Đơn nghỉ phép</h4>
+              <p className="stat-value">{pendingLeaves}</p>
+              <span>
+                {loadingStats
+                  ? "Đang tải thống kê đơn nghỉ phép..."
+                  : "Đơn nghỉ phép đang chờ duyệt"}
+              </span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon mentor">🧑‍🏫</div>
+            <div>
+              <h4>Hồ sơ thực tập sinh</h4>
+              <p className="stat-value">{pendingInterns}</p>
+              <span>
+                {loadingStats
+                  ? "Đang tải thống kê hồ sơ..."
+                  : "Hồ sơ thực tập sinh đang chờ duyệt"}
+              </span>
             </div>
           </div>
           <div className="stat-card">
@@ -33,20 +100,16 @@ const HRDashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon mentor">🧑‍🏫</div>
-            <div>
-              <h4>Mentor</h4>
-              <p className="stat-value">8</p>
-              <span>Số lượng mentor đang hoạt động</span>
-            </div>
-          </div>
-          <div className="stat-card">
             <div className="stat-icon hr">📊</div>
             <div>
               <h4>Tỷ lệ hoàn thành</h4>
               <p className="stat-value">78%</p>
               <span>TTS đã hoàn thành chương trình</span>
             </div>
+          </div>
+          <div className="stat-card">
+            <p className="stat-value">8</p>
+            <span>Số lượng mentor đang hoạt động</span>
           </div>
         </div>
 
@@ -73,7 +136,6 @@ const HRDashboard = () => {
                 }}
               />
             </div>
-
           </div>
           <div className="card">
             <h4>Tiến độ chương trình</h4>
@@ -100,7 +162,6 @@ const HRDashboard = () => {
                 }}
               />
             </div>
-
           </div>
         </div>
 
