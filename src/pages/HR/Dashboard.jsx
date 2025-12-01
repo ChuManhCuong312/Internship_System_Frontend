@@ -7,7 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import hrApi from "../../api/hrApi";
 import { getAllLeaveRequestsForHR } from "../../api/leaveRequestApi";
 import { toast } from "react-toastify";
-import { FileClock, UserCheck, Layers3, BarChart3, CalendarDays, Clock, MessageCircle } from "lucide-react";
+import { FileClock, UserCheck, Layers3, BarChart3, Users } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -117,8 +117,14 @@ const HRDashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <p className="stat-value">8</p>
-            <span>Số lượng mentor đang hoạt động</span>
+            <div className="stat-icon mentor">
+              <Users />
+            </div>
+            <div>
+              <h4>Mentor đang hoạt động</h4>
+              <p className="stat-value">8</p>
+              <span>Số lượng mentor đang hoạt động</span>
+            </div>
           </div>
         </div>
 
@@ -172,29 +178,7 @@ const HRDashboard = () => {
               />
             </div>
           </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="bottom-grid">
-          <div className="card">
-            <h4>Lịch sắp tới</h4>
-            <ul className="activity-list">
-              <li>
-                <CalendarDays style={{ marginRight: 8, verticalAlign: "middle" }} />
-                Họp đánh giá nhóm Marketing
-              </li>
-              <li>
-                <Clock style={{ marginRight: 8, verticalAlign: "middle" }} />
-                Hạn nộp báo cáo tuần này
-              </li>
-              <li>
-                <MessageCircle style={{ marginRight: 8, verticalAlign: "middle" }} />
-                Buổi review giao tiếp
-              </li>
-            </ul>
-          </div>
-
-          <div className="card">
+          <div className="card notifications-card">
             <h4>Thông báo nội bộ</h4>
             <ul className="activity-list">
               <li>Mentor Nguyễn An đã đánh giá 3 TTS tuần này</li>
@@ -202,11 +186,14 @@ const HRDashboard = () => {
               <li>Chương trình Marketing đạt 77% hoàn thành</li>
             </ul>
           </div>
+        </div>
 
+        {/* Bottom Section */}
+        <div className="bottom-grid">
           <div className="card">
             <h4>Tiến độ theo phòng ban</h4>
             <table className="task-table">
-              <thead>
+            	<thead>
                 <tr>
                   <th>Phòng ban</th>
                   <th>Số TTS</th>
