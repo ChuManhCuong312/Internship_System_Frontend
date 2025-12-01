@@ -2,15 +2,20 @@ import React, { useEffect, useState, useContext } from "react";
 import hrApi from "../../../api/hrApi";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
-import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
+import { LoadingSpinner, LoadingTable, LoadingButton } from "../../../components/common/LoadingSpinner";
 import { toast } from "react-toastify";
+
 import HRInternTable from "../ManageInterns/component/HRInternTable";
 import HRInternHeader from "../ManageInterns/component/HRInternHeader";
 import CandidatesModal from "./modals/CandidatesModal";
 import ProfileModal from "./modals/ProfileModal";
 import CriteriaModal from "./modals/CriteriaModal";
 import ApproveModal from "./modals/ApproveModal";
+import RejectModal from "./modals/RejectModal";
+import QuickApproveModal from "./modals/QuickApproveModal";
+import ViewProfileModal from "./modals/ViewProfileModal";
 import { HrContext } from "../../../context/HrContext";
+
 import "../../../styles/pagination.css";
 
 const ApproveInterns = () => {
@@ -37,8 +42,20 @@ const ApproveInterns = () => {
   const [appliedCriteria, setAppliedCriteria] = useState(null);
   const [matchingInterns, setMatchingInterns] = useState(new Set());
 
-const [approvingIntern, setApprovingIntern] = useState(null);
-const [isApproving, setIsApproving] = useState(false);
+  const [approvingIntern, setApprovingIntern] = useState(null);
+  const [isApproving, setIsApproving] = useState(false);
+
+  const [selectedInterns, setSelectedInterns] = useState([]);
+  const [isQuickApproving, setIsQuickApproving] = useState(false);
+
+  const [isQuickApproveOpen, setIsQuickApproveOpen] = useState(false);
+
+  const [isQuickRejectOpen, setIsQuickRejectOpen] = useState(false);
+  const [quickRejectReason, setQuickRejectReason] = useState("");
+  const [quickRejectError, setQuickRejectError] = useState("");
+  const [isQuickRejecting, setIsQuickRejecting] = useState(false);
+
+  const [viewingIntern, setViewingIntern] = useState(null);
 
   const validateIntern = (intern) => {
     const newErrors = {};
@@ -64,18 +81,17 @@ const [isApproving, setIsApproving] = useState(false);
     return age;
   };
 
-  // Check if intern matches criteria
   const checkCriteria = (intern) => {
     if (!appliedCriteria) return false;
 
     let matches = true;
 
-    // Check GPA
-   if (appliedCriteria.gpa?.enabled && appliedCriteria.gpa?.value) {
-     const gpaValue = parseFloat(appliedCriteria.gpa.value);
-     const internGpa = parseFloat(intern.gpa);
-     matches = matches && internGpa >= gpaValue;
-   }
+
+    if (appliedCriteria.gpa?.enabled && appliedCriteria.gpa?.value) {
+      const gpaValue = parseFloat(appliedCriteria.gpa.value);
+      const internGpa = parseFloat(intern.gpa);
+      matches = matches && internGpa >= gpaValue;
+    }
 
     if (appliedCriteria.age?.enabled) {
       const age = calculateAge(intern.dob);
@@ -92,18 +108,18 @@ const [isApproving, setIsApproving] = useState(false);
     return matches;
   };
 
-useEffect(() => {
-  if (appliedCriteria) {
-    const filteredInterns = interns.filter(intern => checkCriteria(intern));
-    setInterns(filteredInterns);
+  useEffect(() => {
+    if (appliedCriteria) {
+      const filteredInterns = interns.filter(intern => checkCriteria(intern));
+      setInterns(filteredInterns);
 
-    if (filteredInterns.length > 0) {
-      toast.info(`🎯 Tìm thấy ${filteredInterns.length} hồ sơ phù hợp tiêu chí`);
-    } else {
-      toast.warning("⚠️ Không có hồ sơ nào phù hợp với tiêu chí đã chọn");
+      if (filteredInterns.length > 0) {
+        toast.info(`🎯 Tìm thấy ${filteredInterns.length} hồ sơ phù hợp tiêu chí`);
+      } else {
+        toast.warning("⚠️ Không có hồ sơ nào phù hợp với tiêu chí đã chọn");
+      }
     }
-  }
-}, [appliedCriteria]);
+  }, [appliedCriteria]);
 
   const fetchInterns = async (resetPage = false) => {
     try {
@@ -125,8 +141,7 @@ useEffect(() => {
 
       setInterns(res.content || []);
       setTotalPages(res.totalPages || 0);
-
-      if (resetPage) setPage(0);
+      setSelectedInterns([]);
     } catch (err) {
       console.error("Error fetching interns:", err);
       setInterns([]);
@@ -179,14 +194,14 @@ useEffect(() => {
     try {
       setIsUpdating(true);
       const updateData = {
-                  school: editingIntern.school,
-                  major: editingIntern.major,
-                  dob: editingIntern.dob,
-                  address: editingIntern.address,
-                  gender: editingIntern.gender,
-                  gpa: parseFloat(editingIntern.gpa),
-                  phone: editingIntern.phone,
-                };
+        school: editingIntern.school,
+        major: editingIntern.major,
+        dob: editingIntern.dob,
+        address: editingIntern.address,
+        gender: editingIntern.gender,
+        gpa: parseFloat(editingIntern.gpa),
+        phone: editingIntern.phone,
+      };
       await hrApi.updateInternProfile(token, editingIntern.internId, updateData);
       toast.success("Cập nhật hồ sơ thành công ✅");
       setEditingIntern(null);
@@ -208,20 +223,131 @@ useEffect(() => {
     }
   };
 
-const handleApproveIntern = async () => {
-  try {
-    setIsApproving(true);
-    await hrApi.updateInternStatus(token, approvingIntern.internId, "APPROVED");
-    toast.success("Duyệt hồ sơ thành công ✅");
-    setApprovingIntern(null);
-    fetchInterns();
-  } catch (err) {
-    console.error("Error approving intern:", err);
-    toast.error("Duyệt hồ sơ thất bại ❌");
-  } finally {
-    setIsApproving(false);
-  }
-};
+  const handleApproveIntern = async () => {
+    try {
+      setIsApproving(true);
+      await hrApi.updateInternStatus(token, approvingIntern.internId, "APPROVED");
+      toast.success("Duyệt hồ sơ thành công ✅");
+      setInterns((prev) =>
+        prev.filter((intern) => intern.internId !== approvingIntern.internId)
+      );
+      setSelectedInterns((prev) =>
+        prev.filter((intern) => intern.internId !== approvingIntern.internId)
+      );
+      setApprovingIntern(null);
+    } catch (err) {
+      console.error("Error approving intern:", err);
+      toast.error("Duyệt hồ sơ thất bại ❌");
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const handleOpenQuickApprove = () => {
+    if (!selectedInterns || selectedInterns.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất một hồ sơ để duyệt");
+      return;
+    }
+    setIsQuickApproveOpen(true);
+  };
+
+  const handleQuickApproveConfirm = async (internsToApprove) => {
+    const targetInterns = Array.isArray(internsToApprove) && internsToApprove.length > 0
+      ? internsToApprove
+      : selectedInterns;
+
+    if (!targetInterns || targetInterns.length === 0) {
+      setIsQuickApproveOpen(false);
+      return;
+    }
+
+    try {
+      setIsQuickApproving(true);
+      await Promise.all(
+        targetInterns.map((intern) =>
+          hrApi.updateInternStatus(token, intern.internId, "APPROVED")
+        )
+      );
+      toast.success("Duyệt hồ sơ thành công ✅");
+      setInterns((prev) =>
+        prev.filter(
+          (intern) =>
+            !targetInterns.some(
+              (selected) => selected.internId === intern.internId
+            )
+        )
+      );
+      setSelectedInterns([]);
+      setIsQuickApproveOpen(false);
+    } catch (err) {
+      console.error("Error approving interns:", err);
+      toast.error("Duyệt hồ sơ thất bại ❌");
+    } finally {
+      setIsQuickApproving(false);
+    }
+  };
+
+  const handleOpenQuickReject = () => {
+    if (!selectedInterns || selectedInterns.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất một hồ sơ để từ chối");
+      return;
+    }
+    setIsQuickRejectOpen(true);
+    setQuickRejectReason("");
+    setQuickRejectError("");
+  };
+
+  const handleQuickRejectConfirm = async () => {
+    if (!quickRejectReason.trim()) {
+      setQuickRejectError("Vui lòng nhập lý do từ chối");
+      return;
+    }
+    try {
+      setIsQuickRejecting(true);
+      await Promise.all(
+        selectedInterns.map((intern) =>
+          hrApi.updateInternStatus(token, intern.internId, "REJECTED", quickRejectReason)
+        )
+      );
+      toast.success("Từ chối hồ sơ thành công");
+      setInterns((prev) =>
+        prev.filter(
+          (intern) =>
+            !selectedInterns.some(
+              (selected) => selected.internId === intern.internId
+            )
+        )
+      );
+      setIsQuickRejectOpen(false);
+      setSelectedInterns([]);
+      setQuickRejectReason("");
+      setQuickRejectError("");
+    } catch (err) {
+      console.error("Error rejecting interns:", err);
+      toast.error("Từ chối hồ sơ thất bại ❌");
+    } finally {
+      setIsQuickRejecting(false);
+    }
+  };
+
+  const handleToggleSelectIntern = (intern) => {
+    setSelectedInterns((prev) => {
+      const exists = prev.some((item) => item.internId === intern.internId);
+      if (exists) {
+        return prev.filter((item) => item.internId !== intern.internId);
+      }
+      return [...prev, intern];
+    });
+  };
+
+  const handleToggleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedInterns(interns || []);
+    } else {
+      setSelectedInterns([]);
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-layout">
@@ -267,6 +393,44 @@ const handleApproveIntern = async () => {
           onClearCriteria={handleClearCriteria}
         />
 
+        {statusFilter === "PENDING" && selectedInterns && selectedInterns.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div>
+              <strong>Hồ sơ được chọn: </strong>
+              <span>
+                {(!selectedInterns || selectedInterns.length === 0)
+                  ? "Chưa chọn hồ sơ nào"
+                  : `${selectedInterns.length} hồ sơ`}
+              </span>
+            </div>
+            <div className="action-buttons">
+              <LoadingButton
+                className="btn-approve"
+                onClick={handleOpenQuickApprove}
+                isLoading={isQuickApproving}
+                disabled={!selectedInterns || selectedInterns.length === 0 || isQuickRejecting}
+              >
+                Duyệt nhanh
+              </LoadingButton>
+              <LoadingButton
+                className="btn-reject"
+                onClick={handleOpenQuickReject}
+                isLoading={isQuickRejecting}
+                disabled={!selectedInterns || selectedInterns.length === 0 || isQuickApproving}
+              >
+                Từ chối
+              </LoadingButton>
+            </div>
+          </div>
+        )}
+
         <HRInternTable
           interns={interns}
           page={page}
@@ -279,6 +443,10 @@ const handleApproveIntern = async () => {
           showStatus={true}
           matchingInterns={matchingInterns}
           appliedCriteria={appliedCriteria}
+          enableSelection={true}
+          selectedInternIds={selectedInterns.map((intern) => intern.internId)}
+          onToggleSelectIntern={handleToggleSelectIntern}
+          onToggleSelectAll={handleToggleSelectAll}
         />
 
         {showCandidatesModal && (
@@ -291,6 +459,13 @@ const handleApproveIntern = async () => {
           />
         )}
 
+        {viewingIntern && (
+          <ViewProfileModal
+            intern={viewingIntern}
+            onClose={() => setViewingIntern(null)}
+          />
+        )}
+
         {showCriteriaModal && (
           <CriteriaModal
             onClose={() => setShowCriteriaModal(false)}
@@ -299,14 +474,46 @@ const handleApproveIntern = async () => {
           />
         )}
 
-    {approvingIntern && (
-      <ApproveModal
-        intern={approvingIntern}
-        onClose={() => setApprovingIntern(null)}
-        onConfirm={handleApproveIntern}
-        isLoading={isApproving}
-      />
-    )}
+        {approvingIntern && (
+          <ApproveModal
+            intern={approvingIntern}
+            onClose={() => setApprovingIntern(null)}
+            onConfirm={handleApproveIntern}
+            isLoading={isApproving}
+          />
+        )}
+
+        {isQuickApproveOpen && selectedInterns && selectedInterns.length > 0 && (
+          <QuickApproveModal
+            interns={selectedInterns}
+            onClose={() => setIsQuickApproveOpen(false)}
+            onConfirm={handleQuickApproveConfirm}
+            isLoading={isQuickApproving}
+            onToggleSelectIntern={handleToggleSelectIntern}
+            onViewIntern={setViewingIntern}
+          />
+        )}
+
+        {isQuickRejectOpen && selectedInterns && selectedInterns.length > 0 && (
+          <RejectModal
+            intern={{
+              fullName:
+                selectedInterns.length === 1
+                  ? selectedInterns[0].fullName
+                  : `${selectedInterns.length} hồ sơ`,
+            }}
+            reason={quickRejectReason}
+            setReason={setQuickRejectReason}
+            error={quickRejectError}
+            onClose={() => {
+              setIsQuickRejectOpen(false);
+              setQuickRejectError("");
+              setQuickRejectReason("");
+            }}
+            onConfirm={handleQuickRejectConfirm}
+            isLoading={isQuickRejecting}
+          />
+        )}
 
         {editingIntern && (
           <ProfileModal

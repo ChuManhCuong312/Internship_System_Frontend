@@ -20,6 +20,9 @@ const HRInternRow = ({
   showStatus = true,
   isMatching = false,
   appliedCriteria,
+  enableSelection = false,
+  selectedInternIds = [],
+  onToggleSelectIntern,
 }) => {
   const { token } = useContext(AuthContext);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -78,6 +81,15 @@ const HRInternRow = ({
   return (
     <>
       <tr>
+        {enableSelection && (
+          <td>
+            <input
+              type="checkbox"
+              checked={selectedInternIds && selectedInternIds.includes(intern.internId)}
+              onChange={() => onToggleSelectIntern && onToggleSelectIntern(intern)}
+            />
+          </td>
+        )}
         <td>{index + 1}</td>
         <td>{intern.fullName}</td>
         <td>{intern.email}</td>

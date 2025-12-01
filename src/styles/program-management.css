@@ -952,6 +952,7 @@
   align-items: flex-start; /* prevent stretching */
 }
 
+
 .mentor-badge {
   background-color: #cce5ff; /* light blue background */
   color: #1c3d5a; /* darker blue text */
@@ -968,3 +969,53 @@
   font-size: 13px;
 }
 
+.remove-btn {
+    margin-left: 5px;
+    color: red;
+    background:none;
+    border: none;
+}
+
+.remove-btn:hover {
+  background-color: rgba(220, 38, 38, 0.1); /* subtle red background */
+  transform: scale(1.2); /* slight zoom effect */
+}
+.teams-page {
+  padding: 16px;
+}
+
+.teams-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.team-card {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.team-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-mentors {
+  display: flex;
+  gap: 8px;
+}
+
+.team-stt {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.team-interns-count {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}

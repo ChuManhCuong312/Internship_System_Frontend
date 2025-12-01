@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { X, Plus, MoreVertical } from "lucide-react";
-import AssignMentorModal from "./AssignMentorModal";
+
 import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 
@@ -54,11 +54,7 @@ export default function TeamManagementModal({
 
   const assignMentorToProgram = async (mentor) => {
     try {
-      // Replace with actual API for assigning mentor
-      await hrApi.cloneProgram(token, {
-        programId: selectedProgram.programId,
-        mentorId: mentor.mentorId
-      });
+      await hrApi.assignMentorToProgram(token, selectedProgram.programId, mentor.mentorId);
       setAssignedProgramMentors((prev) => [...prev, mentor]);
       setMentorSearch("");
       setShowAssignMentorForm(false);
@@ -69,8 +65,7 @@ export default function TeamManagementModal({
 
   const removeProgramMentor = async (mentorId) => {
     try {
-      // Replace with actual API endpoint for removing mentor
-      await hrApi.deleteProgram(token, mentorId);
+      await hrApi.removeMentorFromProgram(token, selectedProgram.programId, mentorId);
       setAssignedProgramMentors((prev) =>
         prev.filter((m) => m.mentorId !== mentorId)
       );
@@ -111,7 +106,7 @@ export default function TeamManagementModal({
                 <div key={m.mentorId} className="mentor-card">
                   <div>
                     <p>
-                      <strong>{m.mentorName}</strong>
+                      <strong>{m.fullName}</strong>
                     </p>
                   </div>
                   <button
@@ -130,8 +125,8 @@ export default function TeamManagementModal({
               isOpen={showAssignMentorForm}
               onClose={() => setShowAssignMentorForm(false)}
               onAssign={assignMentorToProgram}
-              mockMentors={mentorResults} // now filtered API data
               assignedMentors={assignedProgramMentors}
+              programId={selectedProgram.programId}   // ✅ add this
             />
           </div>
 
