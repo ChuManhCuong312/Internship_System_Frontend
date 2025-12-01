@@ -1,0 +1,28 @@
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.task-table th,
+.task-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+.task-table thead th {
+  background: #f7fafc;
+}
+.task-table tr.near-deadline td {
+  background: rgba(255, 230, 230, 0.9);
+}
+.reminder {
+  color: #c53030;
+  font-weight: 600;
+}
+.progress-cell input[type="range"] {
+  width: 160px;
+}
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
