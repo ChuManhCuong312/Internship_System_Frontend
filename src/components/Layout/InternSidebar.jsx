@@ -9,7 +9,8 @@ import {
   FaLifeRing, FaBell, FaRobot, FaSignOutAlt, FaBars,
   FaPage4,
   FaPager,
-  FaBook
+  FaBook,
+  FaClipboardList
 } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
@@ -296,7 +297,13 @@ const InternSidebar = () => {
             </li>
           </ul>
         )}
-{/*         <li onClick={() => navigate("/intern/tasks")}><FaTasks /> {expanded && <span>Nhiệm vụ & Báo cáo</span>}</li> */}
+
+        <li
+          onClick={() => navigate("/intern/tasks")}
+          className={isActiveRoute("/intern/tasks") ? "active" : ""}
+        >
+          <FaClipboardList /> {expanded && <span>Nhiệm vụ của tôi</span>}
+        </li>
 
         <li
           onClick={() => navigate("/intern/allowance")}

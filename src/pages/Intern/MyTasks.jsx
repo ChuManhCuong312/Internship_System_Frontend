@@ -1,6 +1,7 @@
 import React from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import '../../styles/dashBoard.css';
+import MyTasksTable from '../../components/Tasks/MyTasksTable';
 
 const MyTasks = () => {
   return (
@@ -17,14 +18,7 @@ const MyTasks = () => {
         <div className="main-grid">
           <div className="card col-span-2">
             <h4>Danh sách nhiệm vụ</h4>
-            <table className="task-table">
-              <thead>
-                <tr><th>Nhiệm vụ</th><th>Trạng thái</th><th>Deadline</th><th>Hành động</th></tr>
-              </thead>
-              <tbody>
-                <tr><td colSpan="4" style={{ textAlign: 'center', color: '#718096' }}>Chưa có dữ liệu</td></tr>
-              </tbody>
-            </table>
+            <MyTasksTable />
           </div>
 
           <div className="card">
