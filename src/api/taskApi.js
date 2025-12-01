@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8081/api/tasks";
+const BASE_URL = "http://localhost:8080";
+const API_URL = `${BASE_URL}/api/tasks`;
+const TASK_MANAGEMENT_URL = `${BASE_URL}/api/task-management`;
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
@@ -37,6 +39,12 @@ const taskApi = {
     return res.data;
   },
 
+  // Get tasks by intern ID
+  getTasksByIntern: async (token, internId) => {
+    const res = await axios.get(`${API_URL}/intern/${internId}`, authHeader(token));
+    return res.data;
+  },
+
   // Get task by ID
   getTaskById: async (token, taskId) => {
     const res = await axios.get(`${API_URL}/${taskId}`, authHeader(token));
@@ -57,56 +65,22 @@ const taskApi = {
 
   // Update task status (PATCH)
   updateTaskStatus: async (token, taskId, status) => {
-    const res = await axios.patch(`${API_URL}/${taskId}/status`, status, authHeader(token));
+    const res = await axios.patch(
+      `${API_URL}/${taskId}/status`,
+      JSON.stringify(status),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return res.data;
   },
 
   // Delete task
   deleteTask: async (token, taskId) => {
     const res = await axios.delete(`${API_URL}/${taskId}`, authHeader(token));
-    return res.data;
-  },
-
-  // Assign task to team
-  assignTaskToTeam: async (token, taskId, teamId) => {
-    const res = await axios.post(`${API_URL}/${taskId}/assign-team`, { teamId }, authHeader(token));
-    return res.data;
-  },
-
-  // Remove team assignment
-  removeTeamAssignment: async (token, assignmentId) => {
-    const res = await axios.delete(`${API_URL}/assignment/${assignmentId}`, authHeader(token));
-    return res.data;
-  },
-
-  // Upload task file
-  uploadTaskFile: async (token, taskId, file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await axios.post(`${API_URL}/${taskId}/upload-file`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return res.data;
-  },
-
-  // Delete task file
-  deleteTaskFile: async (token, fileId) => {
-    const res = await axios.delete(`${API_URL}/file/${fileId}`, authHeader(token));
-    return res.data;
-  },
-
-  // Update task progress
-  updateTaskProgress: async (token, taskId, progressData) => {
-    const res = await axios.put(`${API_URL}/${taskId}/progress`, progressData, authHeader(token));
-    return res.data;
-  },
-
-  // Get task progress
-  getTaskProgress: async (token, taskId) => {
-    const res = await axios.get(`${API_URL}/${taskId}/progress`, authHeader(token));
     return res.data;
   },
 
@@ -129,43 +103,110 @@ const taskApi = {
     return res.data;
   },
 
-  // Get tasks by status
-  getTasksByStatus: async (token, status, page = 0, size = 10) => {
-    const params = { page, size };
-    const res = await axios.get(`${API_URL}/status/${status}`, {
-      ...authHeader(token),
-      params,
-    });
+  // ======================================
+  // TASK MANAGEMENT ENDPOINTS (TaskManagementController)
+  // ======================================
+
+  // Task Progress
+  createTaskProgress: async (token, progressData) => {
+    const res = await axios.post(`${TASK_MANAGEMENT_URL}/progress`, progressData, authHeader(token));
     return res.data;
   },
 
-  // Get tasks by priority
-  getTasksByPriority: async (token, priority, page = 0, size = 10) => {
-    const params = { page, size };
-    const res = await axios.get(`${API_URL}/priority/${priority}`, {
-      ...authHeader(token),
-      params,
-    });
+  getAllTaskProgress: async (token) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/progress`, authHeader(token));
     return res.data;
   },
 
-  // Get overdue tasks
-  getOverdueTasks: async (token, page = 0, size = 10) => {
-    const params = { page, size };
-    const res = await axios.get(`${API_URL}/overdue`, {
-      ...authHeader(token),
-      params,
-    });
+  getTaskProgressById: async (token, progressId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/progress/${progressId}`, authHeader(token));
     return res.data;
   },
 
-  // Get due soon tasks
-  getDueSoonTasks: async (token, days = 7, page = 0, size = 10) => {
-    const params = { page, size, days };
-    const res = await axios.get(`${API_URL}/due-soon`, {
-      ...authHeader(token),
-      params,
-    });
+  getTaskProgressByTaskId: async (token, taskId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/progress/task/${taskId}`, authHeader(token));
+    return res.data;
+  },
+
+  updateTaskProgressById: async (token, progressId, progressData) => {
+    const res = await axios.put(`${TASK_MANAGEMENT_URL}/progress/${progressId}`, progressData, authHeader(token));
+    return res.data;
+  },
+
+  updateProgressPercentage: async (token, progressId, percentage) => {
+    const res = await axios.patch(`${TASK_MANAGEMENT_URL}/progress/${progressId}/percentage?percentage=${percentage}`, null, authHeader(token));
+    return res.data;
+  },
+
+  deleteTaskProgress: async (token, progressId) => {
+    const res = await axios.delete(`${TASK_MANAGEMENT_URL}/progress/${progressId}`, authHeader(token));
+    return res.data;
+  },
+
+  // Task Files
+  createTaskFile: async (token, fileData) => {
+    const res = await axios.post(`${TASK_MANAGEMENT_URL}/files`, fileData, authHeader(token));
+    return res.data;
+  },
+
+  getAllTaskFiles: async (token) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/files`, authHeader(token));
+    return res.data;
+  },
+
+  getTaskFileById: async (token, fileId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/files/${fileId}`, authHeader(token));
+    return res.data;
+  },
+
+  getFilesByTaskId: async (token, taskId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/files/task/${taskId}`, authHeader(token));
+    return res.data;
+  },
+
+  updateTaskFile: async (token, fileId, fileData) => {
+    const res = await axios.put(`${TASK_MANAGEMENT_URL}/files/${fileId}`, fileData, authHeader(token));
+    return res.data;
+  },
+
+  deleteTaskFileById: async (token, fileId) => {
+    const res = await axios.delete(`${TASK_MANAGEMENT_URL}/files/${fileId}`, authHeader(token));
+    return res.data;
+  },
+
+  // Task Team Assignments
+  createTeamAssignment: async (token, assignmentData) => {
+    const res = await axios.post(`${TASK_MANAGEMENT_URL}/team-assignments`, assignmentData, authHeader(token));
+    return res.data;
+  },
+
+  getAllTeamAssignments: async (token) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/team-assignments`, authHeader(token));
+    return res.data;
+  },
+
+  getTeamAssignmentById: async (token, assignmentId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/team-assignments/${assignmentId}`, authHeader(token));
+    return res.data;
+  },
+
+  getAssignmentsByTaskId: async (token, taskId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/team-assignments/task/${taskId}`, authHeader(token));
+    return res.data;
+  },
+
+  getAssignmentsByTeamId: async (token, teamId) => {
+    const res = await axios.get(`${TASK_MANAGEMENT_URL}/team-assignments/team/${teamId}`, authHeader(token));
+    return res.data;
+  },
+
+  updateTeamAssignment: async (token, assignmentId, assignmentData) => {
+    const res = await axios.put(`${TASK_MANAGEMENT_URL}/team-assignments/${assignmentId}`, assignmentData, authHeader(token));
+    return res.data;
+  },
+
+  deleteTeamAssignment: async (token, assignmentId) => {
+    const res = await axios.delete(`${TASK_MANAGEMENT_URL}/team-assignments/${assignmentId}`, authHeader(token));
     return res.data;
   },
 };

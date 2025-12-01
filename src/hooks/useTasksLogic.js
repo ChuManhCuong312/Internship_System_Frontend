@@ -118,10 +118,35 @@ export const useTasksLogic = (token, mentorId) => {
     }
   }, [token]);
 
-  // Update task progress
-  const updateProgress = useCallback(async (taskId, progressData) => {
+  // Update task status
+  const updateTaskStatus = useCallback(async (taskId, status) => {
     try {
-      const response = await taskApi.updateTaskProgress(token, taskId, progressData);
+      const response = await taskApi.updateTaskStatus(token, taskId, status);
+      toast.success('Cập nhật trạng thái thành công!');
+      fetchTasks();
+      return response;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Lỗi khi cập nhật trạng thái';
+      toast.error(message);
+      throw err;
+    }
+  }, [token, fetchTasks]);
+
+  // Get task progress by task ID
+  const getTaskProgress = useCallback(async (taskId) => {
+    try {
+      const response = await taskApi.getTaskProgressByTaskId(token, taskId);
+      return response;
+    } catch (err) {
+      console.error('Error fetching task progress:', err);
+      return null;
+    }
+  }, [token]);
+
+  // Update task progress percentage
+  const updateProgressPercentage = useCallback(async (progressId, percentage) => {
+    try {
+      const response = await taskApi.updateProgressPercentage(token, progressId, percentage);
       toast.success('Cập nhật tiến độ thành công!');
       return response;
     } catch (err) {
@@ -131,10 +156,21 @@ export const useTasksLogic = (token, mentorId) => {
     }
   }, [token]);
 
-  // Upload file
-  const uploadFile = useCallback(async (taskId, file) => {
+  // Get files by task ID
+  const getTaskFiles = useCallback(async (taskId) => {
     try {
-      const response = await taskApi.uploadTaskFile(token, taskId, file);
+      const response = await taskApi.getFilesByTaskId(token, taskId);
+      return response;
+    } catch (err) {
+      console.error('Error fetching task files:', err);
+      return [];
+    }
+  }, [token]);
+
+  // Create task file
+  const createTaskFile = useCallback(async (fileData) => {
+    try {
+      const response = await taskApi.createTaskFile(token, fileData);
       toast.success('Tải lên tệp thành công!');
       return response;
     } catch (err) {
@@ -144,13 +180,49 @@ export const useTasksLogic = (token, mentorId) => {
     }
   }, [token]);
 
-  // Delete file
-  const deleteFile = useCallback(async (fileId) => {
+  // Delete task file
+  const deleteTaskFile = useCallback(async (fileId) => {
     try {
-      await taskApi.deleteTaskFile(token, fileId);
+      await taskApi.deleteTaskFileById(token, fileId);
       toast.success('Xóa tệp thành công!');
     } catch (err) {
       const message = err.response?.data?.message || 'Lỗi khi xóa tệp';
+      toast.error(message);
+      throw err;
+    }
+  }, [token]);
+
+  // Get team assignments by task ID
+  const getTaskAssignments = useCallback(async (taskId) => {
+    try {
+      const response = await taskApi.getAssignmentsByTaskId(token, taskId);
+      return response;
+    } catch (err) {
+      console.error('Error fetching task assignments:', err);
+      return [];
+    }
+  }, [token]);
+
+  // Create team assignment
+  const createTeamAssignment = useCallback(async (assignmentData) => {
+    try {
+      const response = await taskApi.createTeamAssignment(token, assignmentData);
+      toast.success('Gán nhóm thành công!');
+      return response;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Lỗi khi gán nhóm';
+      toast.error(message);
+      throw err;
+    }
+  }, [token]);
+
+  // Delete team assignment
+  const deleteTeamAssignment = useCallback(async (assignmentId) => {
+    try {
+      await taskApi.deleteTeamAssignment(token, assignmentId);
+      toast.success('Xóa gán nhóm thành công!');
+    } catch (err) {
+      const message = err.response?.data?.message || 'Lỗi khi xóa gán nhóm';
       toast.error(message);
       throw err;
     }
@@ -180,6 +252,7 @@ export const useTasksLogic = (token, mentorId) => {
   }, []);
 
   return {
+    // State
     tasks,
     loading,
     error,
@@ -190,19 +263,31 @@ export const useTasksLogic = (token, mentorId) => {
     sortBy,
     direction,
     activeFilters,
+    // Setters
     setPage,
     setSize,
     setSortBy,
     setDirection,
+    // Task CRUD
+    fetchTasks,
     createTask,
     updateTask,
     deleteTask,
-    updateProgress,
-    uploadFile,
-    deleteFile,
+    updateTaskStatus,
+    // Task Progress
+    getTaskProgress,
+    updateProgressPercentage,
+    // Task Files
+    getTaskFiles,
+    createTaskFile,
+    deleteTaskFile,
+    // Team Assignments
+    getTaskAssignments,
+    createTeamAssignment,
+    deleteTeamAssignment,
+    // Handlers
     handleSort,
     handleApplyFilter,
     handleResetFilter,
-    fetchTasks,
   };
 };
