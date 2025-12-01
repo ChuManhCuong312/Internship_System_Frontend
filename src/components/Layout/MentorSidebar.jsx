@@ -112,7 +112,7 @@ const MentorSidebar = () => {
           className={location.pathname === "/mentor/evaluations" ? "active" : ""}
           onClick={() => navigate("/mentor/evaluations")}
         >
-          <FaChartBar /> {expanded && <span>Đánh giá cuối kỳ</span>}
+          <FaChartBar /> {expanded && <span>Đánh giá thực tập sinh</span>}
         </li>
       </ul>
 
