@@ -367,6 +367,9 @@ const ApproveInterns = () => {
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
+        {(isApproving || isQuickApproving) && (
+          <LoadingSpinner size="large" fullScreen={true} />
+        )}
         <HRInternHeader
           title="Duyệt hồ sơ thực tập sinh"
           searchTerm={searchTerm}

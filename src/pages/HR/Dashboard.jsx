@@ -7,6 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import hrApi from "../../api/hrApi";
 import { getAllLeaveRequestsForHR } from "../../api/leaveRequestApi";
 import { toast } from "react-toastify";
+import { FileClock, UserCheck, Layers3, BarChart3, Users } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -68,31 +69,37 @@ const HRDashboard = () => {
         {/* Top Cards */}
         <div className="stats-row">
           <div className="stat-card">
-            <div className="stat-icon intern">🎓</div>
+            <div className="stat-icon intern">
+              <FileClock />
+            </div>
             <div>
-              <h4>Đơn nghỉ phép</h4>
+              <h4>Đơn nghỉ phép đang chờ duyệt</h4>
               <p className="stat-value">{pendingLeaves}</p>
               <span>
                 {loadingStats
                   ? "Đang tải thống kê đơn nghỉ phép..."
-                  : "Đơn nghỉ phép đang chờ duyệt"}
+                  : ""}
               </span>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon mentor">🧑‍🏫</div>
+            <div className="stat-icon mentor">
+              <UserCheck />
+            </div>
             <div>
-              <h4>Hồ sơ thực tập sinh</h4>
+              <h4>Hồ sơ đang chờ duyệt</h4>
               <p className="stat-value">{pendingInterns}</p>
               <span>
                 {loadingStats
                   ? "Đang tải thống kê hồ sơ..."
-                  : "Hồ sơ thực tập sinh đang chờ duyệt"}
+                  : ""}
               </span>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon mentor">🧑‍🏫</div>
+            <div className="stat-icon mentor">
+              <Layers3 />
+            </div>
             <div>
               <h4>Chương trình</h4>
               <p className="stat-value">3</p>
@@ -100,7 +107,9 @@ const HRDashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon hr">📊</div>
+            <div className="stat-icon hr">
+              <BarChart3 />
+            </div>
             <div>
               <h4>Tỷ lệ hoàn thành</h4>
               <p className="stat-value">78%</p>
@@ -108,8 +117,14 @@ const HRDashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <p className="stat-value">8</p>
-            <span>Số lượng mentor đang hoạt động</span>
+            <div className="stat-icon mentor">
+              <Users />
+            </div>
+            <div>
+              <h4>Mentor đang hoạt động</h4>
+              <p className="stat-value">8</p>
+              <span>Số lượng mentor đang hoạt động</span>
+            </div>
           </div>
         </div>
 
@@ -163,20 +178,7 @@ const HRDashboard = () => {
               />
             </div>
           </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="bottom-grid">
-          <div className="card">
-            <h4>Lịch sắp tới</h4>
-            <ul className="activity-list">
-              <li>📅 Họp đánh giá nhóm Marketing</li>
-              <li>⏰ Hạn nộp báo cáo tuần này</li>
-              <li>🗓️ Buổi review giao tiếp</li>
-            </ul>
-          </div>
-
-          <div className="card">
+          <div className="card notifications-card">
             <h4>Thông báo nội bộ</h4>
             <ul className="activity-list">
               <li>Mentor Nguyễn An đã đánh giá 3 TTS tuần này</li>
@@ -184,11 +186,14 @@ const HRDashboard = () => {
               <li>Chương trình Marketing đạt 77% hoàn thành</li>
             </ul>
           </div>
+        </div>
 
+        {/* Bottom Section */}
+        <div className="bottom-grid">
           <div className="card">
             <h4>Tiến độ theo phòng ban</h4>
             <table className="task-table">
-              <thead>
+            	<thead>
                 <tr>
                   <th>Phòng ban</th>
                   <th>Số TTS</th>
