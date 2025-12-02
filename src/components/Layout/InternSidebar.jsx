@@ -136,7 +136,6 @@ const InternSidebar = () => {
     width: expanded ? 250 : 60,
     config: { tension: 220, friction: 20 }
   });
-  const AnimatedDiv = animated.div;
 
   // Get avatar from intern data or fallback to user avatar
   const avatar = internData?.avatar || user?.avatar || '';
@@ -179,7 +178,9 @@ const InternSidebar = () => {
     });
   };
 
-  
+  const toggleAttendanceSubmenu = () => {
+    setAttendanceSubmenuOpen(!attendanceSubmenuOpen);
+  };
 
   const isActiveRoute = (path) => {
     return location.pathname === path;
@@ -191,7 +192,7 @@ const InternSidebar = () => {
   };
 
   return (
-    <AnimatedDiv 
+    <animated.div 
       className="sidebar" 
       style={sidebarStyle}
       onMouseEnter={() => setExpanded(true)}
@@ -338,13 +339,6 @@ const InternSidebar = () => {
         >
           <FaRobot /> {expanded && <span>Hỗ trợ</span>}
         </li>
-
-        <li
-          onClick={() => navigate("/intern/my-support")}
-          className={isActiveRoute("/intern/my-support") ? "active" : ""}
-        >
-          <FaRobot /> {expanded && <span>Yêu cầu hỗ trợ của tôi</span>}
-        </li>
       </ul>
       {/* Footer */}
       <div className="sidebar-footer">
@@ -352,7 +346,7 @@ const InternSidebar = () => {
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>
-    </AnimatedDiv>
+    </animated.div>
   );
 };
 
