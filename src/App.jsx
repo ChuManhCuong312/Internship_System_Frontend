@@ -29,6 +29,7 @@ import MyTasks from "./pages/Intern/MyTasks";
 import Attendance from "./pages/Intern/Attendance";
 import MyAllowance from "./pages/Intern/MyAllowance";
 import SupportRequest from "./pages/Intern/SupportRequest";
+import MySupport from "./pages/Intern/MySupport";
 import Calendar from "./pages/Intern/Calendar";
 import Notifications from "./pages/Intern/Notifications";
 import Allowances from "./components/Allowances/Allowances";
@@ -281,6 +282,14 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={["INTERN"]}>
                       <SupportRequest />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/intern/my-support"
+                  element={
+                    <PrivateRoute allowedRoles={["INTERN"]}>
+                      <MySupport />
                     </PrivateRoute>
                   }
                 />
