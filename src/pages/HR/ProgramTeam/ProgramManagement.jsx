@@ -7,7 +7,8 @@ import DeleteConfirmModal from "./modals/DeleteConfirmModal";
 import AssignMentorToProgramModal from "./modals/AssignMentorToProgramModal";
 import Pagination from "../../../components/Common/Pagination";
 import ProgramList from "./components/ProgramList";
-import TeamsView from "./components/TeamsView";
+import TeamList from "./components/TeamList";
+import InternDetails from "./components/InternDetails";
 import FilterSection from "./components/FilterSection";
 import { useProgramManagement } from "./hooks/useProgramManagement";
 import { useProgramActions } from "./hooks/useProgramActions";
@@ -62,33 +63,22 @@ export default function ProgramManagement() {
     <div className="dashboard-layout">
       <HRSidebar />
       <div className="dashboard-content">
-        <div className="max-width-container">
-          {/* Header */}
-          <div className="header-section">
-            <div className="header-content">
-              <div>
-                <h1 className="header-title">
-                  {!teamActions.viewingProgramTeams
-                    ? "Quản lý chương trình thực tập"
-                    : `Teams of ${teamActions.viewingProgramTeams.name}`}
-                </h1>
-                <p className="header-subtitle">
-                  {!teamActions.viewingProgramTeams
-                    ? "Quản lý thực tập sinh, teams, và phân công mentor"
-                    : "Quản lý các teams và phân công mentor trong chương trình này"}
-                </p>
+        {/* PROGRAM LIST VIEW */}
+        {!teamActions.viewingProgramTeams && (
+          <div className="max-width-container">
+            <div className="header-section">
+              <div className="header-content">
+                <div>
+                  <h1 className="header-title">Quản lý chương trình thực tập</h1>
+                  <p className="header-subtitle">
+                    Quản lý thực tập sinh, teams, và phân công mentor
+                  </p>
+                </div>
+                <button className="btn btn-primary" onClick={programActions.handleAddProgram}>
+                  <Plus size={16} /> Thêm Chương trình
+                </button>
               </div>
-              <button
-                className={`btn ${!teamActions.viewingProgramTeams ? "btn-primary" : "btn-secondary"}`}
-                onClick={!teamActions.viewingProgramTeams ? programActions.handleAddProgram : teamActions.handleAddTeam}
-              >
-                <Plus size={16} />{" "}
-                {!teamActions.viewingProgramTeams ? "Thêm Chương trình" : "Thêm Team"}
-              </button>
-            </div>
 
-            {/* Filters */}
-            {!teamActions.viewingProgramTeams && (
               <FilterSection
                 searchTerm={programData.searchTerm}
                 setSearchTerm={programData.setSearchTerm}
@@ -100,11 +90,8 @@ export default function ProgramManagement() {
                 assignedMentors={programData.assignedMentors}
                 onResetFilters={programData.resetFilters}
               />
-            )}
-          </div>
+            </div>
 
-          {/* Main Content */}
-          {!teamActions.viewingProgramTeams ? (
             <ProgramList
               programs={filteredPrograms}
               programOverview={programData.programOverview}
@@ -119,16 +106,95 @@ export default function ProgramManagement() {
               formatLocalDate={formatLocalDate}
               getStatusColor={getStatusColor}
             />
-          ) : (
-            <TeamsView
-              program={teamActions.viewingProgramTeams}
-              assignedMentors={programData.assignedMentors}
-              onEditTeam={teamActions.handleEditTeam}
-              onDeleteTeam={teamActions.handleDeleteTeam}
-              onBack={() => teamActions.setViewingProgramTeams(null)}
+
+            <Pagination
+              currentPage={programData.currentPage}
+              totalPages={programData.totalPages}
+              totalItems={programData.totalItems}
+              onPageChange={(page) => programData.setCurrentPage(page)}
             />
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* TEAM MANAGEMENT VIEW (Two-panel layout) */}
+        {teamActions.viewingProgramTeams && (
+          <div className="team-management-container">
+            {/* Left Panel - Team List */}
+            <div className="team-sidebar">
+              <div className="team-sidebar-content">
+                <button
+                  className="back-button"
+                  onClick={() => teamActions.setViewingProgramTeams(null)}
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Quay lại
+                </button>
+
+                <div className="team-sidebar-header">
+                  <div>
+                    <h2 className="team-sidebar-title">
+                      {teamActions.viewingProgramTeams.name}
+                    </h2>
+                    <p className="team-sidebar-subtitle">Mô tả chương trình: {teamActions.viewingProgramTeams.detail}</p>
+                    <p className="team-sidebar-subtitle">Danh sách teams</p>
+                  </div>
+                  <button
+                    className="add-team-button"
+                    onClick={teamActions.handleAddTeam}
+                    title="Thêm team"
+                    disabled={teamActions.viewingProgramTeams.programStatus !== "UPCOMING"}
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+
+                <TeamList
+                  teams={teamActions.viewingProgramTeams.teams || []}
+                  selectedTeamId={teamActions.selectedTeam?.teamId}
+                  onSelectTeam={(team) => teamActions.handleSelectTeam(team)}
+                  assignedMentors={programData.assignedMentors}
+                  programStatus={teamActions.viewingProgramTeams.programStatus}
+                />
+              </div>
+            </div>
+
+            {/* Right Panel - Intern Details */}
+            <div className="main-panel">
+              {teamActions.selectedTeam ? (
+                <InternDetails
+                  team={teamActions.selectedTeam}
+                  teamIndex={
+                    teamActions.viewingProgramTeams.teams?.findIndex(
+                      (t) => t.teamId === teamActions.selectedTeam.teamId
+                    ) || 0
+                  }
+                  programMentors={teamActions.programMentors || []}
+                  onUpdateTeam={(mentorId, teamId) => {
+                      teamActions.handleAssignMentorToTeam(mentorId, teamId);
+                    }}
+                  onDeleteTeam={teamActions.handleDeleteTeam}
+                  onRefreshTeam={teamActions.handleRefreshCurrentTeam}
+                  token={programData.token}
+                  programId={teamActions.viewingProgramTeams.programId}
+                  programStatus={teamActions.viewingProgramTeams.programStatus}
+                />
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state-content">
+                    <p className="empty-state-text">Chọn một team để xem chi tiết</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* MODALS */}
         <ProgramFormModal
@@ -176,17 +242,8 @@ export default function ProgramManagement() {
           setTeamMentorSearch={teamActions.setTeamMentorSearch}
           selectedProgram={programActions.selectedProgram}
           token={programData.token}
-          programMentors={programActions.selectedProgram?.mentorPrograms || []}
+          programMentors={teamActions.programMentors}
         />
-
-        {!teamActions.viewingProgramTeams && (
-          <Pagination
-            currentPage={programData.currentPage}
-            totalPages={programData.totalPages}
-            totalItems={programData.totalItems}
-            onPageChange={(page) => programData.setCurrentPage(page)}
-          />
-        )}
       </div>
     </div>
   );
