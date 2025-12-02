@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllSupportRequests, filterSupportRequests, approveSupportRequest, rejectSupportRequest } from '../../../api/supportApi';
-import SupportDetailModal from '../../../ components/SupportRequest/SupportDetailModal';
+import SupportDetailModal from '../../../components/SupportRequest/SupportDetailModal';
 import '../../../styles/supportRequest.css';
 import '../../../styles/table.css';
 
