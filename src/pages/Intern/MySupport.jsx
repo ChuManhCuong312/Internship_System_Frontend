@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import InternSidebar from "../../components/Layout/InternSidebar";
 import { AuthContext } from "../../context/AuthContext";
 import Cookies from "js-cookie";
@@ -16,14 +17,12 @@ const MySupport = () => {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    try {
-      const cookieInternId = Cookies.get("internId");
-      if (cookieInternId) {
-        setInternId(parseInt(cookieInternId));
-      } else if (user?.internId) {
-        setInternId(user.internId);
-      }
-    } catch {}
+    const cookieInternId = Cookies.get("internId");
+    if (cookieInternId) {
+      setInternId(parseInt(cookieInternId));
+    } else if (user?.internId) {
+      setInternId(user.internId);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -82,6 +81,10 @@ const MySupport = () => {
       <div className="dashboard-content">
         <div className="page-header">
           <h1>Yêu cầu hỗ trợ của tôi</h1>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <Link to="/intern/support" className="checkin-btn">Tạo yêu cầu hỗ trợ</Link>
         </div>
 
         {error && (
