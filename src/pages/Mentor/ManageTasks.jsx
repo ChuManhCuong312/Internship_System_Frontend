@@ -3,35 +3,7 @@ import MentorSidebar from "../../components/Layout/MentorSidebar";
 import "../../styles/dashBoard.css";
 
 const MentorTasks = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Xây dựng trang đăng nhập",
-      assignedTo: "Nguyễn Văn A",
-      priority: "High",
-      status: "In Progress",
-      dueDate: "2024-12-01",
-      description: "Phát triển trang đăng nhập với validation form"
-    },
-    {
-      id: 2,
-      title: "Thiết kế banner marketing",
-      assignedTo: "Trần Thị B",
-      priority: "Medium",
-      status: "Pending",
-      dueDate: "2024-12-05",
-      description: "Thiết kế banner cho chiến dịch tháng 12"
-    },
-    {
-      id: 3,
-      title: "Phân tích dữ liệu khách hàng",
-      assignedTo: "Hoàng Văn E",
-      priority: "High",
-      status: "Completed",
-      dueDate: "2024-11-28",
-      description: "Phân tích hành vi khách hàng quý 4"
-    }
-  ]);
+  const [tasks, setTasks] = useState([]);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTask, setNewTask] = useState({
