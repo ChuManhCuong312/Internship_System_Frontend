@@ -4,7 +4,6 @@ import styles from "./EvaluationPage.module.css"
 const TEAM_INFO = [
   {
     team_id: 101,
-    name: "Nhóm Backend A",
     interns: [
       {
         intern_id: 1001,
@@ -136,7 +135,7 @@ const evaluatedInterns = teamData.interns.filter((intern) => evaluatedInternIds.
 
       <div className={styles.header}>
         <div className={styles.teamInfo}>
-          <h1 className={styles.teamName}>{teamData.name}</h1>
+          <h1 className={styles.teamName}>Nhóm {teamData.team_id}</h1>
           <p className={styles.teamDetails}>
           </p>
         </div>
