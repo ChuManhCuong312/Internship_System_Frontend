@@ -86,7 +86,7 @@ export default function TeamListPage({ programId, onSelectTeam, onBack }) {
         {teams.length === 0 ? (
           <div className={styles.noData}>Chương trình chưa có nhóm nào</div>
         ) : (
-          teams.map((team) => (
+          teams.filter(team => team.member_count > 0).map((team) => (
             <div
               key={team.team_id}
               className={styles.teamCard}
