@@ -40,24 +40,21 @@ export default function ProgramFormModal({
     }
   }, [formData.startDate]);
 
+  // FIXED: Only reset form data if explicitly in edit mode AND form is empty
   useEffect(() => {
-    if (isOpen) {
-      if (selectedProgram) {
-        // Pre-fill with existing program data
-        setFormData({
-          name: selectedProgram.name,
-          department: selectedProgram.department,
-          startDate: selectedProgram.startDate?.split("T")[0], // keep only date part
-          endDate: selectedProgram.endDate?.split("T")[0],
-          detail: selectedProgram.detail,
-          maxInterns: selectedProgram.maxInterns,
-        });
-      } else {
-        // Reset for create mode
-        setFormData({});
-      }
+    if (isOpen && selectedProgram) {
+      // Edit mode: Pre-fill with existing program data
+      setFormData({
+        name: selectedProgram.name,
+        department: selectedProgram.department,
+        startDate: selectedProgram.startDate?.split("T")[0],
+        endDate: selectedProgram.endDate?.split("T")[0],
+        detail: selectedProgram.detail,
+        maxInterns: selectedProgram.maxInterns,
+      });
       setShowNameError(false);
     }
+    // Don't reset formData when selectedProgram is null - it might be pre-filled (e.g., clone)
   }, [isOpen, selectedProgram]);
 
 
