@@ -1,7 +1,7 @@
 import React from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import '../../styles/dashBoard.css';
-import MyTasksTable from '../../components/Tasks/MyTasksTable';
+import MyTasksTableUpgrade from '../../components/Tasks/MyTasksTableUpgrade';
 
 const MyTasks = () => {
   return (
@@ -18,7 +18,7 @@ const MyTasks = () => {
         <div className="main-grid">
           <div className="card col-span-2">
             <h4>Danh sách nhiệm vụ</h4>
-            <MyTasksTable />
+            <MyTasksTableUpgrade />
           </div>
 
           <div className="card">
