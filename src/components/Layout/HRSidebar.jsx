@@ -44,6 +44,8 @@ const HRSidebar = () => {
     config: { tension: 220, friction: 20 },
   });
 
+  const AnimatedDiv = animated.div;
+
   const initials = (user?.fullName || user?.email || "HR")
     .split(" ")
     .map(word => word[0])
@@ -138,7 +140,7 @@ const HRSidebar = () => {
   };
 
   return (
-    <animated.div
+    <AnimatedDiv
       className="sidebar"
       style={sidebarStyle}
       onMouseEnter={() => setExpanded(true)}
@@ -217,7 +219,7 @@ const HRSidebar = () => {
 
         <li
           onClick={handleBenefitsMenuToggle}
-          className={`menu-item ${isParentActive(['/hr/allowances', '/hr/contracts']) ? 'active' : ''}`}
+          className={`menu-item ${isParentActive(['/hr/allowances', '/hr/contracts', '/hr/support-requests']) ? 'active' : ''}`}
         >
           <FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}
         </li>
@@ -228,6 +230,9 @@ const HRSidebar = () => {
             </li>
             <li className={isActive('/hr/contracts') ? 'active' : ''}>
               <Link to="/hr/contracts">Quản lý hợp đồng</Link>
+            </li>
+            <li className={isActive('/hr/support-requests') ? 'active' : ''}>
+              <Link to="/hr/support-requests">Quản lý hỗ trợ</Link>
             </li>
           </ul>
         )}
@@ -246,7 +251,7 @@ const HRSidebar = () => {
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>
-    </animated.div>
+    </AnimatedDiv>
   );
 };
 
