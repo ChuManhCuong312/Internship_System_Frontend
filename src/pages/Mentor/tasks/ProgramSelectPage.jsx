@@ -115,9 +115,7 @@ export default function ProgramSelectPage({ onSelectProgram }) {
                 <h2 className={styles.cardTitle}>{program.name}</h2>
                 {getStatusBadge(program.programStatus)}
               </div>
-              <p className={styles.cardDescription}>
-                {program.detail || "Không có mô tả"}
-              </p>
+
               <div className={styles.cardMeta}>
                 <span className={styles.department}>{program.department}</span>
                 {program.maxInterns && (
