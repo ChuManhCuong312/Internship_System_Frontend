@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import hrApi from "../../../../api/hrApi";
 
 export const useTeamActions = (token, programs, setPrograms, selectedProgram, setSelectedProgram) => {
@@ -8,19 +8,78 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
   const [isAddTeamOpen, setIsAddTeamOpen] = useState(false);
   const [isEditTeamOpen, setIsEditTeamOpen] = useState(false);
   const [teamMentorSearch, setTeamMentorSearch] = useState("");
+  const [programMentors, setProgramMentors] = useState([]);
 
-  const handleViewTeams = async (program) => {
-    try {
-      const teams = await hrApi.getTeamsInProgram(token, program.programId);
-      setViewingProgramTeams({ ...program, teams });
-      setSelectedProgram({ ...program, teams });
-    } catch (err) {
-      console.error("Error fetching teams:", err);
-    }
-  };
+    useEffect(() => {
+      if (!selectedProgram || !token) return;
+
+      const loadMentors = async () => {
+        const res = await hrApi.getMentorsAssignedToProgram(token, selectedProgram.programId);
+        setProgramMentors(res);
+      };
+
+      loadMentors();
+    }, [selectedProgram, token]);
+   const fetchProgramMentors = async (programId) => {
+      try {
+        const mentors = await hrApi.getMentorsForProgram(token, programId);
+        setProgramMentors(mentors);
+      } catch (err) {
+        console.error("Error fetching program mentors:", err);
+        setProgramMentors([]);
+      }
+    };
+
+const handleViewTeams = async (program) => {
+  try {
+    const teams = await hrApi.getTeamsInProgram(token, program.programId);
+
+    // Fetch all mentors assigned to this program
+    const mentors = await hrApi.getMentorsForProgram(token, program.programId);
+
+    const programWithTeams = { ...program, teams, mentorPrograms: mentors };
+
+    setViewingProgramTeams(programWithTeams);
+    setSelectedProgram(programWithTeams);
+
+    // Reset selected team when switching programs
+    setSelectedTeam(null);
+  } catch (err) {
+    console.error("Error fetching teams:", err);
+  }
+};
+
+
+const handleRefreshCurrentTeam = async () => {
+  if (!selectedTeam || !viewingProgramTeams) return;
+
+  try {
+    const teams = await hrApi.getTeamsInProgram(token, viewingProgramTeams.programId);
+    const updatedSelectedTeam = teams.find((t) => t.teamId === selectedTeam.teamId);
+
+    // Fetch full intern details for this team
+    const interns = await hrApi.getInternsInTeam(token, selectedTeam.teamId);
+    const selectedTeamWithInterns = { ...updatedSelectedTeam, interns };
+
+    const updatedProgram = { ...viewingProgramTeams, teams };
+    setViewingProgramTeams(updatedProgram);
+    setSelectedProgram(updatedProgram);
+    setSelectedTeam(selectedTeamWithInterns);
+
+    setPrograms((prev) =>
+      prev.map((p) =>
+        p.programId === viewingProgramTeams.programId ? updatedProgram : p
+      )
+    );
+  } catch (err) {
+    console.error("Error refreshing team:", err);
+  }
+};
+
 
   const handleAddTeam = () => {
-    setTeamFormData({});
+    setSelectedTeam(null); // important
+    setTeamFormData({ mentorId: null, name: "", description: "" });
     setIsAddTeamOpen(true);
   };
 
@@ -30,26 +89,31 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
     setIsEditTeamOpen(true);
   };
 
-  const handleDeleteTeam = async (teamId) => {
-    if (!selectedProgram) return;
+const handleDeleteTeam = async (teamId) => {
+  if (!selectedProgram) return;
 
-    try {
-      await hrApi.deleteTeam(token, teamId);
+  try {
+    await hrApi.deleteTeam(token, teamId);
 
-      const updatedProgram = {
-        ...selectedProgram,
-        teams: selectedProgram.teams.filter((t) => t.teamId !== teamId),
-      };
+    const updatedTeams = selectedProgram.teams.filter((t) => t.teamId !== teamId);
+    const updatedProgram = { ...selectedProgram, teams: updatedTeams };
 
-      setPrograms((prev) =>
-        prev.map((p) => (p.programId === selectedProgram.programId ? updatedProgram : p))
-      );
-      setSelectedProgram(updatedProgram);
-      setViewingProgramTeams(updatedProgram);
-    } catch (err) {
-      console.error("Error deleting team:", err);
+    setPrograms((prev) =>
+      prev.map((p) =>
+        p.programId === selectedProgram.programId ? updatedProgram : p
+      )
+    );
+    setSelectedProgram(updatedProgram);
+    setViewingProgramTeams(updatedProgram);
+
+    // Reset selectedTeam if it was deleted
+    if (selectedTeam?.teamId === teamId) {
+      setSelectedTeam(null);
     }
-  };
+  } catch (err) {
+    console.error("Error deleting team:", err);
+  }
+};
 
   const handleSaveTeam = async () => {
     if (!selectedProgram) return;
@@ -89,22 +153,56 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
     }
   };
 
-  const handleAssignMentorToTeam = async (mentorId, teamId) => {
-    try {
-      await hrApi.assignMentorToTeam(token, selectedProgram.programId, mentorId);
+const handleAssignMentorToTeam = async (mentorId, teamId) => {
+  try {
+    // Update team in backend
+    await hrApi.updateTeam(token, teamId, { mentorId });
 
-      const updatedProgram = {
-        ...selectedProgram,
-        teams: selectedProgram.teams.map((t) => (t.teamId === teamId ? { ...t, mentorId } : t)),
-      };
-      setSelectedProgram(updatedProgram);
-      setPrograms((prev) =>
-        prev.map((p) => (p.programId === selectedProgram.programId ? updatedProgram : p))
-      );
+    // 1. Update the selected team locally
+    if (selectedTeam?.teamId === teamId) {
+      setSelectedTeam({ ...selectedTeam, mentorId });
+    }
+
+    // 2. Update the program's teams list
+    const updatedProgram = {
+      ...selectedProgram,
+      teams: selectedProgram.teams.map((t) =>
+        t.teamId === teamId ? { ...t, mentorId } : t
+      ),
+    };
+    setSelectedProgram(updatedProgram);
+    setViewingProgramTeams(updatedProgram);
+    setPrograms((prev) =>
+      prev.map((p) =>
+        p.programId === selectedProgram.programId ? updatedProgram : p
+      )
+    );
+
+    // 3. Refresh mentors assigned to this program
+    const mentors = await hrApi.getMentorsForProgram(token, selectedProgram.programId);
+    setProgramMentors(mentors);
+
+  } catch (err) {
+    console.error("Error assigning mentor:", err);
+  }
+};
+
+
+
+  const handleSelectTeam = async (team) => {
+    try {
+      // Fetch interns for this team
+      const interns = await hrApi.getInternsInTeam(token, team.teamId);
+
+      const teamWithInterns = { ...team, interns };
+      setSelectedTeam(teamWithInterns);
+      await fetchProgramMentors(selectedProgram.programId);
     } catch (err) {
-      console.error("Error assigning mentor:", err);
+      console.error("Error fetching interns for team:", err);
+      setSelectedTeam({ ...team, interns: [] });
     }
   };
+
 
   return {
     viewingProgramTeams,
@@ -117,13 +215,17 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
     setIsAddTeamOpen,
     isEditTeamOpen,
     setIsEditTeamOpen,
+    programMentors,
+    setProgramMentors,
     teamMentorSearch,
     setTeamMentorSearch,
     handleViewTeams,
+    handleRefreshCurrentTeam,
     handleAddTeam,
     handleEditTeam,
     handleDeleteTeam,
     handleSaveTeam,
     handleAssignMentorToTeam,
+    handleSelectTeam,
   };
 };
