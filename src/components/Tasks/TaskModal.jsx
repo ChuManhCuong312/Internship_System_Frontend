@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 import '../../styles/taskModal.css';
 
 const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], programName = '' }) => {
@@ -50,15 +51,19 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
     const newErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Tiêu đề không được để trống';
+      newErrors.title = 'Tiêu đề không được để trống. Vui lòng nhập tiêu đề nhiệm vụ';
+    } else if (formData.title.trim().length < 5) {
+      newErrors.title = 'Tiêu đề phải có ít nhất 5 ký tự';
     }
+    
     if (!formData.deadline) {
-      newErrors.deadline = 'Vui lòng chọn hạn chót';
+      newErrors.deadline = 'Hạn chót không được để trống. Vui lòng chọn ngày hoàn thành';
     } else {
       const selectedDate = new Date(formData.deadline);
       const now = new Date();
+      now.setHours(0, 0, 0, 0);
       if (selectedDate < now && !task) {
-        newErrors.deadline = 'Hạn chót không được trong quá khứ';
+        newErrors.deadline = 'Hạn chót không được trong quá khứ. Vui lòng chọn ngày trong tương lai';
       }
     }
 
@@ -114,6 +119,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
         onClose();
       } catch (error) {
         console.error('Error submitting form:', error);
+        // Lỗi đã được xử lý bởi onSubmit (trong TasksManagementPage), không cần toast ở đây
       }
     }
   };

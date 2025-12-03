@@ -229,6 +229,12 @@
 
 .taskItem.overdue {
   border-left: 4px solid #ef4444;
+  background-color: #fee2e2;
+}
+
+.taskItem.approaching-deadline {
+  border-left: 4px solid #f59e0b;
+  background-color: #fef3c7;
 }
 
 .taskItemContent {
@@ -398,6 +404,28 @@
 
 .overdueText {
   color: #dc2626 !important;
+}
+
+.warningBanner {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.overdueBanner {
+  background-color: #fee2e2;
+  border-left: 4px solid #dc2626;
+  color: #991b1b;
+}
+
+.approachingBanner {
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
 }
 
 .descriptionSection {

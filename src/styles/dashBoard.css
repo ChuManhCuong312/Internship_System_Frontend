@@ -27,6 +27,14 @@ body, html {
 }
 
 /* === Header Cards === */
+/* === Header Cards === */
+.header-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

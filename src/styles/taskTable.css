@@ -49,6 +49,15 @@
   background-color: #fee2e2;
 }
 
+.task-table tbody tr.row-overdue {
+  background-color: #fee2e2;
+  border-left: 4px solid #b91c1c;
+}
+
+.task-table tbody tr.row-overdue:hover {
+  background-color: #fecaca;
+}
+
 .task-table tbody td {
   padding: 14px 12px;
   vertical-align: middle;

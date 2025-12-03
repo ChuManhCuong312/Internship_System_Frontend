@@ -386,6 +386,16 @@ const TasksManagementPage = ({ programId, onBack }) => {
     return new Date(deadline) < new Date();
   };
 
+  const isApproachingDeadline = (deadline) => {
+    if (!deadline) return false;
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    const diffMs = deadlineDate - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    // Sắp hết hạn: từ 24h trở lại < 0h (và chưa quá hạn)
+    return diffHours <= 24 && diffHours > 0;
+  };
+
   // Statistics
   const stats = {
     total: tasks.length,
@@ -493,7 +503,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
                 {tasks.map(task => (
                   <button
                     key={task.taskId}
-                    className={`${styles.taskItem} ${selectedTask?.taskId === task.taskId ? styles.active : ''} ${isOverdue(task.deadline) && task.status !== 'DONE' ? styles.overdue : ''}`}
+                    className={`${styles.taskItem} ${selectedTask?.taskId === task.taskId ? styles.active : ''} ${isOverdue(task.deadline) && task.status !== 'DONE' ? styles.overdue : ''} ${isApproachingDeadline(task.deadline) && task.status !== 'DONE' ? styles['approaching-deadline'] : ''}`}
                     onClick={() => handleSelectTask(task)}
                   >
                     <div className={styles.taskItemContent}>
@@ -546,6 +556,24 @@ const TasksManagementPage = ({ programId, onBack }) => {
               </div>
 
               <div className={styles.taskDetailsContent}>
+                {/* Overdue/Approaching Warning */}
+                {selectedTask.status !== 'DONE' && (
+                  <>
+                    {isOverdue(selectedTask.deadline) && (
+                      <div className={styles.warningBanner + ' ' + styles.overdueBanner}>
+                        <span style={{ marginRight: '8px' }}>⚠️</span>
+                        <strong>Chậm nhiệm vụ!</strong> 
+                      </div>
+                    )}
+                    {isApproachingDeadline(selectedTask.deadline) && (
+                      <div className={styles.warningBanner + ' ' + styles.approachingBanner}>
+                        <span style={{ marginRight: '8px' }}>⏰</span>
+                        <strong>Sắp hết hạn!</strong> 
+                      </div>
+                    )}
+                  </>
+                )}
+
                 <div className={styles.detailsGrid}>
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}>ID</span>
