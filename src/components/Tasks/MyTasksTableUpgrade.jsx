@@ -4,12 +4,13 @@ import axiosClient from '../../api/axiosClient';
 import taskApi from '../../api/taskApi';
 import taskManagementApi from '../../api/taskManagementApi';
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 import '../../styles/taskTable.css';
 
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEWED', 'DONE'];
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH'];
 
-const MyTasksTableUpgrade = () => {
+const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpenedStatus = () => {} }) => {
   const { token, user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
   const [progressMap, setProgressMap] = useState({}); // taskId -> {percent, note, progressId}
@@ -139,9 +140,10 @@ const MyTasksTableUpgrade = () => {
     try {
       await taskApi.updateTaskStatus(token, taskId, newStatus);
       setTasks(prev => prev.map(t => t.taskId === taskId ? { ...t, status: newStatus } : t));
+      toast.success('Cập nhật trạng thái thành công!');
     } catch (err) {
       console.error('Failed to update status', err);
-      alert('Lỗi cập nhật trạng thái');
+      toast.error('Lỗi cập nhật trạng thái. Vui lòng thử lại.');
     }
   };
 
@@ -151,7 +153,7 @@ const MyTasksTableUpgrade = () => {
     const note = entry.note || '';
 
     if (percent < 0 || percent > 100) {
-      alert('Phần trăm phải từ 0 đến 100');
+      toast.error('Phần trăm phải nằm từ 0 đến 100%');
       return;
     }
 
@@ -173,10 +175,10 @@ const MyTasksTableUpgrade = () => {
         [taskId]: arr.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] 
       }));
       
-      alert('✓ Đã lưu tiến độ');
+      toast.success('Tiến độ đã được lưu thành công!');
     } catch (err) {
       console.error('Failed to save progress', err);
-      alert('Lỗi lưu tiến độ');
+      toast.error('Lỗi lưu tiến độ. Vui lòng kiểm tra lại dữ liệu.');
     }
   };
 
@@ -215,17 +217,17 @@ const MyTasksTableUpgrade = () => {
       const filesRes = await taskManagementApi.getFilesByTaskId(token, taskId);
       setFilesMap(prev => ({ ...prev, [taskId]: Array.isArray(filesRes) ? filesRes : [] }));
       
-      alert('✓ Đã upload file');
+      toast.success('File đã được upload thành công!');
     } catch (err) {
       console.error('Failed to upload file', err);
-      alert('Lỗi upload file');
+      toast.error('Lỗi upload file. Vui lòng kiểm tra kích thước file và thử lại.');
     } finally {
       setUploading(prev => ({ ...prev, [taskId]: false }));
     }
   };
 
   const handleDeleteFile = async (fileId, taskId) => {
-    if (!window.confirm('Bạn chắc chắn muốn xóa file?')) return;
+    if (!window.confirm('Bạn chắc chắn muốn xóa file này?')) return;
 
     try {
       await taskManagementApi.deleteFile(token, fileId);
@@ -234,12 +236,45 @@ const MyTasksTableUpgrade = () => {
       const filesRes = await taskManagementApi.getFilesByTaskId(token, taskId);
       setFilesMap(prev => ({ ...prev, [taskId]: Array.isArray(filesRes) ? filesRes : [] }));
       
-      alert('✓ Đã xóa file');
+      toast.success('File đã được xóa thành công!');
     } catch (err) {
       console.error('Failed to delete file', err);
-      alert('Lỗi xóa file');
+      toast.error('Lỗi xóa file. Vui lòng thử lại.');
     }
   };
+
+    const isOverdue = (deadline) => {
+      if (!deadline) return false;
+      return new Date(deadline) < new Date();
+    };
+
+    const isApproachingDeadline = (deadline) => {
+      if (!deadline) return false;
+      const deadlineDate = new Date(deadline);
+      const now = new Date();
+      const diffMs = deadlineDate - now;
+      const diffHours = diffMs / (1000 * 60 * 60);
+      return diffHours <= 24 && diffHours > 0;
+    };
+
+  // derive displayed tasks according to statusFilter
+  const displayedTasks = (statusFilter && statusFilter !== 'ALL') ? tasks.filter(t => t.status === statusFilter) : tasks;
+
+  // when openToStatus changes, expand first matching task and scroll to it
+  useEffect(() => {
+    if (!openToStatus) return;
+    const first = tasks.find(t => t.status === openToStatus);
+    if (first) {
+      setExpandedTask(first.taskId);
+      // scroll to row
+      setTimeout(() => {
+        const el = document.querySelector(`[data-taskid="${first.taskId}"]`);
+        if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      // notify parent we opened
+      try { onOpenedStatus(openToStatus); } catch (e) {}
+    }
+  }, [openToStatus]);
 
   if (loading) {
     return (
@@ -279,7 +314,7 @@ const MyTasksTableUpgrade = () => {
           </tr>
         </thead>
         <tbody>
-          {tasks.map(task => {
+          {displayedTasks.map(task => {
             const prog = progressMap[task.taskId] || { percentComplete: 0, note: '' };
             const isDueSoon = reminders[task.taskId];
             const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleString('vi-VN') : '--';
@@ -288,12 +323,16 @@ const MyTasksTableUpgrade = () => {
 
             return (
               <React.Fragment key={task.taskId}>
-                <tr className={isDueSoon ? 'row-due-soon' : ''}>
+                <tr data-taskid={task.taskId} className={isOverdue(task.deadline) && task.status !== 'DONE' ? 'row-overdue' : isDueSoon ? 'row-due-soon' : ''}>
                   <td>
                     <strong>{task.title}</strong>
                     {isDueSoon && <div style={{ color: '#b91c1c', fontSize: '12px' }}>🔔 Sắp hết hạn</div>}
+                    {isOverdue(task.deadline) && task.status !== 'DONE' && <div style={{ color: '#b91c1c', fontSize: '12px' }}>⚠️ Chậm nhiệm vụ</div>}
                   </td>
-                  <td style={{ color: isDueSoon ? '#b91c1c' : 'inherit', fontWeight: isDueSoon ? '700' : '400' }}>
+                  <td style={{ 
+                    color: isOverdue(task.deadline) && task.status !== 'DONE' ? '#b91c1c' : isDueSoon ? '#b91c1c' : 'inherit', 
+                    fontWeight: isOverdue(task.deadline) && task.status !== 'DONE' || isDueSoon ? '700' : '400' 
+                  }}>
                     {deadlineStr}
                   </td>
                   <td>
