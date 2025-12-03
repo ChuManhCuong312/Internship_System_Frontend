@@ -637,13 +637,13 @@ const TasksManagementPage = ({ programId, onBack }) => {
                   className={styles.editButton}
                   onClick={() => handleOpenModal(selectedTask)}
                 >
-                  ✏️ Chỉnh sửa
+                  ✏️
                 </button>
                 <button
                   className={styles.deleteButton}
                   onClick={() => handleDeleteTask(selectedTask.taskId)}
                 >
-                  🗑️ Xóa
+                  🗑️
                 </button>
               </div>
             </>

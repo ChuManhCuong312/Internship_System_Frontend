@@ -4,6 +4,7 @@ import axiosClient from '../../api/axiosClient';
 import taskApi from '../../api/taskApi';
 import taskManagementApi from '../../api/taskManagementApi';
 import Cookies from 'js-cookie';
+import { getStatusStyle, getPriorityStyle, getStatusLabel, getPriorityLabel } from '../../utils/taskColors';
 
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEWED', 'DONE'];
 
@@ -168,8 +169,12 @@ const MyTasksTable = () => {
                   {isDueSoon && <div style={{ fontSize: 12, color: '#b91c1c' }}>Sắp hết hạn</div>}
                 </td>
                 <td>
-                  <select value={task.status || 'TODO'} onChange={(e)=>handleStatusChange(task.taskId, e.target.value)}>
-                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                  <select 
+                    value={task.status || 'TODO'} 
+                    onChange={(e)=>handleStatusChange(task.taskId, e.target.value)}
+                    style={getStatusStyle(task.status || 'TODO')}
+                  >
+                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{getStatusLabel(s)}</option>)}
                   </select>
                 </td>
                 <td>
