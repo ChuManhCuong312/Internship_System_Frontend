@@ -30,6 +30,7 @@ const Attendance = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [error, setError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -80,6 +81,14 @@ const Attendance = () => {
 
     fetchInternId();
   }, [authLoading, token, user?.userId]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!token || !internId) return;
@@ -136,7 +145,6 @@ const Attendance = () => {
       } else {
         setMonthlyStats(null);
       }
-
     } catch (error) {
       setError('Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {
@@ -179,6 +187,16 @@ const Attendance = () => {
   const formatTime = (time) => {
     if (!time) return '--:--';
     return time.substring(0, 5);
+  };
+
+  const formatTimeFromDate = (date) => {
+    if (!date) return '--:--';
+    return date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
   };
 
   const formatDate = (date) => {
@@ -269,14 +287,20 @@ const Attendance = () => {
                 <div className="time-item">
                   <span className="time-label">Check-in</span>
                   <span className="time-value">
-                    {formatTime(todayAttendance?.checkIn)}
+                    {!hasCheckedIn
+                      ? formatTimeFromDate(currentTime)
+                      : formatTime(todayAttendance?.checkIn)}
                   </span>
                 </div>
                 <div className="time-divider">→</div>
                 <div className="time-item">
                   <span className="time-label">Check-out</span>
                   <span className="time-value">
-                    {formatTime(todayAttendance?.checkOut)}
+                    {!hasCheckedIn
+                      ? '--:--'
+                      : !hasCheckedOut
+                      ? formatTimeFromDate(currentTime)
+                      : formatTime(todayAttendance?.checkOut)}
                   </span>
                 </div>
               </div>

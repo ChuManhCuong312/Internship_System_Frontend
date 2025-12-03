@@ -80,6 +80,14 @@ const hrApi = {
         return res.data;
       },
 
+      getMentorByTeam: async (token, teamId) => {
+          const res = await axios.get(`${API_URL_TEAMS}/${teamId}/mentor`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          return res.data; // returns MentorInfoDTO
+        },
+
+
       // Search programs by name
       searchPrograms: async (token, name) => {
         const res = await axios.get(`${API_URL_PROGRAM}/search`, {
@@ -182,18 +190,50 @@ const hrApi = {
         return res.data;
       },
 
-      // Remove intern from team (optional later)
-      removeInternFromTeam: async (token, teamId, internId) => {
-        const res = await axios.delete(`${API_URL_TEAMS}/teams/${teamId}/interns/${internId}`, authHeader(token));
-        return res.data;
-      },
-
       searchMentorsInProgram: async (token, programId, query) => {
         const res = await axios.get(`${API_URL_TEAMS}/${programId}/mentors/search`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { q: query },
         });
         return res.data; // returns array of MentorInfoDTO
+      },
+
+      searchAvailableInterns: async (token, keyword) => {
+          const res = await axios.get(`${API_URL_TEAMS}/search`, {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { keyword },
+          });
+          return res.data; // returns array of InternSearchDTO
+      },
+
+      addInternToTeam: async (token, programId, teamId, internId) => {
+          const res = await axios.post(
+            `${API_URL_TEAMS}/${programId}/${teamId}/add-intern`,
+            null, // POST body is empty
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              params: { internId }, // internId in query param
+            }
+          );
+          return res.data; // returns success message
+      },
+
+      // Remove intern from team (optional later)
+      removeInternFromTeam: async (token, teamId, internId) => {
+          const res = await axios.delete(
+            `${API_URL_TEAMS}/teams/${teamId}/interns/${internId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          return res.data; // returns success message
+      },
+
+      getInternsInTeam: async (token, teamId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${teamId}/interns`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // returns array of InternDetailDTO
       },
 
 

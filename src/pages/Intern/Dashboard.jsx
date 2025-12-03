@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [hasCheckedOut, setHasCheckedOut] = useState(false);
   const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [attendanceError, setAttendanceError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -62,6 +63,14 @@ const Dashboard = () => {
     if (!token || !internId) return;
     loadTodayAttendance();
   }, [token, internId]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const loadTodayAttendance = async () => {
     try {
@@ -118,6 +127,16 @@ const Dashboard = () => {
     return value.substring(0, 5);
   };
 
+  const formatTimeFromDate = (date) => {
+    if (!date) return '--:--';
+    return date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  };
+
   const checkInStatusText = attendanceLoading
     ? 'Đang tải...'
     : hasCheckedIn
@@ -165,11 +184,25 @@ const Dashboard = () => {
               <div className="attendance-times">
                 <div className="time-block">
                   <span>Check-in</span>
-                  <strong>{formatTime(todayAttendance?.checkIn)}</strong>
+                  <strong>
+                    {attendanceLoading
+                      ? 'Đang tải...'
+                      : !hasCheckedIn
+                      ? formatTimeFromDate(currentTime)
+                      : formatTime(todayAttendance?.checkIn)}
+                  </strong>
                 </div>
                 <div className="time-block">
                   <span>Check-out</span>
-                  <strong>{formatTime(todayAttendance?.checkOut)}</strong>
+                  <strong>
+                    {attendanceLoading
+                      ? 'Đang tải...'
+                      : !hasCheckedIn
+                      ? '--:--'
+                      : !hasCheckedOut
+                      ? formatTimeFromDate(currentTime)
+                      : formatTime(todayAttendance?.checkOut)}
+                  </strong>
                 </div>
               </div>
               <div className="attendance-actions">

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 import '../../styles/taskModal.css';
 
-const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], teams = [] }) => {
+const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], programName = '' }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    programId: '',
     priority: 'MEDIUM',
     status: 'TODO',
     deadline: '',
@@ -15,22 +15,29 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
 
   const [errors, setErrors] = useState({});
 
+  // Format deadline for input
+  const formatDeadlineForInput = (deadline) => {
+    if (!deadline) return '';
+    // Handle both ISO string and LocalDateTime format
+    const date = new Date(deadline);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
+  };
+
   useEffect(() => {
     if (task) {
       setFormData({
         title: task.title || '',
         description: task.description || '',
-        programId: task.programId || '',
         priority: task.priority || 'MEDIUM',
         status: task.status || 'TODO',
-        deadline: task.deadline || '',
+        deadline: formatDeadlineForInput(task.deadline),
         teamIds: task.teamIds || [],
       });
     } else {
       setFormData({
         title: '',
         description: '',
-        programId: '',
         priority: 'MEDIUM',
         status: 'TODO',
         deadline: '',
@@ -44,22 +51,19 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
     const newErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Tiêu đề không được để trống';
+      newErrors.title = 'Tiêu đề không được để trống. Vui lòng nhập tiêu đề nhiệm vụ';
+    } else if (formData.title.trim().length < 5) {
+      newErrors.title = 'Tiêu đề phải có ít nhất 5 ký tự';
     }
-    if (!formData.description.trim()) {
-      newErrors.description = 'Mô tả không được để trống';
-    }
-    if (!formData.programId) {
-      newErrors.programId = 'Vui lòng chọn chương trình';
-    }
+    
     if (!formData.deadline) {
-      newErrors.deadline = 'Vui lòng chọn hạn chót';
+      newErrors.deadline = 'Hạn chót không được để trống. Vui lòng chọn ngày hoàn thành';
     } else {
       const selectedDate = new Date(formData.deadline);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate < today) {
-        newErrors.deadline = 'Hạn chót không được trong quá khứ';
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      if (selectedDate < now && !task) {
+        newErrors.deadline = 'Hạn chót không được trong quá khứ. Vui lòng chọn ngày trong tương lai';
       }
     }
 
@@ -115,6 +119,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
         onClose();
       } catch (error) {
         console.error('Error submitting form:', error);
+        // Lỗi đã được xử lý bởi onSubmit (trong TasksManagementPage), không cần toast ở đây
       }
     }
   };
@@ -145,9 +150,17 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
             {errors.title && <span className="error-message">{errors.title}</span>}
           </div>
 
+          {/* Program Info (Read-only) */}
+          {programName && (
+            <div className="form-group">
+              <label>Chương trình</label>
+              <div className="program-display">{programName}</div>
+            </div>
+          )}
+
           {/* Description */}
           <div className="form-group">
-            <label htmlFor="description">Mô tả *</label>
+            <label htmlFor="description">Mô tả</label>
             <textarea
               id="description"
               name="description"
@@ -155,32 +168,10 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
               onChange={handleChange}
               placeholder="Nhập mô tả chi tiết nhiệm vụ"
               rows="4"
-              className={errors.description ? 'input-error' : ''}
             />
-            {errors.description && <span className="error-message">{errors.description}</span>}
           </div>
 
           <div className="form-row">
-            {/* Program */}
-            <div className="form-group">
-              <label htmlFor="programId">Chương trình *</label>
-              <select
-                id="programId"
-                name="programId"
-                value={formData.programId}
-                onChange={handleChange}
-                className={errors.programId ? 'input-error' : ''}
-              >
-                <option value="">-- Chọn chương trình --</option>
-                {programs.map(program => (
-                  <option key={program.programId} value={program.programId}>
-                    {program.programName}
-                  </option>
-                ))}
-              </select>
-              {errors.programId && <span className="error-message">{errors.programId}</span>}
-            </div>
-
             {/* Priority */}
             <div className="form-group">
               <label htmlFor="priority">Độ ưu tiên</label>
@@ -195,9 +186,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
                 <option value="HIGH">Cao</option>
               </select>
             </div>
-          </div>
 
-          <div className="form-row">
             {/* Status */}
             <div className="form-group">
               <label htmlFor="status">Trạng thái</label>
@@ -213,37 +202,69 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, programs = [], team
                 <option value="REVIEWED">Đã xem xét</option>
               </select>
             </div>
+          </div>
 
-            {/* Deadline */}
-            <div className="form-group">
-              <label htmlFor="deadline">Hạn chót *</label>
-              <input
-                type="date"
-                id="deadline"
-                name="deadline"
-                value={formData.deadline}
-                onChange={handleChange}
-                className={errors.deadline ? 'input-error' : ''}
-              />
-              {errors.deadline && <span className="error-message">{errors.deadline}</span>}
-            </div>
+          {/* Deadline */}
+          <div className="form-group">
+            <label htmlFor="deadline">Hạn chót *</label>
+            <input
+              type="datetime-local"
+              id="deadline"
+              name="deadline"
+              value={formData.deadline}
+              onChange={handleChange}
+              className={errors.deadline ? 'input-error' : ''}
+            />
+            {errors.deadline && <span className="error-message">{errors.deadline}</span>}
           </div>
 
           {/* Teams */}
           {teams.length > 0 && (
             <div className="form-group">
-              <label>Giao cho nhóm</label>
-              <div className="teams-checkbox-group">
+              <label>Giao cho nhóm ({teams.length} nhóm)</label>
+              <div className="teams-list">
                 {teams.map(team => (
-                  <label key={team.teamId} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={formData.teamIds.includes(team.teamId)}
-                      onChange={() => handleTeamToggle(team.teamId)}
-                    />
-                    <span>{team.teamName}</span>
-                  </label>
+                  <div key={team.teamId} className={`team-card ${formData.teamIds.includes(team.teamId) ? 'selected' : ''}`}>
+                    <label className="team-header">
+                      <input
+                        type="checkbox"
+                        checked={formData.teamIds.includes(team.teamId)}
+                        onChange={() => handleTeamToggle(team.teamId)}
+                      />
+                      <div className="team-info">
+                        <span className="team-name">Nhóm #{team.teamId}</span>
+                        <span className="team-mentor">👤 {team.mentorName || 'Chưa có mentor'}</span>
+                      </div>
+                    </label>
+                    {team.interns && team.interns.length > 0 && (
+                      <div className="team-interns">
+                        <span className="interns-label">Thực tập sinh ({team.interns.length}):</span>
+                        <ul className="interns-list">
+                          {team.interns.map((intern, idx) => (
+                            <li key={idx} className="intern-item">
+                              <span className="intern-name">{intern.name}</span>
+                              <span className="intern-email">{intern.email}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {(!team.interns || team.interns.length === 0) && (
+                      <div className="team-interns empty">
+                        <span className="no-interns">Chưa có thực tập sinh</span>
+                      </div>
+                    )}
+                  </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {teams.length === 0 && (
+            <div className="form-group">
+              <label>Giao cho nhóm</label>
+              <div className="no-teams-message">
+                Chưa có nhóm nào trong chương trình này
               </div>
             </div>
           )}
