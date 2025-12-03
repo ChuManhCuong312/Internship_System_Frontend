@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { TextField } from '@mui/material';
+import { vi } from 'date-fns/locale/vi';
 import '../../styles/taskModal.css';
 
 const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], programName = '' }) => {
@@ -17,11 +22,10 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
 
   // Format deadline for input
   const formatDeadlineForInput = (deadline) => {
-    if (!deadline) return '';
+    if (!deadline) return null;
     // Handle both ISO string and LocalDateTime format
     const date = new Date(deadline);
-    if (isNaN(date.getTime())) return '';
-    return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
+    return isNaN(date.getTime()) ? null : date;
   };
 
   useEffect(() => {
@@ -55,7 +59,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
     } else if (formData.title.trim().length < 5) {
       newErrors.title = 'Tiêu đề phải có ít nhất 5 ký tự';
     }
-    
+
     if (!formData.deadline) {
       newErrors.deadline = 'Hạn chót không được để trống. Vui lòng chọn ngày hoàn thành';
     } else {
@@ -198,8 +202,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
               >
                 <option value="TODO">Chưa bắt đầu</option>
                 <option value="IN_PROGRESS">Đang thực hiện</option>
-                <option value="DONE">Hoàn thành</option>
-                <option value="REVIEWED">Đã xem xét</option>
+                <option value="REVIEWED">Đang xem xét</option>
               </select>
             </div>
           </div>
@@ -207,15 +210,49 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
           {/* Deadline */}
           <div className="form-group">
             <label htmlFor="deadline">Hạn chót *</label>
-            <input
-              type="datetime-local"
-              id="deadline"
-              name="deadline"
-              value={formData.deadline}
-              onChange={handleChange}
-              className={errors.deadline ? 'input-error' : ''}
-            />
-            {errors.deadline && <span className="error-message">{errors.deadline}</span>}
+            <LocalizationProvider dateAdapter={AdapterDateFns} dateLibInstance={vi} adapterLocale={vi}>
+              <DateTimePicker
+                label="Chọn ngày và giờ"
+                value={formData.deadline}
+                onChange={(newValue) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    deadline: newValue
+                  }));
+                  if (errors.deadline) {
+                    setErrors(prev => ({
+                      ...prev,
+                      deadline: ''
+                    }));
+                  }
+                }}
+                minDateTime={new Date()}
+                ampm={false}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.deadline,
+                    helperText: errors.deadline || '',
+                    className: 'datetime-picker',
+                    id: 'deadline',
+                    name: 'deadline',
+                  },
+                  actionBar: {
+                    actions: ['accept', 'cancel', 'today', 'clear']
+                  },
+                  field: {
+                    clearable: true,
+                    onClear: () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        deadline: null
+                      }));
+                    }
+                  }
+                }}
+                disablePast
+              />
+            </LocalizationProvider>
           </div>
 
           {/* Teams */}

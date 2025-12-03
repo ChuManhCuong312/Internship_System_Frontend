@@ -89,6 +89,44 @@
   margin-bottom: 8px;
 }
 
+/* MUI DateTimePicker styles */
+.datetime-picker .MuiOutlinedInput-root {
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.datetime-picker .MuiOutlinedInput-input {
+  padding: 10px 14px;
+  height: auto;
+}
+
+.datetime-picker .MuiInputLabel-root {
+  font-size: 14px;
+  color: #666;
+  transform: translate(14px, 14px) scale(1);
+}
+
+.datetime-picker .MuiInputLabel-shrink {
+  transform: translate(14px, -6px) scale(0.85);
+  background: white;
+  padding: 0 4px;
+}
+
+.datetime-picker .MuiOutlinedInput-notchedOutline {
+  border-color: #ddd;
+}
+
+.datetime-picker .Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #667eea;
+  border-width: 2px;
+}
+
+.datetime-picker .Mui-error .MuiOutlinedInput-notchedOutline {
+  border-color: #f44336;
+}
+
+/* Form inputs */
 .form-group input,
 .form-group select,
 .form-group textarea {
