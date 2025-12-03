@@ -58,7 +58,7 @@
 /* Main Content Layout */
 .mainContent {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 480px 1fr;
   gap: 30px;
 }
 

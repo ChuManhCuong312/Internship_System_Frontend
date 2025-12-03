@@ -102,27 +102,97 @@
 
 .badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 4px 12px;
+  border-radius: 16px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
+/* ============= Status Badges ============= */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-todo {
+  background-color: #E3F2FD;
+  color: #1565C0;
+  border: 1px solid #90CAF9;
+}
+
+.status-in-progress {
+  background-color: #FFF3E0;
+  color: #E65100;
+  border: 1px solid #FFCC80;
+}
+
+.status-reviewed {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+  border: 1px solid #CE93D8;
+}
+
+.status-done {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
+/* ============= Priority Badges ============= */
+
+.priority-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.priority-low {
+  background-color: #E0F2F1;
+  color: #00695C;
+  border: 1px solid #80CBC4;
+}
+
+.priority-medium {
+  background-color: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #FFE082;
+}
+
+.priority-high {
+  background-color: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
+}
+
+/* Legacy badge classes for backward compatibility */
 .badge-low {
-  background-color: #e0fdf4;
-  color: #065f46;
+  background-color: #E0F2F1;
+  color: #00695C;
+  border: 1px solid #80CBC4;
 }
 
 .badge-medium {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #FFE082;
 }
 
 .badge-high {
-  background-color: #fee2e2;
-  color: #7f1d1d;
+  background-color: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
 }
 
 /* ============= Buttons ============= */
@@ -445,4 +515,77 @@
   text-align: center;
   padding: 20px;
   color: #d32f2f;
+}
+
+/* ============= Status Select with Colors ============= */
+
+.status-select-todo {
+  background-color: #E3F2FD !important;
+  color: #1565C0 !important;
+  border-color: #90CAF9 !important;
+}
+
+.status-select-in-progress {
+  background-color: #FFF3E0 !important;
+  color: #E65100 !important;
+  border-color: #FFCC80 !important;
+}
+
+.status-select-reviewed {
+  background-color: #F3E5F5 !important;
+  color: #7B1FA2 !important;
+  border-color: #CE93D8 !important;
+}
+
+.status-select-done {
+  background-color: #E8F5E9 !important;
+  color: #2E7D32 !important;
+  border-color: #A5D6A7 !important;
+}
+
+/* ============= Row Background by Status ============= */
+
+.task-table tbody tr.row-status-todo {
+  border-left: 4px solid #1565C0;
+}
+
+.task-table tbody tr.row-status-in-progress {
+  border-left: 4px solid #E65100;
+}
+
+.task-table tbody tr.row-status-reviewed {
+  border-left: 4px solid #7B1FA2;
+}
+
+.task-table tbody tr.row-status-done {
+  border-left: 4px solid #2E7D32;
+  background-color: #f8fff8;
+}
+
+/* ============= Priority Icons ============= */
+
+.priority-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priority-icon::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.priority-icon.priority-low::before {
+  background-color: #00695C;
+}
+
+.priority-icon.priority-medium::before {
+  background-color: #F57F17;
+}
+
+.priority-icon.priority-high::before {
+  background-color: #C62828;
 }
