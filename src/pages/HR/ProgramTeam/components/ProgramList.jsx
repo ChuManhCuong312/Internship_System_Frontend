@@ -36,7 +36,7 @@ const ProgramList = ({
               </button>
               <div className="dropdown-menu">
                 <button className="dropdown-item" onClick={() => onViewTeams(program)}>
-                  View Teams
+                  Quản lý Teams
                 </button>
                 <button className="dropdown-item" onClick={() => onAssignMentor(program)}>
                   Phân công Mentor
