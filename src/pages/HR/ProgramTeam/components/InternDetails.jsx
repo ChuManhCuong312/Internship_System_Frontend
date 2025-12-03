@@ -24,7 +24,7 @@ export default function InternDetails({
   const [isSearching, setIsSearching] = useState(false);
   const [isAddingIntern, setIsAddingIntern] = useState(false);
 
-   const canModify = programStatus === "UPCOMING";
+   const canModify = programStatus ;
 
   const getMentorName = (mentorId) => {
     const mentor = programMentors.find((m) => m.mentorId === mentorId);
@@ -115,7 +115,8 @@ export default function InternDetails({
           <div className="main-header-actions">
             <button className="btn btn-primary"
                 onClick={() => setShowAddInternDialog(true)}
-                disabled={!canModify}>
+                disabled={!(canModify === "ON_GOING" || canModify === "UPCOMING")}
+                >
               <Plus size={16} />
               Thêm thực tập sinh
             </button>
@@ -137,9 +138,9 @@ export default function InternDetails({
                       setShowAssignMentorDialog(true);
                       setShowMenu(false);
                     }}
-                    disabled={!canModify}
+                    disabled={!(canModify === "ON_GOING" || canModify === "UPCOMING")}
                   >
-                    Phân công mentor
+                    Phân công lại mentor
                   </button>
 
                   <button
@@ -148,7 +149,7 @@ export default function InternDetails({
                       setShowDeleteConfirm(true);
                       setShowMenu(false);
                     }}
-                    disabled={!canModify}
+                    disabled={!(canModify === "UPCOMING")}
                   >
                     Xoá team
                   </button>
@@ -184,7 +185,7 @@ export default function InternDetails({
                   <button
                     className="remove-button"
                     onClick={() => setRemoveInternConfirm(intern.internId)}
-                    disabled={!canModify}
+                    disabled={!(canModify === "ON_GOING" || canModify === "UPCOMING")}
                   >
                     <Trash2 size={16} />
                   </button>
