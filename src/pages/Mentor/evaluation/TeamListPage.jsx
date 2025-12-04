@@ -9,7 +9,15 @@ export default function TeamListPage({ programId, onSelectTeam, onBack }) {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-
+    const displayTeams = teams
+      // Nếu muốn loại nhóm không có thành viên, lọc trước
+      .filter(team => team.member_count > 0)
+      // Sắp xếp ổn định để ordinal luôn consistent (tuỳ bạn)
+      // .sort((a, b) => a.team_id - b.team_id) // hoặc theo created_at nếu có
+      .map((team, idx) => ({
+        ...team,
+        display_name: `Nhóm ${idx + 1}`, // tên hiển thị 1..n theo vị trí trong chương trình
+      }));
   useEffect(() => {
     let alive = true;
 
@@ -82,39 +90,39 @@ export default function TeamListPage({ programId, onSelectTeam, onBack }) {
 
       {errorMsg && <div className={styles.error}>{errorMsg}</div>}
 
-      <div className={styles.gridContainer}>
-        {teams.length === 0 ? (
-          <div className={styles.noData}>Chương trình chưa có nhóm nào</div>
-        ) : (
-          teams.filter(team => team.member_count > 0).map((team) => (
-            <div
-              key={team.team_id}
-              className={styles.teamCard}
-              onClick={() => onSelectTeam(team.team_id)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && onSelectTeam(team.team_id)}
-            >
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>{team.team_name}</h2>
-                <span className={styles.memberBadge}>
-                  {team.member_count} thành viên
-                </span>
-              </div>
-
-              <button
-                className={styles.selectButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectTeam(team.team_id);
-                }}
+        <div className={styles.gridContainer}>
+          {displayTeams.length === 0 ? (
+            <div className={styles.noData}>Chương trình chưa có nhóm nào</div>
+          ) : (
+            displayTeams.map((team) => (
+              <div
+                key={team.team_id}
+                className={styles.teamCard}
+                onClick={() => onSelectTeam(team.team_id, team.display_name)} // vẫn dùng id thật
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && onSelectTeam(team.team_id, team.display_name)}
               >
-                Chọn nhóm →
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.cardTitle}>{team.display_name}</h2>
+                  <span className={styles.memberBadge}>
+                    {team.member_count} thành viên
+                  </span>
+                </div>
+
+                <button
+                  className={styles.selectButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectTeam(team.team_id, team.display_name); // vẫn truyền id thật
+                  }}
+                >
+                  Chọn nhóm →
+                </button>
+              </div>
+            ))
+          )}
+        </div>
     </div>
   );
 };

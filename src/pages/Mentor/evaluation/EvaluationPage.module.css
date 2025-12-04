@@ -519,4 +519,16 @@
   height: 100%;
   border-radius: 5px;
 }
-
+.closeButton {
+    width: 100%;
+    padding: 12px;
+    background-color: gray;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top:3px
+}

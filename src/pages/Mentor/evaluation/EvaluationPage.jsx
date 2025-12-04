@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
-export default function EvaluationPage({ teamId, onBack }) {
+export default function EvaluationPage({ teamId, display_name, onBack }) {
   const { token, user } = useContext(AuthContext)
 
   const [teamData, setTeamData] = useState(null)
@@ -144,7 +144,12 @@ export default function EvaluationPage({ teamId, onBack }) {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || "Thêm đánh giá thất bại");
+        if (errData.errors) {
+          const message = Object.values(errData.errors).join(", ");
+          throw new Error(message);
+        } else {
+          throw new Error("Thêm đánh giá thất bại");
+        }
       }
 
       toast.success("Thêm đánh giá thành công!");
@@ -208,7 +213,15 @@ export default function EvaluationPage({ teamId, onBack }) {
         })
       })
 
-      if (!res.ok) throw new Error("Cập nhật thất bại")
+      if (!res.ok) {
+              const errData = await res.json();
+              if (errData.errors) {
+                const message = Object.values(errData.errors).join(", ");
+                throw new Error(message);
+              } else {
+                throw new Error("Cập nhật thất bại");
+              }
+            }
 
       const refresh = await fetch(`http://localhost:8080/api/evaluations/team/${teamId}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -237,7 +250,7 @@ export default function EvaluationPage({ teamId, onBack }) {
 
             <div className={styles.header}>
               <div className={styles.teamInfo}>
-                <h1 className={styles.teamName}>Nhóm {teamData.team_id}</h1>
+                <h1 className={styles.teamName}>{display_name}</h1>
               </div>
             </div>
 
@@ -331,6 +344,15 @@ export default function EvaluationPage({ teamId, onBack }) {
                                   onChange={(e) =>
                                     setNewEval({ ...newEval, technical: Number(e.target.value) || 0 })
                                   }
+                                    onBlur={(e) => {
+                                          let v = Number(e.target.value);
+                                          if (isNaN(v)) v = 0;
+                                          // Clamp về [0, 10]
+                                          v = Math.min(10, Math.max(0, v));
+                                          // Chuẩn theo step 0.1
+                                          v = Math.round(v * 10) / 10;
+                                          setNewEval({ ...newEval, technical: v });
+                                        }}
                                 />
                             </div>
                             <div className={styles.formGroup}>
@@ -345,6 +367,15 @@ export default function EvaluationPage({ teamId, onBack }) {
                                   onChange={(e) =>
                                     setNewEval({ ...newEval, communication: Number(e.target.value) || 0 })
                                   }
+                                    onBlur={(e) => {
+                                          let v = Number(e.target.value);
+                                          if (isNaN(v)) v = 0;
+                                          // Clamp về [0, 10]
+                                          v = Math.min(10, Math.max(0, v));
+                                          // Chuẩn theo step 0.1
+                                          v = Math.round(v * 10) / 10;
+                                          setNewEval({ ...newEval, communication: v });
+                                        }}
                                 />
                             </div>
                             <div className={styles.formGroup}>
@@ -359,6 +390,15 @@ export default function EvaluationPage({ teamId, onBack }) {
                                   onChange={(e) =>
                                     setNewEval({ ...newEval, discipline: Number(e.target.value) || 0 })
                                   }
+                                    onBlur={(e) => {
+                                          let v = Number(e.target.value);
+                                          if (isNaN(v)) v = 0;
+                                          // Clamp về [0, 10]
+                                          v = Math.min(10, Math.max(0, v));
+                                          // Chuẩn theo step 0.1
+                                          v = Math.round(v * 10) / 10;
+                                          setNewEval({ ...newEval, discipline: v });
+                                        }}
                                 />
                             </div>
                             <div className={styles.formGroup}>
@@ -373,6 +413,15 @@ export default function EvaluationPage({ teamId, onBack }) {
                                   onChange={(e) =>
                                     setNewEval({ ...newEval, attitude: Number(e.target.value) || 0 })
                                   }
+                                    onBlur={(e) => {
+                                          let v = Number(e.target.value);
+                                          if (isNaN(v)) v = 0;
+                                          // Clamp về [0, 10]
+                                          v = Math.min(10, Math.max(0, v));
+                                          // Chuẩn theo step 0.1
+                                          v = Math.round(v * 10) / 10;
+                                          setNewEval({ ...newEval, attitude: v });
+                                        }}
                                 />
                             </div>
                           </div>
@@ -402,72 +451,111 @@ export default function EvaluationPage({ teamId, onBack }) {
                               <button className={styles.submitButton} onClick={handleAddEvaluation}>
                                 Lưu đánh giá
                               </button>
+                              <button className={styles.closeButton} onClick={() => setOpenAddModal(false)}>Đóng</button>
                             </div>
                         </Modal>
                       )}
 
-                      {openEditModal && editEval && (
-                        <Modal title="Chỉnh sửa đánh giá" onClose={() => setOpenEditModal(false)}>
-                          <div className={styles.addEvalForm}>
-                            <h3>Chỉnh sửa đánh giá</h3>
+                        {openEditModal && editEval && (
+                          <Modal title="Chỉnh sửa đánh giá" onClose={() => setOpenEditModal(false)}>
+                            <div className={styles.addEvalForm}>
 
-                            <div className={styles.formGroup}>
-                             <label className={styles.formLabel}>Tiêu đề</label>
-                             <input
-                               type="text"
-                               className={styles.formInput}
-                               value={editEval.title}
-                               onChange={(e) => setEditEval({ ...editEval, title: e.target.value })}
-                             />
+                              {/* Tiêu đề */}
+                              <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Tiêu đề</label>
+                                <input
+                                  type="text"
+                                  className={styles.formInput}
+                                  value={editEval.title}
+                                  onChange={(e) => setEditEval({ ...editEval, title: e.target.value })}
+                                />
+                              </div>
+
+                              {/* Các tiêu chí */}
+                                <div className={styles.criteriaRow}>
+                                  {(() => {
+                                    const LABEL_VI = {
+                                      technical: "Kỹ thuật",
+                                      communication: "Giao tiếp",
+                                      discipline: "Kỷ luật",
+                                      attitude: "Thái độ",
+                                    };
+                                    const FIELDS = ["technical", "communication", "discipline", "attitude"];
+                                    const MIN = 0;
+                                    const MAX = 10;
+                                    const STEP = 0.1;
+
+                                    // Hàm tiện dụng: clamp và chuẩn step
+                                    const normalize = (v) => {
+                                      let num = Number(v);
+                                      if (Number.isNaN(num)) num = MIN;
+                                      // Clamp [MIN, MAX]
+                                      num = Math.min(MAX, Math.max(MIN, num));
+                                      // Làm tròn theo STEP (0.1 -> nhân 10, làm tròn, rồi chia 10)
+                                      const factor = Math.round(1 / STEP); // 10 đối với 0.1
+                                      num = Math.round(num * factor) / factor;
+                                      return num;
+                                    };
+
+                                    return FIELDS.map((field) => (
+                                      <div key={field} className={styles.formGroup}>
+                                        <label className={styles.formLabel}>{LABEL_VI[field]}</label>
+                                        <input
+                                          type="number"
+                                          min={MIN}
+                                          max={MAX}
+                                          step={STEP}
+                                          inputMode="decimal" // gợi ý bàn phím số trên mobile
+                                          className={styles.formInput}
+                                          value={typeof editEval[field] === "number" ? editEval[field] : 0}
+                                          onChange={(e) => {
+                                            // Cho phép người dùng xóa tạm thời
+                                            const raw = e.target.value;
+                                            const num = raw === "" ? "" : Number(raw);
+                                            setEditEval((prev) => ({ ...prev, [field]: num }));
+                                          }}
+                                          onBlur={(e) => {
+                                            const normalized = normalize(e.target.value);
+                                            setEditEval((prev) => ({ ...prev, [field]: normalized }));
+                                          }}
+                                        />
+                                      </div>
+                                    ));
+                                  })()}
+                                </div>
+
+                              {/* Hệ số */}
+                              <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Hệ số</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  className={styles.formInput}
+                                  value={typeof editEval.weight === "number" ? editEval.weight : 0}
+                                  onChange={(e) =>
+                                    setEditEval({ ...editEval, weight: e.target.value === "" ? 0 : Number(e.target.value) })
+                                  }
+                                />
+                              </div>
+
+                              {/* Ghi chú */}
+                              <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Ghi chú</label>
+                                <textarea
+                                  className={styles.formTextarea}
+                                  rows={3}
+                                  value={editEval.note || ""}
+                                  onChange={(e) => setEditEval({ ...editEval, note: e.target.value })}
+                                />
+                              </div>
+
+                              <button className={styles.submitButton} onClick={handleUpdateEvaluation}>
+                                Lưu chỉnh sửa
+                              </button>
+                              <button className={styles.closeButton} onClick={() => setOpenEditModal(false)}>Đóng</button>
                             </div>
-
-
-                            <div className={styles.criteriaRow}>
-                             {["technical","communication","discipline","attitude"].map(field => (
-                               <div key={field} className={styles.formGroup}>
-                                 <label className={styles.formLabel}>{field}</label>
-                                 <input
-                                   type="number"
-                                   min="0"
-                                   max="10"
-                                   step="0.1"
-                                   className={styles.formInput}
-                                   value={editEval[field]}
-                                   onChange={(e) =>
-                                     setEditEval({ ...editEval, [field]: Number(e.target.value) })
-                                   }
-                                 />
-                               </div>
-                             ))}
-                            </div>
-
-                            <div className={styles.formGroup}>
-                             <label className={styles.formLabel}>Hệ số</label>
-                             <input
-                               type="number"
-                               min="0"
-                               max="100"
-                               className={styles.formInput}
-                               value={editEval.weight}
-                               onChange={(e) => setEditEval({ ...editEval, weight: Number(e.target.value) })}
-                             />
-                            </div>
-
-
-                            <div className={styles.formGroup}>
-                             <label className={styles.formLabel}>Ghi chú</label>
-                             <textarea
-                               className={styles.formTextarea}
-                               rows={3}
-                               value={editEval.note}
-                               onChange={(e) => setEditEval({ ...editEval, note: e.target.value })}
-                             />
-                            </div>
-                            <button className={styles.submitButton} onClick={handleUpdateEvaluation}>
-                              Lưu chỉnh sửa
-                            </button>
-                          </div>
-                        </Modal>
+                          </Modal>
                       )}
 
                       {selectedInternEvals.map((evaluation) => (
@@ -524,23 +612,64 @@ export default function EvaluationPage({ teamId, onBack }) {
                           {evaluation.note && <p className={styles.evalNote}>{evaluation.note}</p>}
                         </div>
                       ))}
-                      {deleteTarget && (
-                        <Modal title="Xác nhận xóa" onClose={() => setDeleteTarget(null)}>
-                          <p>Bạn có chắc muốn xóa đánh giá:</p>
 
-                          <strong>{deleteTarget.title}</strong>
-                          <p>Ngày tạo: {deleteTarget.created_at}</p>
+                        {deleteTarget && (
+                          <Modal title="Xác nhận xóa" onClose={() => setDeleteTarget(null)}>
+                            <div style={{ padding: "16px", fontFamily: "Segoe UI, sans-serif", color: "#111" }}>
+                              <p style={{ marginBottom: "8px", fontSize: "14px" }}>Bạn có chắc muốn xóa đánh giá:</p>
 
-                          <button
-                            className={styles.deleteButton}
-                            onClick={() => {
-                              handleDeleteEvaluation(deleteTarget.evaluation_id)
-                              setDeleteTarget(null)
-                            }}
-                          >
-                            Xóa ngay
-                          </button>
-                        </Modal>
+                              <strong style={{ display: "block", fontSize: "16px", fontWeight: "600", marginBottom: "8px" }}>
+                                {deleteTarget.title}
+                              </strong>
+
+                              <p style={{ fontSize: "13px", color: "#666", marginBottom: "16px" }}>
+                                Ngày tạo: {deleteTarget.created_at}
+                              </p>
+
+                              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                                <button
+                                  style={{
+                                    backgroundColor: "#ef4444",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    padding: "10px 16px",
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    transition: "background 0.2s ease",
+                                  }}
+                                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#dc2626")}
+                                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ef4444")}
+                                  onClick={() => {
+                                    handleDeleteEvaluation(deleteTarget.evaluation_id);
+                                    setDeleteTarget(null);
+                                  }}
+                                >
+                                  Xóa ngay
+                                </button>
+
+                                <button
+                                  style={{
+                                    backgroundColor: "#f3f4f6",
+                                    color: "#111",
+                                    border: "1px solid #e5e7eb",
+                                    borderRadius: "8px",
+                                    padding: "10px 16px",
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    transition: "background 0.2s ease",
+                                  }}
+                                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#e5e7eb")}
+                                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+                                  onClick={() => setDeleteTarget(null)}
+                                >
+                                  Hủy
+                                </button>
+                              </div>
+                            </div>
+                          </Modal>
                       )}
 
                          {averages && (

@@ -8,14 +8,16 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState("programs");
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
+  const [displayName, setDisplayName] = useState(null);
 
   const handleSelectProgram = (programId) => {
     setSelectedProgram(programId);
     setCurrentPage("teams");
   };
 
-  const handleSelectTeam = (teamId) => {
+  const handleSelectTeam = (teamId,display_name) => {
     setSelectedTeam(teamId);
+    setDisplayName(display_name);
     setCurrentPage("evaluation");
   };
 
@@ -51,7 +53,7 @@ export default function Page() {
       )}
 
       {currentPage === "evaluation" && selectedTeam && (
-        <EvaluationPage teamId={selectedTeam} onBack={handleBackToTeams} />
+        <EvaluationPage teamId={selectedTeam} display_name={displayName} onBack={handleBackToTeams} />
       )}
     </div>
   );
