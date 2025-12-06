@@ -76,7 +76,7 @@ const HRSidebar = () => {
       setOpenProgramMenu(true);
     }
 
-    if (path.includes('/hr/allowances') || path.includes('/hr/contracts')) {
+    if (path.includes('/hr/allowances') || path.includes('/hr/contracts') || path.includes('/hr/support-requests')) {
       setOpenBenefitsMenu(true);
     }
   }, [location.pathname]);
@@ -173,7 +173,7 @@ const HRSidebar = () => {
 
         <li
           onClick={handleBenefitsMenuToggle}
-          className={`menu-item ${isParentActive(['/hr/allowances', '/hr/contracts']) ? 'active' : ''}`}
+          className={`menu-item ${isParentActive(['/hr/allowances', '/hr/contracts', '/hr/support-requests']) ? 'active' : ''}`}
         >
           <FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}
         </li>
@@ -184,6 +184,9 @@ const HRSidebar = () => {
             </li>
             <li className={isActive('/hr/contracts') ? 'active' : ''}>
               <Link to="/hr/contracts">Quản lý hợp đồng</Link>
+            </li>
+            <li className={isActive('/hr/support-requests') ? 'active' : ''}>
+              <Link to="/hr/support-requests">Yêu cầu hỗ trợ</Link>
             </li>
           </ul>
         )}

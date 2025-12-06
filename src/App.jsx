@@ -32,6 +32,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
 import ManageContracts from "./pages/HR/ManageContracts"
+import ManageSupportRequests from "./pages/HR/ProgramTeam/ManageSupportRequests";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
@@ -145,6 +146,14 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["HR"]}>
                   <ManageContracts />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/support-requests"
+              element={
+                <PrivateRoute allowedRoles={["HR"]}>
+                  <ManageSupportRequests />
                 </PrivateRoute>
               }
             />

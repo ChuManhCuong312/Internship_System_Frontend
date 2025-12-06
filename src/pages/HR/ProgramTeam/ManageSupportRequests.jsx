@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { getAllSupportRequests, filterSupportRequests, approveSupportRequest, rejectSupportRequest } from '../../../api/supportApi';
-import SupportDetailModal from '../../../ components/SupportRequest/SupportDetailModal';
+import SupportDetailModal from '../../../components/SupportRequest/SupportDetailModal';
+import HRSidebar from '../../../components/Layout/HRSidebar';
+import { AuthContext } from '../../../context/AuthContext';
+import '../../../styles/dashBoard.css';
 import '../../../styles/supportRequest.css';
 import '../../../styles/table.css';
 
@@ -17,8 +20,8 @@ const ManageSupportRequests = () => {
     const [filterStatus, setFilterStatus] = useState('');
     const [filterInternId, setFilterInternId] = useState('');
 
-    const token = localStorage.getItem('token');
-    const hrId = JSON.parse(localStorage.getItem('user'))?.hrId;
+    const { token, user } = useContext(AuthContext);
+    const hrId = user?.userId;
 
     useEffect(() => {
         fetchSupportRequests();
@@ -28,6 +31,11 @@ const ManageSupportRequests = () => {
         setLoading(true);
         setError(null);
         try {
+            if (!token) {
+                setSupportRequests([]);
+                setFilteredRequests([]);
+                return;
+            }
             const data = await getAllSupportRequests(token);
             setSupportRequests(data);
             setFilteredRequests(data);
@@ -124,10 +132,13 @@ const ManageSupportRequests = () => {
     };
 
     return (
-        <div className="manage-support-container">
-            <div className="page-header">
-                <h1>Quản lý yêu cầu hỗ trợ</h1>
-            </div>
+        <div className="dashboard-layout">
+            <HRSidebar />
+            <div className="dashboard-content">
+                <div className="manage-support-container">
+                    <div className="page-header">
+                        <h1>Quản lý yêu cầu hỗ trợ</h1>
+                    </div>
 
             {/* Filter Section */}
             <div className="filter-section">
@@ -251,6 +262,8 @@ const ManageSupportRequests = () => {
                     token={token}
                 />
             )}
+                </div>
+            </div>
         </div>
     );
 };

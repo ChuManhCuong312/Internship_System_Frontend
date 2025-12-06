@@ -1,12 +1,10 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:8080';
+import axiosClient from './axiosClient';
 
 // Lấy tất cả support requests
 export const getAllSupportRequests = async (token) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/support-requests`,
+        const response = await axiosClient.get(
+            `/support-requests`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -22,8 +20,8 @@ export const getAllSupportRequests = async (token) => {
 // Lấy chi tiết support request
 export const getSupportRequestById = async (token, id) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/support-requests/${id}`,
+        const response = await axiosClient.get(
+            `/support-requests/${id}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -44,8 +42,8 @@ export const filterSupportRequests = async (token, filters) => {
         if (filters.type) params.append('type', filters.type);
         if (filters.internId) params.append('internId', filters.internId);
 
-        const response = await axios.get(
-            `${API_BASE_URL}/api/support-requests/filter?${params.toString()}`,
+        const response = await axiosClient.get(
+            `/support-requests/filter?${params.toString()}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -61,11 +59,11 @@ export const filterSupportRequests = async (token, filters) => {
 // Duyệt support request
 export const approveSupportRequest = async (token, id, hrId, responseText) => {
     try {
-        let url = `${API_BASE_URL}/api/support-requests/${id}/approve?hrId=${hrId}`;
+        let url = `/support-requests/${id}/approve?hrId=${hrId}`;
         if (responseText) {
             url += `&response=${encodeURIComponent(responseText)}`;
         }
-        const response = await axios.put(
+        const response = await axiosClient.put(
             url,
             {},
             {
@@ -83,8 +81,8 @@ export const approveSupportRequest = async (token, id, hrId, responseText) => {
 // Từ chối support request
 export const rejectSupportRequest = async (token, id, hrId, responseText) => {
     try {
-        const response = await axios.put(
-            `${API_BASE_URL}/api/support-requests/${id}/reject?hrId=${hrId}&response=${encodeURIComponent(responseText)}`,
+        const response = await axiosClient.put(
+            `/support-requests/${id}/reject?hrId=${hrId}&response=${encodeURIComponent(responseText)}`,
             {},
             {
                 headers: {
@@ -101,8 +99,8 @@ export const rejectSupportRequest = async (token, id, hrId, responseText) => {
 // Lấy lịch sử thay đổi status
 export const getSupportRequestHistory = async (token, id) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/support-requests/${id}/history`,
+        const response = await axiosClient.get(
+            `/support-requests/${id}/history`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -118,8 +116,8 @@ export const getSupportRequestHistory = async (token, id) => {
 // Tạo support request mới (cho intern)
 export const createSupportRequest = async (token, internId, data) => {
     try {
-        const response = await axios.post(
-            `${API_BASE_URL}/api/support-requests?internId=${internId}`,
+        const response = await axiosClient.post(
+            `/support-requests?internId=${internId}`,
             data,
             {
                 headers: {
@@ -137,8 +135,8 @@ export const createSupportRequest = async (token, internId, data) => {
 // Lấy support requests của intern
 export const getMySupportRequests = async (token, internId) => {
     try {
-        const response = await axios.get(
-            `${API_BASE_URL}/api/support-requests/my-requests?internId=${internId}`,
+        const response = await axiosClient.get(
+            `/support-requests/my-requests?internId=${internId}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
