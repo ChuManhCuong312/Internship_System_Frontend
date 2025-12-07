@@ -8,7 +8,7 @@ import { TextField } from '@mui/material';
 import { vi } from 'date-fns/locale/vi';
 import '../../styles/taskModal.css';
 
-const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], programName = '' }) => {
+const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], programName = '', tags = [] }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -16,6 +16,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
     status: 'TODO',
     deadline: '',
     teamIds: [],
+    tagIds: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -37,6 +38,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
         status: task.status || 'TODO',
         deadline: formatDeadlineForInput(task.deadline),
         teamIds: task.teamIds || [],
+        tagIds: task.tags ? task.tags.map(t => t.tagId) : [],
       });
     } else {
       setFormData({
@@ -46,6 +48,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
         status: 'TODO',
         deadline: '',
         teamIds: [],
+        tagIds: [],
       });
     }
     setErrors({});
@@ -95,6 +98,15 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
       teamIds: prev.teamIds.includes(teamId)
         ? prev.teamIds.filter(id => id !== teamId)
         : [...prev.teamIds, teamId]
+    }));
+  };
+
+  const handleTagToggle = (tagId) => {
+    setFormData(prev => ({
+      ...prev,
+      tagIds: prev.tagIds.includes(tagId)
+        ? prev.tagIds.filter(id => id !== tagId)
+        : [...prev.tagIds, tagId]
     }));
   };
 
@@ -206,6 +218,30 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
               </select>
             </div>
           </div>
+
+          {/* Tags */}
+          {tags.length > 0 && (
+            <div className="form-group">
+              <label>Tags</label>
+              <div className="tags-selection">
+                {tags.map(tag => (
+                  <button
+                    key={tag.tagId}
+                    type="button"
+                    className={`tag-chip ${formData.tagIds.includes(tag.tagId) ? 'selected' : ''}`}
+                    onClick={() => handleTagToggle(tag.tagId)}
+                    style={{
+                      backgroundColor: formData.tagIds.includes(tag.tagId) ? tag.color : 'transparent',
+                      borderColor: tag.color,
+                      color: formData.tagIds.includes(tag.tagId) ? 'white' : tag.color,
+                    }}
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Deadline */}
           <div className="form-group">

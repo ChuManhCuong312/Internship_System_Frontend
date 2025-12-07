@@ -410,6 +410,33 @@
   background: #999;
 }
 
+/* Tags Selection */
+.tags-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.tag-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tag-chip.selected {
+  color: white !important;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .task-modal {

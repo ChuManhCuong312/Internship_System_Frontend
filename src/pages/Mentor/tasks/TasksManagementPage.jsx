@@ -5,6 +5,7 @@ import taskApi from '../../../api/taskApi';
 import teamApi from '../../../api/teamApi';
 import mentorApi from '../../../api/mentorApi';
 import programApi from '../../../api/programApi';
+import tagApi from '../../../api/tagApi';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import styles from './TasksManagementPage.module.css';
@@ -22,7 +23,15 @@ const TasksManagementPage = ({ programId, onBack }) => {
     status: '',
     priority: '',
     searchText: '',
+    tagId: '',
   });
+
+  // Tag state
+  const [tags, setTags] = useState([]);
+  const [showTagManager, setShowTagManager] = useState(false);
+  const [newTagName, setNewTagName] = useState('');
+  const [newTagColor, setNewTagColor] = useState('#3b82f6');
+  const [tagLoading, setTagLoading] = useState(false);
 
   // Task state
   const [tasks, setTasks] = useState([]);
@@ -245,6 +254,76 @@ const TasksManagementPage = ({ programId, onBack }) => {
     fetchMentorId();
   }, [token, user]);
 
+  // Fetch tags for this program
+  const fetchTags = useCallback(async () => {
+    if (!token || !programId) return;
+    try {
+      const response = await tagApi.getTagsByProgram(token, programId);
+      setTags(Array.isArray(response) ? response : []);
+    } catch (err) {
+      console.error('Error fetching tags:', err);
+      // If endpoint doesn't exist yet, use empty array
+      setTags([]);
+    }
+  }, [token, programId]);
+
+  // Create tag
+  const handleCreateTag = async () => {
+    if (!newTagName.trim()) {
+      toast.error('Vui lòng nhập tên tag');
+      return;
+    }
+    try {
+      setTagLoading(true);
+      await tagApi.createTag(token, {
+        name: newTagName.trim(),
+        color: newTagColor,
+        programId: programId,
+      });
+      toast.success('Tạo tag thành công!');
+      setNewTagName('');
+      setNewTagColor('#3b82f6');
+      fetchTags();
+    } catch (err) {
+      console.error('Error creating tag:', err);
+      toast.error(err.response?.data?.message || 'Lỗi khi tạo tag');
+    } finally {
+      setTagLoading(false);
+    }
+  };
+
+  // Delete tag
+  const handleDeleteTag = async (tagId) => {
+    const result = await Swal.fire({
+      title: 'Xóa tag',
+      text: 'Bạn có chắc chắn muốn xóa tag này? Tag sẽ bị xóa khỏi tất cả nhiệm vụ.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        setTagLoading(true);
+        await tagApi.deleteTag(token, tagId);
+        toast.success('Xóa tag thành công!');
+        fetchTags();
+        // Reset filter if deleted tag was selected
+        if (filterData.tagId === tagId.toString()) {
+          setFilterData(prev => ({ ...prev, tagId: '' }));
+        }
+      } catch (err) {
+        console.error('Error deleting tag:', err);
+        toast.error(err.response?.data?.message || 'Lỗi khi xóa tag');
+      } finally {
+        setTagLoading(false);
+      }
+    }
+  };
+
   // Fetch program info and teams
   useEffect(() => {
     const fetchProgramAndTeams = async () => {
@@ -268,6 +347,11 @@ const TasksManagementPage = ({ programId, onBack }) => {
     };
     fetchProgramAndTeams();
   }, [token, programId]);
+
+  // Fetch tags when programId changes
+  useEffect(() => {
+    fetchTags();
+  }, [fetchTags]);
 
   // Fetch team assignments when a task is selected
   const fetchTaskAssignments = useCallback(async (taskId) => {
@@ -344,13 +428,14 @@ const TasksManagementPage = ({ programId, onBack }) => {
       status: filterData.status || undefined,
       priority: filterData.priority || undefined,
       searchText: filterData.searchText || undefined,
+      tagId: filterData.tagId || undefined,
     };
     applyFilterLogic(filters);
     setShowFilter(false);
   };
 
   const handleResetFilterClick = () => {
-    setFilterData({ status: '', priority: '', searchText: '' });
+    setFilterData({ status: '', priority: '', searchText: '', tagId: '' });
     handleResetFilter();
   };
 
@@ -476,6 +561,102 @@ const TasksManagementPage = ({ programId, onBack }) => {
               />
             </div>
 
+            <div className={styles.filterGroup}>
+              <div className={styles.filterLabelRow}>
+                <label className={styles.filterLabel}>Tag</label>
+                <button
+                  type="button"
+                  className={styles.manageTagsBtn}
+                  onClick={() => setShowTagManager(!showTagManager)}
+                  title="Quản lý tags"
+                >
+                  ⚙️
+                </button>
+              </div>
+              <select
+                value={filterData.tagId}
+                onChange={(e) => setFilterData({ ...filterData, tagId: e.target.value })}
+                className={styles.filterSelect}
+              >
+                <option value="">Tất cả</option>
+                {tags.map(tag => (
+                  <option key={tag.tagId} value={tag.tagId}>
+                    {tag.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tag Manager Panel */}
+            {showTagManager && (
+              <div className={styles.tagManagerPanel}>
+                <div className={styles.tagManagerHeader}>
+                  <h4 className={styles.tagManagerTitle}>Quản lý Tags</h4>
+                  <button
+                    type="button"
+                    className={styles.closeTagManager}
+                    onClick={() => setShowTagManager(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                {/* Create new tag */}
+                <div className={styles.createTagForm}>
+                  <input
+                    type="text"
+                    placeholder="Tên tag mới..."
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    className={styles.tagNameInput}
+                    maxLength={30}
+                  />
+                  <input
+                    type="color"
+                    value={newTagColor}
+                    onChange={(e) => setNewTagColor(e.target.value)}
+                    className={styles.tagColorInput}
+                    title="Chọn màu"
+                  />
+                  <button
+                    type="button"
+                    className={styles.createTagBtn}
+                    onClick={handleCreateTag}
+                    disabled={tagLoading || !newTagName.trim()}
+                  >
+                    {tagLoading ? '...' : '+'}
+                  </button>
+                </div>
+
+                {/* Existing tags list */}
+                <div className={styles.tagsList}>
+                  {tags.length === 0 ? (
+                    <p className={styles.noTagsMessage}>Chưa có tag nào</p>
+                  ) : (
+                    tags.map(tag => (
+                      <div key={tag.tagId} className={styles.tagItem}>
+                        <span
+                          className={styles.tagBadge}
+                          style={{ backgroundColor: tag.color || '#3b82f6' }}
+                        >
+                          {tag.name}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.deleteTagBtn}
+                          onClick={() => handleDeleteTag(tag.tagId)}
+                          disabled={tagLoading}
+                          title="Xóa tag"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className={styles.filterActions}>
               <button className={styles.btnApply} onClick={handleApplyFilterClick}>
                 Áp dụng
@@ -514,6 +695,23 @@ const TasksManagementPage = ({ programId, onBack }) => {
                       </div>
                     </div>
                     <div className={styles.taskItemBadges}>
+                      {task.tags && task.tags.length > 0 && (
+                        <div className={styles.taskItemTags}>
+                          {task.tags.slice(0, 2).map(tag => (
+                            <span
+                              key={tag.tagId}
+                              className={styles.taskTagMini}
+                              style={{ backgroundColor: tag.color || '#3b82f6' }}
+                              title={tag.name}
+                            >
+                              {tag.name.length > 8 ? tag.name.substring(0, 8) + '...' : tag.name}
+                            </span>
+                          ))}
+                          {task.tags.length > 2 && (
+                            <span className={styles.moreTagsIndicator}>+{task.tags.length - 2}</span>
+                          )}
+                        </div>
+                      )}
                       {getPriorityBadge(task.priority)}
                       {getStatusBadge(task.status)}
                     </div>
@@ -602,6 +800,26 @@ const TasksManagementPage = ({ programId, onBack }) => {
                   </div>
                 )}
 
+                {/* Tags Section */}
+                <div className={styles.tagsSection}>
+                  <h3 className={styles.sectionTitle}>Tags</h3>
+                  {selectedTask.tags && selectedTask.tags.length > 0 ? (
+                    <div className={styles.taskDetailTags}>
+                      {selectedTask.tags.map(tag => (
+                        <span
+                          key={tag.tagId}
+                          className={styles.taskDetailTag}
+                          style={{ backgroundColor: tag.color || '#3b82f6' }}
+                        >
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={styles.noTagsText}>Chưa có tag nào</p>
+                  )}
+                </div>
+
                 {/* Assigned Teams Section */}
                 <div className={styles.assignedTeamsSection}>
                   <h3 className={styles.sectionTitle}>Nhóm được giao ({taskAssignments.length})</h3>
@@ -663,6 +881,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
         task={selectedTask}
         teams={teams}
         programName={currentProgram?.name || ''}
+        tags={tags}
       />
     </div>
   );
