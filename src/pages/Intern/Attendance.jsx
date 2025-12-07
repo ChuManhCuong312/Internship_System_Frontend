@@ -117,7 +117,7 @@ const Attendance = () => {
         const todayData = results[0].value;
         setTodayAttendance(todayData.attendance);
         setHasCheckedIn(todayData.hasCheckedIn);
-        setHasCheckedOut(todayData.hasCheckedOut);
+        setHasCheckedOut(!!todayData.attendance?.checkOut);
       } else {
         setTodayAttendance(null);
         setHasCheckedIn(false);
@@ -298,9 +298,7 @@ const Attendance = () => {
                   <span className="time-value">
                     {!hasCheckedIn
                       ? '--:--'
-                      : !hasCheckedOut
-                      ? formatTimeFromDate(currentTime)
-                      : formatTime(todayAttendance?.checkOut)}
+                      : formatTimeFromDate(currentTime)}
                   </span>
                 </div>
               </div>
@@ -329,11 +327,11 @@ const Attendance = () => {
               </button>
 
               <button
-                className={`btn-checkout ${!hasCheckedIn || hasCheckedOut ? 'disabled' : ''}`}
+                className={`btn-checkout ${!hasCheckedIn ? 'disabled' : ''}`}
                 onClick={handleCheckOut}
-                disabled={!hasCheckedIn || hasCheckedOut}
+                disabled={!hasCheckedIn}
               >
-                {hasCheckedOut ? '✓ Đã check-out' : '🕐 Check-out'}
+                {hasCheckedOut ? '✓ Check-out' : '🕐 Check-out'}
               </button>
             </div>
           </div>
