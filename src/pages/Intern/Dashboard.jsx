@@ -79,7 +79,7 @@ const Dashboard = () => {
       const data = await getTodayAttendance(token, internId);
       setTodayAttendance(data.attendance);
       setHasCheckedIn(data.hasCheckedIn);
-      setHasCheckedOut(data.hasCheckedOut);
+      setHasCheckedOut(!!data.attendance?.checkOut);
     } catch (error) {
       setAttendanceError('Không thể tải trạng thái chấm công hôm nay');
       setTodayAttendance(null);
@@ -199,9 +199,7 @@ const Dashboard = () => {
                       ? 'Đang tải...'
                       : !hasCheckedIn
                       ? '--:--'
-                      : !hasCheckedOut
-                      ? formatTimeFromDate(currentTime)
-                      : formatTime(todayAttendance?.checkOut)}
+                      : formatTimeFromDate(currentTime)}
                   </strong>
                 </div>
               </div>
@@ -216,7 +214,7 @@ const Dashboard = () => {
                 <button
                   className="checkout-btn"
                   onClick={handleQuickCheckOut}
-                  disabled={attendanceLoading || !hasCheckedIn || hasCheckedOut}
+                  disabled={attendanceLoading || !hasCheckedIn}
                 >
                   {hasCheckedOut ? '✓ Đã check-out' : 'Check-out'}
                 </button>
