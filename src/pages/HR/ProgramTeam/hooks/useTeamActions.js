@@ -95,25 +95,27 @@ const handleDeleteTeam = async (teamId) => {
   try {
     await hrApi.deleteTeam(token, teamId);
 
-    const updatedTeams = selectedProgram.teams.filter((t) => t.teamId !== teamId);
-    const updatedProgram = { ...selectedProgram, teams: updatedTeams };
+    // Fetch updated list from backend instead of filtering
+    const teams = await hrApi.getTeamsInProgram(token, selectedProgram.programId);
 
-    setPrograms((prev) =>
-      prev.map((p) =>
+    const updatedProgram = { ...selectedProgram, teams };
+
+    setPrograms(prev =>
+      prev.map(p =>
         p.programId === selectedProgram.programId ? updatedProgram : p
       )
     );
+
     setSelectedProgram(updatedProgram);
     setViewingProgramTeams(updatedProgram);
 
-    // Reset selectedTeam if it was deleted
-    if (selectedTeam?.teamId === teamId) {
-      setSelectedTeam(null);
-    }
+    if (selectedTeam?.teamId === teamId) setSelectedTeam(null);
+    await fetchProgramMentors(updatedProgram.programId);
   } catch (err) {
     console.error("Error deleting team:", err);
   }
 };
+
 
   const handleSaveTeam = async () => {
     if (!selectedProgram) return;
@@ -147,7 +149,8 @@ const handleDeleteTeam = async (teamId) => {
       );
       setSelectedProgram(updatedProgram);
       setViewingProgramTeams(updatedProgram);
-      setTeamFormData({ mentorId: null });
+      setTeamFormData({ mentorId: null, name: "", description: "" });
+      await fetchProgramMentors(selectedProgram.programId);
     } catch (err) {
       console.error("Error saving team:", err);
     }
@@ -196,7 +199,7 @@ const handleAssignMentorToTeam = async (mentorId, teamId) => {
 
       const teamWithInterns = { ...team, interns };
       setSelectedTeam(teamWithInterns);
-      await fetchProgramMentors(selectedProgram.programId);
+    //  await fetchProgramMentors(selectedProgram.programId);
     } catch (err) {
       console.error("Error fetching interns for team:", err);
       setSelectedTeam({ ...team, interns: [] });
