@@ -865,7 +865,10 @@
   white-space: nowrap;
 }
 
-.deleteTagBtn {
+.editTagBtn,
+.deleteTagBtn,
+.saveTagBtn,
+.cancelTagBtn {
   background: none;
   border: none;
   cursor: pointer;
@@ -875,11 +878,26 @@
   transition: all 0.2s ease;
 }
 
+.editTagBtn:hover:not(:disabled) {
+  background-color: #dbeafe;
+}
+
 .deleteTagBtn:hover:not(:disabled) {
   background-color: #fee2e2;
 }
 
-.deleteTagBtn:disabled {
+.saveTagBtn:hover:not(:disabled) {
+  background-color: #d1fae5;
+}
+
+.cancelTagBtn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.editTagBtn:disabled,
+.deleteTagBtn:disabled,
+.saveTagBtn:disabled,
+.cancelTagBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

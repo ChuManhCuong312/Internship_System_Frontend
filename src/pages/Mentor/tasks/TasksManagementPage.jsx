@@ -10,6 +10,29 @@ import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import styles from './TasksManagementPage.module.css';
 
+// MUI imports for Tag Manager
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  IconButton,
+  Chip,
+  Box,
+  Typography,
+  Divider,
+  CircularProgress,
+  Tooltip,
+  Stack,
+} from '@mui/material';
+import {
+  Close as CloseIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Check as CheckIcon,
+} from '@mui/icons-material';
+
 const TasksManagementPage = ({ programId, onBack }) => {
   const { user, token } = useContext(AuthContext);
   const [mentorId, setMentorId] = useState(null);
@@ -32,6 +55,9 @@ const TasksManagementPage = ({ programId, onBack }) => {
   const [newTagName, setNewTagName] = useState('');
   const [newTagColor, setNewTagColor] = useState('#3b82f6');
   const [tagLoading, setTagLoading] = useState(false);
+  const [editingTag, setEditingTag] = useState(null);
+  const [editTagName, setEditTagName] = useState('');
+  const [editTagColor, setEditTagColor] = useState('#3b82f6');
 
   // Task state
   const [tasks, setTasks] = useState([]);
@@ -287,6 +313,51 @@ const TasksManagementPage = ({ programId, onBack }) => {
     } catch (err) {
       console.error('Error creating tag:', err);
       toast.error(err.response?.data?.message || 'Lỗi khi tạo tag');
+    } finally {
+      setTagLoading(false);
+    }
+  };
+
+  // Start editing tag
+  const handleStartEditTag = (tag) => {
+    setEditingTag(tag.tagId);
+    setEditTagName(tag.name);
+    setEditTagColor(tag.color || '#3b82f6');
+  };
+
+  // Cancel editing tag
+  const handleCancelEditTag = () => {
+    setEditingTag(null);
+    setEditTagName('');
+    setEditTagColor('#3b82f6');
+  };
+
+  // Save edited tag
+  const handleSaveEditTag = async (tagId) => {
+    if (!editTagName.trim()) {
+      toast.error('Vui lòng nhập tên tag');
+      return;
+    }
+    try {
+      setTagLoading(true);
+      await tagApi.updateTag(token, tagId, {
+        name: editTagName.trim(),
+        color: editTagColor,
+      });
+      toast.success('Cập nhật tag thành công!');
+      setEditingTag(null);
+      setEditTagName('');
+      setEditTagColor('#3b82f6');
+      fetchTags();
+      // Refresh tasks to show updated tag names
+      if (activeFilters) {
+        fetchFilteredTasks(activeFilters);
+      } else {
+        fetchTasks();
+      }
+    } catch (err) {
+      console.error('Error updating tag:', err);
+      toast.error(err.response?.data?.message || 'Lỗi khi cập nhật tag');
     } finally {
       setTagLoading(false);
     }
@@ -587,75 +658,243 @@ const TasksManagementPage = ({ programId, onBack }) => {
               </select>
             </div>
 
-            {/* Tag Manager Panel */}
-            {showTagManager && (
-              <div className={styles.tagManagerPanel}>
-                <div className={styles.tagManagerHeader}>
-                  <h4 className={styles.tagManagerTitle}>Quản lý Tags</h4>
-                  <button
-                    type="button"
-                    className={styles.closeTagManager}
-                    onClick={() => setShowTagManager(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                
+            {/* Tag Manager Dialog (MUI) */}
+            <Dialog
+              open={showTagManager}
+              onClose={() => setShowTagManager(false)}
+              maxWidth="sm"
+              fullWidth
+              PaperProps={{
+                sx: { 
+                  borderRadius: 3,
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                }
+              }}
+            >
+              <DialogTitle sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                pb: 2,
+                borderBottom: '1px solid #e5e7eb'
+              }}>
+                <Typography variant="h6" fontWeight={700} sx={{ color: '#1f2937' }}>
+                  🏷️ Quản lý Tags
+                </Typography>
+                <IconButton onClick={() => setShowTagManager(false)} size="small" sx={{ color: '#9ca3af' }}>
+                  <CloseIcon />
+                </IconButton>
+              </DialogTitle>
+              
+              <DialogContent sx={{ pt: 3 }}>
                 {/* Create new tag */}
-                <div className={styles.createTagForm}>
-                  <input
-                    type="text"
-                    placeholder="Tên tag mới..."
-                    value={newTagName}
-                    onChange={(e) => setNewTagName(e.target.value)}
-                    className={styles.tagNameInput}
-                    maxLength={30}
-                  />
-                  <input
-                    type="color"
-                    value={newTagColor}
-                    onChange={(e) => setNewTagColor(e.target.value)}
-                    className={styles.tagColorInput}
-                    title="Chọn màu"
-                  />
-                  <button
-                    type="button"
-                    className={styles.createTagBtn}
-                    onClick={handleCreateTag}
-                    disabled={tagLoading || !newTagName.trim()}
-                  >
-                    {tagLoading ? '...' : '+'}
-                  </button>
-                </div>
+                <Box sx={{ mb: 3.5 }}>
+                  <Typography variant="subtitle2" fontWeight={600} color="#374151" sx={{ mb: 2 }}>
+                    ➕ Tạo tag mới
+                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <TextField
+                      size="small"
+                      placeholder="Nhập tên tag..."
+                      value={newTagName}
+                      onChange={(e) => setNewTagName(e.target.value)}
+                      inputProps={{ maxLength: 30 }}
+                      sx={{ 
+                        flex: 1,
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 2,
+                        }
+                      }}
+                    />
+                    <Tooltip title="Chọn màu">
+                      <Box
+                        component="input"
+                        type="color"
+                        value={newTagColor}
+                        onChange={(e) => setNewTagColor(e.target.value)}
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          border: '2px solid #e5e7eb',
+                          borderRadius: 2,
+                          cursor: 'pointer',
+                          padding: 0,
+                          transition: 'all 0.2s',
+                          '&:hover': { borderColor: '#3b82f6', boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)' }
+                        }}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Thêm tag">
+                      <span>
+                        <IconButton
+                          onClick={handleCreateTag}
+                          disabled={tagLoading || !newTagName.trim()}
+                          sx={{
+                            bgcolor: '#3b82f6',
+                            color: 'white',
+                            borderRadius: 2,
+                            width: 44,
+                            height: 44,
+                            '&:hover': { bgcolor: '#2563eb', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)' },
+                            '&:disabled': { bgcolor: '#d1d5db' },
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {tagLoading ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Stack>
+                </Box>
+
+                <Divider sx={{ mb: 3, borderColor: '#e5e7eb' }} />
 
                 {/* Existing tags list */}
-                <div className={styles.tagsList}>
-                  {tags.length === 0 ? (
-                    <p className={styles.noTagsMessage}>Chưa có tag nào</p>
-                  ) : (
-                    tags.map(tag => (
-                      <div key={tag.tagId} className={styles.tagItem}>
-                        <span
-                          className={styles.tagBadge}
-                          style={{ backgroundColor: tag.color || '#3b82f6' }}
-                        >
-                          {tag.name}
-                        </span>
-                        <button
-                          type="button"
-                          className={styles.deleteTagBtn}
-                          onClick={() => handleDeleteTag(tag.tagId)}
-                          disabled={tagLoading}
-                          title="Xóa tag"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
+                <Typography variant="subtitle2" fontWeight={600} color="#374151" sx={{ mb: 2 }}>
+                  📋 Danh sách tags ({tags.length})
+                </Typography>
+                
+                {tags.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 5, color: '#9ca3af' }}>
+                    <Typography variant="body2" sx={{ fontSize: '15px' }}>Chưa có tag nào. Hãy tạo tag đầu tiên! 🎨</Typography>
+                  </Box>
+                ) : (
+                  <Stack spacing={1.2}>
+                    {tags.map(tag => (
+                      <Box
+                        key={tag.tagId}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 1.75,
+                          borderRadius: 2.5,
+                          bgcolor: '#f9fafb',
+                          border: '1px solid #e5e7eb',
+                          transition: 'all 0.2s',
+                          '&:hover': { 
+                            bgcolor: '#f3f4f6',
+                            borderColor: '#d1d5db',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                          }
+                        }}
+                      >
+                        {editingTag === tag.tagId ? (
+                          // Edit mode
+                          <>
+                            <TextField
+                              size="small"
+                              value={editTagName}
+                              onChange={(e) => setEditTagName(e.target.value)}
+                              inputProps={{ maxLength: 30 }}
+                              autoFocus
+                              sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                  borderRadius: 2,
+                                }
+                              }}
+                            />
+                            <Tooltip title="Chọn màu">
+                              <Box
+                                component="input"
+                                type="color"
+                                value={editTagColor}
+                                onChange={(e) => setEditTagColor(e.target.value)}
+                                sx={{
+                                  width: 40,
+                                  height: 40,
+                                  border: '2px solid #e5e7eb',
+                                  borderRadius: 1.5,
+                                  cursor: 'pointer',
+                                  padding: 0,
+                                }}
+                              />
+                            </Tooltip>
+                            <Tooltip title="Lưu">
+                              <span>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleSaveEditTag(tag.tagId)}
+                                  disabled={tagLoading || !editTagName.trim()}
+                                  sx={{
+                                    color: '#10b981',
+                                    '&:hover': { bgcolor: '#ecfdf5' },
+                                    '&:disabled': { color: '#d1d5db' }
+                                  }}
+                                >
+                                  <CheckIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title="Hủy">
+                              <IconButton
+                                size="small"
+                                onClick={handleCancelEditTag}
+                                disabled={tagLoading}
+                                sx={{
+                                  color: '#6b7280',
+                                  '&:hover': { bgcolor: '#f3f4f6' }
+                                }}
+                              >
+                                <CloseIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        ) : (
+                          // View mode
+                          <>
+                            <Chip
+                              label={tag.name}
+                              sx={{
+                                bgcolor: tag.color || '#3b82f6',
+                                color: 'white',
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                height: 32,
+                                maxWidth: '150px',
+                                '& .MuiChip-label': { 
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  px: 1.5
+                                }
+                              }}
+                            />
+                            <Box sx={{ flex: 1 }} />
+                            <Tooltip title="Sửa">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleStartEditTag(tag)}
+                                disabled={tagLoading}
+                                sx={{ 
+                                  color: '#3b82f6',
+                                  '&:hover': { bgcolor: '#dbeafe' }
+                                }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Xóa">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleDeleteTag(tag.tagId)}
+                                disabled={tagLoading}
+                                sx={{ 
+                                  color: '#ef4444',
+                                  '&:hover': { bgcolor: '#fee2e2' }
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        )}
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+              </DialogContent>
+            </Dialog>
 
             <div className={styles.filterActions}>
               <button className={styles.btnApply} onClick={handleApplyFilterClick}>
