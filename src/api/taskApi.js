@@ -95,6 +95,7 @@ const taskApi = {
     if (filters.startDate) params.startDate = filters.startDate;
     if (filters.endDate) params.endDate = filters.endDate;
     if (filters.searchText) params.searchText = filters.searchText;
+    if (filters.tagId) params.tagId = filters.tagId;
 
     const res = await axios.get(`${API_URL}/filter/search`, {
       ...authHeader(token),
