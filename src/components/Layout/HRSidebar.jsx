@@ -237,7 +237,11 @@ const HRSidebar = () => {
           </ul>
         )}
 
-        <li><FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}</li>
+        <li className={isActive('/hr/reports') ? 'active' : ''}>
+          <Link to="/hr/reports">
+            <FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}
+          </Link>
+        </li>
         <li
           onClick={() => navigate("/Admin/InternProfile")}
           className={isActive('/Admin/InternProfile') ? 'active' : ''}
