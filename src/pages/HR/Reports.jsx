@@ -3,6 +3,7 @@ import HRSidebar from "../../components/Layout/HRSidebar";
 import { AuthContext } from "../../context/AuthContext";
 import hrApi from "../../api/hrApi";
 import reportApi from "../../api/reportApi";
+import { exportFinalReportsToExcel } from "../../utils/excelExport";
 import { toast } from "react-toastify";
 import "../../styles/manageInterns.css";
 import "../../styles/table.css";
@@ -33,9 +34,6 @@ const HRReports = () => {
         });
         const data = res?.data || res?.content || [];
         setPrograms(data);
-        if (!selectedProgramId && data.length > 0) {
-          setSelectedProgramId(data[0].programId);
-        }
       } catch (err) {
         console.error("Không thể tải danh sách chương trình", err);
         toast.error("Không thể tải danh sách chương trình");
@@ -67,7 +65,7 @@ const HRReports = () => {
   }, [token, selectedProgramId]);
 
   useEffect(() => {
-    if (!token || !selectedProgramId) {
+    if (!token) {
       setReport(null);
       return;
     }
@@ -75,11 +73,72 @@ const HRReports = () => {
     const loadReport = async () => {
       try {
         setLoading(true);
-        const data = await reportApi.getFinalEvaluationReportByProgram(
-          token,
-          selectedProgramId
-        );
-        setReport(data);
+        if (selectedProgramId) {
+          const data = await reportApi.getFinalEvaluationReportByProgram(
+            token,
+            selectedProgramId
+          );
+          setReport(data);
+          return;
+        }
+
+        if (!programs || programs.length === 0) {
+          setReport(null);
+          return;
+        }
+
+        let allInterns = [];
+
+        for (const p of programs) {
+          try {
+            const data = await reportApi.getFinalEvaluationReportByProgram(
+              token,
+              p.programId
+            );
+            if (data?.interns) {
+              const mapped = data.interns.map((intern) => ({
+                ...intern,
+                programId: data.programId ?? p.programId,
+                programName: data.programName ?? p.name,
+              }));
+              allInterns = allInterns.concat(mapped);
+            }
+          } catch (innerErr) {
+            console.error(
+              "Không thể tải báo cáo cho chương trình",
+              p.programId,
+              innerErr
+            );
+          }
+        }
+
+        const totalInterns = allInterns.length;
+        let internsWithEvaluations = 0;
+        let sumFinalScore = 0;
+        let countFinalScore = 0;
+
+        allInterns.forEach((intern) => {
+          if (intern.evaluationCount != null && intern.evaluationCount > 0) {
+            internsWithEvaluations++;
+          }
+          if (intern.finalScore != null) {
+            sumFinalScore += intern.finalScore;
+            countFinalScore++;
+          }
+        });
+
+        const avgFinalScore =
+          countFinalScore > 0 ? sumFinalScore / countFinalScore : null;
+
+        setReport({
+          programId: null,
+          programName: "Tất cả chương trình",
+          department: null,
+          interns: allInterns,
+          totalInterns,
+          internsWithEvaluations,
+          avgFinalScore,
+        });
       } catch (err) {
         console.error("Không thể tải báo cáo", err);
         toast.error("Không thể tải báo cáo");
@@ -89,37 +148,46 @@ const HRReports = () => {
     };
 
     loadReport();
-  }, [token, selectedProgramId]);
+  }, [token, selectedProgramId, programs]);
 
   const handleExport = async () => {
-    if (!selectedProgramId) {
-      toast.error("Vui lòng chọn chương trình");
-      return;
-    }
-
     try {
       setExporting(true);
-      const blobData = await reportApi.exportFinalEvaluationReportByProgram(
-        token,
-        selectedProgramId,
-        selectedTeamId || null
-      );
+      if (!report || !Array.isArray(report.interns) || report.interns.length === 0) {
+        toast.error("Không có dữ liệu để xuất");
+        return;
+      }
 
-      const blob = new Blob([blobData], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      let rowsToExport = report.interns;
+
+      if (selectedProgramId && selectedTeamName) {
+        rowsToExport = rowsToExport.filter(
+          (intern) => intern.teamName === selectedTeamName
+        );
+      }
+
+      if (!rowsToExport.length) {
+        toast.error("Không có dữ liệu để xuất theo bộ lọc hiện tại");
+        return;
+      }
+
+      const includeProgram = !selectedProgramId;
+
+      let filename = "Bao_cao_thuc_tap_sinh.xlsx";
+      if (!selectedProgramId) {
+        filename = "Bao_cao_tat_ca_chuong_trinh.xlsx";
+      } else {
+        const currentProgram = programs.find(
+          (p) => String(p.programId) === String(selectedProgramId)
+        );
+        const baseName = currentProgram?.name || `Program_${selectedProgramId}`;
+        filename = `Bao_cao_${baseName.replace(/\s+/g, "_")}.xlsx`;
+      }
+
+      await exportFinalReportsToExcel(rowsToExport, {
+        filename,
+        includeProgram,
       });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const filename = `final_evaluations_program_${selectedProgramId}${
-        selectedTeamId ? `_team_${selectedTeamId}` : ""
-      }.xlsx`;
-
-      link.href = url;
-      link.setAttribute("download", filename.replace(/\s+/g, "_"));
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Không thể xuất Excel", err);
       toast.error("Không thể xuất Excel");
@@ -188,7 +256,7 @@ const HRReports = () => {
                   setTeams([]);
                 }}
               >
-                <option value="">-- Chọn chương trình --</option>
+                <option value="">-- Tất cả chương trình --</option>
                 {programs.map((p) => (
                   <option key={p.programId} value={p.programId}>
                     {p.name}
@@ -248,6 +316,7 @@ const HRReports = () => {
                     <th>SĐT</th>
                     <th>Trường</th>
                     <th>Ngành</th>
+                    {!selectedProgramId && <th>Chương trình</th>}
                     <th>Nhóm</th>
                     <th>Mentor</th>
                     <th>Kỹ thuật</th>
@@ -260,7 +329,7 @@ const HRReports = () => {
                 <tbody>
                   {internRows.length === 0 && (
                     <tr>
-                      <td colSpan="13" style={{ textAlign: "center" }}>
+                      <td colSpan="14" style={{ textAlign: "center" }}>
                         Không có dữ liệu báo cáo
                       </td>
                     </tr>
@@ -273,6 +342,9 @@ const HRReports = () => {
                       <td>{intern.phone}</td>
                       <td>{intern.school}</td>
                       <td>{intern.major}</td>
+                      {!selectedProgramId && (
+                        <td>{intern.programName}</td>
+                      )}
                       <td>{intern.teamName}</td>
                       <td>{intern.mentorName}</td>
                       <td>
