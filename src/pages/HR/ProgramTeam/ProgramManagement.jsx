@@ -13,6 +13,7 @@ import FilterSection from "./components/FilterSection";
 import { useProgramManagement } from "./hooks/useProgramManagement";
 import { useProgramActions } from "./hooks/useProgramActions";
 import { useTeamActions } from "./hooks/useTeamActions";
+import { useNavigate } from "react-router-dom";
 
 export default function ProgramManagement() {
   // Custom hooks
@@ -30,7 +31,21 @@ export default function ProgramManagement() {
     programActions.selectedProgram,
     programActions.setSelectedProgram
   );
+  const navigate = useNavigate();
 
+  // Handler when clicking "Tự động tạo teams"
+  const handleCreateAutoTeam = (program) => {
+    // save full selected program to programActions so other components (and modals) can use it
+    programActions.setSelectedProgram && programActions.setSelectedProgram(program);
+
+    // persist programId to sessionStorage so CreateTeamAuto can recover after refresh
+    if (program?.programId) {
+      sessionStorage.setItem("autoTeamProgramId", String(program.programId));
+    }
+
+    // navigate to the CreateTeamAuto page and pass state (nice for first load)
+    navigate("/create-teams-auto", { state: { programId: program.programId } });
+  };
   // Utility functions
   const getStatusColor = (status) => {
     switch (status) {
@@ -96,6 +111,7 @@ export default function ProgramManagement() {
               programs={filteredPrograms}
               programOverview={programData.programOverview}
               onViewTeams={teamActions.handleViewTeams}
+              onCreateAutoTeam={handleCreateAutoTeam}
               onEditProgram={programActions.handleEditProgram}
               onDeleteProgram={(program) => {
                 programActions.setProgramToDelete(program);
