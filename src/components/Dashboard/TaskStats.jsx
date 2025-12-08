@@ -104,14 +104,6 @@ const TaskStats = () => {
       </div>
 
       <div className={styles.statCard}>
-        <div className={styles.statIcon}>📝</div>
-        <div className={styles.statContent}>
-          <h4>Chưa bắt đầu</h4>
-          <p className={styles.statValue}>{stats.todo}</p>
-        </div>
-      </div>
-
-      <div className={styles.statCard}>
         <div className={styles.statIcon}>⏳</div>
         <div className={styles.statContent}>
           <h4>Đang thực hiện</h4>
@@ -127,13 +119,7 @@ const TaskStats = () => {
         </div>
       </div>
 
-      <div className={styles.statCard}>
-        <div className={styles.statIcon}>👀</div>
-        <div className={styles.statContent}>
-          <h4>Đã xem xét</h4>
-          <p className={styles.statValue}>{stats.reviewed}</p>
-        </div>
-      </div>
+
     </div>
   );
 };
