@@ -236,6 +236,39 @@ const hrApi = {
         return res.data; // returns array of InternDetailDTO
       },
 
+      // --------- AUTO TEAM METHODS ---------
+
+      // GET /api/programs/{programId}/auto-teams/interns/auto
+      getAvailableInternsAuto: async (token, programId) => {
+        const res = await axios.get(
+          `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto`,
+          authHeader(token)
+        );
+        return res.data; // --> List<InternAutoDTO>
+      },
+
+      // GET /api/programs/{programId}/auto-teams/interns/auto/filter?major=CS
+      filterInternsAutoByMajor: async (token, programId, major) => {
+        const res = await axios.get(
+          `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto/filter`,
+          {
+            ...authHeader(token),
+            params: { major },
+          }
+        );
+        return res.data; // --> List<InternAutoDTO>
+      },
+
+      // POST /api/programs/{programId}/auto-teams/interns/auto/create
+      createAutoTeams: async (token, programId, requestBody) => {
+        const res = await axios.post(
+          `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto/create`,
+          requestBody,
+          authHeader(token)
+        );
+        return res.data; // --> List<AutoTeamResultDTO>
+      },
+
 
   // Lấy danh sách contracts
   // Accepts either (token, page, size) OR (token, { searchTerm, status, page, size })
