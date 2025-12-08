@@ -698,3 +698,266 @@
     gap: 4px;
   }
 }
+
+/* Tag Management Styles */
+.filterLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.manageTagsBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.manageTagsBtn:hover {
+  background-color: #f3f4f6;
+}
+
+.tagManagerPanel {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.tagManagerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tagManagerTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.closeTagManager {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #6b7280;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.closeTagManager:hover {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.createTagForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tagNameInput {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.tagNameInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.tagColorInput {
+  width: 36px;
+  height: 36px;
+  padding: 2px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #ffffff;
+}
+
+.tagColorInput::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.tagColorInput::-webkit-color-swatch {
+  border-radius: 4px;
+  border: none;
+}
+
+.createTagBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background-color: #10b981;
+  border: none;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.createTagBtn:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.createTagBtn:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.tagsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.noTagsMessage {
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+  margin: 8px 0;
+  font-style: italic;
+}
+
+.tagItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.tagBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editTagBtn,
+.deleteTagBtn,
+.saveTagBtn,
+.cancelTagBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.editTagBtn:hover:not(:disabled) {
+  background-color: #dbeafe;
+}
+
+.deleteTagBtn:hover:not(:disabled) {
+  background-color: #fee2e2;
+}
+
+.saveTagBtn:hover:not(:disabled) {
+  background-color: #d1fae5;
+}
+
+.cancelTagBtn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.editTagBtn:disabled,
+.deleteTagBtn:disabled,
+.saveTagBtn:disabled,
+.cancelTagBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Task Item Tags */
+.taskItemTags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-right: 4px;
+}
+
+.taskTagMini {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: white;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moreTagsIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+/* Task Detail Tags Section */
+.tagsSection {
+  margin-top: 16px;
+}
+
+.taskDetailTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.taskDetailTag {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+}
+
+.noTagsText {
+  font-size: 13px;
+  color: #9ca3af;
+  font-style: italic;
+}

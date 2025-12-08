@@ -120,7 +120,7 @@ export default function ProgramSelectPage({ onSelectProgram }) {
                 <span className={styles.department}>{program.department}</span>
                 {program.maxInterns && (
                   <span className={styles.maxInterns}>
-                    👥 Tối đa {program.maxInterns} thực tập sinh
+                    {program.maxInterns} thực tập sinh
                   </span>
                 )}
               </div>
