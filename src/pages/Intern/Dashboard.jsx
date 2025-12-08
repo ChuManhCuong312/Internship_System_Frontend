@@ -216,7 +216,7 @@ const Dashboard = () => {
                   onClick={handleQuickCheckOut}
                   disabled={attendanceLoading || !hasCheckedIn}
                 >
-                  {hasCheckedOut ? '✓ Đã check-out' : 'Check-out'}
+                  {hasCheckedOut ? 'Check-out' : 'Check-out'}
                 </button>
               </div>
             </>
