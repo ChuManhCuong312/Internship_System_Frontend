@@ -383,7 +383,7 @@ const [isRejecting, setIsRejecting] = useState(false);
                 </button>
 
                 <span className="pagination-info">
-                  Trang {page + 1} / {totalPages || 1} ({totalElements} bản ghi)
+                  Trang {page + 1} / {totalPages || 1}
                 </span>
 
                 <button
