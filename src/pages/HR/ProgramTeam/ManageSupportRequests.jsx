@@ -6,6 +6,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import '../../../styles/dashBoard.css';
 import '../../../styles/supportRequest.css';
 import '../../../styles/table.css';
+import Cookies from 'js-cookie';
 
 const ManageSupportRequests = () => {
     const [supportRequests, setSupportRequests] = useState([]);
@@ -20,8 +21,13 @@ const ManageSupportRequests = () => {
     const [filterStatus, setFilterStatus] = useState('');
     const [filterInternId, setFilterInternId] = useState('');
 
+<<<<<<< Updated upstream
     const { token, user } = useContext(AuthContext);
     const hrId = user?.userId;
+=======
+    const token = Cookies.get('token');
+    const hrId = JSON.parse(localStorage.getItem('user'))?.hrId;
+>>>>>>> Stashed changes
 
     useEffect(() => {
         fetchSupportRequests();
@@ -54,7 +60,6 @@ const ManageSupportRequests = () => {
             if (filterStatus) filters.status = filterStatus;
             if (filterType) filters.type = filterType;
             if (filterInternId) filters.internId = parseInt(filterInternId);
-
             const data = await filterSupportRequests(token, filters);
             setFilteredRequests(data);
         } catch (err) {
