@@ -268,6 +268,14 @@ const hrApi = {
         );
         return res.data; // --> List<AutoTeamResultDTO>
       },
+      finishProgram: async (token, programId) => {
+        const res = await axios.put(
+          `${API_URL_PROGRAM}/${programId}/finish`,
+          null, // no body required
+          authHeader(token)
+        );
+        return res.data; // message + updatedInterns
+      },
 
 
   // Lấy danh sách contracts
