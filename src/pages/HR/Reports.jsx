@@ -17,6 +17,7 @@ const HRReports = () => {
   const [teams, setTeams] = useState([]);
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [selectedTeamName, setSelectedTeamName] = useState("");
+  const [selectedMentorName, setSelectedMentorName] = useState("");
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -160,9 +161,15 @@ const HRReports = () => {
 
       let rowsToExport = report.interns;
 
-      if (selectedProgramId && selectedTeamName) {
+      if (selectedTeamName) {
         rowsToExport = rowsToExport.filter(
           (intern) => intern.teamName === selectedTeamName
+        );
+      }
+
+      if (selectedMentorName) {
+        rowsToExport = rowsToExport.filter(
+          (intern) => intern.mentorName === selectedMentorName
         );
       }
 
@@ -198,11 +205,37 @@ const HRReports = () => {
 
   const internRows = useMemo(() => {
     if (!report?.interns) return [];
-    if (!selectedTeamName) return report.interns;
-    return report.interns.filter(
-      (intern) => intern.teamName === selectedTeamName
+
+    let filtered = report.interns;
+
+    if (selectedTeamName) {
+      filtered = filtered.filter(
+        (intern) => intern.teamName === selectedTeamName
+      );
+    }
+
+    if (selectedMentorName) {
+      filtered = filtered.filter(
+        (intern) => intern.mentorName === selectedMentorName
+      );
+    }
+
+    return filtered;
+  }, [report, selectedTeamName, selectedMentorName]);
+
+  const mentorOptions = useMemo(() => {
+    if (!report?.interns) return [];
+
+    const names = Array.from(
+      new Set(
+        report.interns
+          .map((intern) => intern.mentorName)
+          .filter((name) => !!name)
+      )
     );
-  }, [report, selectedTeamName]);
+
+    return names.sort((a, b) => a.localeCompare(b));
+  }, [report]);
 
   const sortedTeams = useMemo(() => {
     if (!teams) return [];
@@ -253,6 +286,7 @@ const HRReports = () => {
                   setSelectedProgramId(value);
                   setSelectedTeamId("");
                   setSelectedTeamName("");
+                  setSelectedMentorName("");
                   setTeams([]);
                 }}
               >
@@ -289,6 +323,22 @@ const HRReports = () => {
                     </option>
                   );
                 })}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label>Mentor (tuỳ chọn)</label>
+              <select
+                value={selectedMentorName}
+                onChange={(e) => setSelectedMentorName(e.target.value)}
+                disabled={!report?.interns?.length}
+              >
+                <option value="">-- Tất cả mentor --</option>
+                {mentorOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
               </select>
             </div>
 
