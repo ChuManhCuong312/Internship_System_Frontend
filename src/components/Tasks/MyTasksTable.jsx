@@ -43,7 +43,6 @@ const MyTasksTable = () => {
         }
 
         if (validTasks.length === 0) {
-          console.log('No tasks found for intern.');
           setTasks([]);
           setReminders({});
           setHistoryMap({});

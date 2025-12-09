@@ -59,7 +59,6 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
         }
 
         if (validTasks.length === 0) {
-          console.log('No tasks found for intern.');
           setTasks([]);
           setReminders({});
           setHistoryMap({});

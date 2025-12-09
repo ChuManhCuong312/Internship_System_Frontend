@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import notificationApi from '../../api/notificationApi';
 import '../../styles/latestNotificationsWidget.css';
 
 const LatestNotificationsWidget = ({ token, internId }) => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -117,9 +119,13 @@ const LatestNotificationsWidget = ({ token, internId }) => {
       </div>
 
       <div className="widget-footer">
-        <a href="/intern/notifications" className="view-all-link">
+        <button 
+          className="view-all-link"
+          onClick={() => navigate('/intern/notifications')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
           Xem tất cả →
-        </a>
+        </button>
       </div>
     </div>
   );
