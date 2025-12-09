@@ -252,7 +252,7 @@ const hrApi = {
         const res = await axios.get(
           `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto/filter`,
           {
-            ...authHeader(token),
+            headers: { Authorization: `Bearer ${token}` },
             params: { major },
           }
         );

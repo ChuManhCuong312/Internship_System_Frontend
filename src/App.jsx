@@ -14,6 +14,7 @@ import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
 import ApproveInterns from "./pages/HR/ManageInterns/ApproveInterns";
 import Programs from "./pages/HR/ProgramTeam/ProgramManagement";
+import CreateTeamAuto from './pages/HR/ProgramTeam/CreateTeamAuto';
 import ManageSupportRequests from "./pages/HR/ProgramTeam/ManageSupportRequests";
 import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
@@ -146,6 +147,14 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={["HR"]}>
                       <Programs />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/create-teams-auto"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <CreateTeamAuto />
                     </PrivateRoute>
                   }
                 />
