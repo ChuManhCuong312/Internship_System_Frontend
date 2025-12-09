@@ -13,6 +13,7 @@ import {
 } from "../../../api/leaveRequestApi";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import RejectLeaveModal from "./RejectLeaveModal"
 
 const LeaveManagement = () => {
   const { token, user } = useContext(AuthContext);
@@ -28,6 +29,12 @@ const LeaveManagement = () => {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+
+const [showRejectModal, setShowRejectModal] = useState(false);
+const [rejectingRequest, setRejectingRequest] = useState(null);
+const [rejectReason, setRejectReason] = useState("");
+const [rejectError, setRejectError] = useState("");
+const [isRejecting, setIsRejecting] = useState(false);
 
   const hrId = user?.userId || null;
 
@@ -166,43 +173,29 @@ const LeaveManagement = () => {
     }
   };
 
-  const handleReject = async (request) => {
-    if (!hrId) {
-      toast.error("Không tìm thấy thông tin HR");
+  const handleReject = (request) => {
+    setRejectingRequest(request);
+    setRejectReason("");
+    setRejectError("");
+    setShowRejectModal(true);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectReason.trim()) {
+      setRejectError("Vui lòng nhập lý do từ chối");
       return;
     }
-
-    const result = await Swal.fire({
-      title: "Từ chối đơn nghỉ phép",
-      input: "textarea",
-      inputLabel: "Lý do từ chối",
-      inputPlaceholder: "Nhập lý do từ chối...",
-      inputAttributes: {
-        "aria-label": "Lý do từ chối",
-      },
-      showCancelButton: true,
-      confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Từ chối",
-      cancelButtonText: "Hủy",
-      preConfirm: (value) => {
-        if (!value || !value.trim()) {
-          Swal.showValidationMessage("Vui lòng nhập lý do từ chối");
-        }
-        return value;
-      },
-    });
-
-    if (!result.isConfirmed) return;
-
-    const reason = result.value;
-
     try {
-      await rejectLeaveRequestByHR(token, request.leaveId, hrId, reason);
+      setIsRejecting(true);
+      await rejectLeaveRequestByHR(token, rejectingRequest.leaveId, hrId, rejectReason);
       toast.success("Đã từ chối đơn nghỉ phép");
+      setShowRejectModal(false);
+      setRejectingRequest(null);
       fetchAll();
     } catch (e) {
       toast.error(e.message || "Lỗi khi từ chối đơn nghỉ phép");
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -368,6 +361,18 @@ const LeaveManagement = () => {
                 )}
               </div>
 
+              {showRejectModal && rejectingRequest && (
+                <RejectLeaveModal
+                  request={rejectingRequest}
+                  reason={rejectReason}
+                  setReason={setRejectReason}
+                  error={rejectError}
+                  onClose={() => setShowRejectModal(false)}
+                  onConfirm={handleConfirmReject}
+                  isLoading={isRejecting}
+                />
+              )}
+
               <div className="pagination">
                 <button
                   className="pagination-btn"
@@ -378,7 +383,7 @@ const LeaveManagement = () => {
                 </button>
 
                 <span className="pagination-info">
-                  Trang {page + 1} / {totalPages || 1} ({totalElements} bản ghi)
+                  Trang {page + 1} / {totalPages || 1}
                 </span>
 
                 <button

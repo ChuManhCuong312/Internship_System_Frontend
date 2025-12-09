@@ -1,5 +1,6 @@
 import { useState } from "react";
 import hrApi from "../../../../api/hrApi";
+import { toast } from "react-toastify";
 
 export const useProgramActions = (token, programs, setPrograms, setProgramOverview) => {
   const [selectedProgram, setSelectedProgram] = useState(null);
@@ -36,10 +37,12 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
     try {
       await hrApi.deleteProgram(token, programToDelete.programId);
       setPrograms(programs.filter((p) => p.programId !== programToDelete.programId));
+      toast.success("Xóa chương trình thành công!");
       setIsDeleteModalOpen(false);
       setProgramToDelete(null);
     } catch (err) {
       console.error("Error deleting program:", err);
+      toast.error(err?.response?.data?.message || "Xóa chương trình thất bại!");
     }
   };
 
@@ -57,16 +60,19 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
           const others = prevPrograms.filter((p) => p.programId !== updatedProgram.programId);
           return [updatedProgram, ...others];
         });
+        toast.success("Cập nhật chương trình thành công!");
         setIsEditProgramOpen(false);
       } else {
         const newProgram = await hrApi.createProgram(token, payload);
         setPrograms((prevPrograms) => [newProgram, ...prevPrograms]);
+        toast.success("Thêm chương trình thành công!");
         setIsAddProgramOpen(false);
       }
 
       setFormData({});
     } catch (err) {
       console.error("Error saving program:", err);
+      toast.error(err?.response?.data?.message || "Lưu chương trình thất bại!");
     }
   };
 
@@ -83,10 +89,12 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
         startDate: "",
         endDate: "",
       });
+      toast.success("Tải dữ liệu nhân bản thành công! Bạn có thể chỉnh sửa và lưu.");
       setSelectedProgram(null);
       setIsAddProgramOpen(true);
     } catch (err) {
       console.error("Cannot clone program:", err);
+      toast.error(err?.response?.data?.message || "Không thể nhân bản chương trình!");
     }
   };
 
@@ -116,8 +124,11 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
         ...prev,
         [selectedProgram.programId]: overview,
       }));
+
+      toast.success("Phân công mentor thành công!");
     } catch (err) {
       console.error("Error refreshing program mentors:", err);
+      toast.error(err?.response?.data?.message || "Phân công mentor thất bại!");
     }
   };
 

@@ -140,7 +140,7 @@ export default function InternDetails({
                     }}
                     disabled={!(canModify === "ON_GOING" || canModify === "UPCOMING")}
                   >
-                    Phân công lại mentor
+                    Phân công mentor
                   </button>
 
                   <button
