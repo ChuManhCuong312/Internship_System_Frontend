@@ -233,6 +233,9 @@ export const exportFinalReportsToExcel = async (
       { header: "Kỷ luật", key: "avgDiscipline", width: 12 },
       { header: "Thái độ", key: "avgAttitude", width: 12 },
       { header: "Điểm cuối kỳ", key: "finalScore", width: 14 },
+      { header: "Số lần đánh giá", key: "evaluationCount", width: 18 },
+      { header: "Ghi chú gần nhất", key: "latestNote", width: 40 },
+      { header: "Tất cả ghi chú", key: "allNotes", width: 60 },
     ];
 
     worksheet.columns = [...baseColumns, ...programColumn, ...tailColumns];
@@ -262,6 +265,9 @@ export const exportFinalReportsToExcel = async (
         avgDiscipline: intern.avgDiscipline ?? null,
         avgAttitude: intern.avgAttitude ?? null,
         finalScore: intern.finalScore ?? null,
+        evaluationCount: intern.evaluationCount ?? null,
+        latestNote: intern.latestNote ?? "",
+        allNotes: intern.allNotes ?? "",
       };
 
       if (includeProgram) {
@@ -292,7 +298,18 @@ export const exportFinalReportsToExcel = async (
       row.getCell("internId").alignment = { horizontal: "center" };
       row.getCell("phone").alignment = { horizontal: "center" };
       row.getCell("teamName").alignment = { horizontal: "center" };
+      row.getCell("evaluationCount").alignment = { horizontal: "center" };
     });
+
+    // Đảm bảo ghi chú hiển thị mỗi đánh giá trên một dòng và canh trên
+    const latestNoteCol = worksheet.getColumn("latestNote");
+    const allNotesCol = worksheet.getColumn("allNotes");
+    if (latestNoteCol) {
+      latestNoteCol.alignment = { wrapText: true, vertical: "top" };
+    }
+    if (allNotesCol) {
+      allNotesCol.alignment = { wrapText: true, vertical: "top" };
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
