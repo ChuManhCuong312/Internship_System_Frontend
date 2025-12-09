@@ -4,6 +4,7 @@ import HRSidebar from "../../../components/Layout/HRSidebar";
 import ProgramFormModal from "./modals/ProgramFormModal";
 import AddEditTeamModal from "./modals/AddEditTeamModal";
 import DeleteConfirmModal from "./modals/DeleteConfirmModal";
+import FinishProgramModal from "./modals/FinishProgramModal";
 import AssignMentorToProgramModal from "./modals/AssignMentorToProgramModal";
 import Pagination from "../../../components/Common/Pagination";
 import ProgramList from "./components/ProgramList";
@@ -119,6 +120,7 @@ export default function ProgramManagement() {
               }}
               onCloneProgram={programActions.handleCloneProgram}
               onAssignMentor={programActions.openAssignMentorProgramModal}
+              onFinishProgram={programActions.handleFinishProgramClick}
               formatLocalDate={formatLocalDate}
               getStatusColor={getStatusColor}
             />
@@ -232,6 +234,13 @@ export default function ProgramManagement() {
           onClose={() => programActions.setIsDeleteModalOpen(false)}
           onConfirm={programActions.handleDeleteProgram}
           programName={programActions.programToDelete?.name}
+        />
+
+        <FinishProgramModal
+          isOpen={programActions.isFinishModalOpen}
+          onClose={() => programActions.setIsFinishModalOpen(false)}
+          onConfirm={programActions.handleConfirmFinishProgram}
+          programName={programActions.programToFinish?.name}
         />
 
         {programActions.isAssignMentorProgramOpen && (
