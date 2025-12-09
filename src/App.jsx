@@ -24,6 +24,7 @@ import VerifyOtpPage from "./pages/Auth/VerifyOtpPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import OAuthSuccess from "./pages/Auth/OAuthSuccess";
+import OAuthFailed from "./pages/Auth/OAuthFailed";
 import { UserProvider } from "./context/UserContext.jsx"
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import MyTasks from "./pages/Intern/MyTasks";
@@ -78,6 +79,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/verify-otp" element={<VerifyOtpPage />} />
                 <Route path="/oauth-success" element={<OAuthSuccess />} />
+                <Route path="/oauth-failed" element={<OAuthFailed />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
 

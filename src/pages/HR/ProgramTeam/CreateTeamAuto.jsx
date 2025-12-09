@@ -245,7 +245,7 @@ export default function CreateTeamAuto() {
                   <ChevronDown size={16} />
                 </button>
                 {showDropdown && (
-                  <div className="dropdown-menu">
+                  <div className="dropdown-menu-auto">
                     {availableMajors.map((major) => (
                       <button
                         key={major}

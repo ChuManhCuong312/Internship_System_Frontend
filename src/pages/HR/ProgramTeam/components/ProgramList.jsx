@@ -10,6 +10,7 @@ const ProgramList = ({
   onDeleteProgram,
   onCloneProgram,
   onAssignMentor,
+  onFinishProgram,
   formatLocalDate,
   getStatusColor,
 }) => {
@@ -62,6 +63,14 @@ const ProgramList = ({
                 </button>
                 <button className="dropdown-item" onClick={() => onCloneProgram(program)}>
                   Sao chép chương trình
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => onFinishProgram(program)}
+                  disabled={program.programStatus !== "ON_GOING"}
+                  style={program.programStatus === "ON_GOING" ? { color: "#ff9800" } : {}}
+                >
+                  Kết thúc chương trình
                 </button>
                 <button
                   className="dropdown-item danger"
