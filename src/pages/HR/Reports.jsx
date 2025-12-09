@@ -310,7 +310,7 @@ const HRReports = () => {
               <table className="users-table">
                 <thead>
                   <tr>
-                    <th>Mã TTS</th>
+                    <th>STT</th>
                     <th>Họ tên</th>
                     <th>Email</th>
                     <th>SĐT</th>
@@ -334,9 +334,9 @@ const HRReports = () => {
                       </td>
                     </tr>
                   )}
-                  {internRows.map((intern) => (
+                  {internRows.map((intern, index) => (
                     <tr key={intern.internId}>
-                      <td>{intern.internId}</td>
+                      <td>{index + 1}</td>
                       <td>{intern.fullName}</td>
                       <td>{intern.email}</td>
                       <td>{intern.phone}</td>
