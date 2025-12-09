@@ -142,15 +142,30 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
         })
       })
 
-      if (!res.ok) {
+    if (!res.ok) {
+      let errMessage = 'Thêm đánh giá thất bại';
+
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
         const errData = await res.json();
-        if (errData.errors) {
-          const message = Object.values(errData.errors).join(", ");
-          throw new Error(message);
-        } else {
-          throw new Error("Thêm đánh giá thất bại");
+        if (errData?.message) {
+          errMessage = sanitizeServerMessage(errData.message);
         }
+      } else {
+        const text = await res.text();
+        if (text) errMessage = sanitizeServerMessage(text);
       }
+
+      throw new Error(errMessage);
+    }
+
+    function sanitizeServerMessage(raw) {
+      if (!raw || typeof raw !== 'string') return 'Thao tác thất bại';
+      // Loại bỏ prefix kiểu "An unexpected error occurred: 400 BAD_REQUEST"
+      const cleaned = raw.replace(/^An unexpected error occurred:\s*\d{3}\s+[A-Z_]+\s*/i, '');
+      // Bỏ dấu ngoặc kép nếu có
+      return cleaned.replace(/^"+|"+$/g, '').trim();
+    }
 
       toast.success("Thêm đánh giá thành công!");
 
@@ -213,15 +228,35 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
         })
       })
 
-      if (!res.ok) {
-              const errData = await res.json();
-              if (errData.errors) {
-                const message = Object.values(errData.errors).join(", ");
-                throw new Error(message);
-              } else {
-                throw new Error("Cập nhật thất bại");
-              }
-            }
+
+
+    if (!res.ok) {
+      let errMessage = 'Cập nhật thất bại';
+
+      // Cố gắng đọc JSON trước, nếu không phải JSON thì fallback text
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errData = await res.json();
+        if (typeof errData?.message === 'string' && errData.message.trim()) {
+          errMessage = sanitizeServerMessage(errData.message);
+        }
+      } else {
+        const text = await res.text();
+        if (text) errMessage = sanitizeServerMessage(text);
+      }
+
+      throw new Error(errMessage);
+    }
+
+    function sanitizeServerMessage(raw) {
+      // Bỏ prefix "An unexpected error occurred: 400 BAD_REQUEST "
+      const cleaned = String(raw).replace(
+        /^An unexpected error occurred:\s*\d{3}\s+[A-Z_]+\s*/i,
+        ''
+      );
+      // Bỏ dấu ngoặc kép dư (nếu server bọc message trong quotes)
+      return cleaned.replace(/^"+|"+$/g, '').trim() || 'Cập nhật thất bại';
+    }
 
       const refresh = await fetch(`http://localhost:8080/api/evaluations/team/${teamId}`, {
         headers: { Authorization: `Bearer ${token}` }
