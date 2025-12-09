@@ -11,6 +11,9 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
   const [programToDelete, setProgramToDelete] = useState(null);
   const [isAssignMentorProgramOpen, setIsAssignMentorProgramOpen] = useState(false);
 
+  const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
+  const [programToFinish, setProgramToFinish] = useState(null);
+
   const formatDateTime = (dateStr) => {
     if (!dateStr) return null;
     const date = new Date(dateStr);
@@ -132,6 +135,50 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
     }
   };
 
+   const handleFinishProgramClick = (program) => {
+      setProgramToFinish(program);
+      setIsFinishModalOpen(true);
+    };
+
+  const handleConfirmFinishProgram = async () => {
+    if (!programToFinish) return;
+
+    try {
+      const response = await hrApi.finishProgram(token, programToFinish.programId);
+
+      // Update the program status in the UI
+      setPrograms((prevPrograms) =>
+        prevPrograms.map((p) =>
+          p.programId === programToFinish.programId
+            ? { ...p, programStatus: "FINISHED" }
+            : p
+        )
+      );
+
+      // Show success toast with details
+      toast.success(
+        `Chương trình "${programToFinish.name}" đã được kết thúc. ${response.updatedInterns} tài khoản thực tập sinh đã bị vô hiệu hóa.`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+        }
+      );
+
+      // Close modal and reset
+      setIsFinishModalOpen(false);
+      setProgramToFinish(null);
+    } catch (err) {
+      console.error("Error finishing program:", err);
+      toast.error(
+        err?.response?.data?.message || "Không thể kết thúc chương trình. Vui lòng thử lại.",
+        {
+          position: "top-right",
+          autoClose: 5000,
+        }
+      );
+    }
+  };
+
   return {
     selectedProgram,
     setSelectedProgram,
@@ -154,5 +201,10 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
     handleCloneProgram,
     openAssignMentorProgramModal,
     handleAssignProgramMentor,
+    isFinishModalOpen,
+    setIsFinishModalOpen,
+    programToFinish,
+    handleFinishProgramClick,
+    handleConfirmFinishProgram,
   };
 };
