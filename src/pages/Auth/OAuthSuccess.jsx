@@ -1,22 +1,98 @@
 import React, { useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const OAuthSuccess = () => {
   const navigate = useNavigate();
-  const { token, user, loading } = useContext(AuthContext);
+  const { setUser, setToken, loading } = useContext(AuthContext);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    if (loading) return;
+    const processOAuthLogin = async () => {
+      try {
+        // Get token from URL query params
+        const token = searchParams.get("token");
 
-    if (token && user?.role === "INTERN") {
-      console.log("Token found, redirecting to intern dashboard:", token);
-      navigate("/intern/dashboard");
-    } else {
-      console.log("No token or unauthorized, redirecting to login");
-      navigate("/login");
+        if (!token) {
+          console.error("No token in URL");
+          navigate("/login");
+          return;
+        }
+
+        // Decode token to get user info
+        const decoded = jwtDecode(token);
+
+        // Create user data object
+        let userData = {
+          email: decoded.email || decoded.sub,
+          role: decoded.role,
+          userId: decoded.userId || decoded.id,
+          fullName: decoded.fullName || decoded.name
+        };
+
+        // If user is INTERN, fetch internId
+        if (userData.role === "INTERN") {
+          try {
+            const internResponse = await axios.get(
+              `http://localhost:8080/api/interns/user/${userData.userId}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (internResponse.data?.internProfile?.internId) {
+              userData.internId = internResponse.data.internProfile.internId;
+            } else if (internResponse.data?.internId) {
+              userData.internId = internResponse.data.internId;
+            } else if (internResponse.data?.id) {
+              userData.internId = internResponse.data.id;
+            }
+          } catch (err) {
+            console.warn("Could not fetch internId:", err.message);
+          }
+        }
+
+        // Cookie options
+        const cookieOptions = {
+          expires: 1,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Strict",
+          path: "/"
+        };
+
+        // Store in cookies
+        Cookies.set("token", token, cookieOptions);
+        Cookies.set("user", JSON.stringify(userData), cookieOptions);
+        Cookies.set("userId", String(userData.userId), cookieOptions);
+        Cookies.set("role", userData.role, cookieOptions);
+
+        if (userData.internId) {
+          Cookies.set("internId", String(userData.internId), cookieOptions);
+        }
+
+        // Update context
+        setUser(userData);
+        setToken(token);
+
+        console.log("OAuth login successful, redirecting to dashboard");
+
+        // Redirect based on role
+        if (userData.role === "INTERN") {
+          navigate("/intern/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        console.error("OAuth processing error:", error);
+        navigate("/login");
+      }
+    };
+
+    if (!loading) {
+      processOAuthLogin();
     }
-  }, [token, user, loading, navigate]);
+  }, [loading, searchParams, navigate, setUser, setToken]);
 
   return (
     <div style={{ textAlign: "center", marginTop: "120px" }}>

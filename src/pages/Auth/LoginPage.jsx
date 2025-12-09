@@ -38,7 +38,7 @@ const LoginPage = () => {
             const message = "Email hoặc mật khẩu không đúng.";
             setError(message);
           } else {
-            setError("Đăng nhập thất bại. Vui lòng thử lại.");
+            setError("Đăng nhập thất bại. Vui lòng thử lại sau.");
           }
         } else if (err.request) {
           setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng.");
