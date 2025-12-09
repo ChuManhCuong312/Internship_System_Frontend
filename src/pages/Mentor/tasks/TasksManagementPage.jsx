@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import TaskModal from '../../../components/Tasks/TaskModal';
+import TaskSearchForm from '../../../components/Tasks/TaskSearchForm';
 import { AuthContext } from '../../../context/AuthContext';
 import taskApi from '../../../api/taskApi';
 import teamApi from '../../../api/teamApi';
@@ -24,6 +25,7 @@ import {
   CircularProgress,
   Tooltip,
   Stack,
+  Skeleton,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -46,7 +48,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
     status: '',
     priority: '',
     searchText: '',
-    tagId: '',
+    tagIds: [],
   });
 
   // Tag state
@@ -76,9 +78,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching tasks for programId:', programId);
       const response = await taskApi.getTasksByProgram(token, programId, page, size);
-      console.log('Tasks response:', response);
 
       // Handle PaginatedTaskDTO format: { data, totalTasks, currentPage, pageSize, totalPages }
       if (response.data && Array.isArray(response.data)) {
@@ -120,7 +120,6 @@ const TasksManagementPage = ({ programId, onBack }) => {
       setLoading(true);
       setError(null);
       const response = await taskApi.filterTasks(token, { ...filters, programId }, page, size);
-      console.log('Filtered tasks response:', response);
 
       // Handle PaginatedTaskDTO format
       if (response.data && Array.isArray(response.data)) {
@@ -179,14 +178,11 @@ const TasksManagementPage = ({ programId, onBack }) => {
         deadline: formattedDeadline,
       };
       
-      console.log('Creating task with payload:', payload);
-      
       const response = await taskApi.createTask(token, payload);
       const createdTaskId = response.taskId;
       
       // Create team assignments if teams were selected
       if (teamIds && teamIds.length > 0 && createdTaskId) {
-        console.log('Creating team assignments for taskId:', createdTaskId, 'teamIds:', teamIds);
         
         for (const teamId of teamIds) {
           try {
@@ -223,8 +219,6 @@ const TasksManagementPage = ({ programId, onBack }) => {
         ...taskData,
         deadline: formattedDeadline,
       };
-      
-      console.log('Updating task with payload:', payload);
       
       const response = await taskApi.updateTask(token, taskId, payload);
       toast.success('Cập nhật nhiệm vụ thành công!');
@@ -383,8 +377,8 @@ const TasksManagementPage = ({ programId, onBack }) => {
         toast.success('Xóa tag thành công!');
         fetchTags();
         // Reset filter if deleted tag was selected
-        if (filterData.tagId === tagId.toString()) {
-          setFilterData(prev => ({ ...prev, tagId: '' }));
+        if (filterData.tagIds.includes(tagId)) {
+          setFilterData(prev => ({ ...prev, tagIds: prev.tagIds.filter(id => id !== tagId) }));
         }
       } catch (err) {
         console.error('Error deleting tag:', err);
@@ -433,7 +427,6 @@ const TasksManagementPage = ({ programId, onBack }) => {
     
     try {
       const assignments = await taskApi.getAssignmentsByTaskId(token, taskId);
-      console.log('Task assignments:', assignments);
       setTaskAssignments(Array.isArray(assignments) ? assignments : []);
     } catch (err) {
       console.error('Error fetching task assignments:', err);
@@ -499,14 +492,14 @@ const TasksManagementPage = ({ programId, onBack }) => {
       status: filterData.status || undefined,
       priority: filterData.priority || undefined,
       searchText: filterData.searchText || undefined,
-      tagId: filterData.tagId || undefined,
+      tagIds: filterData.tagIds.length > 0 ? filterData.tagIds : undefined,
     };
     applyFilterLogic(filters);
     setShowFilter(false);
   };
 
   const handleResetFilterClick = () => {
-    setFilterData({ status: '', priority: '', searchText: '', tagId: '' });
+    setFilterData({ status: '', priority: '', searchText: '', tagIds: [] });
     handleResetFilter();
   };
 
@@ -590,76 +583,18 @@ const TasksManagementPage = ({ programId, onBack }) => {
             </button>
           </div>
 
-          {/* Filters */}
-          <div className={styles.filterSection}>
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Trạng thái</label>
-              <select
-                value={filterData.status}
-                onChange={(e) => setFilterData({ ...filterData, status: e.target.value })}
-                className={styles.filterSelect}
-              >
-                <option value="">Tất cả</option>
-                <option value="TODO">Chưa bắt đầu</option>
-                <option value="IN_PROGRESS">Đang thực hiện</option>
-                <option value="DONE">Hoàn thành</option>
-                <option value="REVIEWED">Đã xem xét</option>
-              </select>
-            </div>
+          {/* Task Search Form */}
+          <TaskSearchForm
+            filterData={filterData}
+            setFilterData={setFilterData}
+            tags={tags}
+            onSearch={handleApplyFilterClick}
+            onReset={handleResetFilterClick}
+            onManageTags={() => setShowTagManager(!showTagManager)}
+          />
 
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Độ ưu tiên</label>
-              <select
-                value={filterData.priority}
-                onChange={(e) => setFilterData({ ...filterData, priority: e.target.value })}
-                className={styles.filterSelect}
-              >
-                <option value="">Tất cả</option>
-                <option value="LOW">Thấp</option>
-                <option value="MEDIUM">Trung bình</option>
-                <option value="HIGH">Cao</option>
-              </select>
-            </div>
-
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Tìm kiếm</label>
-              <input
-                type="text"
-                placeholder="Tìm kiếm..."
-                value={filterData.searchText}
-                onChange={(e) => setFilterData({ ...filterData, searchText: e.target.value })}
-                className={styles.filterInput}
-              />
-            </div>
-
-            <div className={styles.filterGroup}>
-              <div className={styles.filterLabelRow}>
-                <label className={styles.filterLabel}>Tag</label>
-                <button
-                  type="button"
-                  className={styles.manageTagsBtn}
-                  onClick={() => setShowTagManager(!showTagManager)}
-                  title="Quản lý tags"
-                >
-                  ⚙️
-                </button>
-              </div>
-              <select
-                value={filterData.tagId}
-                onChange={(e) => setFilterData({ ...filterData, tagId: e.target.value })}
-                className={styles.filterSelect}
-              >
-                <option value="">Tất cả</option>
-                {tags.map(tag => (
-                  <option key={tag.tagId} value={tag.tagId}>
-                    {tag.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Tag Manager Dialog (MUI) */}
-            <Dialog
+          {/* Tag Manager Dialog (MUI) */}
+          <Dialog
               open={showTagManager}
               onClose={() => setShowTagManager(false)}
               maxWidth="sm"
@@ -894,25 +829,30 @@ const TasksManagementPage = ({ programId, onBack }) => {
                   </Stack>
                 )}
               </DialogContent>
-            </Dialog>
-
-            <div className={styles.filterActions}>
-              <button className={styles.btnApply} onClick={handleApplyFilterClick}>
-                Áp dụng
-              </button>
-              {activeFilters && (
-                <button className={styles.btnReset} onClick={handleResetFilterClick}>
-                  Xóa
-                </button>
-              )}
-            </div>
-          </div>
+          </Dialog>
 
           {/* Task List */}
           {error && <div className={styles.errorMessage}>{error}</div>}
 
           {loading ? (
-            <div className={styles.loadingSpinner}>Đang tải...</div>
+            <div className={styles.taskList}>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, bgcolor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 1, mb: 1 }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Skeleton variant="text" width="60%" height={20} sx={{ mb: 0.5 }} />
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Skeleton variant="text" width={50} height={14} />
+                      <Skeleton variant="text" width={80} height={14} />
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 0.75, ml: 1, flexShrink: 0 }}>
+                    <Skeleton variant="rounded" width={50} height={20} />
+                    <Skeleton variant="rounded" width={50} height={20} />
+                    <Skeleton variant="rounded" width={50} height={20} />
+                  </Box>
+                </Box>
+              ))}
+            </div>
           ) : tasks.length === 0 ? (
             <div className={styles.emptyState}>
               <p>Không có nhiệm vụ nào</p>
@@ -1105,9 +1045,28 @@ const TasksManagementPage = ({ programId, onBack }) => {
               </div>
             </>
           ) : (
-            <div className={styles.noSelection}>
-              <p>Chọn một nhiệm vụ để xem chi tiết</p>
-            </div>
+            <Box sx={{ p: 3 }}>
+              <Skeleton variant="text" width="80%" height={32} sx={{ mb: 2 }} />
+              <Box sx={{ mb: 3 }}>
+                <Skeleton variant="text" width="30%" height={16} sx={{ mb: 1 }} />
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Skeleton variant="text" width="100%" height={20} />
+                  <Skeleton variant="text" width="100%" height={20} />
+                  <Skeleton variant="text" width="100%" height={20} />
+                  <Skeleton variant="text" width="100%" height={20} />
+                </Box>
+              </Box>
+              <Box sx={{ mb: 3 }}>
+                <Skeleton variant="text" width="30%" height={16} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="100%" height={20} sx={{ mb: 0.5 }} />
+                <Skeleton variant="text" width="100%" height={20} sx={{ mb: 0.5 }} />
+                <Skeleton variant="text" width="70%" height={20} />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Skeleton variant="rounded" width="100%" height={40} />
+                <Skeleton variant="rounded" width="100%" height={40} />
+              </Box>
+            </Box>
           )}
         </div>
       </div>

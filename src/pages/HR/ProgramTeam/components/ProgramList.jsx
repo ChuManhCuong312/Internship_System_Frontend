@@ -1,9 +1,11 @@
 import { MoreVertical } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ProgramList = ({
   programs,
   programOverview,
   onViewTeams,
+  onCreateAutoTeam,
   onEditProgram,
   onDeleteProgram,
   onCloneProgram,
@@ -11,6 +13,8 @@ const ProgramList = ({
   formatLocalDate,
   getStatusColor,
 }) => {
+  const navigate = useNavigate();
+
   if (programs.length === 0) {
     return (
       <div className="card empty-state">
@@ -18,6 +22,7 @@ const ProgramList = ({
       </div>
     );
   }
+
 
   return (
     <div className="programs-list">
@@ -37,6 +42,13 @@ const ProgramList = ({
               <div className="dropdown-menu">
                 <button className="dropdown-item" onClick={() => onViewTeams(program)}>
                   Quản lý Teams
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => onCreateAutoTeam(program)}
+                  disabled={["ON_GOING", "FINISHED"].includes(program.programStatus)}
+                >
+                  Tự động tạo teams
                 </button>
                 <button className="dropdown-item" onClick={() => onAssignMentor(program)}>
                   Phân công Mentor

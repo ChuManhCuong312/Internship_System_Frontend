@@ -14,6 +14,7 @@ import HRDashboard from "./pages/HR/Dashboard";
 import ManageInterns from "./pages/HR/ManageInterns/ManageInterns";
 import ApproveInterns from "./pages/HR/ManageInterns/ApproveInterns";
 import Programs from "./pages/HR/ProgramTeam/ProgramManagement";
+import CreateTeamAuto from './pages/HR/ProgramTeam/CreateTeamAuto';
 import ManageSupportRequests from "./pages/HR/ProgramTeam/ManageSupportRequests";
 import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
@@ -36,10 +37,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
-import ManageContracts from "./pages/HR/ManageContracts"
+import ManageContracts from "./pages/HR/ManageContracts";
 import AttendanceManagement from "./pages/HR/AttendanceManagement/AttendanceManagement";
 import LeaveManagement from "./pages/HR/LeaveManagement/LeaveManagement";
-import ContractPage from "./pages/Intern/ContractPage.jsx"
+import ContractPage from "./pages/Intern/ContractPage.jsx";
+import HRReports from "./pages/HR/Reports";
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
 
@@ -149,6 +151,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/create-teams-auto"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <CreateTeamAuto />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
                   path="/hr/allowances"
                   element={
                     <PrivateRoute allowedRoles={["HR"]}>
@@ -177,6 +187,15 @@ function App() {
                   element={
                     <PrivateRoute allowedRoles={["HR"]}>
                       <LeaveManagement />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/hr/reports"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <HRReports />
                     </PrivateRoute>
                   }
                 />
