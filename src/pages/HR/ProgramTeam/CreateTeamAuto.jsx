@@ -69,7 +69,7 @@ export default function CreateTeamAuto() {
         setAllInterns(interns || []); // List<InternAutoDTO>
 
         // Extract unique majors for dropdown (sorted, with "All Majors" first)
-        const uniqueMajors = ["Tất cả", ...new Set(interns.map((i) => i.major).filter(Boolean).sort())];
+        const uniqueMajors = ["Tất cả", ...new Set(interns.map(i => i.major?.trim()).filter(Boolean).sort())];
         setAvailableMajors(uniqueMajors);
 
         // Initial filter (All Majors)
@@ -189,7 +189,7 @@ export default function CreateTeamAuto() {
         <main className="main-content">
           <div className="max-width-container">
             <div className="page-header">
-              <h1>Loading interns...</h1>
+              <h1>Đang tải trang...</h1>
             </div>
           </div>
         </main>
