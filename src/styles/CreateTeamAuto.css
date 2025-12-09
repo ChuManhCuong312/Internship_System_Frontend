@@ -145,7 +145,7 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.dropdown-menu {
+.dropdown-menu-auto {
   position: absolute;
   top: 100%;
   left: 0;
