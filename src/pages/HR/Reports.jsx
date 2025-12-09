@@ -18,6 +18,8 @@ const HRReports = () => {
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [selectedTeamName, setSelectedTeamName] = useState("");
   const [selectedMentorName, setSelectedMentorName] = useState("");
+  const [selectedMajor, setSelectedMajor] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -173,6 +175,26 @@ const HRReports = () => {
         );
       }
 
+      if (selectedMajor) {
+        rowsToExport = rowsToExport.filter(
+          (intern) => intern.major === selectedMajor
+        );
+      }
+
+      if (searchKeyword.trim()) {
+        const keyword = searchKeyword.trim().toLowerCase();
+        rowsToExport = rowsToExport.filter((intern) => {
+          const name = intern.fullName ? intern.fullName.toLowerCase() : "";
+          const email = intern.email ? intern.email.toLowerCase() : "";
+          const phone = intern.phone ? intern.phone.toLowerCase() : "";
+          return (
+            name.includes(keyword) ||
+            email.includes(keyword) ||
+            phone.includes(keyword)
+          );
+        });
+      }
+
       if (!rowsToExport.length) {
         toast.error("Không có dữ liệu để xuất theo bộ lọc hiện tại");
         return;
@@ -220,8 +242,26 @@ const HRReports = () => {
       );
     }
 
+    if (selectedMajor) {
+      filtered = filtered.filter((intern) => intern.major === selectedMajor);
+    }
+
+    if (searchKeyword.trim()) {
+      const keyword = searchKeyword.trim().toLowerCase();
+      filtered = filtered.filter((intern) => {
+        const name = intern.fullName ? intern.fullName.toLowerCase() : "";
+        const email = intern.email ? intern.email.toLowerCase() : "";
+        const phone = intern.phone ? intern.phone.toLowerCase() : "";
+        return (
+          name.includes(keyword) ||
+          email.includes(keyword) ||
+          phone.includes(keyword)
+        );
+      });
+    }
+
     return filtered;
-  }, [report, selectedTeamName, selectedMentorName]);
+  }, [report, selectedTeamName, selectedMentorName, selectedMajor, searchKeyword]);
 
   const mentorOptions = useMemo(() => {
     if (!report?.interns) return [];
@@ -235,6 +275,20 @@ const HRReports = () => {
     );
 
     return names.sort((a, b) => a.localeCompare(b));
+  }, [report]);
+
+  const majorOptions = useMemo(() => {
+    if (!report?.interns) return [];
+
+    const majors = Array.from(
+      new Set(
+        report.interns
+          .map((intern) => intern.major)
+          .filter((major) => !!major)
+      )
+    );
+
+    return majors.sort((a, b) => a.localeCompare(b));
   }, [report]);
 
   const sortedTeams = useMemo(() => {
@@ -278,6 +332,15 @@ const HRReports = () => {
         <div className="filter-container">
           <div className="filter-row">
             <div className="filter-group">
+              <label>Tìm kiếm (tên / SĐT / email)</label>
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                placeholder="Nhập tên, SĐT hoặc email"
+              />
+            </div>
+            <div className="filter-group">
               <label>Chương trình</label>
               <select
                 value={selectedProgramId}
@@ -287,6 +350,8 @@ const HRReports = () => {
                   setSelectedTeamId("");
                   setSelectedTeamName("");
                   setSelectedMentorName("");
+                  setSelectedMajor("");
+                  setSearchKeyword("");
                   setTeams([]);
                 }}
               >
@@ -294,6 +359,22 @@ const HRReports = () => {
                 {programs.map((p) => (
                   <option key={p.programId} value={p.programId}>
                     {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label>Ngành (tuỳ chọn)</label>
+              <select
+                value={selectedMajor}
+                onChange={(e) => setSelectedMajor(e.target.value)}
+                disabled={!report?.interns?.length}
+              >
+                <option value="">-- Tất cả ngành --</option>
+                {majorOptions.map((major) => (
+                  <option key={major} value={major}>
+                    {major}
                   </option>
                 ))}
               </select>
