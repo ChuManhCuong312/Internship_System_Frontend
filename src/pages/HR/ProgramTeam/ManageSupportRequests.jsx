@@ -21,13 +21,8 @@ const ManageSupportRequests = () => {
     const [filterStatus, setFilterStatus] = useState('');
     const [filterInternId, setFilterInternId] = useState('');
 
-<<<<<<< Updated upstream
-    const { token, user } = useContext(AuthContext);
+const { token, user } = useContext(AuthContext);
     const hrId = user?.userId;
-=======
-    const token = Cookies.get('token');
-    const hrId = JSON.parse(localStorage.getItem('user'))?.hrId;
->>>>>>> Stashed changes
 
     useEffect(() => {
         fetchSupportRequests();
