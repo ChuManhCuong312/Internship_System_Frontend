@@ -43,10 +43,8 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
             newErrors.major = "Vui lòng chọn ngành học";
         }
 
-        // GPA validation
-        if (!profileData?.gpa) {
-            newErrors.gpa = "Vui lòng nhập GPA";
-        } else {
+        // GPA validation - only required when editing, optional when creating
+        if (profileData?.gpa) {
             const gpa = parseFloat(profileData.gpa);
             if (isNaN(gpa)) {
                 newErrors.gpa = "GPA phải là số";
@@ -72,17 +70,17 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
 
     // Handle submit with validation
     const handleSubmit = async () => {
+        console.log("handleSubmit called");
         if (!validateForm()) {
+            console.log("Form validation failed");
             return;
         }
 
+        console.log("Form validation passed, calling onSubmit");
         setIsSubmitting(true);
         try {
             await onSubmit();
-            // Refresh page after successful profile creation
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
+            console.log("onSubmit completed successfully");
             setIsSubmitting(false);
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -163,7 +161,7 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
 
         {/* GPA */}
         <div className="form-group">
-            <label>GPA *</label>
+            <label>GPA (Tùy chọn)</label>
             <input
                 type="number"
                 step="0.01"
@@ -180,7 +178,6 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
                         e.target.value = "0.01";
                     }
                 }}
-                required
             />
             {errors?.gpa && <p className="field-error">{errors.gpa}</p>}
         </div>

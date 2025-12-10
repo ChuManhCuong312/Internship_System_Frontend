@@ -121,8 +121,13 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
     const handleSave = async () => {
         if (!token) return;
 
+        console.log("Form data before validation:", formData);
+        console.log("isCreating:", isCreating);
+
         // Validate form data
-        const newErrors = validateInternProfile(formData);
+        const newErrors = validateInternProfile(formData, isCreating);
+        console.log("Validation errors:", newErrors);
+        
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             Object.values(newErrors).forEach(msg => showToast(msg, "error"));
@@ -143,12 +148,16 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
                 const createData = {
                     userId,
                     school: formData.school || "CMC University",
-                    major: formData.major,
-                    address: formData.address,
+                    major: formData.major || "Công nghệ thông tin",
+                    address: formData.address || "Hà Nội",
                     dob: formData.dob,
                     gender: formData.gender || "FEMALE",
-                    gpa: parseFloat(formData.gpa) || 0.0,
                 };
+                
+                // Only include GPA if provided and valid
+                if (formData.gpa && !isNaN(parseFloat(formData.gpa))) {
+                    createData.gpa = parseFloat(formData.gpa);
+                }
 
                 const created = await createIntern(token, createData);
                 setInternData(created);
@@ -169,14 +178,10 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
                 setInternData(prev => ({ ...prev, ...updated }));
                 setIsEditing(false);
                 showToast("Cập nhật hồ sơ thành công!", "success");
-                
-                // Làm mới trang sau 1 giây để hiển thị dữ liệu cập nhật
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
             }
         } catch (err) {
             console.error("Error saving profile:", err);
+            console.error("Error response:", err.response);
             if (err.response?.status === 400) {
                 let msg = err.response.data;
                 if (typeof msg === "string") {
@@ -184,6 +189,8 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
                     if (match) msg = match[1];
                 }
                 showToast(msg || "Dữ liệu không hợp lệ", "error");
+            } else if (err.response?.status === 500) {
+                showToast(`Lỗi server: ${err.response.data || "Lỗi không xác định"}`, "error");
             } else {
                 showToast(isCreating ? "Tạo hồ sơ thất bại" : "Cập nhật hồ sơ thất bại", "error");
             }
