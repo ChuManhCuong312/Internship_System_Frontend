@@ -40,7 +40,7 @@ export const filterSupportRequests = async (token, filters) => {
         const params = new URLSearchParams();
         if (filters.status) params.append('status', filters.status);
         if (filters.type) params.append('type', filters.type);
-        if (filters.internId) params.append('internId', filters.internId);
+        if (filters.keyword) params.append('keyword', filters.keyword);
 
         const response = await axiosClient.get(
             `/support-requests/filter?${params.toString()}`,

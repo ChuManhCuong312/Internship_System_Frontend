@@ -19,7 +19,7 @@ const ManageSupportRequests = () => {
     // Filter states
     const [filterType, setFilterType] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
-    const [filterInternId, setFilterInternId] = useState('');
+    const [keyword, setKeyword] = useState('');
 
 const { token, user } = useContext(AuthContext);
     const hrId = user?.userId;
@@ -54,7 +54,7 @@ const { token, user } = useContext(AuthContext);
             const filters = {};
             if (filterStatus) filters.status = filterStatus;
             if (filterType) filters.type = filterType;
-            if (filterInternId) filters.internId = parseInt(filterInternId);
+            if (keyword) filters.keyword = keyword;
             const data = await filterSupportRequests(token, filters);
             setFilteredRequests(data);
         } catch (err) {
@@ -103,6 +103,9 @@ const { token, user } = useContext(AuthContext);
             case 'PENDING': return 'status-pending';
             case 'APPROVED': return 'status-approved';
             case 'REJECTED': return 'status-rejected';
+            case 'IN_PROGRESS': return 'status-pending';
+            case 'RESOLVED': return 'status-approved';
+            case 'REJECTED': return 'status-rejected';
             default: return '';
         }
     };
@@ -112,6 +115,9 @@ const { token, user } = useContext(AuthContext);
             case 'PENDING': return 'Chờ xử lý';
             case 'APPROVED': return 'Đã duyệt';
             case 'REJECTED': return 'Từ chối';
+            case 'OPEN': return 'Đang mở';
+            case 'IN_PROGRESS': return 'Chờ xử lý';
+            case 'RESOLVED': return 'Đã duyệt';
             default: return status;
         }
     };
@@ -157,19 +163,20 @@ const { token, user } = useContext(AuthContext);
                     <label>Trạng thái:</label>
                     <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                         <option value="">Tất cả</option>
-                        <option value="PENDING">Chờ xử lý</option>
-                        <option value="APPROVED">Đã duyệt</option>
-                        <option value="REJECTED">Từ chối</option>
+                        <option value="OPEN">Đang mở</option>
+                        <option value="IN_PROGRESS">Đang chờ xử lý</option>
+                        <option value="RESOLVED">Đã duyệt</option>
+                        <option value="REJECTED">Đã từ chối</option>
                     </select>
                 </div>
 
                 <div className="filter-group">
-                    <label>ID Thực tập sinh:</label>
+                    <label>Tìm kiếm:</label>
                     <input
-                        type="number"
-                        value={filterInternId}
-                        onChange={(e) => setFilterInternId(e.target.value)}
-                        placeholder="Nhập ID..."
+                        type="text"
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        placeholder="Tìm kiếm..."
                     />
                 </div>
 
@@ -194,7 +201,7 @@ const { token, user } = useContext(AuthContext);
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>ID TTS</th>
+                                <th>Tên TTS</th>
                                 <th>Loại</th>
                                 <th>Tiêu đề</th>
                                 <th>Trạng thái</th>
@@ -213,7 +220,7 @@ const { token, user } = useContext(AuthContext);
                                 filteredRequests.map((request) => (
                                     <tr key={request.supportId}>
                                         <td>{request.supportId}</td>
-                                        <td>{request.internId}</td>
+                                        <td>{request.fullName}</td>
                                         <td>
                                             <span className="type-badge">{getTypeText(request.supportType)}</span>
                                         </td>
