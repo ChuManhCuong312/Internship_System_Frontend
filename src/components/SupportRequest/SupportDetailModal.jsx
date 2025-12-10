@@ -55,6 +55,9 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
             case 'PENDING': return 'Chờ xử lý';
             case 'APPROVED': return 'Đã duyệt';
             case 'REJECTED': return 'Từ chối';
+            case 'OPEN': return 'Đang mở';
+            case 'IN_PROGRESS': return 'Chờ xử lý';
+            case 'RESOLVED': return 'Đã duyệt';
             default: return status;
         }
     };
@@ -82,7 +85,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                     <h3>Thông tin yêu cầu</h3>
                     <div className="detail-grid">
                         <DetailRow label="ID" value={request.supportId} />
-                        <DetailRow label="ID Thực tập sinh" value={request.internId} />
+                        <DetailRow label="Tên Thực tập sinh" value={request.fullName} />
                         <DetailRow label="Loại" value={getTypeText(request.supportType)} />
                         <DetailRow
                             label="Trạng thái"
