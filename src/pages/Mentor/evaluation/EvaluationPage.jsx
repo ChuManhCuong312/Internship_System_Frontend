@@ -278,6 +278,45 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
     setEditEval({ ...evaluation })
     setOpenEditModal(true)
   }
+const handleSendEvaluation = async () => {
+  try {
+    // 🔍 KIỂM TRA xem có thực tập sinh nào chưa được đánh giá không
+    const internsWithoutEval = teamData.interns.filter(
+      (intern) => !intern.evaluations || intern.evaluations.length === 0
+    );
+
+    if (internsWithoutEval.length > 0) {
+      // Lấy danh sách tên những người chưa đánh giá
+      const names = internsWithoutEval.map((i) => i.intern_name).join(", ");
+      toast.error(`Thực tập sinh ${names} chưa được đánh giá. Hãy đánh giá tất cả thực tập sinh trước khi gửi.`);
+      return; // ⛔ Không tiếp tục gửi API
+    }
+
+    // 🔥 Nếu tất cả đều đã được đánh giá → gửi API
+    const res = await fetch("http://localhost:8080/api/notifications/evaluation-summary", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(teamData),
+    });
+
+    const responseText = await res.text();
+
+    if (!res.ok) {
+      toast.error(responseText || "Gửi đánh giá thất bại");
+      return;
+    }
+
+    toast.success("Gửi đánh giá thành công!");
+    console.log("Response Body:", responseText);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Lỗi kết nối đến server");
+  }
+};
   return (
     <div className={styles.container}>
       <div className={styles.container}>
@@ -287,6 +326,12 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
               <div className={styles.teamInfo}>
                 <h1 className={styles.teamName}>{display_name}</h1>
               </div>
+              <button
+                className={styles.addButton}
+                onClick={handleSendEvaluation}
+              >
+                📤 Gửi đánh giá
+              </button>
             </div>
 
             <div className={styles.mainContent}>

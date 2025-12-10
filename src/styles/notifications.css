@@ -106,7 +106,8 @@
 
 .notification-content-main {
   flex: 1;
-  min-width: 0;
+  min-width: 100%;
+  overflow: visible;
 }
 
 .notification-title {
@@ -133,11 +134,16 @@
 }
 
 .notification-message {
+  white-space: pre-wrap !important;
   margin: 0 0 8px 0;
   color: #6b7280;
   font-size: 14px;
   line-height: 1.5;
   word-break: break-word;
+  overflow: visible !important;
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
 }
 
 .notification-time {
