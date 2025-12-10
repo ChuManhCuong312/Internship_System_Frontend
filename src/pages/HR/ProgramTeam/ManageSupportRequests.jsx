@@ -200,7 +200,7 @@ const { token, user } = useContext(AuthContext);
                     <table className="support-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>STT</th>
                                 <th>Tên TTS</th>
                                 <th>Loại</th>
                                 <th>Tiêu đề</th>
