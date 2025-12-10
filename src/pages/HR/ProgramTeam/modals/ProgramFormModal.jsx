@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 export default function ProgramFormModal({
   isOpen,
@@ -8,8 +8,10 @@ export default function ProgramFormModal({
   formData,
   setFormData,
   selectedProgram,
+  allDepartments = [], // Pass this from parent
 }) {
   const [showNameError, setShowNameError] = useState(false);
+  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
 
   // Reset error when modal opens
   useEffect(() => {
@@ -54,9 +56,7 @@ export default function ProgramFormModal({
       });
       setShowNameError(false);
     }
-    // Don't reset formData when selectedProgram is null - it might be pre-filled (e.g., clone)
   }, [isOpen, selectedProgram]);
-
 
   // Calculate min end date for input validation
   const minEndDateStr = useMemo(() => {
@@ -91,6 +91,21 @@ export default function ProgramFormModal({
       onSave();
     }
   };
+
+  // Filter departments based on input
+  const filteredDepartments = useMemo(() => {
+    if (!formData.department) return allDepartments;
+    return allDepartments.filter(dept =>
+      dept.toLowerCase().includes(formData.department.toLowerCase())
+    );
+  }, [allDepartments, formData.department]);
+
+  // Handle department selection from dropdown
+  const handleSelectDepartment = (dept) => {
+    setFormData({ ...formData, department: dept });
+    setShowDepartmentDropdown(false);
+  };
+
 
   if (!isOpen) return null;
 
@@ -130,16 +145,101 @@ export default function ProgramFormModal({
               )}
             </div>
 
-            {/* Department */}
-            <div className="form-group">
+            {/* Department Combobox */}
+            <div className="form-group" style={{ position: "relative" }}>
               <label>Phòng ban</label>
-              <input
-                type="text"
-                placeholder="Nhập tên phòng ban"
-                value={formData.department || ""}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="form-input"
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  type="text"
+                  placeholder="Chọn hoặc nhập phòng ban mới"
+                  value={formData.department || ""}
+                  onChange={(e) => {
+                    setFormData({ ...formData, department: e.target.value });
+                    setShowDepartmentDropdown(true);
+                  }}
+                  onFocus={() => setShowDepartmentDropdown(true)}
+                  className="form-input"
+                  style={{ paddingRight: "36px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowDepartmentDropdown(!showDepartmentDropdown)}
+                  style={{
+                    position: "absolute",
+                    right: "8px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    color: "#666"
+                  }}
+                >
+                  <ChevronDown size={18} />
+                </button>
+
+                {/* Dropdown List */}
+                {showDepartmentDropdown && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      right: 0,
+                      backgroundColor: "white",
+                      border: "1px solid #ddd",
+                      borderRadius: "4px",
+                      marginTop: "4px",
+                      maxHeight: "200px",
+                      overflowY: "auto",
+                      zIndex: 1000,
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+                    }}
+                  >
+                    {filteredDepartments.length > 0 ? (
+                      filteredDepartments.map((dept, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => handleSelectDepartment(dept)}
+                          style={{
+                            padding: "10px 12px",
+                            cursor: "pointer",
+                            borderBottom: idx < filteredDepartments.length - 1 ? "1px solid #f0f0f0" : "none",
+                            transition: "background-color 0.2s"
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f5f5f5"}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+                        >
+                          {dept}
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: "10px 12px", color: "#999", fontStyle: "italic" }}>
+                        {formData.department
+                          ? `Nhập "${formData.department}" để tạo phòng ban mới`
+                          : "Không có phòng ban nào"}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* Click outside to close dropdown */}
+              {showDepartmentDropdown && (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 999
+                  }}
+                  onClick={() => setShowDepartmentDropdown(false)}
+                />
+              )}
             </div>
           </div>
 
@@ -156,8 +256,8 @@ export default function ProgramFormModal({
                 className="form-input"
                 min={
                   selectedProgram
-                    ? selectedProgram.startDate?.split("T")[0] // old start date in edit mode
-                    : minStartDateStr // today + 2 weeks in create mode
+                    ? selectedProgram.startDate?.split("T")[0]
+                    : minStartDateStr
                 }
                 disabled={isUpdateDisabled}
               />

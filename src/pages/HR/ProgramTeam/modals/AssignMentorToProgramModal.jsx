@@ -60,28 +60,28 @@ useEffect(() => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 className="modal-title">Assign Mentors</h2>
+          <h2 className="modal-title">Phân công mentor</h2>
           <button className="btn-close" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
 
         <div className="modal-body">
-          <p>Search and select mentors to assign to this program</p>
+          <p>Tìm và chọn mentor để phân công cho chương trình </p>
 
           {/* Search input */}
           <div className="form-group">
-            <label>Search by Mentor Name</label>
+            <label>Tìm theo tên mentor</label>
             <input
               type="text"
-              placeholder="Type mentor name..."
+              placeholder="Nhập tên mentor..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="form-input"
               autoFocus
             />
 
-            {loading && <p>Loading mentors...</p>}
+            {loading && <p>Đang tải mentors...</p>}
 
             {search.trim() !== "" && results.length > 0 && (
               <div className="suggestions-list">
@@ -104,15 +104,15 @@ useEffect(() => {
             )}
 
             {search.trim() !== "" && results.length === 0 && !loading && (
-              <p>No mentors found</p>
+              <p>Không tìm thấy mentors nào</p>
             )}
           </div>
 
           {/* Currently selected mentors */}
           <div className="selected-mentors-section">
-            <h4>Selected Mentors</h4>
+            <h4>Chọn mentor</h4>
             {localAssignedMentors.length === 0 ? (
-              <p>No mentors assigned yet</p>
+              <p>Chưa có mentor được phân công cho chương trình</p>
             ) : (
               <div className="mentors-list">
                 {localAssignedMentors.map((mentor) => (
@@ -133,7 +133,7 @@ useEffect(() => {
 
         <div className="modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>
-            Cancel
+            Hủy
           </button>
           <button
             className="btn btn-primary"
@@ -159,11 +159,17 @@ useEffect(() => {
                 onClose();
               } catch (err) {
                 console.error("Error saving mentors:", err);
-                alert(err.response?.data?.message || err.message);
+                toast.error(
+                  err.response?.data?.message || err.message || "Không thể lưu phân công mentor!",
+                  {
+                    position: "top-right",
+                    autoClose: 5000,
+                  }
+                );
               }
             }}
           >
-            Save
+            Lưu
           </button>
         </div>
       </div>
