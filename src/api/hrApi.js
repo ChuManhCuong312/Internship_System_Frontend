@@ -5,6 +5,8 @@ const API_URL = "http://localhost:8080/api/hr/interns";
 const API_URL_MENTOR_ASSIGN = "http://localhost:8080/api/hr/mentor-assignments";
 const API_URL_MENTOR = "http://localhost:8080/api/mentors";
 const API_URL_CONTRACTS = "http://localhost:8080/api/hr/contracts";
+const API_URL_PROGRAM = "http://localhost:8080/api/programs";
+const API_URL_TEAMS = "http://localhost:8080/api/teams";
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
@@ -21,13 +23,330 @@ const hrApi = {
     return response.data;
   },
 
+    // --------- PROGRAM METHODS ---------
+    getAllPrograms: async (token, { page = 1, size = 10, sortBy = "programId", sortDir = "asc" } = {}) => {
+      const res = await axios.get(API_URL_PROGRAM, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { page, size, sortBy, sortDir },
+      });
+      return res.data; // returns { data, currentPage, totalItems, totalPages }
+    },
+
+    createProgram: async (token, programData) => {
+      const res = await axios.post(`${API_URL_PROGRAM}/create`, programData, authHeader(token));
+      return res.data;
+    },
+
+    updateProgram: async (token, programId, programData) => {
+      const res = await axios.put(`${API_URL_PROGRAM}/${programId}`, programData, authHeader(token));
+      return res.data;
+    },
+
+    deleteProgram: async (token, programId) => {
+      const res = await axios.delete(`${API_URL_PROGRAM}/${programId}`, authHeader(token));
+      return res.data;
+    },
+
+    getCloneTemplate: async (token, programId) => {
+      const res = await axios.get(`${API_URL_PROGRAM}/${programId}/clone-template`, authHeader(token));
+      return res.data;
+    },
+
+    cloneProgram: async (token, cloneData) => {
+      const res = await axios.post(`${API_URL_PROGRAM}/clone`, cloneData, authHeader(token));
+      return res.data;
+    },
+
+
+    // Program Overview
+      getProgramOverview: async (token, programId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/overview`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // returns { totalTeams, totalInterns, totalMentors, mentorNames }
+      },
+
+      getTeamsInProgram: async (token, programId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/teams`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+      },
+
+      getMentorsForProgram: async (token, programId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/mentors`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+      },
+
+      getMentorByTeam: async (token, teamId) => {
+          const res = await axios.get(`${API_URL_TEAMS}/${teamId}/mentor`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          return res.data; // returns MentorInfoDTO
+        },
+
+
+      // Search programs by name
+      searchPrograms: async (token, name) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { name },
+        });
+        return res.data;
+      },
+
+      // Filter programs by department
+      filterProgramsByDepartment: async (token, department) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/filter/department`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { department },
+        });
+        return res.data;
+      },
+
+      getDepartments: async (token) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/department`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // list of strings
+      },
+
+      // Filter programs by mentor
+      filterProgramsByMentor: async (token, mentorId) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/filter/mentor`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { mentorId },
+        });
+        return res.data;
+      },
+
+      // Fetch mentors who are assigned to at least 1 program
+      getAssignedMentorsDropdown: async (token) => {
+        const res = await axios.get(`${API_URL_PROGRAM}/mentor-assigned`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // list of { mentorId, mentorName }
+      },
+
+      // hrApi.js
+      searchMentors: async (token, name) => {
+        const res = await axios.get(`${API_URL_TEAMS}/mentors/search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { name },
+        });
+        return res.data; // array of MentorInfoDTO
+      },
+
+      assignMentorToTeam: async (token, programId, mentorId) => {
+        const res = await axios.post(
+          `${API_URL_TEAMS}/assign-mentor`,
+          { programId, mentorId },
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      removeMentorFromProgram: async (token, programId, mentorId) => {
+        const res = await axios.delete(`${API_URL_TEAMS}/${programId}/mentors/${mentorId}`,
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      assignMentorToProgram: async (token, programId, mentorId) => {
+        const res = await axios.post(
+          `${API_URL_PROGRAM}/${programId}/assign-mentor/${mentorId}`,
+          {},
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      getMentorsAssignedToProgram: async (token, programId) => {
+        const res = await axios.get(
+          `${API_URL_PROGRAM}/${programId}/mentors`,
+          authHeader(token)
+        );
+        return res.data;
+      },
+
+      // Create a team
+      createTeam: async (token, createTeamData) => {
+        const res = await axios.post(`${API_URL_TEAMS}/teams/create`, createTeamData, authHeader(token));
+        return res.data;
+      },
+
+      // Update a team
+      updateTeam: async (token, teamId, updateTeamData) => {
+        const res = await axios.put(`${API_URL_TEAMS}/teams/${teamId}`, updateTeamData, authHeader(token));
+        return res.data;
+      },
+
+      // Delete a team
+      deleteTeam: async (token, teamId) => {
+        const res = await axios.delete(`${API_URL_TEAMS}/teams/${teamId}`, authHeader(token));
+        return res.data;
+      },
+
+      searchMentorsInProgram: async (token, programId, query) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${programId}/mentors/search`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { q: query },
+        });
+        return res.data; // returns array of MentorInfoDTO
+      },
+
+      searchAvailableInterns: async (token, keyword) => {
+          const res = await axios.get(`${API_URL_TEAMS}/search`, {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { keyword },
+          });
+          return res.data; // returns array of InternSearchDTO
+      },
+
+      addInternToTeam: async (token, programId, teamId, internId) => {
+          const res = await axios.post(
+            `${API_URL_TEAMS}/${programId}/${teamId}/add-intern`,
+            null, // POST body is empty
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              params: { internId }, // internId in query param
+            }
+          );
+          return res.data; // returns success message
+      },
+
+      // Remove intern from team (optional later)
+      removeInternFromTeam: async (token, teamId, internId) => {
+          const res = await axios.delete(
+            `${API_URL_TEAMS}/teams/${teamId}/interns/${internId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          return res.data; // returns success message
+      },
+
+      getInternsInTeam: async (token, teamId) => {
+        const res = await axios.get(`${API_URL_TEAMS}/${teamId}/interns`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data; // returns array of InternDetailDTO
+      },
+
+      // --------- AUTO TEAM METHODS ---------
+
+      // GET /api/programs/{programId}/auto-teams/interns/auto
+      getAvailableInternsAuto: async (token, programId) => {
+        const res = await axios.get(
+          `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto`,
+          authHeader(token)
+        );
+        return res.data; // --> List<InternAutoDTO>
+      },
+
+      // GET /api/programs/{programId}/auto-teams/interns/auto/filter?major=CS
+      filterInternsAutoByMajor: async (token, programId, major) => {
+        const res = await axios.get(
+          `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto/filter`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { major },
+          }
+        );
+        return res.data; // --> List<InternAutoDTO>
+      },
+
+      // POST /api/programs/{programId}/auto-teams/interns/auto/create
+      createAutoTeams: async (token, programId, requestBody) => {
+        const res = await axios.post(
+          `${API_URL_PROGRAM}/${programId}/auto-teams/interns/auto/create`,
+          requestBody,
+          authHeader(token)
+        );
+        return res.data; // --> List<AutoTeamResultDTO>
+      },
+      finishProgram: async (token, programId) => {
+        const res = await axios.put(
+          `${API_URL_PROGRAM}/${programId}/finish`,
+          null, // no body required
+          authHeader(token)
+        );
+        return res.data; // message + updatedInterns
+      },
+
+
   // Lấy danh sách contracts
-  getContracts: async (token, page = 0, size = 10) => {
+  // Accepts either (token, page, size) OR (token, { searchTerm, status, page, size })
+  getContracts: async (token, optionsOrPage = 0, size = 10) => {
+    const params = {};
+    if (typeof optionsOrPage === "object") {
+      const { searchTerm, status, page = 0, size: s = 10 } = optionsOrPage || {};
+      if (searchTerm) params.searchTerm = searchTerm;
+      if (status) params.status = status;
+      params.page = page;
+      params.size = s;
+    } else {
+      params.page = optionsOrPage || 0;
+      params.size = size || 10;
+    }
+
     const response = await axios.get(API_URL_CONTRACTS, {
       ...authHeader(token),
-      params: { page, size },
+      params,
     });
     return response.data;
+  },
+
+  // Upload a new contract for an intern
+  uploadContract: async (token, internId, file, note) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (note) formData.append("note", note);
+
+    const res = await axios.post(`${API_URL_CONTRACTS}/${internId}/upload`, formData, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
+
+  // Replace existing contract document
+  replaceContract: async (token, documentId, file, note) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (note) formData.append("note", note);
+
+    const res = await axios.patch(`${API_URL_CONTRACTS}/${documentId}/replace`, formData, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
+
+  // Update contract note without uploading a new file
+  updateContractNote: async (token, documentId, note) => {
+    const res = await axios.patch(`${API_URL_CONTRACTS}/${documentId}/note`, { note }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
+
+  // Delete contract
+  deleteContract: async (token, documentId) => {
+    const res = await axios.delete(`${API_URL_CONTRACTS}/${documentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
+
+  // Download contract file as blob
+  downloadContract: async (token, documentId) => {
+    const res = await axios.get(`${API_URL_CONTRACTS}/${documentId}/download`, {
+      headers: { Authorization: `Bearer ${token}` },
+      responseType: "blob",
+    });
+    return res.data;
   },
 
   searchInterns: async (token, { searchTerm, major, school, status, page = 0, size = 10 }) => {

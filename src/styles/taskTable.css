@@ -1,0 +1,591 @@
+/* ============= Task Table Enhanced ============= */
+
+.my-tasks-container {
+  padding: 20px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.task-table thead {
+  background-color: #2d3748;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.task-table thead th {
+  padding: 16px 12px;
+  text-align: left;
+  border-bottom: 3px solid #1a202c;
+}
+
+.task-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.task-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.task-table tbody tr.row-due-soon {
+  background-color: #fef2f2;
+  border-left: 4px solid #dc2626;
+}
+
+.task-table tbody tr.row-due-soon:hover {
+  background-color: #fee2e2;
+}
+
+.task-table tbody tr.row-overdue {
+  background-color: #fee2e2;
+  border-left: 4px solid #b91c1c;
+}
+
+.task-table tbody tr.row-overdue:hover {
+  background-color: #fecaca;
+}
+
+.task-table tbody td {
+  padding: 14px 12px;
+  vertical-align: middle;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.task-table tbody tr.row-expanded {
+  background-color: #f0f4f8;
+}
+
+.task-table tbody tr.row-expanded td {
+  padding: 0;
+  border: none;
+}
+
+/* ============= Status Select ============= */
+
+.status-select {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.status-select:hover {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+}
+
+/* ============= Badge Styles ============= */
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ============= Status Badges ============= */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-todo {
+  background-color: #E3F2FD;
+  color: #1565C0;
+  border: 1px solid #90CAF9;
+}
+
+.status-in-progress {
+  background-color: #FFF3E0;
+  color: #E65100;
+  border: 1px solid #FFCC80;
+}
+
+.status-reviewed {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+  border: 1px solid #CE93D8;
+}
+
+.status-done {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
+/* ============= Priority Badges ============= */
+
+.priority-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.priority-low {
+  background-color: #E0F2F1;
+  color: #00695C;
+  border: 1px solid #80CBC4;
+}
+
+.priority-medium {
+  background-color: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #FFE082;
+}
+
+.priority-high {
+  background-color: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
+}
+
+/* Legacy badge classes for backward compatibility */
+.badge-low {
+  background-color: #E0F2F1;
+  color: #00695C;
+  border: 1px solid #80CBC4;
+}
+
+.badge-medium {
+  background-color: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #FFE082;
+}
+
+.badge-high {
+  background-color: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
+}
+
+/* ============= Buttons ============= */
+
+.btn-expand {
+  padding: 6px 12px;
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-expand:hover {
+  background-color: #3182ce;
+  box-shadow: 0 2px 6px rgba(49, 130, 206, 0.3);
+}
+
+.btn-expand:active {
+  transform: scale(0.98);
+}
+
+.btn-save {
+  padding: 8px 16px;
+  background-color: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-save:hover {
+  background-color: #38a169;
+  box-shadow: 0 2px 6px rgba(72, 187, 120, 0.3);
+}
+
+.btn-save:active {
+  transform: scale(0.98);
+}
+
+.btn-delete {
+  padding: 4px 8px;
+  background-color: #f56565;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+  background-color: #e53e3e;
+}
+
+/* ============= Task Detail Section ============= */
+
+.task-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  background-color: #fafbfc;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+.detail-section {
+  background-color: white;
+  padding: 16px;
+  border-radius: 4px;
+  border-left: 4px solid #4299e1;
+}
+
+.detail-section h4 {
+  margin: 0 0 12px 0;
+  color: #2d3748;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.detail-section p {
+  margin: 0;
+  color: #4a5568;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.detail-section textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.detail-section textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* ============= Progress Timeline ============= */
+
+.progress-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4299e1;
+  flex-shrink: 0;
+  margin-top: 3px;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.timeline-content {
+  flex: 1;
+  padding: 10px;
+  background-color: #f7fafc;
+  border-radius: 4px;
+  border-left: 2px solid #cbd5e0;
+  padding-left: 12px;
+}
+
+.timeline-content > div:first-child {
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* ============= Files Container ============= */
+
+.files-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.files-container input[type="file"] {
+  padding: 8px;
+  border: 2px dashed #cbd5e0;
+  border-radius: 4px;
+  background-color: #f7fafc;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.files-container input[type="file"]:hover {
+  border-color: #4299e1;
+  background-color: #ebf8ff;
+}
+
+.files-container input[type="file"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f7fafc;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.file-item:hover {
+  background-color: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.file-item span {
+  font-size: 13px;
+  color: #2d3748;
+  font-weight: 500;
+  flex: 1;
+}
+
+.file-item .btn-delete {
+  margin-left: 8px;
+}
+
+/* ============= Responsive Design ============= */
+
+@media (max-width: 1024px) {
+  .task-table thead {
+    font-size: 11px;
+  }
+
+  .task-table thead th {
+    padding: 12px 8px;
+  }
+
+  .task-table tbody td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .task-detail {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .detail-section {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .my-tasks-container {
+    padding: 12px;
+  }
+
+  .task-table {
+    font-size: 12px;
+  }
+
+  .task-table thead th {
+    padding: 10px 6px;
+    font-size: 10px;
+  }
+
+  .task-table tbody td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .btn-expand {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .detail-section {
+    padding: 10px;
+  }
+
+  .task-detail {
+    gap: 12px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-tasks-container {
+    padding: 8px;
+  }
+
+  .task-table {
+    font-size: 11px;
+  }
+
+  .task-table thead th {
+    padding: 8px 4px;
+    font-size: 9px;
+  }
+
+  .task-table tbody td {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+
+  .task-table tbody tr.row-expanded td {
+    padding: 8px;
+  }
+
+  .task-detail {
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .detail-section {
+    padding: 8px;
+  }
+
+  .progress-timeline {
+    gap: 8px;
+  }
+}
+
+/* ============= Loading & Error States ============= */
+
+.task-table tbody tr.loading-row td {
+  text-align: center;
+  padding: 20px;
+  color: #718096;
+}
+
+.task-table tbody tr.error-row td {
+  text-align: center;
+  padding: 20px;
+  color: #d32f2f;
+}
+
+/* ============= Status Select with Colors ============= */
+
+.status-select-todo {
+  background-color: #E3F2FD !important;
+  color: #1565C0 !important;
+  border-color: #90CAF9 !important;
+}
+
+.status-select-in-progress {
+  background-color: #FFF3E0 !important;
+  color: #E65100 !important;
+  border-color: #FFCC80 !important;
+}
+
+.status-select-reviewed {
+  background-color: #F3E5F5 !important;
+  color: #7B1FA2 !important;
+  border-color: #CE93D8 !important;
+}
+
+.status-select-done {
+  background-color: #E8F5E9 !important;
+  color: #2E7D32 !important;
+  border-color: #A5D6A7 !important;
+}
+
+/* ============= Row Background by Status ============= */
+
+.task-table tbody tr.row-status-todo {
+  border-left: 4px solid #1565C0;
+}
+
+.task-table tbody tr.row-status-in-progress {
+  border-left: 4px solid #E65100;
+}
+
+.task-table tbody tr.row-status-reviewed {
+  border-left: 4px solid #7B1FA2;
+}
+
+.task-table tbody tr.row-status-done {
+  border-left: 4px solid #2E7D32;
+  background-color: #f8fff8;
+}
+
+/* ============= Priority Icons ============= */
+
+.priority-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priority-icon::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.priority-icon.priority-low::before {
+  background-color: #00695C;
+}
+
+.priority-icon.priority-medium::before {
+  background-color: #F57F17;
+}
+
+.priority-icon.priority-high::before {
+  background-color: #C62828;
+}

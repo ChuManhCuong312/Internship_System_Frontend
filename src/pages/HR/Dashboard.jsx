@@ -1,12 +1,64 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import HRSidebar from "../../components/Layout/HRSidebar";
 import "../../styles/dashBoard.css";
 import { Pie, Bar } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
+import { AuthContext } from "../../context/AuthContext";
+import hrApi from "../../api/hrApi";
+import { getAllLeaveRequestsForHR } from "../../api/leaveRequestApi";
+import { toast } from "react-toastify";
+import { FileClock, UserCheck, Layers3, BarChart3, Users } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const HRDashboard = () => {
+  const { token } = useContext(AuthContext);
+  const [pendingInterns, setPendingInterns] = useState(0);
+  const [pendingLeaves, setPendingLeaves] = useState(0);
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!token) return;
+
+      try {
+        setLoadingStats(true);
+
+        const [internRes, leaveRes] = await Promise.all([
+          hrApi.searchInterns(token, {
+            status: "PENDING",
+            page: 0,
+            size: 1000,
+          }),
+          getAllLeaveRequestsForHR(token, "PENDING"),
+        ]);
+
+        let internPendingCount = 0;
+        if (internRes) {
+          if (typeof internRes.totalElements === "number") {
+            internPendingCount = internRes.totalElements;
+          } else if (typeof internRes.totalItems === "number") {
+            internPendingCount = internRes.totalItems;
+          } else if (Array.isArray(internRes.content)) {
+            internPendingCount = internRes.content.length;
+          }
+        }
+
+        const leavePendingCount = Array.isArray(leaveRes) ? leaveRes.length : 0;
+
+        setPendingInterns(internPendingCount);
+        setPendingLeaves(leavePendingCount);
+      } catch (err) {
+        console.error("Error loading HR dashboard stats:", err);
+        toast.error("Không thể tải thống kê dashboard HR");
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [token]);
+
   return (
     <div className="dashboard-layout">
       <HRSidebar />
@@ -17,15 +69,37 @@ const HRDashboard = () => {
         {/* Top Cards */}
         <div className="stats-row">
           <div className="stat-card">
-            <div className="stat-icon intern">🎓</div>
+            <div className="stat-icon intern">
+              <FileClock />
+            </div>
             <div>
-              <h4>Thực tập sinh</h4>
-              <p className="stat-value">42</p>
-              <span>42 đang tham gia / 10 chờ duyệt</span>
+              <h4>Đơn nghỉ phép đang chờ duyệt</h4>
+              <p className="stat-value">{pendingLeaves}</p>
+              <span>
+                {loadingStats
+                  ? "Đang tải thống kê đơn nghỉ phép..."
+                  : ""}
+              </span>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon mentor">🧑‍🏫</div>
+            <div className="stat-icon mentor">
+              <UserCheck />
+            </div>
+            <div>
+              <h4>Hồ sơ đang chờ duyệt</h4>
+              <p className="stat-value">{pendingInterns}</p>
+              <span>
+                {loadingStats
+                  ? "Đang tải thống kê hồ sơ..."
+                  : ""}
+              </span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon mentor">
+              <Layers3 />
+            </div>
             <div>
               <h4>Chương trình</h4>
               <p className="stat-value">3</p>
@@ -33,19 +107,23 @@ const HRDashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon mentor">🧑‍🏫</div>
-            <div>
-              <h4>Mentor</h4>
-              <p className="stat-value">8</p>
-              <span>Số lượng mentor đang hoạt động</span>
+            <div className="stat-icon hr">
+              <BarChart3 />
             </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon hr">📊</div>
             <div>
               <h4>Tỷ lệ hoàn thành</h4>
               <p className="stat-value">78%</p>
               <span>TTS đã hoàn thành chương trình</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon mentor">
+              <Users />
+            </div>
+            <div>
+              <h4>Mentor đang hoạt động</h4>
+              <p className="stat-value">8</p>
+              <span>Số lượng mentor đang hoạt động</span>
             </div>
           </div>
         </div>
@@ -73,7 +151,6 @@ const HRDashboard = () => {
                 }}
               />
             </div>
-
           </div>
           <div className="card">
             <h4>Tiến độ chương trình</h4>
@@ -100,22 +177,8 @@ const HRDashboard = () => {
                 }}
               />
             </div>
-
           </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="bottom-grid">
-          <div className="card">
-            <h4>Lịch sắp tới</h4>
-            <ul className="activity-list">
-              <li>📅 Họp đánh giá nhóm Marketing</li>
-              <li>⏰ Hạn nộp báo cáo tuần này</li>
-              <li>🗓️ Buổi review giao tiếp</li>
-            </ul>
-          </div>
-
-          <div className="card">
+          <div className="card notifications-card">
             <h4>Thông báo nội bộ</h4>
             <ul className="activity-list">
               <li>Mentor Nguyễn An đã đánh giá 3 TTS tuần này</li>
@@ -123,11 +186,14 @@ const HRDashboard = () => {
               <li>Chương trình Marketing đạt 77% hoàn thành</li>
             </ul>
           </div>
+        </div>
 
+        {/* Bottom Section */}
+        <div className="bottom-grid">
           <div className="card">
             <h4>Tiến độ theo phòng ban</h4>
             <table className="task-table">
-              <thead>
+            	<thead>
                 <tr>
                   <th>Phòng ban</th>
                   <th>Số TTS</th>

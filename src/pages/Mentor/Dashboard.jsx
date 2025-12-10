@@ -1,5 +1,6 @@
 import React from "react";
 import MentorSidebar from "../../components/Layout/MentorSidebar";
+import TaskStats from "../../components/Dashboard/TaskStats";
 import "../../styles/dashBoard.css";
 import avatar from "../../assets/avatar.png";
 
@@ -19,12 +20,8 @@ const MentorDashboard = () => {
               <p className="stat-value">6</p>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon mentor">📋</div>
-            <div>
-              <h4>Nhiệm vụ đã giao</h4>
-              <p className="stat-value">12</p>
-            </div>
+          <div style={{ flex: 1 }}>
+            <TaskStats />
           </div>
           <div className="stat-card">
             <div className="stat-icon mentor">📝</div>

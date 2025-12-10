@@ -6,7 +6,6 @@ import { AuthContext } from '../../../context/AuthContext';
 import '../../../styles/dashBoard.css';
 import '../../../styles/supportRequest.css';
 import '../../../styles/table.css';
-import Cookies from 'js-cookie';
 
 const ManageSupportRequests = () => {
     const [supportRequests, setSupportRequests] = useState([]);

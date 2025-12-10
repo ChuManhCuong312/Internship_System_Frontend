@@ -1,0 +1,538 @@
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  background-color: #ffffff;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background-color: #e5e7eb;
+}
+
+.header {
+  margin-bottom: 30px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.teamInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.teamName {
+  font-size: 36px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+.teamDetails {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 30px;
+}
+
+.leftPanel {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.panelTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.memberSection {
+  margin-bottom: 24px;
+}
+
+.memberSection:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memberItem {
+  padding: 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  position: relative;
+}
+
+.memberItem:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.memberItem.active {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.memberItem.evaluated {
+  background-color: #f0fdf4;
+}
+
+.memberItem.evaluated.active {
+  background-color: #dcfce7;
+  border-color: #15803d;
+}
+
+.memberName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 4px 0;
+}
+
+.memberPosition {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 16px;
+  color: #15803d;
+  font-weight: bold;
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.internInfo {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.internName {
+  font-size: 26px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 16px 0;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 14px;
+  color: #000;
+  word-break: break-all;
+}
+
+.evaluationSection {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.evalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.evalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+.addButton {
+  padding: 10px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.editButton {
+  padding: 10px 16px;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 5px;
+}
+.deleteButton {
+  padding: 10px 16px;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 5px;
+}
+
+.addButton:hover {
+  background-color: #2563eb;
+}
+
+.addEvalForm {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: inherit;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #000;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.criteriaRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: #059669;
+}
+
+.noEvals {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.evalsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.evalCard {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.evalCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.evalCardHeader .evalTitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.evalDate {
+  font-size: 12px;
+  color: #999;
+}
+
+.evalCriteria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.criteriaItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.criteriaItem span {
+  color: #666;
+}
+
+.criteriaItem strong {
+  color: #000;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.evalNote {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  font-style: italic;
+}
+
+.averageSection {
+  background-color: #f0fdf4;
+  border: 2px solid #15803d;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.averageTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.averageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.averageItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #d1e9df;
+}
+
+.averageItem span {
+  color: #666;
+}
+
+.averageItem strong {
+  color: #15803d;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.totalScore {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid #15803d;
+  font-weight: 600;
+}
+
+.totalScore span {
+  color: #000;
+}
+
+.totalScore strong {
+  color: #15803d;
+  font-size: 18px;
+  margin-left: 12px;
+}
+
+@media (max-width: 1024px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+  }
+
+  .leftPanel {
+    position: relative;
+    top: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 12px;
+  }
+
+  .teamName {
+    font-size: 24px;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .evalCriteria,
+  .averageGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .criteriaRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.barContainer {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin: 4px 0;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 5px;
+}
+.closeButton {
+    width: 100%;
+    padding: 12px;
+    background-color: gray;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top:3px
+}

@@ -416,16 +416,10 @@ const handleClearFilters = () => {
            ◀ Trang trước
          </button>
 
-         {/* Nút số trang */}
-         {Array.from({ length: pagination.totalPages }, (_, idx) => idx + 1).map((page) => (
-           <button
-             key={page}
-             className={`pagination-btn ${page === pagination.currentPage ? "active" : ""}`}
-             onClick={() => handlePageChange(page)}
-           >
-             {page}
-           </button>
-         ))}
+        {/* Thông tin trang */}
+         <span className="pagination-info">
+           Trang {pagination.currentPage} / {pagination.totalPages}
+         </span>
 
          {/* Trang sau */}
          <button
@@ -436,10 +430,6 @@ const handleClearFilters = () => {
            Trang sau ▶
          </button>
 
-         {/* Thông tin trang */}
-         <span className="pagination-info">
-           Trang {pagination.currentPage} / {pagination.totalPages}
-         </span>
        </div>
 
 

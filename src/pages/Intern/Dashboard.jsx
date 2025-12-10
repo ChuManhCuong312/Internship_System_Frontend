@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import InternSidebar from '../../components/Layout/InternSidebar';
+import LatestNotificationsWidget from '../../components/Dashboard/LatestNotificationsWidget';
 import '../../styles/dashBoard.css';
 import avatar from "../../assets/avatar.png";
 import { AuthContext } from '../../context/AuthContext';
@@ -16,6 +17,7 @@ const Dashboard = () => {
   const [hasCheckedOut, setHasCheckedOut] = useState(false);
   const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [attendanceError, setAttendanceError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -62,6 +64,14 @@ const Dashboard = () => {
     loadTodayAttendance();
   }, [token, internId]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const loadTodayAttendance = async () => {
     try {
       setAttendanceLoading(true);
@@ -69,7 +79,7 @@ const Dashboard = () => {
       const data = await getTodayAttendance(token, internId);
       setTodayAttendance(data.attendance);
       setHasCheckedIn(data.hasCheckedIn);
-      setHasCheckedOut(data.hasCheckedOut);
+      setHasCheckedOut(!!data.attendance?.checkOut);
     } catch (error) {
       setAttendanceError('Không thể tải trạng thái chấm công hôm nay');
       setTodayAttendance(null);
@@ -115,6 +125,16 @@ const Dashboard = () => {
   const formatTime = (value) => {
     if (!value) return '--:--';
     return value.substring(0, 5);
+  };
+
+  const formatTimeFromDate = (date) => {
+    if (!date) return '--:--';
+    return date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
   };
 
   const checkInStatusText = attendanceLoading
@@ -164,11 +184,23 @@ const Dashboard = () => {
               <div className="attendance-times">
                 <div className="time-block">
                   <span>Check-in</span>
-                  <strong>{formatTime(todayAttendance?.checkIn)}</strong>
+                  <strong>
+                    {attendanceLoading
+                      ? 'Đang tải...'
+                      : !hasCheckedIn
+                      ? formatTimeFromDate(currentTime)
+                      : formatTime(todayAttendance?.checkIn)}
+                  </strong>
                 </div>
                 <div className="time-block">
                   <span>Check-out</span>
-                  <strong>{formatTime(todayAttendance?.checkOut)}</strong>
+                  <strong>
+                    {attendanceLoading
+                      ? 'Đang tải...'
+                      : !hasCheckedIn
+                      ? '--:--'
+                      : formatTimeFromDate(currentTime)}
+                  </strong>
                 </div>
               </div>
               <div className="attendance-actions">
@@ -182,9 +214,9 @@ const Dashboard = () => {
                 <button
                   className="checkout-btn"
                   onClick={handleQuickCheckOut}
-                  disabled={attendanceLoading || !hasCheckedIn || hasCheckedOut}
+                  disabled={attendanceLoading || !hasCheckedIn}
                 >
-                  {hasCheckedOut ? '✓ Đã check-out' : 'Check-out'}
+                  {hasCheckedOut ? 'Check-out' : 'Check-out'}
                 </button>
               </div>
             </>
@@ -238,14 +270,7 @@ const Dashboard = () => {
 
         {/* Bottom Section */}
         <div className="bottom-grid">
-          <div className="card">
-            <h4>Thông báo mới</h4>
-            <ul className="activity-list">
-              <li>Mentor A đã phản hồi báo cáo tuần</li>
-              <li>Buổi review kỹ năng vào thứ 5</li>
-              <li>Thêm nhiệm vụ mới từ phòng IT</li>
-            </ul>
-          </div>
+          <LatestNotificationsWidget token={token} internId={internId} />
           <div className="card">
             <h4>Lịch</h4>
             <ul className="activity-list">

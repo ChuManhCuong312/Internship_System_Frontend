@@ -94,6 +94,20 @@ const Notifications = () => {
     return colors[type] || '#667eea';
   };
 
+  const getNotificationLabel = (type) => {
+    const labels = {
+      ALLOWANCE: 'Trợ cấp',
+      TASK: 'Công việc',
+      ATTENDANCE: 'Điểm danh',
+      LEAVE: 'Đơn xin nghỉ',
+      LEAVE_REQUEST: 'Đơn xin nghỉ',
+      PROFILE_STATUS: 'Hồ sơ',
+      SYSTEM: 'Hệ thống',
+      OTHER: 'Khác',
+    };
+    return labels[type] || type || 'Thông báo';
+  };
+
   const handleMarkAsRead = async (notificationId, isRead) => {
     if (isRead) return; // Nếu đã đọc rồi thì không làm gì
 
@@ -134,6 +148,8 @@ const Notifications = () => {
       </div>
     );
   }
+    const formatMessage = (msg) =>
+      msg?.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
   return (
     <div className="notification-layout">
@@ -143,9 +159,9 @@ const Notifications = () => {
         <div className="notification-header">
           <div className="header-title">
             <h2>Thông báo</h2>
-            
+
           </div>
-        
+
         </div>
 
         {/* Notifications List */}
@@ -153,8 +169,8 @@ const Notifications = () => {
           {notifications.length > 0 ? (
             <div className="notifications-list">
               {notifications.map((notification) => (
-                <div 
-                  key={notification.notificationId} 
+                <div
+                  key={notification.notificationId}
                   className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
                   onClick={() => handleMarkAsRead(notification.notificationId, notification.isRead)}
                   style={{ cursor: 'pointer' }}
@@ -164,17 +180,17 @@ const Notifications = () => {
                       {getNotificationIcon(notification.type)}
                     </span>
                   </div>
-                  
+
                   <div className="notification-content-main">
                     <div className="notification-title">
                       <h4>{notification.title}</h4>
-                      <span className="notification-type" style={{ 
-                        backgroundColor: getNotificationColor(notification.type) 
+                      <span className="notification-type" style={{
+                        backgroundColor: getNotificationColor(notification.type)
                       }}>
-                        {notification.type}
+                        {getNotificationLabel(notification.type)}
                       </span>
                     </div>
-                    <p className="notification-message">{notification.message}</p>
+                    <p className="notification-message">{formatMessage(notification.message)}</p>
                     <span className="notification-time">
                       {new Date(notification.createdAt).toLocaleDateString('vi-VN', {
                         year: 'numeric',

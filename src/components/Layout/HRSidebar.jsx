@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
+import Swal from "sweetalert2";
 
 const HRSidebar = () => {
   const [expanded, setExpanded] = useState(() => {
@@ -14,7 +15,6 @@ const HRSidebar = () => {
     return saved ? JSON.parse(saved) : false;
   });
 
-  // Lưu trạng thái mở/đóng của các submenu vào localStorage
   const [openProfileMenu, setOpenProfileMenu] = useState(() => {
     const saved = localStorage.getItem("hrProfileMenuOpen");
     return saved ? JSON.parse(saved) : false;
@@ -30,6 +30,11 @@ const HRSidebar = () => {
     return saved ? JSON.parse(saved) : false;
   });
 
+  const [openTaskMenu, setOpenTaskMenu] = useState(() => {
+    const saved = localStorage.getItem("hrTaskMenuOpen");
+    return saved ? JSON.parse(saved) : false;
+  });
+
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +44,8 @@ const HRSidebar = () => {
     config: { tension: 220, friction: 20 },
   });
 
+  const AnimatedDiv = animated.div;
+
   const initials = (user?.fullName || user?.email || "HR")
     .split(" ")
     .map(word => word[0])
@@ -46,12 +53,10 @@ const HRSidebar = () => {
     .slice(0, 2)
     .toUpperCase();
 
-  // Lưu trạng thái expanded vào localStorage
   useEffect(() => {
     localStorage.setItem("hrSidebarExpanded", JSON.stringify(expanded));
   }, [expanded]);
 
-  // Lưu trạng thái các submenu vào localStorage
   useEffect(() => {
     localStorage.setItem("hrProfileMenuOpen", JSON.stringify(openProfileMenu));
   }, [openProfileMenu]);
@@ -64,7 +69,10 @@ const HRSidebar = () => {
     localStorage.setItem("hrBenefitsMenuOpen", JSON.stringify(openBenefitsMenu));
   }, [openBenefitsMenu]);
 
-  // Tự động mở submenu dựa trên route hiện tại
+  useEffect(() => {
+    localStorage.setItem("hrTaskMenuOpen", JSON.stringify(openTaskMenu));
+  }, [openTaskMenu]);
+
   useEffect(() => {
     const path = location.pathname;
 
@@ -93,12 +101,14 @@ const HRSidebar = () => {
     setOpenBenefitsMenu(!openBenefitsMenu);
   };
 
-  // Helper function để check active route
+  const handleTaskMenuToggle = () => {
+    setOpenTaskMenu(!openTaskMenu);
+  };
+
   const isActive = (path) => {
     return location.pathname === path;
   };
 
-  // Helper function để check active menu cha
   const isParentActive = (paths) => {
     return paths.some(path => location.pathname.includes(path));
   };
@@ -107,8 +117,26 @@ const HRSidebar = () => {
     setExpanded(false);
   };
 
+  const handleLogout = () => {
+    Swal.fire({
+      title: 'Đăng xuất',
+      text: 'Bạn có chắc chắn muốn đăng xuất?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Có, đăng xuất',
+      cancelButtonText: 'Hủy'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        navigate("/login");
+      }
+    });
+  };
+
   return (
-    <animated.div
+    <AnimatedDiv
       className="sidebar"
       style={sidebarStyle}
       onMouseEnter={() => setExpanded(true)}
@@ -168,8 +196,22 @@ const HRSidebar = () => {
           </ul>
         )}
 
-        <li><FaTasks /> {expanded && <span>Công việc & Đánh giá</span>}</li>
-        <li><FaClock /> {expanded && <span>Chấm công & Thời gian</span>}</li>
+        <li
+          onClick={handleTaskMenuToggle}
+          className={`menu-item ${isParentActive(['/hr/attendance', '/hr/leave-requests']) ? 'active' : ''}`}
+        >
+          <FaTasks /> {expanded && <span>Chấm công & Nghỉ phép</span>}
+        </li>
+        {expanded && openTaskMenu && (
+          <ul className="submenu">
+            <li className={isActive('/hr/attendance') ? 'active' : ''}>
+              <Link to="/hr/attendance">Quản lý chấm công</Link>
+            </li>
+            <li className={isActive('/hr/leave-requests') ? 'active' : ''}>
+              <Link to="/hr/leave-requests">Quản lý đơn nghỉ phép</Link>
+            </li>
+          </ul>
+        )}
 
         <li
           onClick={handleBenefitsMenuToggle}
@@ -191,7 +233,11 @@ const HRSidebar = () => {
           </ul>
         )}
 
-        <li><FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}</li>
+        <li className={isActive('/hr/reports') ? 'active' : ''}>
+          <Link to="/hr/reports">
+            <FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}
+          </Link>
+        </li>
         <li
           onClick={() => navigate("/Admin/InternProfile")}
           className={isActive('/Admin/InternProfile') ? 'active' : ''}
@@ -201,14 +247,11 @@ const HRSidebar = () => {
       </ul>
 
       <div className="sidebar-footer">
-        <button onClick={() => {
-          logout();
-          navigate("/login");
-        }}>
+        <button onClick={handleLogout}>
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>
-    </animated.div>
+    </AnimatedDiv>
   );
 };
 

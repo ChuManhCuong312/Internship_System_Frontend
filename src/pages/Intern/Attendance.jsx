@@ -30,6 +30,7 @@ const Attendance = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [error, setError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -82,6 +83,14 @@ const Attendance = () => {
   }, [authLoading, token, user?.userId]);
 
   useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
     if (!token || !internId) return;
 
     loadData();
@@ -108,7 +117,7 @@ const Attendance = () => {
         const todayData = results[0].value;
         setTodayAttendance(todayData.attendance);
         setHasCheckedIn(todayData.hasCheckedIn);
-        setHasCheckedOut(todayData.hasCheckedOut);
+        setHasCheckedOut(!!todayData.attendance?.checkOut);
       } else {
         setTodayAttendance(null);
         setHasCheckedIn(false);
@@ -118,7 +127,7 @@ const Attendance = () => {
       if (results[1].status === 'fulfilled') {
         const historyData = results[1].value;
         const list = Array.isArray(historyData) ? historyData : [];
-        setHistory(list.slice(0, 10));
+        setHistory(list);
       } else {
         setHistory([]);
       }
@@ -136,7 +145,6 @@ const Attendance = () => {
       } else {
         setMonthlyStats(null);
       }
-
     } catch (error) {
       setError('Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {
@@ -179,6 +187,16 @@ const Attendance = () => {
   const formatTime = (time) => {
     if (!time) return '--:--';
     return time.substring(0, 5);
+  };
+
+  const formatTimeFromDate = (date) => {
+    if (!date) return '--:--';
+    return date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
   };
 
   const formatDate = (date) => {
@@ -269,14 +287,18 @@ const Attendance = () => {
                 <div className="time-item">
                   <span className="time-label">Check-in</span>
                   <span className="time-value">
-                    {formatTime(todayAttendance?.checkIn)}
+                    {!hasCheckedIn
+                      ? formatTimeFromDate(currentTime)
+                      : formatTime(todayAttendance?.checkIn)}
                   </span>
                 </div>
                 <div className="time-divider">→</div>
                 <div className="time-item">
                   <span className="time-label">Check-out</span>
                   <span className="time-value">
-                    {formatTime(todayAttendance?.checkOut)}
+                    {!hasCheckedIn
+                      ? '--:--'
+                      : formatTimeFromDate(currentTime)}
                   </span>
                 </div>
               </div>
@@ -305,11 +327,11 @@ const Attendance = () => {
               </button>
 
               <button
-                className={`btn-checkout ${!hasCheckedIn || hasCheckedOut ? 'disabled' : ''}`}
+                className={`btn-checkout ${!hasCheckedIn ? 'disabled' : ''}`}
                 onClick={handleCheckOut}
-                disabled={!hasCheckedIn || hasCheckedOut}
+                disabled={!hasCheckedIn}
               >
-                {hasCheckedOut ? '✓ Đã check-out' : '🕐 Check-out'}
+                {hasCheckedOut ? '✓ Check-out' : '🕐 Check-out'}
               </button>
             </div>
           </div>
@@ -318,7 +340,9 @@ const Attendance = () => {
         {/* History Table */}
         <div className="history-section">
           <div className="history-header">
-            <h3>Lịch sử chấm công (10 ngày gần nhất)</h3>
+            <h3>
+              Lịch sử chấm công tháng {selectedMonth}/{selectedYear}
+            </h3>
             <div className="month-selector">
               <select
                 value={selectedMonth}

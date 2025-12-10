@@ -247,11 +247,15 @@
 
 /* Programs List */
 .programs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  gap: 50px; /* space between cards */
 }
-
+@media (max-width: 768px) {
+  .programs-list {
+    grid-template-columns: 1fr; /* single column on small screens */
+  }
+}
 .empty-state {
   padding: 3rem 2rem;
   text-align: center;
@@ -914,4 +918,104 @@
   .action-buttons button {
     width: 100%;
   }
+}
+
+.small-modal {
+  width: 380px !important;
+  padding-bottom: 20px;
+}
+.btn-danger {
+  background: #d9534f;
+  color: white;
+  border: none;
+}
+.btn-danger:hover {
+  background: #c9302c;
+}
+
+.program-mentors-section {
+  border-top: 1px solid #e0e0e0; /* subtle gray line */
+  margin-top: 12px;
+  padding-top: 8px;
+}
+
+.mentors-title {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.mentors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px; /* space between badges */
+  align-items: flex-start; /* prevent stretching */
+}
+
+
+.mentor-badge {
+  background-color: #cce5ff; /* light blue background */
+  color: #1c3d5a; /* darker blue text */
+  padding: 4px 10px; /* only around the name */
+  border-radius: 12px; /* pill shape */
+  font-size: 13px;
+  display: inline-block; /* ensures background only wraps content */
+  white-space: nowrap;
+  width: auto; /* make sure it doesn’t stretch */
+}
+
+.no-mentor {
+  color: #999;
+  font-size: 13px;
+}
+
+.remove-btn {
+    margin-left: 5px;
+    color: red;
+    background:none;
+    border: none;
+}
+
+.remove-btn:hover {
+  background-color: rgba(220, 38, 38, 0.1); /* subtle red background */
+  transform: scale(1.2); /* slight zoom effect */
+}
+.teams-page {
+  padding: 16px;
+}
+
+.teams-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.team-card {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.team-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-mentors {
+  display: flex;
+  gap: 8px;
+}
+
+.team-stt {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.team-interns-count {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
 }

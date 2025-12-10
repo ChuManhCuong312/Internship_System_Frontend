@@ -97,3 +97,19 @@ export const updateAttendance = async (token, id, attendance) => {
 export const deleteAttendance = async (token, id) => {
   await axios.delete(`${API_URL}/${id}`, authHeader(token));
 };
+
+export const getDailyAttendanceForHR = async (token, date) => {
+  const res = await axios.get(`${API_URL}/hr/daily`, {
+    ...authHeader(token),
+    params: { date },
+  });
+  return res.data;
+};
+
+export const getMonthlyAttendanceForHR = async (token, year, month) => {
+  const res = await axios.get(`${API_URL}/hr/monthly`, {
+    ...authHeader(token),
+    params: { year, month },
+  });
+  return res.data;
+};

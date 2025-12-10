@@ -29,6 +29,7 @@ import EvaluateIntern from "../pages/Mentor/EvaluateIntern";
 import InternDashboard from "../pages/Intern/Dashboard";
 import MyProfile from "../pages/Intern/MyProfile";
 import MyTasks from "../pages/Intern/MyTasks";
+import Program from "../pages/Intern/Program";
 import Attendance from "../pages/Intern/Attendance";
 import AllowanceRequest from "../pages/Intern/AllowanceRequest";
 import SupportRequest from "../pages/Intern/SupportRequest";
@@ -182,6 +183,14 @@ const AppRouter = () => {
           element={
             <PrivateRoute requiredRole="intern">
               <MyTasks />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/intern/program"
+          element={
+            <PrivateRoute requiredRole="intern">
+              <Program />
             </PrivateRoute>
           }
         />
