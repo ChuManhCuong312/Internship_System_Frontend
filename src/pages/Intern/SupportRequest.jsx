@@ -69,8 +69,9 @@ const SupportRequest = () => {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'PENDING': return <span className="status-badge pending">Đang chờ</span>;
-      case 'APPROVED': return <span className="status-badge success">Đã xử lý</span>;
+      case 'OPEN': return <span className="status-badge pending">Đang mở</span>;
+      case 'IN_PROGRESS': return <span className="status-badge pending">Đang chờ</span>;
+      case 'RESOLVED': return <span className="status-badge success">Đã xử lý</span>;
       case 'REJECTED': return <span className="status-badge error">Từ chối</span>;
       default: return status;
     }
