@@ -61,13 +61,17 @@ export const getInternsByStatus = async (token, status) => {
 export const createIntern = async (token, internProfile) => {
   const payload = {
     userId: internProfile.userId,
-    school: internProfile.school || "",
-    major: internProfile.major || "",
-    dob: internProfile.dob || "2000-01-01",
-    address: internProfile.address || "",
+    school: internProfile.school || "CMC University",
+    major: internProfile.major || "Công nghệ thông tin",
+    dob: internProfile.dob,
+    address: internProfile.address || "Hà Nội",
     gender: internProfile.gender || "FEMALE",
-    gpa: internProfile.gpa || 0.0,
   };
+
+  // Only include GPA if provided
+  if (internProfile.gpa) {
+    payload.gpa = internProfile.gpa;
+  }
 
   const res = await axios.post(API_URL, payload, authHeader(token));
   return res.data;
