@@ -137,7 +137,7 @@ const HRSidebar = () => {
 
   return (
     <AnimatedDiv
-      className="sidebar"
+      className={`sidebar ${expanded ? "expanded" : "collapsed"}`}
       style={sidebarStyle}
     >
       <div className="sidebar-header">

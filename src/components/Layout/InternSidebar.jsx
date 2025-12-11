@@ -193,7 +193,7 @@ const InternSidebar = () => {
 
   return (
     <animated.div 
-      className="sidebar" 
+      className={`sidebar ${expanded ? "expanded" : "collapsed"}`} 
       style={sidebarStyle}
     >
       <div className="sidebar-header">

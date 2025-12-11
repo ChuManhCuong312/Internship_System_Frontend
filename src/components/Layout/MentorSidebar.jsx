@@ -61,7 +61,7 @@ const MentorSidebar = () => {
 
   return (
     <animated.div
-      className="sidebar"
+      className={`sidebar ${expanded ? "expanded" : "collapsed"}`}
       style={sidebarStyle}
     >
       {/* Header */}
