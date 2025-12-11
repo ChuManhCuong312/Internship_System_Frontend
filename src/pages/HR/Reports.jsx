@@ -14,13 +14,21 @@ import "../../styles/buttons.css";
 const HRReports = () => {
   const { token } = useContext(AuthContext);
   const [programs, setPrograms] = useState([]);
-  const [selectedProgramId, setSelectedProgramId] = useState("");
+  
+  const [pendingProgramId, setPendingProgramId] = useState("");
+  const [pendingTeamName, setPendingTeamName] = useState("");
+  const [pendingMentorName, setPendingMentorName] = useState("");
+  const [pendingMajor, setPendingMajor] = useState("");
+  const [pendingSearchKeyword, setPendingSearchKeyword] = useState("");
+  
+  const [appliedProgramId, setAppliedProgramId] = useState("");
+  const [appliedTeamName, setAppliedTeamName] = useState("");
+  const [appliedMentorName, setAppliedMentorName] = useState("");
+  const [appliedMajor, setAppliedMajor] = useState("");
+  const [appliedSearchKeyword, setAppliedSearchKeyword] = useState("");
+  
   const [teams, setTeams] = useState([]);
   const [selectedTeamId, setSelectedTeamId] = useState("");
-  const [selectedTeamName, setSelectedTeamName] = useState("");
-  const [selectedMentorName, setSelectedMentorName] = useState("");
-  const [selectedMajor, setSelectedMajor] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState("");
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -49,16 +57,16 @@ const HRReports = () => {
   }, [token]);
 
   useEffect(() => {
-    if (!token || !selectedProgramId) {
+    if (!token || !pendingProgramId) {
       setTeams([]);
       setSelectedTeamId("");
-      setSelectedTeamName("");
+      setPendingTeamName("");
       return;
     }
 
     const loadTeams = async () => {
       try {
-        const res = await hrApi.getTeamsInProgram(token, selectedProgramId);
+        const res = await hrApi.getTeamsInProgram(token, pendingProgramId);
         setTeams(res || []);
       } catch (err) {
         console.error("Không thể tải danh sách team", err);
@@ -67,30 +75,131 @@ const HRReports = () => {
     };
 
     loadTeams();
-  }, [token, selectedProgramId]);
+  }, [token, pendingProgramId]);
 
   useEffect(() => {
     if (!token) {
       setReport(null);
+    }
+  }, [token]);
+
+  const handleSearchReport = async (forceAll = false) => {
+    if (!token) {
+      toast.error("Phiên đăng nhập không hợp lệ");
       return;
     }
 
-    const loadReport = async () => {
-      try {
-        setLoading(true);
-        if (selectedProgramId) {
+    try {
+      setLoading(true);
+      let effectiveProgramId = pendingProgramId;
+      let teamName = pendingTeamName;
+      let mentorName = pendingMentorName;
+      let major = pendingMajor;
+      let searchKeyword = pendingSearchKeyword;
+
+      if (forceAll) {
+        effectiveProgramId = "";
+        teamName = "";
+        mentorName = "";
+        major = "";
+        searchKeyword = "";
+      }
+
+      setAppliedProgramId(effectiveProgramId);
+      setAppliedTeamName(teamName);
+      setAppliedMentorName(mentorName);
+      setAppliedMajor(major);
+      setAppliedSearchKeyword(searchKeyword);
+
+      if (effectiveProgramId) {
+        const data = await reportApi.getFinalEvaluationReportByProgram(
+          token,
+          effectiveProgramId
+        );
+        setReport(data);
+        return;
+      }
+
+      if (!programs || programs.length === 0) {
+        toast.error("Chưa có dữ liệu chương trình để tìm kiếm");
+        setReport(null);
+        return;
+      }
+
+      let allInterns = [];
+
+      for (const p of programs) {
+        try {
           const data = await reportApi.getFinalEvaluationReportByProgram(
             token,
-            selectedProgramId
+            p.programId
           );
-          setReport(data);
-          return;
+          if (data?.interns) {
+            const mapped = data.interns.map((intern) => ({
+              ...intern,
+              programId: data.programId ?? p.programId,
+              programName: data.programName ?? p.name,
+            }));
+            allInterns = allInterns.concat(mapped);
+          }
+        } catch (innerErr) {
+          console.error(
+            "Không thể tải báo cáo cho chương trình",
+            p.programId,
+            innerErr
+          );
         }
+      }
 
-        if (!programs || programs.length === 0) {
-          setReport(null);
-          return;
+      const totalInterns = allInterns.length;
+      let internsWithEvaluations = 0;
+      let sumFinalScore = 0;
+      let countFinalScore = 0;
+
+      allInterns.forEach((intern) => {
+        if (intern.evaluationCount != null && intern.evaluationCount > 0) {
+          internsWithEvaluations++;
         }
+        if (intern.finalScore != null) {
+          sumFinalScore += intern.finalScore;
+          countFinalScore++;
+        }
+      });
+
+      const avgFinalScore =
+        countFinalScore > 0 ? sumFinalScore / countFinalScore : null;
+
+      setReport({
+        programId: null,
+        programName: "Tất cả chương trình",
+        department: null,
+        interns: allInterns,
+        totalInterns,
+        internsWithEvaluations,
+        avgFinalScore,
+      });
+    } catch (err) {
+      console.error("Không thể tải báo cáo", err);
+      toast.error("Không thể tải báo cáo");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+    if (!programs || programs.length === 0) return;
+    if (report || loading) return;
+
+    const doInitialLoad = async () => {
+      try {
+        setLoading(true);
+
+        setAppliedProgramId("");
+        setAppliedTeamName("");
+        setAppliedMentorName("");
+        setAppliedMajor("");
+        setAppliedSearchKeyword("");
 
         let allInterns = [];
 
@@ -152,8 +261,28 @@ const HRReports = () => {
       }
     };
 
-    loadReport();
-  }, [token, selectedProgramId, programs]);
+    doInitialLoad();
+  }, [token, programs]);
+
+  const handleClearFilters = () => {
+    setPendingProgramId("");
+    setPendingTeamName("");
+    setPendingMentorName("");
+    setPendingMajor("");
+    setPendingSearchKeyword("");
+    
+    setAppliedProgramId("");
+    setAppliedTeamName("");
+    setAppliedMentorName("");
+    setAppliedMajor("");
+    setAppliedSearchKeyword("");
+    
+    setSelectedTeamId("");
+    setTeams([]);
+    setReport(null);
+    
+    handleSearchReport(true);
+  };
 
   const handleExport = async () => {
     try {
@@ -165,26 +294,26 @@ const HRReports = () => {
 
       let rowsToExport = report.interns;
 
-      if (selectedTeamName) {
+      if (appliedTeamName) {
         rowsToExport = rowsToExport.filter(
-          (intern) => intern.teamName === selectedTeamName
+          (intern) => intern.teamName === appliedTeamName
         );
       }
 
-      if (selectedMentorName) {
+      if (appliedMentorName) {
         rowsToExport = rowsToExport.filter(
-          (intern) => intern.mentorName === selectedMentorName
+          (intern) => intern.mentorName === appliedMentorName
         );
       }
 
-      if (selectedMajor) {
+      if (appliedMajor) {
         rowsToExport = rowsToExport.filter(
-          (intern) => intern.major === selectedMajor
+          (intern) => intern.major === appliedMajor
         );
       }
 
-      if (searchKeyword.trim()) {
-        const keyword = searchKeyword.trim().toLowerCase();
+      if (appliedSearchKeyword.trim()) {
+        const keyword = appliedSearchKeyword.trim().toLowerCase();
         rowsToExport = rowsToExport.filter((intern) => {
           const name = intern.fullName ? intern.fullName.toLowerCase() : "";
           const email = intern.email ? intern.email.toLowerCase() : "";
@@ -202,16 +331,16 @@ const HRReports = () => {
         return;
       }
 
-      const includeProgram = !selectedProgramId;
+      const includeProgram = !appliedProgramId;
 
       let filename = "Bao_cao_thuc_tap_sinh.xlsx";
-      if (!selectedProgramId) {
+      if (!appliedProgramId) {
         filename = "Bao_cao_tat_ca_chuong_trinh.xlsx";
       } else {
         const currentProgram = programs.find(
-          (p) => String(p.programId) === String(selectedProgramId)
+          (p) => String(p.programId) === String(appliedProgramId)
         );
-        const baseName = currentProgram?.name || `Program_${selectedProgramId}`;
+        const baseName = currentProgram?.name || `Program_${appliedProgramId}`;
         filename = `Bao_cao_${baseName.replace(/\s+/g, "_")}.xlsx`;
       }
 
@@ -232,24 +361,24 @@ const HRReports = () => {
 
     let filtered = report.interns;
 
-    if (selectedTeamName) {
+    if (appliedTeamName) {
       filtered = filtered.filter(
-        (intern) => intern.teamName === selectedTeamName
+        (intern) => intern.teamName === appliedTeamName
       );
     }
 
-    if (selectedMentorName) {
+    if (appliedMentorName) {
       filtered = filtered.filter(
-        (intern) => intern.mentorName === selectedMentorName
+        (intern) => intern.mentorName === appliedMentorName
       );
     }
 
-    if (selectedMajor) {
-      filtered = filtered.filter((intern) => intern.major === selectedMajor);
+    if (appliedMajor) {
+      filtered = filtered.filter((intern) => intern.major === appliedMajor);
     }
 
-    if (searchKeyword.trim()) {
-      const keyword = searchKeyword.trim().toLowerCase();
+    if (appliedSearchKeyword.trim()) {
+      const keyword = appliedSearchKeyword.trim().toLowerCase();
       filtered = filtered.filter((intern) => {
         const name = intern.fullName ? intern.fullName.toLowerCase() : "";
         const email = intern.email ? intern.email.toLowerCase() : "";
@@ -263,7 +392,7 @@ const HRReports = () => {
     }
 
     return filtered;
-  }, [report, selectedTeamName, selectedMentorName, selectedMajor, searchKeyword]);
+  }, [report, appliedTeamName, appliedMentorName, appliedMajor, appliedSearchKeyword]);
 
   const mentorOptions = useMemo(() => {
     if (!report?.interns) return [];
@@ -282,16 +411,29 @@ const HRReports = () => {
   const majorOptions = useMemo(() => {
     if (!report?.interns) return [];
 
+    let internsSource = report.interns;
+
+    if (report.programId == null) {
+      const effectiveProgramId = pendingProgramId || appliedProgramId || "";
+      if (effectiveProgramId) {
+        internsSource = internsSource.filter(
+          (intern) =>
+            intern.programId != null &&
+            String(intern.programId) === String(effectiveProgramId)
+        );
+      }
+    }
+
     const majors = Array.from(
       new Set(
-        report.interns
+        internsSource
           .map((intern) => intern.major)
           .filter((major) => !!major)
       )
     );
 
     return majors.sort((a, b) => a.localeCompare(b));
-  }, [report]);
+  }, [report, pendingProgramId, appliedProgramId]);
 
   const sortedTeams = useMemo(() => {
     if (!teams) return [];
@@ -337,23 +479,20 @@ const HRReports = () => {
               <label>Tìm kiếm (tên / SĐT / email)</label>
               <input
                 type="text"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
+                value={pendingSearchKeyword}
+                onChange={(e) => setPendingSearchKeyword(e.target.value)}
                 placeholder="Nhập tên, SĐT hoặc email"
               />
             </div>
             <div className="filter-group">
               <label>Chương trình</label>
               <select
-                value={selectedProgramId}
+                value={pendingProgramId}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setSelectedProgramId(value);
+                  setPendingProgramId(value);
                   setSelectedTeamId("");
-                  setSelectedTeamName("");
-                  setSelectedMentorName("");
-                  setSelectedMajor("");
-                  setSearchKeyword("");
+                  setPendingTeamName("");
                   setTeams([]);
                 }}
               >
@@ -369,8 +508,8 @@ const HRReports = () => {
             <div className="filter-group">
               <label>Ngành (tuỳ chọn)</label>
               <select
-                value={selectedMajor}
-                onChange={(e) => setSelectedMajor(e.target.value)}
+                value={pendingMajor}
+                onChange={(e) => setPendingMajor(e.target.value)}
                 disabled={!report?.interns?.length}
               >
                 <option value="">-- Tất cả ngành --</option>
@@ -385,10 +524,10 @@ const HRReports = () => {
             <div className="filter-group">
               <label>Team (tuỳ chọn)</label>
               <select
-                value={selectedTeamName}
+                value={pendingTeamName}
                 onChange={(e) => {
                   const name = e.target.value;
-                  setSelectedTeamName(name);
+                  setPendingTeamName(name);
                   const team = sortedTeams.find((t, idx) => {
                     const generatedName = `Team ${idx + 1}`;
                     return generatedName === name;
@@ -412,8 +551,8 @@ const HRReports = () => {
             <div className="filter-group">
               <label>Mentor (tuỳ chọn)</label>
               <select
-                value={selectedMentorName}
-                onChange={(e) => setSelectedMentorName(e.target.value)}
+                value={pendingMentorName}
+                onChange={(e) => setPendingMentorName(e.target.value)}
                 disabled={!report?.interns?.length}
               >
                 <option value="">-- Tất cả mentor --</option>
@@ -428,12 +567,24 @@ const HRReports = () => {
             <div className="filter-actions">
               <button
                 className="btn-filter-apply"
+                onClick={() => handleSearchReport(false)}
+                disabled={loading || !token}
+              >
+                {loading ? "Đang tải..." : "Tìm kiếm"}
+              </button>
+              <button
+                className="btn-filter-apply"
                 onClick={handleExport}
                 disabled={exporting || !report}
               >
                 {exporting ? "Đang xuất..." : "Xuất Excel"}
               </button>
             </div>
+          </div>
+          <div className="clear-filter-container">
+            <button className="clear-filter-btn" onClick={handleClearFilters}>
+              ✖ Clear filter
+            </button>
           </div>
         </div>
 
@@ -449,7 +600,7 @@ const HRReports = () => {
                     <th>SĐT</th>
                     <th>Trường</th>
                     <th>Ngành</th>
-                    {!selectedProgramId && <th>Chương trình</th>}
+                    {!appliedProgramId && <th>Chương trình</th>}
                     <th>Nhóm</th>
                     <th>Mentor</th>
                     <th>Kỹ thuật</th>
@@ -476,7 +627,7 @@ const HRReports = () => {
                       <td>{intern.phone}</td>
                       <td>{intern.school}</td>
                       <td>{intern.major}</td>
-                      {!selectedProgramId && (
+                      {!appliedProgramId && (
                         <td>{intern.programName}</td>
                       )}
                       <td>{intern.teamName}</td>
