@@ -27,7 +27,7 @@ export default function ProfilePage() {
     const [showRequiredFilesModal, setShowRequiredFilesModal] = useState(false);
     const [formData, setFormData] = useState({
         full_name: '',
-        school: '',
+        school: 'CMC University',
         major: '',
         address: '',
         gender: '',
