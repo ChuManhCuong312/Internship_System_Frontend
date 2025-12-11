@@ -6,10 +6,13 @@ import hrApi from "../../api/hrApi";
 import reportApi from "../../api/reportApi";
 import { exportFinalReportsToExcel } from "../../utils/excelExport";
 import { toast } from "react-toastify";
+import Pagination from "../../components/Common/Pagination";
 import "../../styles/manageInterns.css";
 import "../../styles/table.css";
 import "../../styles/allowances.css";
 import "../../styles/buttons.css";
+
+const ITEMS_PER_PAGE = 10;
 
 const HRReports = () => {
   const { token } = useContext(AuthContext);
@@ -33,6 +36,7 @@ const HRReports = () => {
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [selectedIntern, setSelectedIntern] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!token) return;
@@ -394,6 +398,20 @@ const HRReports = () => {
     return filtered;
   }, [report, appliedTeamName, appliedMentorName, appliedMajor, appliedSearchKeyword]);
 
+  const totalPages = useMemo(() => {
+    if (!internRows.length) return 1;
+    return Math.ceil(internRows.length / ITEMS_PER_PAGE);
+  }, [internRows]);
+
+  const paginatedInternRows = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return internRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [internRows, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [internRows]);
+
   const mentorOptions = useMemo(() => {
     if (!report?.interns) return [];
 
@@ -612,16 +630,16 @@ const HRReports = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {internRows.length === 0 && (
+                  {paginatedInternRows.length === 0 && (
                     <tr>
                       <td colSpan="15" style={{ textAlign: "center" }}>
                         Không có dữ liệu báo cáo
                       </td>
                     </tr>
                   )}
-                  {internRows.map((intern, index) => (
+                  {paginatedInternRows.map((intern, index) => (
                     <tr key={intern.internId}>
-                      <td>{index + 1}</td>
+                      <td>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
                       <td>{intern.fullName}</td>
                       <td>{intern.email}</td>
                       <td>{intern.phone}</td>
@@ -687,6 +705,12 @@ const HRReports = () => {
                 </tbody>
               </table>
             </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={internRows.length}
+              onPageChange={setCurrentPage}
+            />
           </>
         )}
       </div>
