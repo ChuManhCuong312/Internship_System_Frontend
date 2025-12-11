@@ -10,7 +10,7 @@
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   position: relative;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .auth-layout::before {
@@ -20,8 +20,8 @@
   height: 500px;
   background: radial-gradient(circle, rgba(96, 165, 250, 0.15) 0%, transparent 70%);
   border-radius: 50%;
-  top: -250px;
-  left: -250px;
+  top: -25px;
+  left: -25px;
   animation: float 20s ease-in-out infinite;
 }
 
@@ -32,8 +32,8 @@
   height: 400px;
   background: radial-gradient(circle, rgba(147, 197, 253, 0.12) 0%, transparent 70%);
   border-radius: 50%;
-  bottom: -200px;
-  right: -200px;
+  bottom: -20px;
+  right: -20px;
   animation: float 15s ease-in-out infinite reverse;
 }
 
