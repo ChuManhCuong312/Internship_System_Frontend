@@ -78,13 +78,13 @@ const SupportRequest = () => {
   };
 
   const getTypeLabel = (type) => {
-     switch (type) {
-       case 'TECHNICAL': return 'Kỹ thuật';
-       case 'HR': return 'Nhân sự';
-       case 'ADMINISTRATIVE': return 'Hành chính';
-       case 'OTHER': return 'Khác';
-       default: return type;
-     }
+    switch (type) {
+      case 'TECHNICAL': return 'Kỹ thuật';
+      case 'HR': return 'Nhân sự';
+      case 'ADMINISTRATIVE': return 'Hành chính';
+      case 'OTHER': return 'Khác';
+      default: return type;
+    }
   };
 
   // Stats for the header cards
@@ -95,21 +95,52 @@ const SupportRequest = () => {
     <div className="dashboard-layout">
       <InternSidebar />
       <div className="dashboard-content">
-        <div className="header-grid">
-          <div className="card"><h4>Yêu cầu đang chờ</h4><p>{pendingCount}</p></div>
+        <div className="stats-row">
+          {/* <div className="card"><h4>Yêu cầu đang chờ</h4><p>{pendingCount}</p></div>
           <div className="card"><h4>Đã xử lý</h4><p>{approvedCount}</p></div>
           <div className="card"><h4>Trung bình phản hồi</h4><p>-- giờ</p></div>
-          <div className="card"><h4>Kênh liên hệ</h4><p>Email/Chat</p></div>
+          <div className="card"><h4>Kênh liên hệ</h4><p>Email/Chat</p></div> */}
+          <div className="stat-card">
+            <div className="stat-icon intern">📋</div>
+            <div>
+              <h4>Yêu cầu đang chờ</h4>
+              <p className="stat-value">{pendingCount}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon intern">📋</div>
+            <div>
+              <h4>Đã xử lý</h4>
+              <p className="stat-value">{approvedCount}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon intern">📋</div>
+            <div>
+              <h4>Trung bình phản hồi</h4>
+              <p className="stat-value">-- giờ</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon intern">📋</div>
+            <div>
+              <h4>Kênh liên hệ</h4>
+              <p className="stat-value">Email/Chat</p>
+            </div>
+          </div>
         </div>
 
-        <div className="main-grid">
-          <div className="card col-span-2">
+        <div className="">
+          <div className="card col-span-2" style={{
+            padding: "1.5rem",
+            width: "100%"
+          }}>
             <h4>Tạo yêu cầu hỗ trợ</h4>
-            <div style={{ display: 'grid', gap: 12, maxWidth: 640 }}>
+            <div style={{ display: 'grid', gap: 12, marginTop: "1rem"}}>
               <label>
                 Chủ đề
-                <input 
-                  style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }} 
+                <input
+                  style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
                   placeholder="Ví dụ: Vấn đề tài khoản"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -117,7 +148,7 @@ const SupportRequest = () => {
               </label>
               <label>
                 Loại hỗ trợ
-                <select 
+                <select
                   style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
                   value={supportType}
                   onChange={(e) => setSupportType(e.target.value)}
@@ -130,17 +161,17 @@ const SupportRequest = () => {
               </label>
               <label>
                 Mô tả
-                <textarea 
-                  rows="5" 
-                  style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }} 
-                  placeholder="Mô tả chi tiết vấn đề..." 
+                <textarea
+                  rows="5"
+                  style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                  placeholder="Mô tả chi tiết vấn đề..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </label>
               <div>
-                <button 
-                  className="checkin-btn" 
+                <button
+                  className="checkin-btn"
                   onClick={handleSubmit}
                   disabled={loading}
                 >
@@ -151,10 +182,16 @@ const SupportRequest = () => {
           </div>
         </div>
 
-        <div className="bottom-grid">
-          <div className="card col-span-2">
+        <div className="bottom-grid" style={{
+          marginTop: "1.5rem"
+        }}>
+          <div className="card col-span-2" style={{
+          padding: "1.5rem"
+        }}>
             <h4>Lịch sử yêu cầu hỗ trợ</h4>
-            <table className="task-table">
+            <table className="task-table" style={{
+              marginTop: "1rem"
+            }}>
               <thead>
                 <tr><th>Ngày</th><th>Chủ đề</th><th>Loại hỗ trợ</th><th>Trạng thái</th></tr>
               </thead>

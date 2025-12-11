@@ -41,7 +41,10 @@ export const filterSupportRequests = async (token, filters) => {
         if (filters.status) params.append('status', filters.status);
         if (filters.type) params.append('type', filters.type);
         if (filters.keyword) params.append('keyword', filters.keyword);
+        if (filters.size) params.append('size', filters.size);
+        if (filters.page) params.append('page', filters.page);
 
+        console.log(params)
         const response = await axiosClient.get(
             `/support-requests/filter?${params.toString()}`,
             {
@@ -83,6 +86,23 @@ export const rejectSupportRequest = async (token, id, hrId, responseText) => {
     try {
         const response = await axiosClient.put(
             `/support-requests/${id}/reject?hrId=${hrId}&response=${encodeURIComponent(responseText)}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
+
+export const handleRequestStatus = async (token, id, hrId, status) => {
+    try {
+        const response = await axiosClient.put(
+            `/support-requests/${id}/update-status?hrId=${hrId}&status=${status}`,
             {},
             {
                 headers: {

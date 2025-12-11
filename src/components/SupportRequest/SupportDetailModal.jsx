@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../Layout/Modal';
-import { LoadingButton } from '../Common/LoadingSpinner';
+// import { LoadingButton } from '../Common/LoadingSpinner';
 import { getSupportRequestHistory } from '../../api/supportApi';
 import '../../styles/modal.css';
 import '../../styles/supportRequest.css';
 
-const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) => {
+const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleStatus, token }) => {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
-    const [response, setResponse] = useState('');
+    // const [response, setResponse] = useState('');
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
+
+    const [handleStatus, setHandleStatus] = useState(request.status);
 
     useEffect(() => {
         fetchHistory();
@@ -50,10 +52,18 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
         }
     };
 
+    const onHandledStatus = async () => {
+        setIsRejecting(true);
+        try {
+            await onHandleStatus(request.supportId, handleStatus)
+        }
+        finally {
+            setIsRejecting(false);
+        }
+    }
+
     const getStatusText = (status) => {
         switch (status) {
-            case 'PENDING': return 'Chờ xử lý';
-            case 'APPROVED': return 'Đã duyệt';
             case 'REJECTED': return 'Từ chối';
             case 'OPEN': return 'Đang mở';
             case 'IN_PROGRESS': return 'Chờ xử lý';
@@ -87,11 +97,30 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                         <DetailRow label="ID" value={request.supportId} />
                         <DetailRow label="Tên Thực tập sinh" value={request.fullName} />
                         <DetailRow label="Loại" value={getTypeText(request.supportType)} />
-                        <DetailRow
+                        {/* <DetailRow
                             label="Trạng thái"
                             value={getStatusText(request.status)}
                             highlight={true}
-                        />
+                        >
+                            
+                        </DetailRow> */}
+                        <div style={{
+                            display: 'flex'
+                        }}
+                            className="detail-row">
+                            <label className=''>Trạng thái:</label>
+                            <select
+                                style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                                value={handleStatus}
+                                className='highlight-value'
+                                onChange={(e) => setHandleStatus(e.target.value)}
+                            >
+                                <option value="OPEN">Đang mở</option>
+                                <option value="IN_PROGRESS">Đang chờ duyệt</option>
+                                <option value="RESOLVED">Đã duyệt</option>
+                                <option value="REJECTED">Đã từ chối</option>
+                            </select>
+                        </div>
                         <DetailRow label="Ngày yêu cầu" value={formatDate(request.requestDate)} />
                         {request.processedDate && (
                             <>
@@ -118,8 +147,8 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
                         <p>{request.response}</p>
                     </div>
                 )}
-                 {/* Hỗ trợ backward compatibility nếu response chưa có nhưng rejectionReason có */}
-                 {(request.status === 'REJECTED' && !request.response && request.rejectionReason) && (
+                {/* Hỗ trợ backward compatibility nếu response chưa có nhưng rejectionReason có */}
+                {(request.status === 'REJECTED' && !request.response && request.rejectionReason) && (
                     <div className="detail-section response-section">
                         <h3>Phản hồi từ HR (Lý do từ chối)</h3>
                         <p>{request.rejectionReason}</p>
@@ -173,6 +202,13 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, token }) =>
 
                 {/* Actions */}
                 <div className="modal-actions">
+                    <button
+                        disabled={handleStatus == request.status}
+                        className='btn-primary'
+                        onClick={onHandledStatus}
+                    >
+                        Cật nhật
+                    </button>
                     <button
                         className="btn-cancel"
                         onClick={onClose}

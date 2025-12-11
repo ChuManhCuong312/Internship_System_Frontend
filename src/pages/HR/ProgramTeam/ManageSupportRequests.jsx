@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { getAllSupportRequests, filterSupportRequests, approveSupportRequest, rejectSupportRequest } from '../../../api/supportApi';
+import { getAllSupportRequests, filterSupportRequests, approveSupportRequest, rejectSupportRequest, handleRequestStatus } from '../../../api/supportApi';
 import SupportDetailModal from '../../../components/SupportRequest/SupportDetailModal';
 import HRSidebar from '../../../components/Layout/HRSidebar';
 import { AuthContext } from '../../../context/AuthContext';
@@ -14,13 +14,15 @@ const ManageSupportRequests = () => {
     const [error, setError] = useState(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [paging, setPaging] = useState(null);
+    const [pageSize, setPageSize] = useState(10);
 
     // Filter states
     const [filterType, setFilterType] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const [keyword, setKeyword] = useState('');
 
-const { token, user } = useContext(AuthContext);
+    const { token, user } = useContext(AuthContext);
     const hrId = user?.userId;
 
     useEffect(() => {
@@ -37,8 +39,9 @@ const { token, user } = useContext(AuthContext);
                 return;
             }
             const data = await getAllSupportRequests(token);
-            setSupportRequests(data);
-            setFilteredRequests(data);
+            setSupportRequests(data.data);
+            setFilteredRequests(data.data);
+            setPaging(data);
         } catch (err) {
             setError(err.message || 'Không thể tải danh sách yêu cầu hỗ trợ');
         } finally {
@@ -46,7 +49,7 @@ const { token, user } = useContext(AuthContext);
         }
     };
 
-    const handleFilter = async () => {
+    const handleFilter = async (currentPage) => {
         setLoading(true);
         setError(null);
         try {
@@ -54,8 +57,12 @@ const { token, user } = useContext(AuthContext);
             if (filterStatus) filters.status = filterStatus;
             if (filterType) filters.type = filterType;
             if (keyword) filters.keyword = keyword;
+            filters.page = currentPage;
+            filters.size = pageSize;
             const data = await filterSupportRequests(token, filters);
-            setFilteredRequests(data);
+            setSupportRequests(data.data);
+            setFilteredRequests(data.data);
+            setPaging(data);
         } catch (err) {
             setError(err.message || 'Lỗi khi lọc dữ liệu');
         } finally {
@@ -94,6 +101,17 @@ const { token, user } = useContext(AuthContext);
             alert('Đã từ chối yêu cầu hỗ trợ!');
         } catch (err) {
             alert(err.message || 'Lỗi khi từ chối yêu cầu');
+        }
+    };
+
+    const handleUpdateStatus = async (id, status) => {
+        try {
+            await handleRequestStatus(token, id, hrId, status);
+            fetchSupportRequests();
+            setShowDetailModal(false);
+            alert('Đã cật nhật trạng thái của yêu cầu!');
+        } catch (err) {
+            alert(err.message || 'Lỗi khi cật nhật trạng thái của yêu cầu');
         }
     };
 
@@ -145,129 +163,158 @@ const { token, user } = useContext(AuthContext);
                         <h1>Quản lý yêu cầu hỗ trợ</h1>
                     </div>
 
-            {/* Filter Section */}
-            <div className="filter-section">
-                <div className="filter-group">
-                    <label>Loại:</label>
-                    <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-                        <option value="">Tất cả</option>
-                        <option value="TECHNICAL">Kỹ thuật</option>
-                        <option value="HR">Nhân sự</option>
-                        <option value="ADMINISTRATIVE">Hành chính</option>
-                        <option value="OTHER">Khác</option>
-                    </select>
-                </div>
+                    {/* Filter Section */}
+                    <div className="filter-section">
+                        <div className="filter-group">
+                            <label>Loại:</label>
+                            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                                <option value="">Tất cả</option>
+                                <option value="TECHNICAL">Kỹ thuật</option>
+                                <option value="HR">Nhân sự</option>
+                                <option value="ADMINISTRATIVE">Hành chính</option>
+                                <option value="OTHER">Khác</option>
+                            </select>
+                        </div>
 
-                <div className="filter-group">
-                    <label>Trạng thái:</label>
-                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                        <option value="">Tất cả</option>
-                        <option value="OPEN">Đang mở</option>
-                        <option value="IN_PROGRESS">Đang chờ xử lý</option>
-                        <option value="RESOLVED">Đã duyệt</option>
-                        <option value="REJECTED">Đã từ chối</option>
-                    </select>
-                </div>
+                        <div className="filter-group">
+                            <label>Trạng thái:</label>
+                            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                                <option value="">Tất cả</option>
+                                <option value="OPEN">Đang mở</option>
+                                <option value="IN_PROGRESS">Đang chờ xử lý</option>
+                                <option value="RESOLVED">Đã duyệt</option>
+                                <option value="REJECTED">Đã từ chối</option>
+                            </select>
+                        </div>
 
-                <div className="filter-group">
-                    <label>Tìm kiếm:</label>
-                    <input
-                        type="text"
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                        placeholder="Tìm kiếm..."
-                    />
-                </div>
+                        <div className="filter-group">
+                            <label>Tìm kiếm:</label>
+                            <input
+                                type="text"
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                placeholder="Tìm kiếm..."
+                            />
+                        </div>
 
-                <div className="filter-actions">
-                    <button className="btn-filter" onClick={handleFilter}>
-                        Lọc
-                    </button>
-                    <button className="btn-reset" onClick={handleResetFilter}>
-                        Đặt lại
-                    </button>
-                </div>
-            </div>
+                        <div className="filter-actions">
+                            <button className="btn-filter" onClick={handleFilter}>
+                                Lọc
+                            </button>
+                            <button className="btn-reset" onClick={handleResetFilter}>
+                                Đặt lại
+                            </button>
+                        </div>
+                    </div>
 
-            {error && <div className="error-message">{error}</div>}
+                    {error && <div className="error-message">{error}</div>}
 
-            {/* Table Section */}
-            {loading ? (
-                <div className="loading-spinner">Đang tải...</div>
-            ) : (
-                <div className="table-container">
-                    <table className="support-table">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Tên TTS</th>
-                                <th>Loại</th>
-                                <th>Tiêu đề</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày yêu cầu</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredRequests.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="no-data">
-                                        Không có dữ liệu
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredRequests.map((request) => (
-                                    <tr key={request.supportId}>
-                                        <td>{request.supportId}</td>
-                                        <td>{request.fullName}</td>
-                                        <td>
-                                            <span className="type-badge">{getTypeText(request.supportType)}</span>
-                                        </td>
-                                        <td className="title-cell">{request.title}</td>
-                                        <td>
-                                            <span className={`status-badge ${getStatusBadgeClass(request.status)}`}>
-                                                {getStatusText(request.status)}
-                                            </span>
-                                        </td>
-                                        <td>{formatDate(request.requestDate)}</td>
-                                        <td>
-                                            <div className="action-buttons">
-                                                <button
-                                                    className="btn-detail"
-                                                    onClick={() => handleViewDetail(request)}
-                                                >
-                                                    Chi tiết
-                                                </button>
-                                                {request.status === 'PENDING' && (
-                                                    <>
-                                                        <button
-                                                            className="btn-approve"
-                                                            onClick={() => handleApprove(request.supportId)}
-                                                        >
-                                                            Duyệt
-                                                        </button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                    {/* Table Section */}
+                    {loading ? (
+                        <div className="loading-spinner">Đang tải...</div>
+                    ) : (
+                        <div>
+                            <div className="table-container">
+                                <table className="support-table">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Tên TTS</th>
+                                            <th>Loại</th>
+                                            <th>Tiêu đề</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ngày yêu cầu</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredRequests.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="7" className="no-data">
+                                                    Không có dữ liệu
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            filteredRequests.map((request, index) => (
+                                                <tr key={request.supportId}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{request.fullName}</td>
+                                                    <td>
+                                                        <span className="type-badge" style={{
+                                                            color: "#856404"
+                                                        }}>{getTypeText(request.supportType)}</span>
+                                                    </td>
+                                                    <td className="title-cell">{request.title}</td>
+                                                    <td>
+                                                        <span className={`status-badge ${getStatusBadgeClass(request.status)}`}>
+                                                            {getStatusText(request.status)}
+                                                        </span>
+                                                    </td>
+                                                    <td>{formatDate(request.requestDate)}</td>
+                                                    <td>
+                                                        <div className="action-buttons">
+                                                            <button
+                                                                className="btn-detail"
+                                                                onClick={() => handleViewDetail(request)}
+                                                            >
+                                                                Chi tiết
+                                                            </button>
+                                                            {request.status === 'PENDING' && (
+                                                                <>
+                                                                    <button
+                                                                        className="btn-approve"
+                                                                        onClick={() => handleApprove(request.supportId)}
+                                                                    >
+                                                                        Duyệt
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
 
-            {/* Detail Modal */}
-            {showDetailModal && selectedRequest && (
-                <SupportDetailModal
-                    request={selectedRequest}
-                    onClose={() => setShowDetailModal(false)}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
-                    token={token}
-                />
-            )}
+                            </div>
+                            {
+                                paging !== null && (
+                                    <div className="pagination">
+                                        <button
+                                            disabled={paging.page === 0}
+                                            onClick={() => handleFilter(paging.page - 1)}
+                                        >
+                                            ← Trang trước
+                                        </button>
+
+                                        <span>
+                                            Trang {paging.page + 1} / {paging.totalPages}
+                                        </span>
+
+                                        <button
+                                            disabled={paging.page + 1 >= paging.totalPages}
+                                            onClick={() => handleFilter(paging.page + 1)}
+                                        >
+                                            Trang sau →
+                                        </button>
+                                    </div>
+                                )
+                            }
+                        </div>
+                    )}
+
+                    {/* Detail Modal */}
+                    {showDetailModal && selectedRequest && (
+                        <SupportDetailModal
+                            request={selectedRequest}
+                            onClose={() => setShowDetailModal(false)}
+                            onApprove={handleApprove}
+                            onReject={handleReject}
+                            onHandleStatus={handleUpdateStatus}
+                            token={token}
+                        />
+                    )}
                 </div>
             </div>
         </div>
