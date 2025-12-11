@@ -195,10 +195,11 @@ const InternSidebar = () => {
     <animated.div 
       className="sidebar" 
       style={sidebarStyle}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
     >
       <div className="sidebar-header">
+        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
+          <FaBars />
+        </button>
         <div className="avatar-container">
           {avatar ? (
             <img 

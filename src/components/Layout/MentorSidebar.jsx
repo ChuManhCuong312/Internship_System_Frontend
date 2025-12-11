@@ -41,9 +41,6 @@ const MentorSidebar = () => {
     localStorage.setItem("mentorSidebarExpanded", JSON.stringify(expanded));
   }, [expanded]);
 
-  const handleMouseLeave = () => {
-    setExpanded(false);
-  };
   const handleLogout = () => {
     Swal.fire({
       title: 'Đăng xuất',
@@ -66,11 +63,12 @@ const MentorSidebar = () => {
     <animated.div
       className="sidebar"
       style={sidebarStyle}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={handleMouseLeave}
     >
       {/* Header */}
       <div className="sidebar-header">
+        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
+          <FaBars />
+        </button>
         <div className="avatar-container">
           <div className="avatar-initials">{initials}</div>
           {expanded && (
