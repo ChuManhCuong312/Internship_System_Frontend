@@ -119,6 +119,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                                 value={handleStatus}
                                 className='highlight-value'
                                 onChange={(e) => setHandleStatus(e.target.value)}
+                                disabled={request.status === 'RESOLVED' || request.status === 'REJECTED'}
                             >
                                 {['OPEN', 'IN_PROGRESS', 'RESOLVED', 'REJECTED']
                                     .map(s => (
@@ -127,7 +128,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                                 }
                             </select>
                         </div>
-                        <DetailRow label="Ngày yêu cầu" value={formatDate(request.requestDate)} />
+                        <DetailRow label="Ngày yêu cầu" value={formatDate(request.createdAt)} />
                         {request.processedDate && (
                             <>
                                 <DetailRow label="Người xử lý" value={`ID: ${request.processedBy}`} />
@@ -209,7 +210,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                 {/* Actions */}
                 <div className="modal-actions">
                     <button
-                        disabled={handleStatus == request.status}
+                        disabled={handleStatus == request.status || request.status === 'RESOLVED' || request.status === 'REJECTED'}
                         className='btn-primary'
                         onClick={onHandledStatus}
                     >

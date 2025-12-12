@@ -6,6 +6,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import '../../../styles/dashBoard.css';
 import '../../../styles/supportRequest.css';
 import '../../../styles/table.css';
+import { toast } from 'react-toastify';
 
 const ManageSupportRequests = () => {
     const [supportRequests, setSupportRequests] = useState([]);
@@ -87,9 +88,9 @@ const ManageSupportRequests = () => {
             await approveSupportRequest(token, id, hrId, response);
             fetchSupportRequests();
             setShowDetailModal(false);
-            alert('Đã duyệt yêu cầu hỗ trợ thành công!');
+            toast.success("Đã duyệt yêu cầu hỗ trợ thành công!");
         } catch (err) {
-            alert(err.message || 'Lỗi khi duyệt yêu cầu');
+            toast.error(err.message || 'Lỗi khi duyệt yêu cầu');
         }
     };
 
@@ -99,8 +100,9 @@ const ManageSupportRequests = () => {
             fetchSupportRequests();
             setShowDetailModal(false);
             alert('Đã từ chối yêu cầu hỗ trợ!');
+            toast.success("Đã từ chối yêu cầu hỗ trợ!");
         } catch (err) {
-            alert(err.message || 'Lỗi khi từ chối yêu cầu');
+            toast.error(err.message || 'Lỗi khi từ chối yêu cầu');
         }
     };
 
@@ -109,9 +111,9 @@ const ManageSupportRequests = () => {
             await handleRequestStatus(token, id, hrId, status);
             fetchSupportRequests();
             setShowDetailModal(false);
-            alert('Đã cật nhật trạng thái của yêu cầu!');
+            toast.success("Đã cật nhật trạng thái của yêu cầu");
         } catch (err) {
-            alert(err.message || 'Lỗi khi cật nhật trạng thái của yêu cầu');
+            toast.error(err.message || 'Lỗi khi cật nhật trạng thái của yêu cầu');
         }
     };
 
@@ -227,6 +229,7 @@ const ManageSupportRequests = () => {
                                             <th>Tiêu đề</th>
                                             <th>Trạng thái</th>
                                             <th>Ngày yêu cầu</th>
+                                            <th>Ngày xử lý</th>
                                             <th style={{
                                                 textAlign: "center"
                                             }}>Thao tác</th>
@@ -255,6 +258,7 @@ const ManageSupportRequests = () => {
                                                             {getStatusText(request.status)}
                                                         </span>
                                                     </td>
+                                                    <td>{formatDate(request.createdAt)}</td>
                                                     <td>{formatDate(request.processedDate)}</td>
                                                     <td>
                                                         <div className="action-buttons">
