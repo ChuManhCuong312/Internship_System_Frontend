@@ -7,9 +7,11 @@ const TaskSearchForm = ({
   tags, 
   onSearch, 
   onReset,
-  onManageTags 
+  onManageTags,
+  hideManageTags = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const shouldShowManageTags = typeof onManageTags === 'function' && !hideManageTags;
 
   const handleStatusChange = (e) => {
     setFilterData(prev => ({ ...prev, status: e.target.value }));
@@ -131,14 +133,16 @@ const TaskSearchForm = ({
           <div className={styles.tagsFilterSection}>
             <div className={styles.tagsFilterHeader}>
               <label className={styles.filterLabel}>Tags</label>
-              <button
-                type="button"
-                className={styles.manageTagsBtn}
-                onClick={onManageTags}
-                title="Quản lý tags"
-              >
-                ⚙️ Quản lý
-              </button>
+              {shouldShowManageTags && (
+                <button
+                  type="button"
+                  className={styles.manageTagsBtn}
+                  onClick={onManageTags}
+                  title="Quản lý tags"
+                >
+                  ⚙️ Quản lý
+                </button>
+              )}
             </div>
             <div className={styles.tagsGrid}>
               {tags.length === 0 ? (
