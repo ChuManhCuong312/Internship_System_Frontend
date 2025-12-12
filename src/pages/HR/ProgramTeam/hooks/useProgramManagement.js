@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
 import hrApi from "../../../../api/hrApi";
+import { toast } from "react-toastify";
 
 export const useProgramManagement = () => {
   const { token } = useContext(AuthContext);
@@ -35,6 +36,7 @@ export const useProgramManagement = () => {
         setAssignedMentors(mentors);
       } catch (err) {
         console.error("Error loading filter lists:", err);
+        toast.error("Lỗi lấy danh sách lọc");
       }
     };
 
@@ -71,6 +73,7 @@ export const useProgramManagement = () => {
         setProgramOverview(overviewData);
       } catch (err) {
         console.error("Error fetching programs:", err);
+        toast.error("Lỗi lấy danh sách chương trình")
       }
     };
 

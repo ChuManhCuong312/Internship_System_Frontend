@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import {
   FaHome,
   FaUsersCog,
@@ -18,12 +19,17 @@ const AdminSidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const sidebarStyle = useSpring({
     width: expanded ? 250 : 60,
     height: "100vh",
     config: { tension: 220, friction: 20 },
   });
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   // Tạo initials từ thông tin user
   const initials = (user?.fullName || user?.email || "AD")
@@ -35,7 +41,7 @@ const AdminSidebar = () => {
 
   return (
     <animated.div
-      className="sidebar"
+      className={`sidebar ${expanded ? "expanded" : "collapsed"}`}
       style={sidebarStyle}
     >
       {/* Header */}
@@ -56,19 +62,31 @@ const AdminSidebar = () => {
 
       {/* Menu chính */}
       <ul className="sidebar-menu">
-        <li onClick={() => navigate("/Admin/Dashboard")}>
+        <li
+          className={isActive("/Admin/Dashboard") ? "active" : ""}
+          onClick={() => navigate("/Admin/Dashboard")}
+        >
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
-        <li onClick={() => navigate("/Admin/ManageUsers")}>
+        <li
+          className={isActive("/Admin/ManageUsers") ? "active" : ""}
+          onClick={() => navigate("/Admin/ManageUsers")}
+        >
           <FaUsersCog /> {expanded && <span>Quản trị người dùng</span>}
         </li>
-        <li>
+        <li
+          className={isActive("/Admin/Config") ? "active" : ""}
+        >
           <FaCogs /> {expanded && <span>Cấu hình & Tích hợp hệ thống</span>}
         </li>
-        <li>
+        <li
+          className={isActive("/Admin/Backup") ? "active" : ""}
+        >
           <FaDatabase /> {expanded && <span>Sao lưu & Bảo mật</span>}
         </li>
-        <li>
+        <li
+          className={isActive("/Admin/Monitoring") ? "active" : ""}
+        >
           <FaShieldAlt /> {expanded && <span>Giám sát & Thống kê</span>}
         </li>
         <li>

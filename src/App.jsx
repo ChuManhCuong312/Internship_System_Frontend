@@ -16,7 +16,6 @@ import ApproveInterns from "./pages/HR/ManageInterns/ApproveInterns";
 import Programs from "./pages/HR/ProgramTeam/ProgramManagement";
 import CreateTeamAuto from './pages/HR/ProgramTeam/CreateTeamAuto';
 import ManageSupportRequests from "./pages/HR/ProgramTeam/ManageSupportRequests";
-import MentorAssigns from "./pages/HR/ManageProgramMentor/MentorAssigns";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -105,77 +104,36 @@ function App() {
                   }
                 />
 
-            {/* HR routes */}
-            <Route
-              path="/hr/dashboard"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <HRDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/manage-interns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ManageInterns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/approve-interns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ApproveInterns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/mentor-assigns"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <MentorAssigns />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/program"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <Programs />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/allowances"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <Allowances />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/contracts"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ManageContracts />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/hr/support-requests"
-              element={
-                <PrivateRoute allowedRoles={["HR"]}>
-                  <ManageSupportRequests />
-                </PrivateRoute>
-              }
-            />
-
+                {/* HR routes */}
                 <Route
-                  path="/hr/mentor-assigns"
+                  path="/hr/dashboard"
                   element={
                     <PrivateRoute allowedRoles={["HR"]}>
-                      <MentorAssigns />
+                      <HRDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/manage-interns"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <ManageInterns />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/approve-interns"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <ApproveInterns />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/hr/support-requests"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <ManageSupportRequests />
                     </PrivateRoute>
                   }
                 />

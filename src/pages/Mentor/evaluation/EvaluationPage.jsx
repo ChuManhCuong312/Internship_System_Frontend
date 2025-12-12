@@ -119,71 +119,65 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
     return avg
   }
 
-  const handleAddEvaluation = async () => {
-    if (!selectedIntern || !mentor) return;
+    const handleAddEvaluation = async () => {
+      if (!selectedIntern || !mentor) return;
 
-    try {
-      const res = await fetch("http://localhost:8080/api/evaluations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          internId: selectedIntern.intern_id,  // gửi đúng tên trường
-          mentorId: mentor.mentorId,           // gửi mentorId
-          title: newEval.title,
-          technical: newEval.technical,
-          communication: newEval.communication,
-          discipline: newEval.discipline,
-          attitude: newEval.attitude,
-          weight: newEval.weight,
-          note: newEval.note
-        })
-      })
+      try {
+        const res = await fetch("http://localhost:8080/api/evaluations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            internId: selectedIntern.intern_id,  // gửi đúng tên trường
+            mentorId: mentor.mentorId,           // gửi mentorId
+            title: newEval.title,
+            technical: newEval.technical,
+            communication: newEval.communication,
+            discipline: newEval.discipline,
+            attitude: newEval.attitude,
+            weight: newEval.weight,
+            note: newEval.note
+          })
+        });
+        if (!res.ok) {
+          const contentType = res.headers.get("content-type");
+          let errMessage = "Thêm đánh giá thất bại";
 
-    if (!res.ok) {
-      let errMessage = 'Thêm đánh giá thất bại';
+          if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            if (errData.errors && typeof errData.errors === "object") {
+              // Lấy tất cả giá trị trong errors và nối bằng dấu phẩy
+              errMessage = Object.values(errData.errors)
+                .filter((msg) => typeof msg === "string" && msg.trim())
+                .join(", ");
+            }
+           }
 
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const errData = await res.json();
-        if (errData?.message) {
-          errMessage = sanitizeServerMessage(errData.message);
+          throw new Error(errMessage);
         }
-      } else {
-        const text = await res.text();
-        if (text) errMessage = sanitizeServerMessage(text);
+
+        // ---- thành công ----
+        toast.success("Thêm đánh giá thành công!");
+
+        // refresh team data
+        const refresh = await fetch(`http://localhost:8080/api/evaluations/team/${teamId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await refresh.json();
+        const team = Array.isArray(data) ? data[0] : data;
+        setTeamData(team);
+        setSelectedIntern(team.interns.find(i => i.intern_id === selectedIntern.intern_id));
+        setOpenAddModal(false);
+        setNewEval({ title: "", technical: 5, communication: 5, discipline: 5, attitude: 5, weight: 50, note: "" });
+
+      } catch (err) {
+        const msg = (err && err.message) ? err.message : "Thao tác thất bại";
+        toast.error(msg);
       }
+    };
 
-      throw new Error(errMessage);
-    }
-
-    function sanitizeServerMessage(raw) {
-      if (!raw || typeof raw !== 'string') return 'Thao tác thất bại';
-      // Loại bỏ prefix kiểu "An unexpected error occurred: 400 BAD_REQUEST"
-      const cleaned = raw.replace(/^An unexpected error occurred:\s*\d{3}\s+[A-Z_]+\s*/i, '');
-      // Bỏ dấu ngoặc kép nếu có
-      return cleaned.replace(/^"+|"+$/g, '').trim();
-    }
-
-      toast.success("Thêm đánh giá thành công!");
-
-      // refresh team data
-      const refresh = await fetch(`http://localhost:8080/api/evaluations/team/${teamId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await refresh.json();
-      const team = Array.isArray(data) ? data[0] : data;
-      setTeamData(team);
-      setSelectedIntern(team.interns.find(i => i.intern_id === selectedIntern.intern_id));
-      setOpenAddModal(false);
-      setNewEval({ title: "", technical: 5, communication: 5, discipline: 5, attitude: 5, weight: 50, note: "" });
-
-    } catch (err) {
-      toast.error(err.message);
-    }
-  }
 
   const averages = calculateAverages()
 
@@ -227,36 +221,22 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
           internId: selectedIntern.intern_id
         })
       })
+        if (!res.ok) {
+          const contentType = res.headers.get("content-type");
+          let errMessage = "Thêm đánh giá thất bại";
 
+          if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            if (errData.errors && typeof errData.errors === "object") {
+              // Lấy tất cả giá trị trong errors và nối bằng dấu phẩy
+              errMessage = Object.values(errData.errors)
+                .filter((msg) => typeof msg === "string" && msg.trim())
+                .join(", ");
+            }
+           }
 
-
-    if (!res.ok) {
-      let errMessage = 'Cập nhật thất bại';
-
-      // Cố gắng đọc JSON trước, nếu không phải JSON thì fallback text
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const errData = await res.json();
-        if (typeof errData?.message === 'string' && errData.message.trim()) {
-          errMessage = sanitizeServerMessage(errData.message);
+          throw new Error(errMessage);
         }
-      } else {
-        const text = await res.text();
-        if (text) errMessage = sanitizeServerMessage(text);
-      }
-
-      throw new Error(errMessage);
-    }
-
-    function sanitizeServerMessage(raw) {
-      // Bỏ prefix "An unexpected error occurred: 400 BAD_REQUEST "
-      const cleaned = String(raw).replace(
-        /^An unexpected error occurred:\s*\d{3}\s+[A-Z_]+\s*/i,
-        ''
-      );
-      // Bỏ dấu ngoặc kép dư (nếu server bọc message trong quotes)
-      return cleaned.replace(/^"+|"+$/g, '').trim() || 'Cập nhật thất bại';
-    }
 
       const refresh = await fetch(`http://localhost:8080/api/evaluations/team/${teamId}`, {
         headers: { Authorization: `Bearer ${token}` }

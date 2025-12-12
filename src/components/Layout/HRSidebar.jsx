@@ -113,10 +113,6 @@ const HRSidebar = () => {
     return paths.some(path => location.pathname.includes(path));
   };
 
-  const handleMouseLeave = () => {
-    setExpanded(false);
-  };
-
   const handleLogout = () => {
     Swal.fire({
       title: 'Đăng xuất',
@@ -137,12 +133,13 @@ const HRSidebar = () => {
 
   return (
     <AnimatedDiv
-      className="sidebar"
+      className={`sidebar ${expanded ? "expanded" : "collapsed"}`}
       style={sidebarStyle}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={handleMouseLeave}
     >
       <div className="sidebar-header">
+        <button className="toggle-btn" onClick={() => setExpanded(!expanded)}>
+          <FaBars />
+        </button>
         <div className="avatar-container">
           <div className="avatar-initials">{initials}</div>
           {expanded && (
@@ -189,9 +186,6 @@ const HRSidebar = () => {
           <ul className="submenu">
             <li className={isActive('/hr/program') ? 'active' : ''}>
               <Link to="/hr/program">Quản lý chương trình</Link>
-            </li>
-            <li className={isActive('/hr/mentor-assigns') ? 'active' : ''}>
-              <Link to="/hr/mentor-assigns">Phân công mentor</Link>
             </li>
           </ul>
         )}

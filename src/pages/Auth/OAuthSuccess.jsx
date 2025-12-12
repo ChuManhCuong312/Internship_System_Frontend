@@ -30,7 +30,11 @@ const OAuthSuccess = () => {
           email: decoded.email || decoded.sub,
           role: decoded.role,
           userId: decoded.userId || decoded.id,
-          fullName: decoded.fullName || decoded.name
+          fullName: decoded.fullName || decoded.name,
+          // NEW CLAIMS
+          userStatus: decoded.userStatus,
+          internStatus: decoded.internStatus,
+          internConfirmStatus: decoded.internConfirmStatus
         };
 
         // If user is INTERN, fetch internId
@@ -70,6 +74,12 @@ const OAuthSuccess = () => {
         if (userData.internId) {
           Cookies.set("internId", String(userData.internId), cookieOptions);
         }
+
+        // NEW status cookies (added in AuthContext)
+        Cookies.set("userStatus", userData.userStatus ?? "", cookieOptions);
+        Cookies.set("internStatus", userData.internStatus ?? "", cookieOptions);
+        Cookies.set("internConfirmStatus", userData.internConfirmStatus ?? "", cookieOptions);
+
 
         // Update context
         setUser(userData);

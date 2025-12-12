@@ -213,7 +213,7 @@
 }
 
 .intern-email {
-  font-size: 14px;
+  font-size: 12px;
   color: #6b7280;
   margin: 0 0 8px 0;
 }
@@ -235,7 +235,7 @@
 }
 
 .intern-gpa {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
   margin: 0;
 }
@@ -401,6 +401,7 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s;
+  gap: 12px;
 }
 
 .search-result-item:hover {
@@ -412,21 +413,21 @@
 }
 
 .search-result-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #111827;
   margin-bottom: 4px;
 }
 
 .search-result-email {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .search-result-tags {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 4px;
 }
 
@@ -447,6 +448,13 @@
   color: #6b7280;
   font-size: 13px;
   padding: 32px;
+}
+
+.modal-intern-team {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 40%;
 }
 
 /* Responsive */

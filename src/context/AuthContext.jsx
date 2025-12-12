@@ -95,7 +95,10 @@ export const AuthProvider = ({ children }) => {
         role: res.role,
         userId: res.userId,
         fullName: res.fullName || res["fullName:"],
-        internId: res.internId // internId from login response (may be undefined)
+        internId: res.internId, // internId from login response (may be undefined)
+        userStatus: res.userStatus,              // NEW
+        internStatus: res.internStatus,          // NEW
+        internConfirmStatus: res.internConfirmStatus
       };
 
       // If user is INTERN and internId is not in login response, fetch it from API
@@ -131,6 +134,11 @@ export const AuthProvider = ({ children }) => {
         Cookies.set("internId", String(userData.internId), cookieOptions);
       }
 
+       // NEW: Store statuses also in cookies (optional, convenient for frontend)
+      Cookies.set("userStatus", userData.userStatus ?? "", cookieOptions);
+      Cookies.set("internStatus", userData.internStatus ?? "", cookieOptions);
+      Cookies.set("internConfirmStatus", userData.internConfirmStatus ?? "", cookieOptions);
+
       console.log("All credentials stored in secure cookies");
       console.log("User data:", userData);
 
@@ -156,6 +164,9 @@ export const AuthProvider = ({ children }) => {
     Cookies.remove("userId");
     Cookies.remove("role");
     Cookies.remove("internId");
+    Cookies.remove("userStatus");
+    Cookies.remove("internStatus");
+    Cookies.remove("internConfirmStatus");
     
     // Clear any remaining localStorage data
     localStorage.removeItem("lastRoute");

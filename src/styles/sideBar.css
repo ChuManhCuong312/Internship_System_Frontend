@@ -17,7 +17,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 15px;
-  padding: 10px;
+  padding: 40px 10px 10px 10px;
+  position: relative;
 }
 
 
@@ -27,6 +28,21 @@
   color: #fff;
   font-size: 20px;
   cursor: pointer;
+}
+
+.sidebar.collapsed .toggle-btn {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sidebar.expanded .toggle-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  left: auto;
+  transform: none;
 }
 
 
@@ -152,10 +168,28 @@
 }
 
 
+.submenu {
+  list-style: none;
+  margin: 8px 0 0 40px;
+  padding: 0;
+}
+
+
+.submenu li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 10px 12px;
+  color: #fff;
+  cursor: pointer;
+}
+
+
 .submenu li.active {
   background-color: transparent;
   color: #22d3ee;
   border-left: 3px solid #22d3ee;
+  margin-left: 4px;
 }
 
 
