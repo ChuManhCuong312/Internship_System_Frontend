@@ -1,5 +1,6 @@
 import { useState, useEffect} from "react";
 import hrApi from "../../../../api/hrApi";
+import { toast } from "react-toastify";
 
 export const useTeamActions = (token, programs, setPrograms, selectedProgram, setSelectedProgram) => {
   const [viewingProgramTeams, setViewingProgramTeams] = useState(null);
@@ -10,22 +11,35 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
   const [teamMentorSearch, setTeamMentorSearch] = useState("");
   const [programMentors, setProgramMentors] = useState([]);
 
-    useEffect(() => {
-      if (!selectedProgram || !token) return;
 
-      const loadMentors = async () => {
-        const res = await hrApi.getMentorsAssignedToProgram(token, selectedProgram.programId);
+  useEffect(() => {
+    if (!selectedProgram || !token) return;
+
+    const loadMentors = async () => {
+      try {
+        const res = await hrApi.getMentorsAssignedToProgram(
+          token,
+          selectedProgram.programId
+        );
         setProgramMentors(res);
-      };
+      } catch (err) {
+        console.error("Error loading mentors:", err);
+        toast.error("Không thể tải danh sách mentor cho chương trình.");
+        setProgramMentors([]);
+      }
+    };
 
-      loadMentors();
-    }, [selectedProgram, token]);
+    loadMentors();
+  }, [selectedProgram, token]);
+
+
    const fetchProgramMentors = async (programId) => {
       try {
         const mentors = await hrApi.getMentorsForProgram(token, programId);
         setProgramMentors(mentors);
       } catch (err) {
         console.error("Error fetching program mentors:", err);
+        toast.error(err?.response?.data?.message || "Không thể tải danh sách mentor cho chương trình.");
         setProgramMentors([]);
       }
     };
@@ -46,6 +60,7 @@ const handleViewTeams = async (program) => {
     setSelectedTeam(null);
   } catch (err) {
     console.error("Error fetching teams:", err);
+    toast.error("Không thể tải danh sách nhóm cho chương trình.");
   }
 };
 
@@ -111,8 +126,11 @@ const handleDeleteTeam = async (teamId) => {
 
     if (selectedTeam?.teamId === teamId) setSelectedTeam(null);
     await fetchProgramMentors(updatedProgram.programId);
+
+    toast.success("Xóa team thành công.");
   } catch (err) {
     console.error("Error deleting team:", err);
+    toast.error("Không thể xóa team. Vui lòng thử lại.");
   }
 };
 
@@ -131,6 +149,7 @@ const handleDeleteTeam = async (teamId) => {
           teams: selectedProgram.teams.map((t) => (t.teamId === selectedTeam.teamId ? updatedTeam : t)),
         };
         setIsEditTeamOpen(false);
+        toast.success("Cập nhật team thành công.");
       } else {
         const newTeam = await hrApi.createTeam(token, {
           programId: selectedProgram.programId,
@@ -142,6 +161,7 @@ const handleDeleteTeam = async (teamId) => {
           teams: [...(selectedProgram.teams || []), newTeam],
         };
         setIsAddTeamOpen(false);
+        toast.success("Tạo team mới thành công.");
       }
 
       setPrograms((prev) =>
@@ -153,6 +173,7 @@ const handleDeleteTeam = async (teamId) => {
       await fetchProgramMentors(selectedProgram.programId);
     } catch (err) {
       console.error("Error saving team:", err);
+      toast.error("Không thể lưu thông tin team.");
     }
   };
 
@@ -185,8 +206,10 @@ const handleAssignMentorToTeam = async (mentorId, teamId) => {
     const mentors = await hrApi.getMentorsForProgram(token, selectedProgram.programId);
     setProgramMentors(mentors);
 
+    toast.success("Phân công mentor cho team thành công.");
   } catch (err) {
     console.error("Error assigning mentor:", err);
+    oast.error("Không thể phân công mentor. Vui lòng thử lại.");
   }
 };
 
@@ -203,6 +226,7 @@ const handleAssignMentorToTeam = async (mentorId, teamId) => {
     } catch (err) {
       console.error("Error fetching interns for team:", err);
       setSelectedTeam({ ...team, interns: [] });
+      oast.error("Không thể tải danh sách intern của team này.");
     }
   };
 

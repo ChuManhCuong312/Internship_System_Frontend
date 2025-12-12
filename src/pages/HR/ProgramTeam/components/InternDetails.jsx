@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, MoreVertical, Search, Trash2 } from "lucide-react";
 import hrApi from "../../../../api/hrApi";
+import { toast } from "react-toastify";
 
 export default function InternDetails({
   team,
@@ -70,9 +71,10 @@ export default function InternDetails({
       setShowAddInternDialog(false);
       setSearchQuery("");
       setFilteredInterns([]);
+      toast.success("Thêm intern vào team thành công!");
     } catch (err) {
       console.error("Error adding intern to team:", err);
-      alert("Không thể thêm thực tập sinh vào team. Vui lòng thử lại.");
+      toast.error("Không thể thêm thực tập sinh vào team. Vui lòng thử lại.");
     } finally {
       setIsAddingIntern(false);
     }
@@ -90,9 +92,10 @@ export default function InternDetails({
       }
 
       setRemoveInternConfirm(null);
+      toast.success("Loại intern ra khỏi team thành công");
     } catch (err) {
       console.error("Error removing intern from team:", err);
-      alert("Không thể xoá thực tập sinh khỏi team. Vui lòng thử lại.");
+      toast.error("Không thể xoá thực tập sinh khỏi team. Vui lòng thử lại.");
     }
   };
 
