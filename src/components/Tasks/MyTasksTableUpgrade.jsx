@@ -10,7 +10,32 @@ import '../../styles/taskTable.css';
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEWED', 'DONE'];
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH'];
 
-const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpenedStatus = () => {} }) => {
+const getStatusLabel = (status) => {
+  const map = {
+    TODO: 'Chưa bắt đầu',
+    IN_PROGRESS: 'Đang thực hiện',
+    REVIEWED: 'Đã xem xét',
+    DONE: 'Hoàn thành',
+  };
+  return map[status] || status;
+};
+
+const getPriorityLabel = (priority) => {
+  const map = {
+    LOW: 'Thấp',
+    MEDIUM: 'Trung bình',
+    HIGH: 'Cao',
+  };
+  return map[priority] || priority;
+};
+
+const MyTasksTableUpgrade = ({ 
+  statusFilter = 'ALL', 
+  openToStatus = null, 
+  onOpenedStatus = () => {}, 
+  filters = null,
+  onTagsLoaded = () => {},
+}) => {
   const { token, user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
   const [progressMap, setProgressMap] = useState({}); // taskId -> {percent, note, progressId}
@@ -36,6 +61,7 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
     if (!internId || !token) {
       setError('Không tìm thấy internId');
       setLoading(false);
+      onTagsLoaded([]);
       return;
     }
 
@@ -63,10 +89,25 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
           setReminders({});
           setHistoryMap({});
           setProgressMap({});
+        onTagsLoaded([]);
           return;
         }
 
         setTasks(validTasks);
+        try {
+          const uniqueTags = {};
+          validTasks.forEach(task => {
+            (task.tags || []).forEach(tag => {
+              if (tag.tagId && !uniqueTags[tag.tagId]) {
+                uniqueTags[tag.tagId] = tag;
+              }
+            });
+          });
+          onTagsLoaded(Object.values(uniqueTags));
+        } catch (tagErr) {
+          console.warn('Could not extract tags from tasks', tagErr);
+          onTagsLoaded([]);
+        }
 
         // compute reminders (deadline < 1 day)
         const newReminders = {};
@@ -127,6 +168,7 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
       } catch (err) {
         console.error('Error fetching tasks for intern:', err);
         setError('Lỗi khi tải nhiệm vụ');
+        onTagsLoaded([]);
       } finally {
         setLoading(false);
       }
@@ -152,7 +194,7 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
     const note = entry.note || '';
 
     if (percent < 0 || percent > 100) {
-      toast.error('Phần trăm phải nằm từ 0 đến 100%');
+      toast.error('Phần trăm phải nằm từ 0 đến 100');
       return;
     }
 
@@ -256,8 +298,29 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
       return diffHours <= 24 && diffHours > 0;
     };
 
-  // derive displayed tasks according to statusFilter
-  const displayedTasks = (statusFilter && statusFilter !== 'ALL') ? tasks.filter(t => t.status === statusFilter) : tasks;
+  const matchesFilters = (task) => {
+    const applied = filters || {};
+
+    if (statusFilter && statusFilter !== 'ALL' && task.status !== statusFilter) {
+      return false;
+    }
+    if (applied.status && task.status !== applied.status) return false;
+    if (applied.priority && task.priority !== applied.priority) return false;
+    if (applied.searchText) {
+      const search = applied.searchText.toLowerCase();
+      const titleMatch = task.title?.toLowerCase().includes(search);
+      const descMatch = task.description?.toLowerCase().includes(search);
+      if (!titleMatch && !descMatch) return false;
+    }
+    if (applied.tagIds && applied.tagIds.length > 0) {
+      const taskTagIds = (task.tags || []).map(tag => tag.tagId);
+      const hasAllTags = applied.tagIds.every(id => taskTagIds.includes(id));
+      if (!hasAllTags) return false;
+    }
+    return true;
+  };
+
+  const displayedTasks = tasks.filter(matchesFilters);
 
   // when openToStatus changes, expand first matching task and scroll to it
   useEffect(() => {
@@ -273,7 +336,7 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
       // notify parent we opened
       try { onOpenedStatus(openToStatus); } catch (e) {}
     }
-  }, [openToStatus]);
+  }, [openToStatus, tasks]);
 
   if (loading) {
     return (
@@ -305,10 +368,10 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
         <thead>
           <tr>
             <th>Tiêu đề</th>
+            <th>Tags</th>
             <th>Deadline</th>
             <th>Trạng thái</th>
             <th>Mức độ ưu tiên</th>
-            <th>% Hoàn thành</th>
             <th>Hành động</th>
           </tr>
         </thead>
@@ -328,6 +391,24 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
                     {isDueSoon && <div style={{ color: '#b91c1c', fontSize: '12px' }}>🔔 Sắp hết hạn</div>}
                     {isOverdue(task.deadline) && task.status !== 'DONE' && <div style={{ color: '#b91c1c', fontSize: '12px' }}>⚠️ Chậm nhiệm vụ</div>}
                   </td>
+                  <td>
+                    {task.tags && task.tags.length > 0 ? (
+                      <div className="task-tags">
+                        {task.tags.map(tag => (
+                          <span
+                            key={tag.tagId}
+                            className="task-tag-chip"
+                            style={{ backgroundColor: tag.color || '#3b82f6' }}
+                            title={tag.name}
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span style={{ color: '#718096' }}>Không có tag</span>
+                    )}
+                  </td>
                   <td style={{ 
                     color: isOverdue(task.deadline) && task.status !== 'DONE' ? '#b91c1c' : isDueSoon ? '#b91c1c' : 'inherit', 
                     fontWeight: isOverdue(task.deadline) && task.status !== 'DONE' || isDueSoon ? '700' : '400' 
@@ -340,28 +421,13 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
                       onChange={(e) => handleStatusChange(task.taskId, e.target.value)}
                       className="status-select"
                     >
-                      {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      {STATUS_OPTIONS.map(s => <option key={s} value={s}>{getStatusLabel(s)}</option>)}
                     </select>
                   </td>
                   <td>
                     <span className={`badge badge-${task.priority?.toLowerCase() || 'low'}`}>
-                      {task.priority || 'LOW'}
+                      {getPriorityLabel(task.priority || 'LOW')}
                     </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="100" 
-                        value={prog.percentComplete || 0}
-                        onChange={(e) => handleSliderChange(task.taskId, e.target.value)}
-                        style={{ flex: 1 }}
-                      />
-                      <span style={{ minWidth: '50px', textAlign: 'center', fontWeight: '600' }}>
-                        {prog.percentComplete || 0}%
-                      </span>
-                    </div>
                   </td>
                   <td>
                     <button 
@@ -394,6 +460,20 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
                             placeholder="Ghi chú tiến độ (ví dụ: Đang làm phần A, phần B chưa bắt đầu)..."
                             style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                           />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                            <label style={{ minWidth: 140, fontWeight: 600, color: '#2d3748' }}>Phần trăm hoàn thành</label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={prog.percentComplete || 0}
+                              onChange={(e) => handleSliderChange(task.taskId, e.target.value)}
+                              style={{ flex: 1 }}
+                            />
+                            <span style={{ minWidth: 40, textAlign: 'right', fontWeight: 700 }}>
+                              {prog.percentComplete || 0}%
+                            </span>
+                          </div>
                           <button 
                             onClick={() => handleSaveProgress(task.taskId)}
                             className="btn-save"
@@ -414,7 +494,7 @@ const MyTasksTableUpgrade = ({ statusFilter = 'ALL', openToStatus = null, onOpen
                                 <div className="timeline-marker"></div>
                                 <div className="timeline-content">
                                   <div style={{ fontWeight: '600', color: '#2d3748' }}>
-                                    {h.percentComplete}% ✓
+                                    Tiến độ: {h.percentComplete}
                                   </div>
                                   <div style={{ fontSize: '12px', color: '#718096', marginTop: '4px' }}>
                                     {new Date(h.updatedAt).toLocaleString('vi-VN')}

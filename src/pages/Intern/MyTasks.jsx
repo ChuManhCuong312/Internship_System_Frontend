@@ -3,8 +3,9 @@ import { AuthContext } from '../../context/AuthContext';
 import axiosClient from '../../api/axiosClient';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import '../../styles/dashBoard.css';
-import MyTasksTableUpgrade from '../../components/Tasks/MyTasksTableUpgrade';
-import '../../styles/taskTable.css';
+import MyTasksBoard from '../../components/Tasks/MyTasksBoard';
+import TaskSearchForm from '../../components/Tasks/TaskSearchForm';
+import '../../styles/taskBoard.css';
 import Cookies from 'js-cookie';
 
 const MyTasks = () => {
@@ -13,6 +14,14 @@ const MyTasks = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [openToStatus, setOpenToStatus] = useState(null);
+  const [filterData, setFilterData] = useState({
+    status: '',
+    priority: '',
+    searchText: '',
+    tagIds: []
+  });
+  const [appliedFilters, setAppliedFilters] = useState(null);
+  const [availableTags, setAvailableTags] = useState([]);
 
   const internId = (() => {
     try {
@@ -47,6 +56,19 @@ const MyTasks = () => {
 
     fetchStats();
   }, [internId, token]);
+
+  const handleApplyFilter = () => {
+    setAppliedFilters({ ...filterData });
+  };
+
+  const handleResetFilter = () => {
+    setFilterData({ status: '', priority: '', searchText: '', tagIds: [] });
+    setAppliedFilters(null);
+  };
+
+  const handleTagsLoaded = (tags = []) => {
+    setAvailableTags(tags);
+  };
 
   return (
     <div className="dashboard-layout">
@@ -101,8 +123,29 @@ const MyTasks = () => {
 
         <div className="main-grid" style={{ gridTemplateColumns: '1fr' }}>
           <div className="card col-span-2">
-            <h4>Danh sách nhiệm vụ</h4>
-            <MyTasksTableUpgrade statusFilter={statusFilter} openToStatus={openToStatus} onOpenedStatus={() => setOpenToStatus(null)} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                <h4 style={{ margin: 0 }}>Danh sách nhiệm vụ</h4>
+                <div style={{ fontSize: 13, color: '#4a5568' }}>
+                  Lọc nhiệm vụ theo tag, trạng thái, ưu tiên
+                </div>
+              </div>
+              <TaskSearchForm
+                filterData={filterData}
+                setFilterData={setFilterData}
+                tags={availableTags}
+                onSearch={handleApplyFilter}
+                onReset={handleResetFilter}
+                hideManageTags
+              />
+            </div>
+            <MyTasksBoard
+              statusFilter={statusFilter}
+              openToStatus={openToStatus}
+              onOpenedStatus={() => setOpenToStatus(null)}
+              filters={appliedFilters}
+              onTagsLoaded={handleTagsLoaded}
+            />
           </div>
 
           {/* <div className="card">
