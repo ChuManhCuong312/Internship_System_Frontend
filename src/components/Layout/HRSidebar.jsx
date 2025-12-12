@@ -194,9 +194,6 @@ const HRSidebar = () => {
             <li className={isActive('/hr/program') ? 'active' : ''}>
               <Link to="/hr/program">Quản lý chương trình</Link>
             </li>
-            <li className={isActive('/hr/mentor-assigns') ? 'active' : ''}>
-              <Link to="/hr/mentor-assigns">Phân công mentor</Link>
-            </li>
           </ul>
         )}
 

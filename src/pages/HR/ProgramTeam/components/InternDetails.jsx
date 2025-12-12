@@ -304,7 +304,7 @@ export default function InternDetails({
       {/* Add Intern Dialog */}
       {showAddInternDialog && (
         <div className="modal-overlay" onClick={() => setShowAddInternDialog(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-intern-team" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Thêm thực tập sinh vào team</h2>
             </div>
