@@ -129,13 +129,16 @@ const ManageSupportRequests = () => {
 
     const getStatusText = (status) => {
         switch (status) {
-            case 'PENDING': return 'Chờ xử lý';
-            case 'APPROVED': return 'Đã duyệt';
-            case 'REJECTED': return 'Từ chối';
-            case 'OPEN': return 'Đang mở';
-            case 'IN_PROGRESS': return 'Chờ xử lý';
-            case 'RESOLVED': return 'Đã duyệt';
-            default: return status;
+            case 'OPEN':
+                return 'Chờ xử lý';
+            case 'IN_PROGRESS':
+                return 'Đang xử lý';
+            case 'RESOLVED':
+                return 'Đã giải quyết';
+            case 'REJECTED':
+                return 'Đã từ chối';
+            default:
+                return status || 'Trạng thái không hợp lệ';
         }
     };
 
@@ -284,19 +287,21 @@ const ManageSupportRequests = () => {
                                         <button
                                             disabled={paging.page === 0}
                                             onClick={() => handleFilter(paging.page - 1)}
+                                            className="pagination-btn"
                                         >
-                                            ← Trang trước
+                                            Trang trước
                                         </button>
 
-                                        <span>
+                                        <span className="pagination-info">
                                             Trang {paging.page + 1} / {paging.totalPages}
                                         </span>
 
                                         <button
+                                            className="pagination-btn"
                                             disabled={paging.page + 1 >= paging.totalPages}
                                             onClick={() => handleFilter(paging.page + 1)}
                                         >
-                                            Trang sau →
+                                            Trang sau
                                         </button>
                                     </div>
                                 )

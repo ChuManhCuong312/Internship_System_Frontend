@@ -64,11 +64,16 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
 
     const getStatusText = (status) => {
         switch (status) {
-            case 'REJECTED': return 'Từ chối';
-            case 'OPEN': return 'Đang mở';
-            case 'IN_PROGRESS': return 'Chờ xử lý';
-            case 'RESOLVED': return 'Đã duyệt';
-            default: return status;
+            case 'OPEN':
+                return 'Chờ xử lý';
+            case 'IN_PROGRESS':
+                return 'Đang xử lý';
+            case 'RESOLVED':
+                return 'Đã giải quyết';
+            case 'REJECTED':
+                return 'Đã từ chối';
+            default:
+                return status || 'Trạng thái không hợp lệ';
         }
     };
 
@@ -115,10 +120,11 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                                 className='highlight-value'
                                 onChange={(e) => setHandleStatus(e.target.value)}
                             >
-                                <option value="OPEN">Đang mở</option>
-                                <option value="IN_PROGRESS">Đang chờ duyệt</option>
-                                <option value="RESOLVED">Đã duyệt</option>
-                                <option value="REJECTED">Đã từ chối</option>
+                                {['OPEN', 'IN_PROGRESS', 'RESOLVED', 'REJECTED']
+                                    .map(s => (
+                                        <option key={s} value={s} selected={handleStatus == s}>{getStatusText(s)}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                         <DetailRow label="Ngày yêu cầu" value={formatDate(request.requestDate)} />
