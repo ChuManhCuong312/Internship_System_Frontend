@@ -201,7 +201,7 @@ const ManageSupportRequests = () => {
                         </div>
 
                         <div className="filter-actions">
-                            <button className="btn-filter" onClick={handleFilter}>
+                            <button className="btn-filter" onClick={() => handleFilter(paging.page)}>
                                 Lọc
                             </button>
                             <button className="btn-reset" onClick={handleResetFilter}>
@@ -227,7 +227,9 @@ const ManageSupportRequests = () => {
                                             <th>Tiêu đề</th>
                                             <th>Trạng thái</th>
                                             <th>Ngày yêu cầu</th>
-                                            <th>Thao tác</th>
+                                            <th style={{
+                                                textAlign: "center"
+                                            }}>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -253,7 +255,7 @@ const ManageSupportRequests = () => {
                                                             {getStatusText(request.status)}
                                                         </span>
                                                     </td>
-                                                    <td>{formatDate(request.requestDate)}</td>
+                                                    <td>{formatDate(request.processedDate)}</td>
                                                     <td>
                                                         <div className="action-buttons">
                                                             <button
@@ -262,7 +264,7 @@ const ManageSupportRequests = () => {
                                                             >
                                                                 Chi tiết
                                                             </button>
-                                                            {request.status === 'PENDING' && (
+                                                            {/* {request.status === 'PENDING' && (
                                                                 <>
                                                                     <button
                                                                         className="btn-approve"
@@ -271,7 +273,7 @@ const ManageSupportRequests = () => {
                                                                         Duyệt
                                                                     </button>
                                                                 </>
-                                                            )}
+                                                            )} */}
                                                         </div>
                                                     </td>
                                                 </tr>

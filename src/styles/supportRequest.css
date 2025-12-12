@@ -170,7 +170,7 @@
 /* Action Buttons */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  /* gap: 8px; */
 }
 
 .btn-detail,
