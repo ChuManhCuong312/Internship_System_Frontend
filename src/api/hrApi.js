@@ -340,15 +340,6 @@ const hrApi = {
     return res.data;
   },
 
-  // Download contract file as blob
-  downloadContract: async (token, documentId) => {
-    const res = await axios.get(`${API_URL_CONTRACTS}/${documentId}/download`, {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: "blob",
-    });
-    return res.data;
-  },
-
   searchInterns: async (token, { searchTerm, major, school, status, page = 0, size = 10 }) => {
     const params = { page, size };
     if (searchTerm) params.searchTerm = searchTerm;
@@ -374,106 +365,111 @@ const hrApi = {
     return res.data;
   },
 
-createInternProfile: async (token, userId, profileData) => {
-  const formData = new FormData();
-  formData.append("fullName", profileData.full_name);
-  formData.append("gender", profileData.gender);
-  formData.append("dob", profileData.dob);
-  formData.append("major", profileData.major);
-  formData.append("gpa", profileData.gpa);
-  formData.append("school", profileData.school);
-  formData.append("address", profileData.address);
-  formData.append("universityConfirm", profileData.universityConfirm);
-  formData.append("avatar", profileData.avatar);
+  updateInternStatusesBatch: async (token, internIds, status, rejectionReason = null) => {
+    const body = { internIds, status };
+    if (rejectionReason) body.rejectionReason = rejectionReason;
 
-  const res = await axios.post(`${API_URL}/${userId}/profile?phone=${profileData.phone}`, formData, {
-    ...authHeader(token),
-  });
-  return res.data;
-},
+    const res = await axios.patch(`${API_URL}/status/batch`, body, authHeader(token));
+    return res.data;
+  },
 
-getAllMajors: async (token) => {
-  const res = await axios.get(`${API_URL}/majors`, {
-    ...authHeader(token),
-  });
-  return res.data;
-},
+  createInternProfile: async (token, userId, profileData) => {
+    const formData = new FormData();
+    formData.append("fullName", profileData.full_name);
+    formData.append("gender", profileData.gender);
+    formData.append("dob", profileData.dob);
+    formData.append("major", profileData.major);
+    formData.append("gpa", profileData.gpa);
+    formData.append("school", profileData.school);
+    formData.append("address", profileData.address);
+    formData.append("universityConfirm", profileData.universityConfirm);
+    formData.append("avatar", profileData.avatar);
 
-getAllSchools: async (token) => {
-  const res = await axios.get(`${API_URL}/schools`, {
-    ...authHeader(token),
-  });
-  return res.data;
-},
-
-getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
-  const response = await axios.get(`${API_URL}/candidates`, {
-    ...authHeader(token),
-    params: { page, size },
-  });
-  return response.data;
-},
-
-updateInternProfile: async (token, internId, profileData) => {
-  try {
-    const res = await axios.patch(`${API_URL}/${internId}/profile`, {
-      school: profileData.school,
-      major: profileData.major,
-      dob: profileData.dob,
-      address: profileData.address,
-      phone: profileData.phone,
-      gender: profileData.gender,
-      gpa: profileData.gpa,
-      universityConfirm: profileData.universityConfirm,
-      avatar:profileData.avatar,
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
+    const res = await axios.post(`${API_URL}/${userId}/profile?phone=${profileData.phone}`, formData, {
+      ...authHeader(token),
     });
     return res.data;
-  } catch (err) {
+  },
 
-    throw err;
-  }
-},
+  getAllMajors: async (token) => {
+    const res = await axios.get(`${API_URL}/majors`, {
+      ...authHeader(token),
+    });
+    return res.data;
+  },
 
-getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
-  const params = {};
-  if (search) params.search = search;
-  if (filter) params.filter = filter;
+  getAllSchools: async (token) => {
+    const res = await axios.get(`${API_URL}/schools`, {
+      ...authHeader(token),
+    });
+    return res.data;
+  },
 
-  const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
-    headers: { Authorization: `Bearer ${token}` },
-    params  // Pass all params directly
-  });
-  return res.data;
-},
+  getInternCandidatesWithoutProfile: async (token, page = 0, size = 10) => {
+    const response = await axios.get(`${API_URL}/candidates`, {
+      ...authHeader(token),
+      params: { page, size },
+    });
+    return response.data;
+  },
 
+  updateInternProfile: async (token, internId, profileData) => {
+    try {
+      const res = await axios.patch(`${API_URL}/${internId}/profile`, {
+        school: profileData.school,
+        major: profileData.major,
+        dob: profileData.dob,
+        address: profileData.address,
+        phone: profileData.phone,
+        gender: profileData.gender,
+        gpa: profileData.gpa,
+        universityConfirm: profileData.universityConfirm,
+        avatar: profileData.avatar,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  },
 
-assignMentor: async (token, { internId, mentorId }) => {
-  const res = await axios.post(`${API_URL_MENTOR_ASSIGN}/assign`, {
-    internId, mentorId
-  }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
-},
+  getInternAssignments: async (token, { search = "", filter = "all", mentorId = null } = {}) => {
+    const params = {};
+    if (search) params.search = search;
+    if (filter) params.filter = filter;
 
-reassignMentor: async (token, { internId, mentorId }) => {
-  const res = await axios.put(`${API_URL_MENTOR_ASSIGN}/reassign`, {
-    internId, mentorId
-  }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
-},
+    const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/interns`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params,
+    });
+    return res.data;
+  },
 
-getAllMentors: async (token) => {
-  const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/mentors`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.data;
-},
+  assignMentor: async (token, { internId, mentorId }) => {
+    const res = await axios.post(`${API_URL_MENTOR_ASSIGN}/assign`, {
+      internId, mentorId,
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
 
+  reassignMentor: async (token, { internId, mentorId }) => {
+    const res = await axios.put(`${API_URL_MENTOR_ASSIGN}/reassign`, {
+      internId, mentorId,
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
+
+  getAllMentors: async (token) => {
+    const res = await axios.get(`${API_URL_MENTOR_ASSIGN}/mentors`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  },
 };
 
 // Merge allowance API methods for backward compatibility

@@ -263,11 +263,8 @@ const ApproveInterns = () => {
 
     try {
       setIsQuickApproving(true);
-      await Promise.all(
-        targetInterns.map((intern) =>
-          hrApi.updateInternStatus(token, intern.internId, "APPROVED")
-        )
-      );
+      const internIds = targetInterns.map((intern) => intern.internId);
+      await hrApi.updateInternStatusesBatch(token, internIds, "APPROVED");
       toast.success("Duyệt hồ sơ thành công ✅");
       setInterns((prev) =>
         prev.filter(
@@ -304,11 +301,8 @@ const ApproveInterns = () => {
     }
     try {
       setIsQuickRejecting(true);
-      await Promise.all(
-        selectedInterns.map((intern) =>
-          hrApi.updateInternStatus(token, intern.internId, "REJECTED", quickRejectReason)
-        )
-      );
+      const internIds = selectedInterns.map((intern) => intern.internId);
+      await hrApi.updateInternStatusesBatch(token, internIds, "REJECTED", quickRejectReason);
       toast.success("Từ chối hồ sơ thành công");
       setInterns((prev) =>
         prev.filter(
