@@ -35,6 +35,12 @@ export default function CreateTeamAuto() {
     programIdFromState ? Number(programIdFromState) : Number(sessionStorage.getItem("autoTeamProgramId"))
   );
 
+  const cleanErrorMessage = (message) => {
+    if (!message) return "Đã xảy ra lỗi. Vui lòng thử lại.";
+
+    return message.replace(/^An unexpected error occurred:\s*/i, "");
+  };
+
   useEffect(() => {
     if (programIdFromState) {
       sessionStorage.setItem("autoTeamProgramId", String(programIdFromState));
@@ -171,7 +177,7 @@ export default function CreateTeamAuto() {
       }, 3000);
     } catch (err) {
       console.error("Error creating teams:", err);
-      setError("Lỗi tạo team. Vui lòng kiểm tra lại danh sách đã chọn và thử lại sau.");
+      setError(cleanErrorMessage(err?.response?.data?.message) || "Lỗi tạo team. Vui lòng kiểm tra lại danh sách đã chọn và thử lại sau.");
     } finally {
       setCreating(false);
     }
