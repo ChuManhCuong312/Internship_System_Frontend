@@ -110,7 +110,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                     <h3>Thông tin yêu cầu</h3>
                     <div className="detail-grid">
                         <DetailRow label="ID" value={request.supportId} />
-                        <DetailRow label="Tên Thực tập sinh" value={request.fullName} />
+                        <DetailRow label="Tên Thực tập sinh" value={request.internFullName} />
                         <DetailRow label="Loại" value={getTypeText(request.supportType)} />
                         {/* <DetailRow
                             label="Trạng thái"
