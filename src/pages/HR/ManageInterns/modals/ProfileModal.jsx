@@ -1,6 +1,6 @@
 import React from "react";
 import Modal from "../../../../components/Layout/Modal";
-import { LoadingButton } from "../../../../components/common/LoadingSpinner";
+import { LoadingButton } from "../../../../components/Common/LoadingSpinner";
 import { Autocomplete, TextField } from "@mui/material";
 
 const ProfileModal = ({

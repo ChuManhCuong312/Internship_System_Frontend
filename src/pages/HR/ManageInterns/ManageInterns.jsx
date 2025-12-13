@@ -7,7 +7,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import HRInternHeader from "./component/HRInternHeader";
 import ProfileModal from "./modals/ProfileModal";
 import ViewProfileModal from "./modals/ViewProfileModal";
-import { LoadingSpinner, LoadingTable } from "../../../components/common/LoadingSpinner";
+import { LoadingSpinner, LoadingTable } from "../../../components/Common/LoadingSpinner";
 import { toast } from "react-toastify";
 import "../../../styles/manageInterns.css";
 import { HrContext } from "../../../context/HrContext";

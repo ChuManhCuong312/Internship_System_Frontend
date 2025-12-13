@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Modal from "../../../../components/Layout/Modal";
-import { LoadingButton } from "../../../../components/common/LoadingSpinner";
+import { LoadingButton } from "../../../../components/Common/LoadingSpinner";
 import "../../../../styles/modal.css";
 import "../../../../styles/buttons.css";
 import "../../../../styles/table.css";

@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import hrApi from "../../api/hrApi";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
+import { LoadingSpinner } from "../../components/Common/LoadingSpinner";
 import UploadContractModal from "./ManageContracts/UploadContractModal";
 import ContractTable from "./ManageContracts/ContractTable";
 import "../../styles/manageContracts.css";

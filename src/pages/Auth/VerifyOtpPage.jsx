@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
-import "../../styles/Auth.css";
+import "../../styles/auth.css";
 
 const VerifyOtpPage = () => {
   const navigate = useNavigate();

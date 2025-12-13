@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import Modal from "../../../components/Layout/Modal";
-import { LoadingButton } from "../../../components/common/LoadingSpinner";
+import { LoadingButton } from "../../../components/Common/LoadingSpinner";
 
 const UploadContractModal = ({
   contract,

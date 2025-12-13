@@ -3,7 +3,7 @@ import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 import ProfileModal from "./ProfileModal";
 import Modal from "../../../../components/Layout/Modal";
-import { LoadingSpinner } from "../../../../components/common/LoadingSpinner";
+import { LoadingSpinner } from "../../../../components/Common/LoadingSpinner";
 import "../../../../styles/buttons.css";
 import { toast } from "react-toastify";
 import { HrContext } from "../../../../context/HrContext";

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import hrApi from "../../../api/hrApi";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
-import { LoadingSpinner, LoadingTable, LoadingButton } from "../../../components/common/LoadingSpinner";
+import { LoadingSpinner, LoadingTable, LoadingButton } from "../../../components/Common/LoadingSpinner";
 import { toast } from "react-toastify";
 
 import HRInternTable from "../ManageInterns/component/HRInternTable";
