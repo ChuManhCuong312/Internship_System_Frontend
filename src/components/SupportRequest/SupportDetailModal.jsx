@@ -131,7 +131,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                                 onChange={(e) => setHandleStatus(e.target.value)}
                                 disabled={request.status === 'RESOLVED' || request.status === 'REJECTED'}
                             >
-                                {['OPEN', 'IN_PROGRESS', 'RESOLVED', 'REJECTED']
+                                {['IN_PROGRESS', 'RESOLVED', 'REJECTED']
                                     .map(s => (
                                         <option key={s} value={s} selected={handleStatus == s}>{getStatusText(s)}</option>
                                     ))

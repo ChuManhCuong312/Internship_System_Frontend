@@ -74,7 +74,8 @@ const ManageSupportRequests = () => {
     const handleResetFilter = () => {
         setFilterType('');
         setFilterStatus('');
-        setFilterInternId('');
+        // setFilterInternId('');
+        setKeyword('');
         setFilteredRequests(supportRequests);
     };
 
@@ -246,7 +247,7 @@ const ManageSupportRequests = () => {
                                             filteredRequests.map((request, index) => (
                                                 <tr key={request.supportId}>
                                                     <td>{index + 1}</td>
-                                                    <td>{request.fullName}</td>
+                                                    <td>{request.internFullName}</td>
                                                     <td>
                                                         <span className="type-badge" style={{
                                                             color: "#856404"
