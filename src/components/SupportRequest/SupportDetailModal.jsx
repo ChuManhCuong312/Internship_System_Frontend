@@ -4,15 +4,21 @@ import Modal from '../Layout/Modal';
 import { getSupportRequestHistory } from '../../api/supportApi';
 import '../../styles/modal.css';
 import '../../styles/supportRequest.css';
+import { toast } from 'react-toastify';
+import { hr } from 'date-fns/locale';
 
 const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleStatus, token }) => {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
-    // const [response, setResponse] = useState('');
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
+    const [hrResponse, setHrResponse] = useState(request.response);
 
     const [handleStatus, setHandleStatus] = useState(request.status);
+
+    useEffect(() => {
+        setHrResponse(request?.response || '');
+    }, [request]);
 
     useEffect(() => {
         fetchHistory();
@@ -55,7 +61,11 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
     const onHandledStatus = async () => {
         setIsRejecting(true);
         try {
-            await onHandleStatus(request.supportId, handleStatus)
+            if ((handleStatus == 'REJECTED') && !hrResponse) {
+                toast.error("Bạn phải ghi rõ lý do từ chối");
+                return;
+            }
+            await onHandleStatus(request.supportId, handleStatus, hrResponse)
         }
         finally {
             setIsRejecting(false);
@@ -131,7 +141,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                         <DetailRow label="Ngày yêu cầu" value={formatDate(request.createdAt)} />
                         {request.processedDate && (
                             <>
-                                <DetailRow label="Người xử lý" value={`ID: ${request.processedBy}`} />
+                                <DetailRow label="Người xử lý" value={`${request.processedByName}`} />
                                 <DetailRow label="Ngày xử lý" value={formatDate(request.processedDate)} />
                             </>
                         )}
@@ -147,20 +157,17 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                     </div>
                 </div>
 
-                {/* Phản hồi (Hiển thị nếu đã xử lý) */}
-                {(request.status !== 'PENDING' && request.response) && (
-                    <div className="detail-section response-section">
-                        <h3>Phản hồi từ HR</h3>
-                        <p>{request.response}</p>
-                    </div>
-                )}
-                {/* Hỗ trợ backward compatibility nếu response chưa có nhưng rejectionReason có */}
-                {(request.status === 'REJECTED' && !request.response && request.rejectionReason) && (
-                    <div className="detail-section response-section">
-                        <h3>Phản hồi từ HR (Lý do từ chối)</h3>
-                        <p>{request.rejectionReason}</p>
-                    </div>
-                )}
+                <div className="detail-section response-section">
+                    <h3>Phản hồi</h3>
+                    <textarea name="" id=""
+                        value={hrResponse}
+                        onChange={(e) => setHrResponse(e.target.value)}
+                        className="response-textarea"
+                        disabled={handleStatus == request.status}
+                        style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0', outline: "none" }}
+                        placeholder={`Lý do ${handleStatus === 'RESOLVED' ? 'duyệt' : handleStatus === 'REJECTED' ? 'từ chối' : ''}`}
+                    />
+                </div>
 
                 {/* Lịch sử thay đổi */}
                 <div className="detail-section">
@@ -183,7 +190,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                                             <span className="history-date">{formatDate(item.changeDate)}</span>
                                         </div>
                                         <div className="history-details">
-                                            <p>Người thực hiện: ID {item.changedBy}</p>
+                                            <p>Người thực hiện: {item.changedByName}</p>
                                             {item.remarks && <p className="history-remarks">{item.remarks}</p>}
                                         </div>
                                     </div>
@@ -192,20 +199,6 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                         </div>
                     )}
                 </div>
-
-                {/* Form nhập phản hồi (Chỉ hiện khi PENDING) */}
-                {request.status === 'PENDING' && (
-                    <div className="detail-section response-form-section">
-                        <h3>Phản hồi</h3>
-                        <textarea
-                            value={response}
-                            onChange={(e) => setResponse(e.target.value)}
-                            placeholder="Nhập phản hồi hoặc lý do từ chối..."
-                            rows={4}
-                            className="response-textarea"
-                        />
-                    </div>
-                )}
 
                 {/* Actions */}
                 <div className="modal-actions">

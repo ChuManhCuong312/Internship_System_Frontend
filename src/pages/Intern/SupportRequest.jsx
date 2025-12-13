@@ -69,8 +69,8 @@ const SupportRequest = () => {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'OPEN': return <span className="status-badge pending">Đang mở</span>;
-      case 'IN_PROGRESS': return <span className="status-badge pending">Đang chờ</span>;
+      case 'OPEN': return <span className="status-badge pending">Đang chờ xử lý</span>;
+      case 'IN_PROGRESS': return <span className="status-badge pending">Đang xử lý</span>;
       case 'RESOLVED': return <span className="status-badge success">Đã xử lý</span>;
       case 'REJECTED': return <span className="status-badge error">Từ chối</span>;
       default: return status;
@@ -88,8 +88,8 @@ const SupportRequest = () => {
   };
 
   // Stats for the header cards
-  const pendingCount = requests.filter(r => r.status === 'PENDING').length;
-  const approvedCount = requests.filter(r => r.status === 'APPROVED').length;
+  const pendingCount = requests.filter(r => r.status === 'OPEN').length;
+  const approvedCount = requests.filter(r => r.status === 'RESOLVED').length;
 
   return (
     <div className="dashboard-layout">
@@ -114,7 +114,7 @@ const SupportRequest = () => {
               <p className="stat-value">{approvedCount}</p>
             </div>
           </div>
-          <div className="stat-card">
+          {/* <div className="stat-card">
             <div className="stat-icon intern">📋</div>
             <div>
               <h4>Trung bình phản hồi</h4>
@@ -127,7 +127,7 @@ const SupportRequest = () => {
               <h4>Kênh liên hệ</h4>
               <p className="stat-value">Email/Chat</p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="">

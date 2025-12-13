@@ -106,9 +106,9 @@ const ManageSupportRequests = () => {
         }
     };
 
-    const handleUpdateStatus = async (id, status) => {
+    const handleUpdateStatus = async (id, status, hrResponse) => {
         try {
-            await handleRequestStatus(token, id, hrId, status);
+            await handleRequestStatus(token, id, hrId, status, hrResponse);
             fetchSupportRequests();
             setShowDetailModal(false);
             toast.success("Đã cật nhật trạng thái của yêu cầu");

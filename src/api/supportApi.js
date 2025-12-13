@@ -99,10 +99,10 @@ export const rejectSupportRequest = async (token, id, hrId, responseText) => {
     }
 };
 
-export const handleRequestStatus = async (token, id, hrId, status) => {
+export const handleRequestStatus = async (token, id, hrId, status, hrResponse) => {
     try {
         const response = await axiosClient.put(
-            `/support-requests/${id}/update-status?hrId=${hrId}&status=${status}`,
+            `/support-requests/${id}/update-status?hrId=${hrId}&status=${status}&response=${hrResponse}`,
             {},
             {
                 headers: {
