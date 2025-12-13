@@ -65,7 +65,12 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                 toast.error("Bạn phải ghi rõ lý do từ chối");
                 return;
             }
-            await onHandleStatus(request.supportId, handleStatus, hrResponse)
+            if(handleStatus == 'OPEN'){
+                await onHandleStatus(request.supportId, 'IN_PROGRESS', hrResponse)
+            }
+            else {
+                await onHandleStatus(request.supportId, handleStatus, hrResponse)
+            }
         }
         finally {
             setIsRejecting(false);
@@ -203,7 +208,7 @@ const SupportDetailModal = ({ request, onClose, onApprove, onReject, onHandleSta
                 {/* Actions */}
                 <div className="modal-actions">
                     <button
-                        disabled={handleStatus == request.status || request.status === 'RESOLVED' || request.status === 'REJECTED'}
+                        disabled={(handleStatus == request.status && handleStatus != 'OPEN') || request.status === 'RESOLVED' || request.status === 'REJECTED'}
                         className='btn-primary'
                         onClick={onHandledStatus}
                     >
