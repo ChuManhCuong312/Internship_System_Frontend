@@ -1,23 +1,31 @@
+# Build stage
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
 
-RUN npm ci
+# Install dependencies (including dev dependencies for build)
+RUN npm ci --prefer-offline --no-audit
 
+# Copy source code
 COPY . .
 
+# Build the application
 RUN npm run build
 
-FROM node:20-alpine
+# Production stage - Use nginx instead of serve + node
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy custom nginx config (optional, see below)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN npm install -g serve
+# Copy built files from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY --from=builder /app/dist ./dist
+# Expose port
+EXPOSE 80
 
-EXPOSE 3000
-
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# nginx runs in foreground by default
+CMD ["nginx", "-g", "daemon off;"]
