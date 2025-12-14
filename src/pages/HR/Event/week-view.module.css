@@ -165,32 +165,6 @@
   opacity: 0.9;
 }
 
-.eventSummary {
-  border-top: 1px solid #e5e7eb;
-  background-color: #f9fafb;
-  padding: 0.75rem 1rem;
-}
-
-.summaryLabel {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 0.5rem;
-}
-
-.summaryBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.summaryBadge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
 .badgeProgram {
   background-color: #dbeafe;
   color: #1e40af;
@@ -204,4 +178,33 @@
 .badgeDeadline {
   background-color: #fee2e2;
   color: #991b1b;
+}
+.eventBadge {
+  background-color: #3b82f6;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+/* ===== NGÀY QUÁ KHỨ ===== */
+.dayColumnPast {
+  background-color: #bec2c9; /* xám nhẹ */
+  cursor: not-allowed;
+}
+
+/* Không hover cho ngày quá khứ */
+.dayColumnPast:hover {
+  background-color: #f3f4f6;
+}
+
+/* ===== NGÀY HIỆN TẠI / TƯƠNG LAI ===== */
+.dayColumnFuture {
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dayColumnFuture:hover {
+  background-color: #f9fafb;
+  box-shadow: inset 0 0 0 1px #93c5fd;
 }

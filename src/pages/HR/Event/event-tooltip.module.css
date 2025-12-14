@@ -1,0 +1,26 @@
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  min-width: 160px;
+}
+
+.title {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #374151;
+  line-height: 1.4;
+}
