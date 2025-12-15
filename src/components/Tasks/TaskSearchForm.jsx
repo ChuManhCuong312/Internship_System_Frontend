@@ -168,15 +168,7 @@ const TaskSearchForm = ({
                 ))
               )}
             </div>
-            {hasActiveFilters && (
-              <button
-                type="button"
-                className={styles.clearAllBtn}
-                onClick={handleReset}
-              >
-                ↻ Xóa tất cả
-              </button>
-            )}
+            
           </div>
 
           {/* Action Buttons */}
