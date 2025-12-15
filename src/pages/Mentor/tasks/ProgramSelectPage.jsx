@@ -78,7 +78,6 @@ export default function ProgramSelectPage({ onSelectProgram }) {
         <div className={styles.header}>
           <h1 className={styles.title}>📋 Quản lý Nhiệm vụ</h1>
           <p className={styles.subtitle}>Chọn chương trình đang diễn ra để quản lý nhiệm vụ</p>
-          <p className={styles.note}>(Chỉ hiển thị các chương trình đang diễn ra)</p>
         </div>
         <div className={styles.loadingState}>
           <p>Đang tải chương trình...</p>
@@ -93,7 +92,7 @@ export default function ProgramSelectPage({ onSelectProgram }) {
         <div className={styles.header}>
           <h1 className={styles.title}>📋 Quản lý Nhiệm vụ</h1>
           <p className={styles.subtitle}>Chọn chương trình đang diễn ra để quản lý nhiệm vụ</p>
-          <p className={styles.note}>(Chỉ hiển thị các chương trình đang diễn ra)</p>
+          
         </div>
         <div className={styles.errorState}>
           <p>{error}</p>
