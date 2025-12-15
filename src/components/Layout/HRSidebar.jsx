@@ -181,14 +181,17 @@ const HRSidebar = () => {
 
         <li
           onClick={handleProgramMenuToggle}
-          className={`menu-item ${isParentActive(['/hr/program', '/hr/mentor-assigns']) ? 'active' : ''}`}
+          className={`menu-item ${isParentActive(['/hr/program', '/hr/eventcalendar']) ? 'active' : ''}`}
         >
-          <FaChalkboardTeacher /> {expanded && <span>Chương trình & Mentor</span>}
+          <FaChalkboardTeacher /> {expanded && <span>Chương trình & Sự kiện</span>}
         </li>
         {expanded && openProgramMenu && (
           <ul className="submenu">
             <li className={isActive('/hr/program') ? 'active' : ''}>
               <Link to="/hr/program">Quản lý chương trình</Link>
+            </li>
+            <li className={isActive('/hr/eventcalendar') ? 'active' : ''}>
+              <Link to="/hr/eventcalendar">Quản lý sự kiện</Link>
             </li>
           </ul>
         )}
@@ -231,12 +234,6 @@ const HRSidebar = () => {
           <Link to="/hr/reports">
             <FaChartBar /> {expanded && <span>Báo cáo & Phân tích</span>}
           </Link>
-        </li>
-        <li
-          onClick={() => navigate("/hr/eventcalendar")}
-          className={isActive('/hr/eventcalendar') ? 'active' : ''}
-        >
-          <FaRegUser /> {expanded && <span>Quản lý sự kiện</span>}
         </li>
       </ul>
 

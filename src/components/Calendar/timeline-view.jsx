@@ -18,18 +18,27 @@ export default function TimelineView({ currentDate, events }) {
   }
 
   // Phân loại sự kiện
-  const pastEvents = events.filter((e) => e.date < currentDate);
-  const todayEvents = events.filter(
-    (e) =>
-      e.date.toDateString() === currentDate.toDateString()
-  );
-  const upcomingEvents = events.filter((e) => e.date > currentDate);
+  const today = new Date(currentDate);
+  today.setHours(0, 0, 0, 0);
+  const normalizeDate = (date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+  const pastEvents = events.filter((e) => {
+    const eventDate = normalizeDate(e.date);
+    return eventDate < today;
+  });
 
-  const sortedEvents = [
-    ...pastEvents.sort((a, b) => a.date - b.date),
-    ...todayEvents.sort((a, b) => a.date - b.date),
-    ...upcomingEvents.sort((a, b) => a.date - b.date),
-  ];
+  const todayEvents = events.filter((e) => {
+    const eventDate = normalizeDate(e.date);
+    return eventDate.getTime() === today.getTime();
+  });
+
+  const upcomingEvents = events.filter((e) => {
+    const eventDate = normalizeDate(e.date);
+    return eventDate > today;
+  });
 
   const getEventColors = (type) => ({
     program: styles.eventProgram,
@@ -45,7 +54,7 @@ export default function TimelineView({ currentDate, events }) {
 
   const getEventLabel = (type) => ({
     program: "Chương Trình",
-    task: "Nhiệm Vụ",
+    task: "Sự kiện",
     deadline: "Deadline",
   }[type]);
 
@@ -85,7 +94,7 @@ export default function TimelineView({ currentDate, events }) {
                       <div className={styles.eventCardHeader}>
                         <div>
                           <p className={styles.eventType}>
-                            {getEventLabel(event.type)}
+
                           </p>
                           <h3 className={styles.eventTitle}>{event.title}</h3>
                           <p className={styles.eventDescription}>

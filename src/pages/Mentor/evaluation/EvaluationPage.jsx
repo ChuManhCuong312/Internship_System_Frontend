@@ -352,7 +352,7 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
                 className={styles.addButton}
                 onClick={handleSendEvaluation}
               >
-                📤 Gửi đánh giá
+                📤 Gửi đánh giá cho toàn bộ nhóm
               </button>
             </div>
 

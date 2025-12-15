@@ -6,20 +6,6 @@ export default function WeekView({ currentDate,
                                      onEventHover,
                                      onEventClick,
                                      onDateClick, }) {
-  if (!events || events.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyStateContent}>
-          <p className={styles.emptyStateTitle}>
-            Bạn chưa được phân chương trình thực tập
-          </p>
-          <p className={styles.emptyStateSubtitle}>
-            Vui lòng liên hệ với bộ phận quản lý để được phân chương trình
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // Tính ngày bắt đầu tuần (Sunday)
   const weekStart = new Date(currentDate);
