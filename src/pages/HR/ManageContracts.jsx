@@ -44,19 +44,42 @@ const ManageContracts = () => {
       });
 
       // Handle paginated response
+      let contractsList = [];
       if (response.content) {
-        setContracts(response.content);
+        contractsList = response.content;
         setTotalPages(response.totalPages || 0);
         setTotalElements(response.totalElements || 0);
       } else if (Array.isArray(response)) {
-        setContracts(response);
+        contractsList = response;
         setTotalPages(1);
         setTotalElements(response.length);
       } else {
         setContracts([]);
         setTotalPages(0);
         setTotalElements(0);
+        return;
       }
+
+      // Sort contracts by newest first (by createdAt or confirmAt descending)
+      // Newly added people (without dates) will be at the top (STT 1)
+      contractsList.sort((a, b) => {
+        const dateA = a.createdAt || a.confirmAt || a.created_at || a.confirm_at;
+        const dateB = b.createdAt || b.confirmAt || b.created_at || b.confirm_at;
+        
+        // If both have dates, sort by date descending (newest first)
+        if (dateA && dateB) {
+          return new Date(dateB) - new Date(dateA);
+        }
+        
+        // Items without dates (newly added interns) go to the top
+        if (!dateA && !dateB) return 0;
+        if (!dateA) return -1; // Put items without date at the top
+        if (!dateB) return 1;
+        
+        return 0;
+      });
+
+      setContracts(contractsList);
 
       if (resetPage) setPage(0);
     } catch (err) {

@@ -33,9 +33,9 @@ const ContractRow = ({
             target="_blank"
             rel="noopener noreferrer"
             className="contract-link"
-            title={fileName}
+            title={filePath}
           >
-            {fileName || "Hợp đồng"}
+            link hợp đồng
           </a>
         ) : (
           <span className="no-contract">-</span>
