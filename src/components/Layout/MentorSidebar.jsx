@@ -101,12 +101,6 @@ const MentorSidebar = () => {
           <FaClipboardList /> {expanded && <span>Giao nhiệm vụ</span>}
         </li>
         <li
-          className={location.pathname === "/mentor/feedback" ? "active" : ""}
-          onClick={() => navigate("/mentor/feedback")}
-        >
-          <FaRegCommentDots /> {expanded && <span>Phản hồi báo cáo</span>}
-        </li>
-        <li
           className={location.pathname === "/mentor/evaluations" ? "active" : ""}
           onClick={() => navigate("/mentor/evaluations")}
         >
