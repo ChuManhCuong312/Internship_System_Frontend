@@ -100,7 +100,7 @@ export default function ScheduleLayout({ viewType, onViewChange, currentDate, on
         </div>
         <div className={styles.legendItem}>
           <div className={styles.legendDotTask} />
-          <span className={styles.legendLabel}>Nhiệm vụ</span>
+          <span className={styles.legendLabel}>Sự kiện</span>
         </div>
         <div className={styles.legendItem}>
           <div className={styles.legendDotDeadline} />
