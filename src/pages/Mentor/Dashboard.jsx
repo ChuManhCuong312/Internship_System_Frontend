@@ -11,6 +11,7 @@ const MentorDashboard = () => {
   const { token, user } = useContext(AuthContext);
   const [internCount, setInternCount] = useState(0);
   const [interns, setInterns] = useState([]);
+  const [mentorInfo, setMentorInfo] = useState(null);
 
   useEffect(() => {
     const fetchInternCountForMentor = async () => {
@@ -18,6 +19,7 @@ const MentorDashboard = () => {
 
       try {
         const mentorData = await mentorApi.getMentorByUserId(token, user.userId);
+        setMentorInfo(mentorData || null);
 
         if (!mentorData || !mentorData.mentorId) {
           setInternCount(0);
@@ -102,6 +104,7 @@ const MentorDashboard = () => {
         console.error("Error fetching mentor intern count:", error);
         setInternCount(0);
         setInterns([]);
+        setMentorInfo(null);
       }
     };
 
@@ -154,47 +157,16 @@ const MentorDashboard = () => {
             </table>
           </div>
 
-          <div className="card">
+          <div className="card mentor-info-card">
             <h4>Thông tin mentor</h4>
             <div className="mentor-info">
               <img src={avatar} alt="avatar" />
               <div>
-                <p>Mentor Dương</p>
-                <p className="email">duong@mentor.com</p>
+                <p>{mentorInfo?.fullName || mentorInfo?.name || mentorInfo?.mentorName || user?.fullName || user?.username || "Mentor"}</p>
+                <p className="email">{mentorInfo?.email || user?.email || ""}</p>
               </div>
             </div>
-            <p>Phòng ban: Kỹ thuật</p>
             <p>Số lượng TTS: {internCount}</p>
-          </div>
-        </div>
-
-        {/* Dưới cùng */}
-        <div className="bottom-grid">
-          <div className="card">
-            <h4>Nhiệm vụ cần giao</h4>
-            <ul className="activity-list">
-              <li>Chuẩn bị nhiệm vụ tuần 3</li>
-              <li>Giao bài tập nhóm IT</li>
-              <li>Thiết lập deadline báo cáo</li>
-            </ul>
-          </div>
-
-          <div className="card">
-            <h4>Báo cáo chờ phản hồi</h4>
-            <ul className="activity-list">
-              <li>Báo cáo tuần của TTS A</li>
-              <li>Báo cáo kỹ năng mềm TTS B</li>
-              <li>Báo cáo thiết kế TTS C</li>
-            </ul>
-          </div>
-
-          <div className="card">
-            <h4>Đánh giá cuối kỳ</h4>
-            <ul className="activity-list">
-              <li>Đánh giá TTS A: kỹ năng & thái độ</li>
-              <li>Đánh giá TTS B: tiến độ & sáng tạo</li>
-              <li>Gửi tổng hợp cho HR</li>
-            </ul>
           </div>
         </div>
       </div>
