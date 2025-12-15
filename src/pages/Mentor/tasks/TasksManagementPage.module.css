@@ -179,6 +179,8 @@
 .btnApply {
   background-color: #3b82f6;
   color: white;
+  border: none;
+  transition: background-color 0.2s ease;
 }
 
 .btnApply:hover {
@@ -189,10 +191,12 @@
   background-color: #f3f4f6;
   color: #374151;
   border: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .btnReset:hover {
   background-color: #e5e7eb;
+  border-color: #d1d5db;
 }
 
 /* Task List */
@@ -445,37 +449,55 @@
 /* Action Section */
 .actionSection {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
 }
 
 .completeButton,
 .editButton,
 .deleteButton {
   flex: 1;
-  padding: 12px 16px;
-  border-radius: 8px;
+  min-width: 80px;
+  padding: 10px 12px;
+  border-radius: 6px;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .completeButton {
   background-color: #10b981;
   color: white;
+  border: none;
+  transition: background-color 0.2s ease;
 }
 
 .completeButton:hover {
-  background-color: #059669;
+  background-color: #0d9f6e;
+}
+
+.completeButton:disabled {
+  background-color: #d1fae5;
+  color: #065f46;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .editButton {
   background-color: #3b82f6;
   color: white;
+  border: none;
+  transition: background-color 0.2s ease;
 }
 
 .editButton:hover {
@@ -486,10 +508,27 @@
   background-color: #fee2e2;
   color: #dc2626;
   border: 1px solid #fecaca;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .deleteButton:hover {
   background-color: #fecaca;
+  border-color: #fca5a5;
+}
+
+/* Responsive adjustments for action buttons */
+@media (max-width: 480px) {
+  .actionSection {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .completeButton,
+  .editButton,
+  .deleteButton {
+    width: 100%;
+    padding: 10px;
+  }
 }
 
 /* No Selection */
@@ -595,7 +634,7 @@
 }
 
 .assignedTeamCard {
-  background: #f8fafc;
+  background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   padding: 12px;
@@ -628,7 +667,7 @@
 .internTag {
   display: inline-block;
   padding: 4px 10px;
-  background: #eef2ff;
+  background-color: #eef2ff;
   border: 1px solid #c7d2fe;
   border-radius: 20px;
   font-size: 12px;
@@ -709,7 +748,7 @@
 }
 
 .manageTagsBtn {
-  background: none;
+  background-color: #f0f9ff;
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -745,7 +784,7 @@
 }
 
 .closeTagManager {
-  background: none;
+  background-color: #f0f9ff;
   border: none;
   cursor: pointer;
   font-size: 16px;
@@ -813,19 +852,20 @@
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .createTagBtn:hover:not(:disabled) {
-  background-color: #059669;
+  background-color: #0d9f6e;
 }
 
 .createTagBtn:disabled {
-  background-color: #d1d5db;
+  background-color: #9ca3af;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .tagsList {
@@ -871,29 +911,55 @@
 .deleteTagBtn,
 .saveTagBtn,
 .cancelTagBtn {
-  background: none;
-  border: none;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
   cursor: pointer;
   font-size: 14px;
-  padding: 4px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
+  color: #374151;
+  font-weight: 500;
+}
+
+.editTagBtn {
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.deleteTagBtn {
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.saveTagBtn {
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.cancelTagBtn {
+  color: #4b5563;
+  border-color: #e5e7eb;
 }
 
 .editTagBtn:hover:not(:disabled) {
   background-color: #dbeafe;
+  border-color: #93c5fd;
 }
 
 .deleteTagBtn:hover:not(:disabled) {
   background-color: #fee2e2;
+  border-color: #fca5a5;
 }
 
 .saveTagBtn:hover:not(:disabled) {
   background-color: #d1fae5;
+  border-color: #6ee7b7;
 }
 
 .cancelTagBtn:hover:not(:disabled) {
   background-color: #f3f4f6;
+  border-color: #d1d5db;
 }
 
 .editTagBtn:disabled,
@@ -902,6 +968,7 @@
 .cancelTagBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: #f9fafb;
 }
 
 /* Task Item Tags */

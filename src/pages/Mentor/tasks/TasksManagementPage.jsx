@@ -815,32 +815,64 @@ const TasksManagementPage = ({ programId, onBack }) => {
                               }}
                             />
                             <Box sx={{ flex: 1 }} />
-                            <Tooltip title="Sửa">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleStartEditTag(tag)}
-                                disabled={tagLoading}
-                                sx={{ 
-                                  color: '#3b82f6',
-                                  '&:hover': { bgcolor: '#dbeafe' }
-                                }}
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Xóa">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleDeleteTag(tag.tagId)}
-                                disabled={tagLoading}
-                                sx={{ 
-                                  color: '#ef4444',
-                                  '&:hover': { bgcolor: '#fee2e2' }
-                                }}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                            <button
+                              onClick={() => handleStartEditTag(tag)}
+                              disabled={tagLoading}
+                              style={{
+                                padding: '4px 8px',
+                                margin: '0 4px',
+                                borderRadius: '4px',
+                                border: '1px solid #3b82f6',
+                                background: 'white',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '24px',
+                                minWidth: '50px',
+                                '&:hover': {
+                                  backgroundColor: '#dbeafe'
+                                },
+                                '&:disabled': {
+                                  opacity: 0.5,
+                                  cursor: 'not-allowed'
+                                }
+                              }}
+                            >
+                              Sửa
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTag(tag.tagId)}
+                              disabled={tagLoading}
+                              style={{
+                                padding: '4px 8px',
+                                margin: '0 4px',
+                                borderRadius: '4px',
+                                border: '1px solid #ef4444',
+                                background: 'white',
+                                color: '#ef4444',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '24px',
+                                minWidth: '50px',
+                                '&:hover': {
+                                  backgroundColor: '#fee2e2'
+                                },
+                                '&:disabled': {
+                                  opacity: 0.5,
+                                  cursor: 'not-allowed'
+                                }
+                              }}
+                            >
+                              Xóa
+                            </button>
                           </>
                         )}
                       </Box>
@@ -1028,7 +1060,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
                         return (
                           <div key={assignment.id} className={styles.assignedTeamCard}>
                             <div className={styles.assignedTeamHeader}>
-                              <span className={styles.assignedTeamName}>Nhóm #{assignment.teamId}</span>
+                              <span className={styles.assignedTeamName}>Group {assignment.teamId}</span>
                               {team && <span className={styles.assignedTeamMentor}>👤 {team.mentorName}</span>}
                             </div>
                             {team && team.interns && team.interns.length > 0 && (
@@ -1055,20 +1087,20 @@ const TasksManagementPage = ({ programId, onBack }) => {
                     onClick={() => handleCompleteTask(selectedTask.taskId)}
                     title="Đánh dấu hoàn thành"
                   >
-                    ✓
+                    Hoàn thành
                   </button>
                 )}
                 <button
                   className={styles.editButton}
                   onClick={() => handleOpenModal(selectedTask)}
                 >
-                  ✏️
+                  Chỉnh sửa
                 </button>
                 <button
                   className={styles.deleteButton}
                   onClick={() => handleDeleteTask(selectedTask.taskId)}
                 >
-                  🗑️
+                  Xóa
                 </button>
               </div>
             </>
