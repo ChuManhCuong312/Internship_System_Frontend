@@ -211,7 +211,6 @@ const [isRejecting, setIsRejecting] = useState(false);
         <div className="history-section">
           <div className="manage-users-header">
             <h2 className="page-title">Quản lý đơn nghỉ phép</h2>
-            <h3>Danh sách đơn nghỉ phép theo trạng thái</h3>
             <div className="header-top">
               <input
                 type="text"
