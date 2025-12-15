@@ -121,12 +121,8 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
     const handleSave = async () => {
         if (!token) return;
 
-        console.log("Form data before validation:", formData);
-        console.log("isCreating:", isCreating);
-
         // Validate form data
         const newErrors = validateInternProfile(formData, isCreating);
-        console.log("Validation errors:", newErrors);
         
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -154,15 +150,18 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
                     gender: formData.gender || "FEMALE",
                 };
                 
-                // Only include GPA if provided and valid
                 if (formData.gpa && !isNaN(parseFloat(formData.gpa))) {
                     createData.gpa = parseFloat(formData.gpa);
                 }
 
-                const created = await createIntern(token, createData);
-                setInternData(created);
-                setIsCreating(false);
-                showToast("Tạo hồ sơ thành công!", "success");
+                await createIntern(token, createData);
+                showToast("Tạo hồ sơ thành công! Đang tải lại trang...", "success");
+                
+                // Reload the page after a short delay to show the success message
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+                
             } else if (internData?.internId) {
                 const updateData = {
                     school: formData.school,
@@ -174,14 +173,16 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
                     gender: formData.gender
                 };
 
-                const updated = await hrApi.updateInternProfile(token, internData.internId, updateData);
-                setInternData(prev => ({ ...prev, ...updated }));
-                setIsEditing(false);
-                showToast("Cập nhật hồ sơ thành công!", "success");
+                await hrApi.updateInternProfile(token, internData.internId, updateData);
+                showToast("Cập nhật hồ sơ thành công! Đang tải lại trang...", "success");
+                
+                // Reload the page after a short delay to show the success message
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             }
         } catch (err) {
             console.error("Error saving profile:", err);
-            console.error("Error response:", err.response);
             if (err.response?.status === 400) {
                 let msg = err.response.data;
                 if (typeof msg === "string") {

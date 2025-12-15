@@ -1,6 +1,25 @@
 import React from 'react';
 import { MdEmail, MdEdit, MdPhone } from 'react-icons/md';
 
+const translateStatus = (status) => {
+  switch (status) {
+    case "PENDING":
+      return "Chờ duyệt";
+    case "APPROVED":
+      return "Đã duyệt";
+    case "REJECTED":
+      return "Từ chối";
+    case "ACTIVE":
+      return "Đang hoạt động";
+    case "COMPLETED":
+      return "Hoàn thành";
+    case "NO_FILE":
+      return "Chưa gửi CV";
+    default:
+      return status || '-';
+  }
+};
+
 const ProfileHeader = ({ internData, user, initials, avatarPreview, onAvatarClick, onEditClick }) => (
     <div className="profile-header-card">
         <div className="profile-avatar-large" onClick={onAvatarClick}>
@@ -25,7 +44,7 @@ const ProfileHeader = ({ internData, user, initials, avatarPreview, onAvatarClic
                 </p>
             </div>
             <div className={`profile-status-badge status-${(internData?.status || 'pending').toLowerCase()}`}>
-                {internData?.status || '-'}
+                {translateStatus(internData?.status)}
             </div>
         </div>
 
