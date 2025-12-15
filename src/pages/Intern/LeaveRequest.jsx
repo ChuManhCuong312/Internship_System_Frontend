@@ -27,6 +27,11 @@ const LeaveRequest = () => {
  const [internId, setInternId] = useState(null);
  const [leaveRequests, setLeaveRequests] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [page, setPage] = useState(0);
+ const [size] = useState(8);
+ const [totalPages, setTotalPages] = useState(0);
+ const [totalElements, setTotalElements] = useState(0);
+ const [displayRequests, setDisplayRequests] = useState([]);
  const [showModal, setShowModal] = useState(false);
  const [formData, setFormData] = useState({ startDate: '', endDate: '', reason: '' });
  const [errors, setErrors] = useState({});
@@ -67,6 +72,21 @@ const LeaveRequest = () => {
      fetchLeaveRequests();
    }
  }, [internId]);
+
+ useEffect(() => {
+   const total = leaveRequests.length;
+   const startIndex = page * size;
+   const endIndex = startIndex + size;
+   const paginated = leaveRequests.slice(startIndex, endIndex);
+
+   setDisplayRequests(paginated);
+   setTotalElements(total);
+   setTotalPages(total > 0 ? Math.ceil(total / size) : 0);
+ }, [leaveRequests, page, size]);
+
+ useEffect(() => {
+   setPage(0);
+ }, [leaveRequests.length]);
 
  const fetchLeaveRequests = async () => {
    try {
@@ -265,7 +285,7 @@ const LeaveRequest = () => {
            </div>
          ) : (
            <div className="requests-grid">
-             {leaveRequests.map((request) => (
+             {displayRequests.map((request) => (
                <div key={request.leaveId} className="request-card">
                  <div className="card-header">
                    <div className="card-date">
@@ -316,6 +336,30 @@ const LeaveRequest = () => {
            </div>
          )}
        </div>
+
+       {leaveRequests.length > 0 && (
+         <div className="pagination">
+           <button
+             className="pagination-btn"
+             disabled={page === 0}
+             onClick={() => setPage(page - 1)}
+           >
+             Trang trước
+           </button>
+
+           <span className="pagination-info">
+             Trang {page + 1} / {totalPages || 1}
+           </span>
+
+           <button
+             className="pagination-btn"
+             disabled={page + 1 >= totalPages}
+             onClick={() => setPage(page + 1)}
+           >
+             Trang sau
+           </button>
+         </div>
+       )}
 
        {showModal && (
          <LeaveRequestModal

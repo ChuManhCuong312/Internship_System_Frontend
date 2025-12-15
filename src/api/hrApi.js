@@ -374,18 +374,37 @@ const hrApi = {
   },
 
   createInternProfile: async (token, userId, profileData) => {
-    const formData = new FormData();
-    formData.append("fullName", profileData.full_name);
-    formData.append("gender", profileData.gender);
-    formData.append("dob", profileData.dob);
-    formData.append("major", profileData.major);
-    formData.append("gpa", profileData.gpa);
-    formData.append("school", profileData.school);
-    formData.append("address", profileData.address);
-    formData.append("universityConfirm", profileData.universityConfirm);
-    formData.append("avatar", profileData.avatar);
+    const {
+      full_name,
+      gender,
+      dob,
+      major,
+      gpa,
+      school,
+      address,
+      phone,
+      universityConfirm = null,
+      avatar = null,
+    } = profileData || {};
 
-    const res = await axios.post(`${API_URL}/${userId}/profile?phone=${profileData.phone}`, formData, {
+    const formData = new FormData();
+    formData.append("fullName", full_name);
+    formData.append("gender", gender);
+    formData.append("dob", dob);
+    formData.append("major", major);
+    formData.append("gpa", gpa);
+    formData.append("school", school);
+    formData.append("address", address);
+
+    // Chỉ gửi các field file khi thực sự có giá trị, tránh gửi "null" lên backend
+    if (universityConfirm !== null && universityConfirm !== "") {
+      formData.append("universityConfirm", universityConfirm);
+    }
+    if (avatar !== null && avatar !== "") {
+      formData.append("avatar", avatar);
+    }
+
+    const res = await axios.post(`${API_URL}/${userId}/profile?phone=${phone}`, formData, {
       ...authHeader(token),
     });
     return res.data;

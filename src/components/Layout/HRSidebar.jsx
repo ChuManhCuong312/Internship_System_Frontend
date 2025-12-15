@@ -76,7 +76,7 @@ const HRSidebar = () => {
   useEffect(() => {
     const path = location.pathname;
 
-    if (path.includes('/hr/manage-interns') || path.includes('/hr/approve-interns')) {
+    if (path.includes('/hr/manage-interns') || path.includes('/hr/approve-interns') || path.includes('/hr/contracts')) {
       setOpenProfileMenu(true);
     }
 
@@ -84,7 +84,7 @@ const HRSidebar = () => {
       setOpenProgramMenu(true);
     }
 
-    if (path.includes('/hr/allowances') || path.includes('/hr/contracts') || path.includes('/hr/support-requests')) {
+    if (path.includes('/hr/allowances') || path.includes('/hr/support-requests')) {
       setOpenBenefitsMenu(true);
     }
   }, [location.pathname]);
@@ -160,7 +160,7 @@ const HRSidebar = () => {
 
         <li
           onClick={handleProfileMenuToggle}
-          className={`menu-item ${isParentActive(['/hr/manage-interns', '/hr/approve-interns']) ? 'active' : ''}`}
+          className={`menu-item ${isParentActive(['/hr/manage-interns', '/hr/approve-interns', '/hr/contracts']) ? 'active' : ''}`}
         >
           <FaUser />
           {expanded && <span>Hồ sơ & Tiếp nhận</span>}
@@ -172,6 +172,9 @@ const HRSidebar = () => {
             </li>
             <li className={isActive('/hr/approve-interns') ? 'active' : ''}>
               <Link to="/hr/approve-interns">Phê duyệt hồ sơ</Link>
+            </li>
+            <li className={isActive('/hr/contracts') ? 'active' : ''}>
+              <Link to="/hr/contracts">Quản lý hợp đồng</Link>
             </li>
           </ul>
         )}
@@ -209,7 +212,7 @@ const HRSidebar = () => {
 
         <li
           onClick={handleBenefitsMenuToggle}
-          className={`menu-item ${isParentActive(['/hr/allowances', '/hr/contracts', '/hr/support-requests']) ? 'active' : ''}`}
+          className={`menu-item ${isParentActive(['/hr/allowances', '/hr/support-requests']) ? 'active' : ''}`}
         >
           <FaLifeRing /> {expanded && <span>Hỗ trợ & Quyền lợi</span>}
         </li>
@@ -217,9 +220,6 @@ const HRSidebar = () => {
           <ul className="submenu">
             <li className={isActive('/hr/allowances') ? 'active' : ''}>
               <Link to="/hr/allowances">Quản lý trợ cấp</Link>
-            </li>
-            <li className={isActive('/hr/contracts') ? 'active' : ''}>
-              <Link to="/hr/contracts">Quản lý hợp đồng</Link>
             </li>
             <li className={isActive('/hr/support-requests') ? 'active' : ''}>
               <Link to="/hr/support-requests">Yêu cầu hỗ trợ</Link>
