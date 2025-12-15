@@ -10,10 +10,39 @@ import { getTodayAttendance, checkIn, checkOut } from '../../api/attendanceApi';
 import allowanceApi from '../../api/allowanceApi';
 import axiosClient from '../../api/axiosClient';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, token, loading: authLoading } = useContext(AuthContext);
+
+   const userStatus =
+      user?.userStatus ||
+      Cookies.get("userStatus") ||
+      "";
+   const internStatus =
+     user?.internStatus ||
+     Cookies.get("internStatus") ||
+     null;
+
+   const internConfirmStatus =
+     user?.internConfirmStatus ||
+     Cookies.get("internConfirmStatus") ||
+     null;
+    // LIMITED only if user is NOT ACTIVE and NOT REJECTED
+    const isLimitedIntern =
+    userStatus !== "ACTIVE" && userStatus !== "REJECTED";
+
+    const isFullyApprovedIntern =
+      internStatus === "APPROVED" &&
+      internConfirmStatus === "Approved" &&
+      userStatus !== "INACTIVE" &&
+      userStatus !== "PENDING_APPROVAL";
+
+    const disableAttendanceActions =
+      userStatus === "REJECTED" &&
+      internStatus === "APPROVED" &&
+      internConfirmStatus === "Approved";
 
   const [internId, setInternId] = useState(null);
   const [todayAttendance, setTodayAttendance] = useState(null);
@@ -90,29 +119,29 @@ const Dashboard = () => {
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1;
       const currentYear = currentDate.getFullYear();
-      
+
       const response = await allowanceApi.getAllowancesByInternId(token, internId, 0, 100);
-      
-      const allowances = Array.isArray(response) ? response : 
+
+      const allowances = Array.isArray(response) ? response :
                        (response?.data || response?.content || []);
-      
+
       const monthlyTotal = allowances
         .filter(allowance => {
           if (!allowance.dateApplied) return false;
           const allowanceDate = new Date(allowance.dateApplied);
           return (
-            allowanceDate.getMonth() + 1 === currentMonth && 
+            allowanceDate.getMonth() + 1 === currentMonth &&
             allowanceDate.getFullYear() === currentYear
           );
         })
         .reduce((sum, allowance) => sum + (allowance.amount || 0), 0);
-      
+
       setMonthlyAllowance(monthlyTotal);
     } catch (error) {
       console.error('Error fetching monthly allowance:', error);
     }
   };
-  
+
   const fetchTaskStats = async () => {
     try {
       if (!internId || !token) {
@@ -178,7 +207,7 @@ const Dashboard = () => {
       setRecentTasksLoading(false);
     }
   };
-  
+
   const fetchProgramAndMentor = async () => {
     try {
       if (!internId || !token) {
@@ -266,7 +295,7 @@ const Dashboard = () => {
       setProgramLoading(false);
     }
   };
-  
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -398,8 +427,13 @@ const Dashboard = () => {
 
         <div className="dashboard-top-grid">
           <div
-            className="stat-card clickable-card"
-            onClick={() => navigate('/intern/tasks')}
+            className={`stat-card clickable-card ${
+                !isFullyApprovedIntern ? "disabled-card" : ""
+              }`}
+            onClick={() => {
+                if (!isFullyApprovedIntern) return;
+                navigate("/intern/tasks");
+              }}
           >
             <div className="stat-icon intern">📋</div>
             <div>
@@ -413,8 +447,13 @@ const Dashboard = () => {
           </div>
 
           <div
-            className="stat-card clickable-card"
-            onClick={() => navigate('/intern/allowance')}
+            className={`stat-card clickable-card ${
+                !isFullyApprovedIntern ? "disabled-card" : ""
+              }`}
+            onClick={() => {
+                if (!isFullyApprovedIntern) return;
+                navigate("/intern/allowance");
+              }}
           >
             <div className="stat-icon intern"></div>
             <div>
@@ -423,6 +462,7 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {isFullyApprovedIntern && (
           <div
             className="quick-checkin-card card clickable-card"
             onClick={() => navigate('/intern/attendance')}
@@ -462,7 +502,7 @@ const Dashboard = () => {
                       e.stopPropagation();
                       handleQuickCheckIn();
                     }}
-                    disabled={attendanceLoading || hasCheckedIn}
+                    disabled={attendanceLoading || hasCheckedIn || disableAttendanceActions}
                   >
                     {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
                   </button>
@@ -472,7 +512,7 @@ const Dashboard = () => {
                       e.stopPropagation();
                       handleQuickCheckOut();
                     }}
-                    disabled={attendanceLoading || !hasCheckedIn}
+                    disabled={attendanceLoading || !hasCheckedIn ||  disableAttendanceActions}
                   >
                     {hasCheckedOut ? 'Check-out' : 'Check-out'}
                   </button>
@@ -480,6 +520,7 @@ const Dashboard = () => {
               </>
             )}
           </div>
+          )}
 
           <div className="card mentor-card">
             <h4>Mentor & chương trình thực tập</h4>
@@ -509,8 +550,13 @@ const Dashboard = () => {
 
         <div className="bottom-grid">
           <div
-            className="card recent-tasks-card clickable-card"
-            onClick={() => navigate('/intern/tasks')}
+            className={`card recent-tasks-card clickable-card ${
+                !isFullyApprovedIntern ? "disabled-card" : ""
+              }`}
+            onClick={() => {
+                if (!isFullyApprovedIntern) return;
+                navigate("/intern/tasks");
+              }}
           >
             <h4>Nhiệm vụ gần đây</h4>
             <table className="task-table">

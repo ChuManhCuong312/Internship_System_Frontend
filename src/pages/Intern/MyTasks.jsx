@@ -10,6 +10,14 @@ import Cookies from 'js-cookie';
 
 const MyTasks = () => {
   const { token, user } = useContext(AuthContext);
+  const userStatus = user?.userStatus || null;
+  const internStatus = user?.internStatus || null;
+  const internConfirmStatus = user?.internConfirmStatus || null;
+  const disableTaskStatusChange =
+    userStatus === "REJECTED" &&
+    internStatus === "APPROVED" &&
+    internConfirmStatus === "Approved";
+
   const [stats, setStats] = useState({ inProgress: 0, todo: 0, done: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -145,6 +153,7 @@ const MyTasks = () => {
               onOpenedStatus={() => setOpenToStatus(null)}
               filters={appliedFilters}
               onTagsLoaded={handleTagsLoaded}
+              disableStatusChange={disableTaskStatusChange}
             />
           </div>
 

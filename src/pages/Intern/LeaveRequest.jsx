@@ -24,6 +24,14 @@ import LeaveRequestModal from "./modals/LeaveRequestModal";
 
 const LeaveRequest = () => {
  const { token, user } = useContext(AuthContext);
+ const userStatus = user?.userStatus || null;
+ const internStatus = user?.internStatus || null;
+ const internConfirmStatus = user?.internConfirmStatus || null;
+ const disableLeaveActions =
+   userStatus === "REJECTED" &&
+   internStatus === "APPROVED" &&
+   internConfirmStatus === "Approved";
+
  const [internId, setInternId] = useState(null);
  const [leaveRequests, setLeaveRequests] = useState([]);
  const [loading, setLoading] = useState(true);
@@ -269,7 +277,14 @@ const LeaveRequest = () => {
          <div className="header-left">
            <h2>Nghỉ phép</h2>
          </div>
-         <button className="btn-create-leave" onClick={() => setShowModal(true)}>
+         <button
+           className="btn-create-leave"
+           onClick={() => {
+             if (disableLeaveActions) return;
+             setShowModal(true);
+           }}
+           disabled={disableLeaveActions}
+         >
            <FaPlus /> Tạo đơn
          </button>
        </div>
@@ -279,7 +294,14 @@ const LeaveRequest = () => {
            <div className="no-data">
              <FaCalendarAlt className="no-data-icon" />
              <p>Bạn chưa có đơn nghỉ phép nào</p>
-             <button className="btn-create-first" onClick={() => setShowModal(true)}>
+             <button
+               className="btn-create-first"
+               onClick={() => {
+                 if (disableLeaveActions) return;
+                 setShowModal(true);
+               }}
+               disabled={disableLeaveActions}
+             >
                Tạo đơn đầu tiên
              </button>
            </div>
@@ -325,7 +347,11 @@ const LeaveRequest = () => {
                    <div className="card-actions">
                      <button
                        className="btn-cancel"
-                       onClick={() => handleCancel(request.leaveId)}
+                       onClick={() => {
+                         if (disableLeaveActions) return;
+                         handleCancel(request.leaveId);
+                       }}
+                       disabled={disableLeaveActions}
                      >
                        <FaTrash /> Hủy đơn
                      </button>

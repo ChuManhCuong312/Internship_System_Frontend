@@ -34,6 +34,49 @@ const InternSidebar = () => {
   const [internData, setInternData] = useState(null);
   const [internId, setInternId] = useState(null);
 
+  const userStatus =
+    user?.userStatus ||
+    Cookies.get("userStatus") ||
+    "";
+
+  const internStatus =
+    user?.internStatus ||
+    Cookies.get("internStatus") ||
+    null;
+
+  const internConfirmStatus =
+    user?.internConfirmStatus ||
+    Cookies.get("internConfirmStatus") ||
+    null;
+  // LIMITED only if user is NOT ACTIVE and NOT REJECTED
+  const isUserBlocked =
+    userStatus === "INACTIVE" || userStatus === "PENDING_APPROVAL";
+
+  // Defaults
+  let canSeeProfile = false;
+  let canSeeContracts = false;
+  let canSeeFullSidebar = false;
+
+  // Notifications & Home are ALWAYS visible
+  const canSeeNotifications = true;
+  const canSeeHome = true;
+
+  if (!isUserBlocked) {
+    // User is ACTIVE or REJECTED → apply intern rules
+    canSeeProfile = true;
+
+    if (internStatus === "APPROVED") {
+      if (internConfirmStatus === "Approved") {
+        // Fully approved intern
+        canSeeContracts = true;
+        canSeeFullSidebar = true;
+      } else {
+        // Approved intern but contract not confirmed
+        canSeeContracts = true;
+      }
+    }
+  }
+
   // Save expanded state to localStorage
   useEffect(() => {
     localStorage.setItem('internSidebarExpanded', JSON.stringify(expanded));
@@ -252,20 +295,26 @@ const InternSidebar = () => {
           <FaHome /> {expanded && <span>Trang chủ</span>}
         </li>
 
+        {canSeeProfile && (
         <li
           onClick={() => navigate("/intern/profiles")}
           className={isActiveRoute("/intern/profiles") ? "active" : ""}
         >
           <FaUser /> {expanded && <span>Hồ sơ cá nhân</span>}
         </li>
+        )}
 
+        {canSeeContracts && (
         <li
           onClick={() => navigate("/intern/contracts")}
           className={isActiveRoute("/intern/contracts") ? "active" : ""}
         >
           <FaBook /> {expanded && <span>Hợp đồng</span>}
         </li>
+        )}
 
+        {canSeeFullSidebar && (
+          <>
         <li
           onClick={() => navigate("/intern/calendar")}
           className={isActiveRoute("/intern/calendar") ? "active" : ""}
@@ -312,6 +361,8 @@ const InternSidebar = () => {
         >
           <FaLifeRing /> {expanded && <span>Quyền lợi & Phụ cấp</span>}
         </li>
+        </>
+        )}
 
         <li
           onClick={() => navigate("/intern/notifications")}
@@ -334,12 +385,14 @@ const InternSidebar = () => {
           {expanded && <span>Thông báo</span>}
         </li>
 
+        {canSeeFullSidebar && (
         <li
           onClick={() => navigate("/intern/support")}
           className={isActiveRoute("/intern/support") ? "active" : ""}
         >
           <FaRobot /> {expanded && <span>Hỗ trợ</span>}
         </li>
+        )}
       </ul>
       {/* Footer */}
       <div className="sidebar-footer">

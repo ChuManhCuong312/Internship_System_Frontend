@@ -18,6 +18,13 @@ import '../../styles/buttons.css';
 
 const Attendance = () => {
   const { user, token, loading: authLoading } = useContext(AuthContext);
+  const userStatus = user?.userStatus || null;
+  const internStatus = user?.internStatus || null;
+  const internConfirmStatus = user?.internConfirmStatus || null;
+  const disableAttendanceActions =
+    userStatus === "REJECTED" &&
+    internStatus === "APPROVED" &&
+    internConfirmStatus === "Approved";
 
   const [loading, setLoading] = useState(true);
   const [todayAttendance, setTodayAttendance] = useState(null);
@@ -319,17 +326,27 @@ const Attendance = () => {
 
             <div className="checkin-buttons">
               <button
-                className={`btn-checkin ${hasCheckedIn ? 'disabled' : ''}`}
-                onClick={handleCheckIn}
-                disabled={hasCheckedIn}
+                className={`btn-checkin ${
+                  hasCheckedIn || disableAttendanceActions ? 'disabled' : ''
+                }`}
+                onClick={() => {
+                  if (disableAttendanceActions || hasCheckedIn) return;
+                  handleCheckIn();
+                }}
+                disabled={hasCheckedIn || disableAttendanceActions}
               >
                 {hasCheckedIn ? '✓ Đã check-in' : '🕐 Check-in'}
               </button>
 
               <button
-                className={`btn-checkout ${!hasCheckedIn ? 'disabled' : ''}`}
-                onClick={handleCheckOut}
-                disabled={!hasCheckedIn}
+                className={`btn-checkout ${
+                  !hasCheckedIn || disableAttendanceActions ? 'disabled' : ''
+                }`}
+                onClick={() => {
+                  if (disableAttendanceActions || !hasCheckedIn) return;
+                  handleCheckOut();
+                }}
+                disabled={!hasCheckedIn || disableAttendanceActions}
               >
                 {hasCheckedOut ? '✓ Check-out' : '🕐 Check-out'}
               </button>

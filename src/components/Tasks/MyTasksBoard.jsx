@@ -39,6 +39,7 @@ const MyTasksBoard = ({
   onOpenedStatus = () => {}, 
   filters = null,
   onTagsLoaded = () => {},
+  disableStatusChange= false,
 }) => {
   const { token, user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
@@ -174,6 +175,8 @@ const MyTasksBoard = ({
   }, [internId, token]);
 
   const handleStatusChange = async (taskId, newStatus) => {
+    if (disableStatusChange) return;
+
     const prevStatus = tasks.find(t => t.taskId === taskId)?.status;
     setTasks(prev => prev.map(t => t.taskId === taskId ? { ...t, status: newStatus } : t));
     try {
@@ -329,6 +332,11 @@ const MyTasksBoard = ({
   };
 
   const handleDrop = (status) => {
+    if (disableStatusChange) {
+        toast.info('Bạn không có quyền thay đổi trạng thái nhiệm vụ');
+        return;
+    }
+
     if (!draggingTaskId) return;
     if (draggingFrom === status) {
       setDraggingTaskId(null);
@@ -388,11 +396,15 @@ const MyTasksBoard = ({
     const approaching = isApproachingDeadline(task.deadline) && task.status !== 'DONE';
 
     return (
-      <div 
-        className={`jira-task-card ${overdue ? 'overdue' : approaching ? 'approaching' : ''}`}
+      <div
+        className={`jira-task-card ${
+          overdue ? 'overdue' : approaching ? 'approaching' : ''
+        } ${disableStatusChange ? 'drag-disabled' : ''}`}
         data-taskid={task.taskId}
-        draggable
-        onDragStart={() => handleDragStart(task)}
+        draggable={!disableStatusChange}
+        onDragStart={
+          disableStatusChange ? undefined : () => handleDragStart(task)
+        }
       >
         <div className="task-card-header">
           <div className="task-card-id">#{task.taskId}</div>
