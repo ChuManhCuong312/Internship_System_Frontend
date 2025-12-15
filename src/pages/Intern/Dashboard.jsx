@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import LatestNotificationsWidget from '../../components/Dashboard/LatestNotificationsWidget';
 import '../../styles/dashBoard.css';
@@ -11,6 +12,7 @@ import axiosClient from '../../api/axiosClient';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user, token, loading: authLoading } = useContext(AuthContext);
 
   const [internId, setInternId] = useState(null);
@@ -395,7 +397,10 @@ const Dashboard = () => {
         <h2 className="page-title">Dashboard thực tập sinh</h2>
 
         <div className="dashboard-top-grid">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate('/intern/tasks')}
+          >
             <div className="stat-icon intern">📋</div>
             <div>
               <h4>Nhiệm vụ</h4>
@@ -407,7 +412,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate('/intern/allowance')}
+          >
             <div className="stat-icon intern"></div>
             <div>
               <h4>Phụ cấp tháng</h4>
@@ -415,7 +423,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="quick-checkin-card card">
+          <div
+            className="quick-checkin-card card clickable-card"
+            onClick={() => navigate('/intern/attendance')}
+          >
             <h4>Chấm công</h4>
             {attendanceError && (
               <p className="attendance-error-text">{attendanceError}</p>
@@ -447,14 +458,20 @@ const Dashboard = () => {
                 <div className="attendance-actions">
                   <button
                     className="checkin-btn"
-                    onClick={handleQuickCheckIn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickCheckIn();
+                    }}
                     disabled={attendanceLoading || hasCheckedIn}
                   >
                     {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
                   </button>
                   <button
                     className="checkout-btn"
-                    onClick={handleQuickCheckOut}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickCheckOut();
+                    }}
                     disabled={attendanceLoading || !hasCheckedIn}
                   >
                     {hasCheckedOut ? 'Check-out' : 'Check-out'}
@@ -491,7 +508,10 @@ const Dashboard = () => {
         </div>
 
         <div className="bottom-grid">
-          <div className="card recent-tasks-card">
+          <div
+            className="card recent-tasks-card clickable-card"
+            onClick={() => navigate('/intern/tasks')}
+          >
             <h4>Nhiệm vụ gần đây</h4>
             <table className="task-table">
               <thead>

@@ -258,6 +258,10 @@ body, html {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.clickable-card {
+  cursor: pointer;
+}
+
 /* === Charts === */
 .chart-placeholder {
   background-color: #f9f9f9;
