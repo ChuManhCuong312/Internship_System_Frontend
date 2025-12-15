@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MentorSidebar from "../../components/Layout/MentorSidebar";
 import TaskStats from "../../components/Dashboard/TaskStats";
 import "../../styles/dashBoard.css";
@@ -9,6 +10,7 @@ import hrApi from "../../api/hrApi";
 
 const MentorDashboard = () => {
   const { token, user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [internCount, setInternCount] = useState(0);
   const [interns, setInterns] = useState([]);
   const [mentorInfo, setMentorInfo] = useState(null);
@@ -119,19 +121,30 @@ const MentorDashboard = () => {
 
         {/* Thống kê nhanh */}
         <div className="stats-row">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate("/mentor/interns")}
+          >
             <div className="stat-icon mentor">👨‍🏫</div>
             <div>
               <h4>Thực tập sinh đang hướng dẫn</h4>
               <p className="stat-value">{internCount}</p>
             </div>
           </div>
-          <TaskStats />
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate("/mentor/tasks")}
+          >
+            <TaskStats />
+          </div>
         </div>
 
         {/* Nội dung chính */}
         <div className="main-grid">
-          <div className="card col-span-2 intern-list-card">
+          <div
+            className="card col-span-2 intern-list-card clickable-card"
+            onClick={() => navigate("/mentor/interns")}
+          >
             <h4>Danh sách thực tập sinh</h4>
             <table className="task-table">
               <thead>
