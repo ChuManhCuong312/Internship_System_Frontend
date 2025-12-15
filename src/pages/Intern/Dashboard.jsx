@@ -30,6 +30,9 @@ const Dashboard = () => {
   const [taskStatsLoading, setTaskStatsLoading] = useState(true);
   const [recentTasks, setRecentTasks] = useState([]);
   const [recentTasksLoading, setRecentTasksLoading] = useState(true);
+  const [programInfo, setProgramInfo] = useState(null);
+  const [mentorInfo, setMentorInfo] = useState(null);
+  const [programLoading, setProgramLoading] = useState(true);
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -77,23 +80,20 @@ const Dashboard = () => {
     fetchMonthlyAllowance();
     fetchTaskStats();
     fetchRecentTasks();
+    fetchProgramAndMentor();
   }, [token, internId]);
 
-  // Fetch monthly allowance
   const fetchMonthlyAllowance = async () => {
     try {
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1;
       const currentYear = currentDate.getFullYear();
       
-      // Get all allowances for the current intern
       const response = await allowanceApi.getAllowancesByInternId(token, internId, 0, 100);
       
-      // Handle different response formats
       const allowances = Array.isArray(response) ? response : 
                        (response?.data || response?.content || []);
       
-      // Filter allowances for current month and year, and sum them up
       const monthlyTotal = allowances
         .filter(allowance => {
           if (!allowance.dateApplied) return false;
@@ -167,7 +167,6 @@ const Dashboard = () => {
           ? res.data.data
           : [];
 
-      // Lấy tối đa 3 nhiệm vụ gần đây
       const limited = data.slice(0, 3);
       setRecentTasks(limited);
     } catch (error) {
@@ -178,7 +177,94 @@ const Dashboard = () => {
     }
   };
   
-  // Format currency
+  const fetchProgramAndMentor = async () => {
+    try {
+      if (!internId || !token) {
+        setProgramInfo(null);
+        setMentorInfo(null);
+        setProgramLoading(false);
+        return;
+      }
+
+      setProgramLoading(true);
+
+      const res = await axiosClient.get(`/programs/intern/${internId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      let program = null;
+      const data = res.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        const programEvent = data.find((e) => e.type === 'program') || data[0];
+        if (programEvent) {
+          program = {
+            id: programEvent.id,
+            name: programEvent.title,
+            description: programEvent.description,
+            startDate: programEvent.startDate || programEvent.dateTime || programEvent.start,
+          };
+        }
+      }
+
+      setProgramInfo(program);
+
+      let numericProgramId = null;
+      try {
+        const tasksRes = await axiosClient.get(`/tasks/intern/${internId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const tasksData = Array.isArray(tasksRes.data)
+          ? tasksRes.data
+          : Array.isArray(tasksRes.data?.data)
+            ? tasksRes.data.data
+            : [];
+
+        if (tasksData.length > 0 && tasksData[0].programId) {
+          numericProgramId = tasksData[0].programId;
+        }
+      } catch (taskErr) {
+        console.error('Failed to fetch tasks for mentor lookup:', taskErr);
+      }
+
+      if (!numericProgramId && program?.id) {
+        const parsed = parseInt(String(program.id), 10);
+        if (!Number.isNaN(parsed)) {
+          numericProgramId = parsed;
+        }
+      }
+
+      let mentor = null;
+      if (numericProgramId) {
+        try {
+          const mentorRes = await axiosClient.get(`/teams/${numericProgramId}/mentors`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const mentors = Array.isArray(mentorRes.data) ? mentorRes.data : [];
+          if (mentors.length > 0) {
+            const m = mentors[0];
+            mentor = {
+              name: m.fullName || m.mentorName || m.name || 'Mentor',
+              email: m.email || '',
+            };
+          }
+        } catch (mentorErr) {
+          console.error('Failed to fetch mentors for program:', mentorErr);
+        }
+      }
+
+      setMentorInfo(mentor);
+    } catch (error) {
+      console.error('Failed to fetch program info:', error);
+      setProgramInfo(null);
+      setMentorInfo(null);
+    } finally {
+      setProgramLoading(false);
+    }
+  };
+  
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -289,6 +375,11 @@ const Dashboard = () => {
     } catch (e) {
       return '--';
     }
+  };
+
+  const formatProgramName = (name) => {
+    if (!name) return '';
+    return name.replace(/^Bắt đầu chương trình:\s*/i, '').trim();
   };
 
   const checkInStatusText = attendanceLoading
@@ -414,26 +505,30 @@ const Dashboard = () => {
             <div className="mentor-info">
               <img src={avatar} alt="avatar" />
               <div>
-                <p>Mentor A</p>
-                <p className="email">email@domain.com</p>
+                <p>
+                  {programLoading
+                    ? 'Đang tải...'
+                    : mentorInfo?.name || 'Chưa có mentor'}
+                </p>
+                <p className="email">
+                  {programLoading ? '' : mentorInfo?.email || ''}
+                </p>
               </div>
             </div>
-            <p>Doanh nghiệp: ABC Corp</p>
-            <p>Thời gian: 01/01 - 31/03</p>
+            <p>
+              Chương trình:{' '}
+              {programLoading
+                ? 'Đang tải...'
+                : programInfo?.name
+                  ? formatProgramName(programInfo.name)
+                  : 'Chưa có chương trình'}
+            </p>
           </div>
         </div>
 
         {/* Bottom Section */}
         <div className="bottom-grid">
           <LatestNotificationsWidget token={token} internId={internId} />
-          <div className="card">
-            <h4>Lịch</h4>
-            <ul className="activity-list">
-              <li>📅 Họp nhóm lúc 14:00</li>
-              <li>🗓️ Nộp báo cáo vào thứ 6</li>
-              <li>⏰ Check-in trước 9:00</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
