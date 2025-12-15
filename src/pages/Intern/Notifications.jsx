@@ -104,6 +104,7 @@ const Notifications = () => {
       PROFILE_STATUS: 'Hồ sơ',
       SYSTEM: 'Hệ thống',
       OTHER: 'Khác',
+      SUPPORT: "Hỗ trợ"
     };
     return labels[type] || type || 'Thông báo';
   };
