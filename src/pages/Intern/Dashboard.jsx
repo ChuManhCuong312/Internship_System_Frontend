@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import InternSidebar from '../../components/Layout/InternSidebar';
 import LatestNotificationsWidget from '../../components/Dashboard/LatestNotificationsWidget';
 import '../../styles/dashBoard.css';
@@ -7,9 +8,11 @@ import { AuthContext } from '../../context/AuthContext';
 import { getInternByUserId } from '../../api/internApi';
 import { getTodayAttendance, checkIn, checkOut } from '../../api/attendanceApi';
 import allowanceApi from '../../api/allowanceApi';
+import axiosClient from '../../api/axiosClient';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user, token, loading: authLoading } = useContext(AuthContext);
 
   const [internId, setInternId] = useState(null);
@@ -20,6 +23,18 @@ const Dashboard = () => {
   const [attendanceError, setAttendanceError] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [monthlyAllowance, setMonthlyAllowance] = useState(0);
+  const [taskStats, setTaskStats] = useState({
+    inProgress: 0,
+    todo: 0,
+    done: 0,
+    total: 0,
+  });
+  const [taskStatsLoading, setTaskStatsLoading] = useState(true);
+  const [recentTasks, setRecentTasks] = useState([]);
+  const [recentTasksLoading, setRecentTasksLoading] = useState(true);
+  const [programInfo, setProgramInfo] = useState(null);
+  const [mentorInfo, setMentorInfo] = useState(null);
+  const [programLoading, setProgramLoading] = useState(true);
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -65,23 +80,22 @@ const Dashboard = () => {
     if (!token || !internId) return;
     loadTodayAttendance();
     fetchMonthlyAllowance();
+    fetchTaskStats();
+    fetchRecentTasks();
+    fetchProgramAndMentor();
   }, [token, internId]);
 
-  // Fetch monthly allowance
   const fetchMonthlyAllowance = async () => {
     try {
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1;
       const currentYear = currentDate.getFullYear();
       
-      // Get all allowances for the current intern
       const response = await allowanceApi.getAllowancesByInternId(token, internId, 0, 100);
       
-      // Handle different response formats
       const allowances = Array.isArray(response) ? response : 
                        (response?.data || response?.content || []);
       
-      // Filter allowances for current month and year, and sum them up
       const monthlyTotal = allowances
         .filter(allowance => {
           if (!allowance.dateApplied) return false;
@@ -99,7 +113,160 @@ const Dashboard = () => {
     }
   };
   
-  // Format currency
+  const fetchTaskStats = async () => {
+    try {
+      if (!internId || !token) {
+        setTaskStats({
+          inProgress: 0,
+          todo: 0,
+          done: 0,
+          total: 0,
+        });
+        setTaskStatsLoading(false);
+        return;
+      }
+
+      setTaskStatsLoading(true);
+      const res = await axiosClient.get(`/tasks/intern/${internId}/statistics`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = res.data || {};
+      setTaskStats({
+        inProgress: data.inProgress || 0,
+        todo: data.todo || 0,
+        done: data.done || 0,
+        total: data.total || 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch task statistics:', error);
+      setTaskStats({
+        inProgress: 0,
+        todo: 0,
+        done: 0,
+        total: 0,
+      });
+    } finally {
+      setTaskStatsLoading(false);
+    }
+  };
+
+  const fetchRecentTasks = async () => {
+    try {
+      if (!internId || !token) {
+        setRecentTasks([]);
+        setRecentTasksLoading(false);
+        return;
+      }
+
+      setRecentTasksLoading(true);
+      const res = await axiosClient.get(`/tasks/intern/${internId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.data)
+          ? res.data.data
+          : [];
+
+      const limited = data.slice(0, 3);
+      setRecentTasks(limited);
+    } catch (error) {
+      console.error('Failed to fetch recent tasks:', error);
+      setRecentTasks([]);
+    } finally {
+      setRecentTasksLoading(false);
+    }
+  };
+  
+  const fetchProgramAndMentor = async () => {
+    try {
+      if (!internId || !token) {
+        setProgramInfo(null);
+        setMentorInfo(null);
+        setProgramLoading(false);
+        return;
+      }
+
+      setProgramLoading(true);
+
+      const res = await axiosClient.get(`/programs/intern/${internId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      let program = null;
+      const data = res.data;
+
+      if (Array.isArray(data) && data.length > 0) {
+        const programEvent = data.find((e) => e.type === 'program') || data[0];
+        if (programEvent) {
+          program = {
+            id: programEvent.id,
+            name: programEvent.title,
+            description: programEvent.description,
+            startDate: programEvent.startDate || programEvent.dateTime || programEvent.start,
+          };
+        }
+      }
+
+      setProgramInfo(program);
+
+      let numericProgramId = null;
+      try {
+        const tasksRes = await axiosClient.get(`/tasks/intern/${internId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const tasksData = Array.isArray(tasksRes.data)
+          ? tasksRes.data
+          : Array.isArray(tasksRes.data?.data)
+            ? tasksRes.data.data
+            : [];
+
+        if (tasksData.length > 0 && tasksData[0].programId) {
+          numericProgramId = tasksData[0].programId;
+        }
+      } catch (taskErr) {
+        console.error('Failed to fetch tasks for mentor lookup:', taskErr);
+      }
+
+      if (!numericProgramId && program?.id) {
+        const parsed = parseInt(String(program.id), 10);
+        if (!Number.isNaN(parsed)) {
+          numericProgramId = parsed;
+        }
+      }
+
+      let mentor = null;
+      if (numericProgramId) {
+        try {
+          const mentorRes = await axiosClient.get(`/teams/${numericProgramId}/mentors`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const mentors = Array.isArray(mentorRes.data) ? mentorRes.data : [];
+          if (mentors.length > 0) {
+            const m = mentors[0];
+            mentor = {
+              name: m.fullName || m.mentorName || m.name || 'Mentor',
+              email: m.email || '',
+            };
+          }
+        } catch (mentorErr) {
+          console.error('Failed to fetch mentors for program:', mentorErr);
+        }
+      }
+
+      setMentorInfo(mentor);
+    } catch (error) {
+      console.error('Failed to fetch program info:', error);
+      setProgramInfo(null);
+      setMentorInfo(null);
+    } finally {
+      setProgramLoading(false);
+    }
+  };
+  
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -180,6 +347,43 @@ const Dashboard = () => {
     });
   };
 
+  const getTaskStatusLabel = (status) => {
+    const map = {
+      TODO: 'Chưa bắt đầu',
+      IN_PROGRESS: 'Đang thực hiện',
+      REVIEWED: 'Đã xem xét',
+      DONE: 'Hoàn thành',
+    };
+    return map[status] || status || 'Không rõ';
+  };
+
+  const getTaskStatusClass = (status) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'status doing';
+      case 'DONE':
+        return 'status done';
+      case 'TODO':
+      case 'REVIEWED':
+      default:
+        return 'status pending';
+    }
+  };
+
+  const formatTaskDeadline = (deadline) => {
+    if (!deadline) return '--';
+    try {
+      return new Date(deadline).toLocaleDateString('vi-VN');
+    } catch (e) {
+      return '--';
+    }
+  };
+
+  const formatProgramName = (name) => {
+    if (!name) return '';
+    return name.replace(/^Bắt đầu chương trình:\s*/i, '').trim();
+  };
+
   const checkInStatusText = attendanceLoading
     ? 'Đang tải...'
     : hasCheckedIn
@@ -192,82 +396,122 @@ const Dashboard = () => {
       <div className="dashboard-content">
         <h2 className="page-title">Dashboard thực tập sinh</h2>
 
-        {/* Header Info */}
-        <div className="stats-row">
-          <div className="stat-card">
+        <div className="dashboard-top-grid">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate('/intern/tasks')}
+          >
             <div className="stat-icon intern">📋</div>
             <div>
-              <h4>Nhiệm vụ đang làm</h4>
-              <p className="stat-value">3/5</p>
+              <h4>Nhiệm vụ</h4>
+              <p className="stat-value">
+                {taskStatsLoading
+                  ? 'Đang tải...'
+                  : taskStats.inProgress + taskStats.todo}
+              </p>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon intern">📝</div>
-            <div>
-              <h4>Báo cáo tuần</h4>
-              <p className="stat-value">Đã nộp</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon intern">💰</div>
+
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate('/intern/allowance')}
+          >
+            <div className="stat-icon intern"></div>
             <div>
               <h4>Phụ cấp tháng</h4>
               <p className="stat-value">{formatCurrency(monthlyAllowance)}</p>
             </div>
           </div>
+
+          <div
+            className="quick-checkin-card card clickable-card"
+            onClick={() => navigate('/intern/attendance')}
+          >
+            <h4>Chấm công</h4>
+            {attendanceError && (
+              <p className="attendance-error-text">{attendanceError}</p>
+            )}
+            {!attendanceError && (
+              <>
+                <div className="attendance-times">
+                  <div className="time-block">
+                    <span>Check-in</span>
+                    <strong>
+                      {attendanceLoading
+                        ? 'Đang tải...'
+                        : !hasCheckedIn
+                        ? formatTimeFromDate(currentTime)
+                        : formatTime(todayAttendance?.checkIn)}
+                    </strong>
+                  </div>
+                  <div className="time-block">
+                    <span>Check-out</span>
+                    <strong>
+                      {attendanceLoading
+                        ? 'Đang tải...'
+                        : !hasCheckedIn
+                        ? '--:--'
+                        : formatTimeFromDate(currentTime)}
+                    </strong>
+                  </div>
+                </div>
+                <div className="attendance-actions">
+                  <button
+                    className="checkin-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickCheckIn();
+                    }}
+                    disabled={attendanceLoading || hasCheckedIn}
+                  >
+                    {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
+                  </button>
+                  <button
+                    className="checkout-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickCheckOut();
+                    }}
+                    disabled={attendanceLoading || !hasCheckedIn}
+                  >
+                    {hasCheckedOut ? 'Check-out' : 'Check-out'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="card mentor-card">
+            <h4>Mentor & chương trình thực tập</h4>
+            <div className="mentor-info">
+              <img src={avatar} alt="avatar" />
+              <div>
+                <p>
+                  {programLoading
+                    ? 'Đang tải...'
+                    : mentorInfo?.name || 'Chưa có mentor'}
+                </p>
+                <p className="email">
+                  {programLoading ? '' : mentorInfo?.email || ''}
+                </p>
+              </div>
+            </div>
+            <p>
+              Chương trình:{' '}
+              {programLoading
+                ? 'Đang tải...'
+                : programInfo?.name
+                  ? formatProgramName(programInfo.name)
+                  : 'Chưa có chương trình'}
+            </p>
+          </div>
         </div>
 
-        <div className="quick-checkin-card card">
-          <h4>Chấm công</h4>
-          {attendanceError && (
-            <p className="attendance-error-text">{attendanceError}</p>
-          )}
-          {!attendanceError && (
-            <>
-              <div className="attendance-times">
-                <div className="time-block">
-                  <span>Check-in</span>
-                  <strong>
-                    {attendanceLoading
-                      ? 'Đang tải...'
-                      : !hasCheckedIn
-                      ? formatTimeFromDate(currentTime)
-                      : formatTime(todayAttendance?.checkIn)}
-                  </strong>
-                </div>
-                <div className="time-block">
-                  <span>Check-out</span>
-                  <strong>
-                    {attendanceLoading
-                      ? 'Đang tải...'
-                      : !hasCheckedIn
-                      ? '--:--'
-                      : formatTimeFromDate(currentTime)}
-                  </strong>
-                </div>
-              </div>
-              <div className="attendance-actions">
-                <button
-                  className="checkin-btn"
-                  onClick={handleQuickCheckIn}
-                  disabled={attendanceLoading || hasCheckedIn}
-                >
-                  {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
-                </button>
-                <button
-                  className="checkout-btn"
-                  onClick={handleQuickCheckOut}
-                  disabled={attendanceLoading || !hasCheckedIn}
-                >
-                  {hasCheckedOut ? 'Check-out' : 'Check-out'}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="main-grid">
-          <div className="card col-span-2">
+        <div className="bottom-grid">
+          <div
+            className="card recent-tasks-card clickable-card"
+            onClick={() => navigate('/intern/tasks')}
+          >
             <h4>Nhiệm vụ gần đây</h4>
             <table className="task-table">
               <thead>
@@ -278,50 +522,30 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Nhiệm vụ 1</td>
-                  <td className="status doing">Đang làm</td>
-                  <td>03/03</td>
-                </tr>
-                <tr>
-                  <td>Nhiệm vụ 2</td>
-                  <td className="status pending">Chưa làm</td>
-                  <td>09/03</td>
-                </tr>
-                <tr>
-                  <td>Nhiệm vụ 3</td>
-                  <td className="status done">Đã làm</td>
-                  <td>08/03</td>
-                </tr>
+                {recentTasksLoading ? (
+                  <tr>
+                    <td colSpan="3">Đang tải...</td>
+                  </tr>
+                ) : recentTasks.length === 0 ? (
+                  <tr>
+                    <td colSpan="3">Không có nhiệm vụ nào gần đây</td>
+                  </tr>
+                ) : (
+                  recentTasks.map((task) => (
+                    <tr key={task.taskId}>
+                      <td>{task.title || `Nhiệm vụ #${task.taskId}`}</td>
+                      <td className={getTaskStatusClass(task.status)}>
+                        {getTaskStatusLabel(task.status)}
+                      </td>
+                      <td>{formatTaskDeadline(task.deadline)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          <div className="card">
-            <h4>Mentor & chương trình thực tập</h4>
-            <div className="mentor-info">
-              <img src={avatar} alt="avatar" />
-              <div>
-                <p>Mentor A</p>
-                <p className="email">email@domain.com</p>
-              </div>
-            </div>
-            <p>Doanh nghiệp: ABC Corp</p>
-            <p>Thời gian: 01/01 - 31/03</p>
-          </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="bottom-grid">
           <LatestNotificationsWidget token={token} internId={internId} />
-          <div className="card">
-            <h4>Lịch</h4>
-            <ul className="activity-list">
-              <li>📅 Họp nhóm lúc 14:00</li>
-              <li>🗓️ Nộp báo cáo vào thứ 6</li>
-              <li>⏰ Check-in trước 9:00</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>

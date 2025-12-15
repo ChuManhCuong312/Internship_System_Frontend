@@ -74,24 +74,6 @@ const AdminSidebar = () => {
         >
           <FaUsersCog /> {expanded && <span>Quản trị người dùng</span>}
         </li>
-        <li
-          className={isActive("/Admin/Config") ? "active" : ""}
-        >
-          <FaCogs /> {expanded && <span>Cấu hình & Tích hợp hệ thống</span>}
-        </li>
-        <li
-          className={isActive("/Admin/Backup") ? "active" : ""}
-        >
-          <FaDatabase /> {expanded && <span>Sao lưu & Bảo mật</span>}
-        </li>
-        <li
-          className={isActive("/Admin/Monitoring") ? "active" : ""}
-        >
-          <FaShieldAlt /> {expanded && <span>Giám sát & Thống kê</span>}
-        </li>
-        <li>
-          <FaThLarge /> {expanded && <span>Cài đặt chung</span>}
-        </li>
       </ul>
 
       {/* Footer */}
