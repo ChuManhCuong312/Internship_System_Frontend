@@ -97,7 +97,7 @@ const Allowances = () => {
             <button
               className="btn-add-allowance"
               onClick={() => logic.setShowFilter(!logic.showFilter)}
-              style={{ background: logic.showFilter ? "#764ba2" : "#667eea" }}
+              style={{ background: "#667eea" }}
             >
               🔍 {logic.showFilter ? "Ẩn" : "Lọc"}
             </button>
@@ -116,6 +116,7 @@ const Allowances = () => {
                 logic.resetForm();
                 logic.setShowModal(true);
               }}
+              style={{ background: "#667eea" }}
             >
               + Thêm trợ cấp
             </button>
