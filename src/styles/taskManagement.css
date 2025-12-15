@@ -25,7 +25,7 @@
 }
 
 .btn-filter {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   padding: 10px 16px;
@@ -109,7 +109,7 @@
 }
 
 .btn-filter-apply {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   padding: 10px 20px;

@@ -51,20 +51,22 @@ const AllowancesTable = ({
                 <td>{new Date(allowance.dateApplied).toLocaleDateString("vi-VN")}</td>
                 <td>{allowance.note || "-"}</td>
                 <td className="actions">
-                  <button
-                    className="btn-edit"
-                    onClick={() => onEdit(allowance)}
-                    title="Chỉnh sửa"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => onDelete(allowance.allowanceId)}
-                    title="Xóa"
-                  >
-                    🗑️
-                  </button>
+                  <div className="action-buttons-container">
+                    <button
+                      className="btn-edit"
+                      onClick={() => onEdit(allowance)}
+                      title="Chỉnh sửa"
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => onDelete(allowance.allowanceId)}
+                      title="Xóa"
+                    >
+                      Xóa
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))

@@ -133,24 +133,50 @@
 .allowance-table .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-buttons-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
 }
 
 .btn-edit,
 .btn-delete {
-  background: none;
   border: none;
-  font-size: 18px;
+  font-size: 14px;
   cursor: pointer;
-  transition: transform 0.2s ease;
-  padding: 4px 8px;
+  transition: all 0.2s ease;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  min-width: 60px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-edit {
+  background-color: #fbbf24;
+  color: #1f2937;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  color: white;
 }
 
 .btn-edit:hover {
-  transform: scale(1.2);
+  background-color: #f59e0b;
+  color: #1f2937;
 }
 
 .btn-delete:hover {
-  transform: scale(1.2);
+  background-color: #dc2626;
+  color: white;
 }
 
 .no-data {
@@ -390,7 +416,7 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -534,7 +560,7 @@
 }
 
 .btn-filter-apply {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   flex: 1;
   min-width: 120px;

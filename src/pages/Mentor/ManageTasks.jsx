@@ -81,45 +81,6 @@ const StyledTextarea = styled(TextareaAutosize)(({ theme }) => ({
   },
 }));
 
-// Sample data
-const initialTasks = [
-  {
-    id: 1,
-    title: 'Thiết kế giao diện đăng nhập',
-    description: 'Thiết kế giao diện đăng nhập với Material-UI',
-    assignedTo: 'Nguyễn Văn A',
-    priority: 'High',
-    status: 'In Progress',
-    dueDate: '2025-12-15',
-  },
-  {
-    id: 2,
-    title: 'Phân tích yêu cầu',
-    description: 'Phân tích yêu cầu từ khách hàng',
-    assignedTo: 'Trần Thị B',
-    priority: 'Medium',
-    status: 'Completed',
-    dueDate: '2025-12-10',
-  },
-  {
-    id: 3,
-    title: 'Kiểm thử hệ thống',
-    description: 'Kiểm thử các chức năng chính',
-    assignedTo: 'Lê Văn C',
-    priority: 'Low',
-    status: 'Pending',
-    dueDate: '2025-12-20',
-  },
-];
-
-const interns = [
-  'Nguyễn Văn A',
-  'Trần Thị B',
-  'Lê Văn C',
-  'Phạm Thị D',
-  'Hoàng Văn E',
-];
-
 const MentorTasks = () => {
   const theme = useTheme();
   const [tasks, setTasks] = useState(initialTasks);
