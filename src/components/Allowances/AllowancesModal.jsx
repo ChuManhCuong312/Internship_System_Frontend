@@ -73,10 +73,10 @@ const AllowancesModal = ({
               className={errors.type ? "input-error" : ""}
             >
               <option value="">-- Chọn loại trợ cấp --</option>
-              <option value="MONTHLY">Hàng tháng</option>
-              <option value="BONUS">Thưởng</option>
-              <option value="SPECIAL">Đặc biệt</option>
-              <option value="OTHER">Khác</option>
+              <option value="Hàng tháng">Hàng tháng</option>
+              <option value="Thưởng">Thưởng</option>
+              <option value="Đặc biệt">Đặc biệt</option>
+              <option value="Khác">Khác</option>
             </select>
             {errors.type && <span className="error-text">{errors.type}</span>}
           </div>
