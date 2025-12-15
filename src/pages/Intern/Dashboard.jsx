@@ -394,8 +394,7 @@ const Dashboard = () => {
       <div className="dashboard-content">
         <h2 className="page-title">Dashboard thực tập sinh</h2>
 
-        {/* Header Info */}
-        <div className="stats-row">
+        <div className="dashboard-top-grid">
           <div className="stat-card">
             <div className="stat-icon intern">📋</div>
             <div>
@@ -407,6 +406,7 @@ const Dashboard = () => {
               </p>
             </div>
           </div>
+
           <div className="stat-card">
             <div className="stat-icon intern"></div>
             <div>
@@ -414,59 +414,84 @@ const Dashboard = () => {
               <p className="stat-value">{formatCurrency(monthlyAllowance)}</p>
             </div>
           </div>
+
+          <div className="quick-checkin-card card">
+            <h4>Chấm công</h4>
+            {attendanceError && (
+              <p className="attendance-error-text">{attendanceError}</p>
+            )}
+            {!attendanceError && (
+              <>
+                <div className="attendance-times">
+                  <div className="time-block">
+                    <span>Check-in</span>
+                    <strong>
+                      {attendanceLoading
+                        ? 'Đang tải...'
+                        : !hasCheckedIn
+                        ? formatTimeFromDate(currentTime)
+                        : formatTime(todayAttendance?.checkIn)}
+                    </strong>
+                  </div>
+                  <div className="time-block">
+                    <span>Check-out</span>
+                    <strong>
+                      {attendanceLoading
+                        ? 'Đang tải...'
+                        : !hasCheckedIn
+                        ? '--:--'
+                        : formatTimeFromDate(currentTime)}
+                    </strong>
+                  </div>
+                </div>
+                <div className="attendance-actions">
+                  <button
+                    className="checkin-btn"
+                    onClick={handleQuickCheckIn}
+                    disabled={attendanceLoading || hasCheckedIn}
+                  >
+                    {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
+                  </button>
+                  <button
+                    className="checkout-btn"
+                    onClick={handleQuickCheckOut}
+                    disabled={attendanceLoading || !hasCheckedIn}
+                  >
+                    {hasCheckedOut ? 'Check-out' : 'Check-out'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="card mentor-card">
+            <h4>Mentor & chương trình thực tập</h4>
+            <div className="mentor-info">
+              <img src={avatar} alt="avatar" />
+              <div>
+                <p>
+                  {programLoading
+                    ? 'Đang tải...'
+                    : mentorInfo?.name || 'Chưa có mentor'}
+                </p>
+                <p className="email">
+                  {programLoading ? '' : mentorInfo?.email || ''}
+                </p>
+              </div>
+            </div>
+            <p>
+              Chương trình:{' '}
+              {programLoading
+                ? 'Đang tải...'
+                : programInfo?.name
+                  ? formatProgramName(programInfo.name)
+                  : 'Chưa có chương trình'}
+            </p>
+          </div>
         </div>
 
-        <div className="quick-checkin-card card">
-          <h4>Chấm công</h4>
-          {attendanceError && (
-            <p className="attendance-error-text">{attendanceError}</p>
-          )}
-          {!attendanceError && (
-            <>
-              <div className="attendance-times">
-                <div className="time-block">
-                  <span>Check-in</span>
-                  <strong>
-                    {attendanceLoading
-                      ? 'Đang tải...'
-                      : !hasCheckedIn
-                      ? formatTimeFromDate(currentTime)
-                      : formatTime(todayAttendance?.checkIn)}
-                  </strong>
-                </div>
-                <div className="time-block">
-                  <span>Check-out</span>
-                  <strong>
-                    {attendanceLoading
-                      ? 'Đang tải...'
-                      : !hasCheckedIn
-                      ? '--:--'
-                      : formatTimeFromDate(currentTime)}
-                  </strong>
-                </div>
-              </div>
-              <div className="attendance-actions">
-                <button
-                  className="checkin-btn"
-                  onClick={handleQuickCheckIn}
-                  disabled={attendanceLoading || hasCheckedIn}
-                >
-                  {hasCheckedIn ? '✓ Đã check-in' : 'Check-in'}
-                </button>
-                <button
-                  className="checkout-btn"
-                  onClick={handleQuickCheckOut}
-                  disabled={attendanceLoading || !hasCheckedIn}
-                >
-                  {hasCheckedOut ? 'Check-out' : 'Check-out'}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="main-grid">
-          <div className="card col-span-2">
+        <div className="bottom-grid">
+          <div className="card recent-tasks-card">
             <h4>Nhiệm vụ gần đây</h4>
             <table className="task-table">
               <thead>
@@ -500,34 +525,6 @@ const Dashboard = () => {
             </table>
           </div>
 
-          <div className="card">
-            <h4>Mentor & chương trình thực tập</h4>
-            <div className="mentor-info">
-              <img src={avatar} alt="avatar" />
-              <div>
-                <p>
-                  {programLoading
-                    ? 'Đang tải...'
-                    : mentorInfo?.name || 'Chưa có mentor'}
-                </p>
-                <p className="email">
-                  {programLoading ? '' : mentorInfo?.email || ''}
-                </p>
-              </div>
-            </div>
-            <p>
-              Chương trình:{' '}
-              {programLoading
-                ? 'Đang tải...'
-                : programInfo?.name
-                  ? formatProgramName(programInfo.name)
-                  : 'Chưa có chương trình'}
-            </p>
-          </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="bottom-grid">
           <LatestNotificationsWidget token={token} internId={internId} />
         </div>
       </div>
