@@ -16,6 +16,7 @@ const HRDashboard = () => {
   const [pendingInterns, setPendingInterns] = useState(0);
   const [pendingLeaves, setPendingLeaves] = useState(0);
   const [programCount, setProgramCount] = useState(0);
+  const [activeMentors, setActiveMentors] = useState(0);
   const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ const HRDashboard = () => {
       try {
         setLoadingStats(true);
 
-        const [internRes, leaveRes, programRes] = await Promise.all([
+        const [internRes, leaveRes, programRes, mentorsRes] = await Promise.all([
           hrApi.searchInterns(token, {
             status: "PENDING",
             page: 0,
@@ -34,6 +35,7 @@ const HRDashboard = () => {
           getAllLeaveRequestsForHR(token, "PENDING"),
           // Backend expects page index to start from 1, so use page: 1 (same as hrApi default)
           hrApi.getAllPrograms(token, { page: 1, size: 1 }),
+          hrApi.getAllMentors(token),
         ]);
 
         let internPendingCount = 0;
@@ -60,9 +62,23 @@ const HRDashboard = () => {
           }
         }
 
+        let totalMentors = 0;
+        if (mentorsRes) {
+          if (typeof mentorsRes.totalItems === "number") {
+            totalMentors = mentorsRes.totalItems;
+          } else if (typeof mentorsRes.totalElements === "number") {
+            totalMentors = mentorsRes.totalElements;
+          } else if (Array.isArray(mentorsRes)) {
+            totalMentors = mentorsRes.length;
+          } else if (Array.isArray(mentorsRes.data)) {
+            totalMentors = mentorsRes.data.length;
+          }
+        }
+
         setPendingInterns(internPendingCount);
         setPendingLeaves(leavePendingCount);
         setProgramCount(totalPrograms);
+        setActiveMentors(totalMentors);
       } catch (err) {
         console.error("Error loading HR dashboard stats:", err);
         toast.error("Không thể tải thống kê dashboard HR");
@@ -121,23 +137,12 @@ const HRDashboard = () => {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon hr">
-              <BarChart3 />
-            </div>
-            <div>
-              <h4>Tỷ lệ hoàn thành</h4>
-              <p className="stat-value">78%</p>
-              <span>TTS đã hoàn thành chương trình</span>
-            </div>
-          </div>
-          <div className="stat-card">
             <div className="stat-icon mentor">
               <Users />
             </div>
             <div>
               <h4>Mentor đang hoạt động</h4>
-              <p className="stat-value">8</p>
-              <span>Số lượng mentor đang hoạt động</span>
+              <p className="stat-value">{activeMentors}</p>
             </div>
           </div>
         </div>
