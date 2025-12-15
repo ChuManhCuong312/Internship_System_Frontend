@@ -11,6 +11,11 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
   const [teamMentorSearch, setTeamMentorSearch] = useState("");
   const [programMentors, setProgramMentors] = useState([]);
 
+  const cleanErrorMessage = (message) => {
+    if (!message) return "Đã xảy ra lỗi. Vui lòng thử lại.";
+
+    return message.replace(/^An unexpected error occurred:\s*/i, "");
+  };
 
   useEffect(() => {
     if (!selectedProgram || !token) return;
@@ -24,7 +29,7 @@ export const useTeamActions = (token, programs, setPrograms, selectedProgram, se
         setProgramMentors(res);
       } catch (err) {
         console.error("Error loading mentors:", err);
-        toast.error("Không thể tải danh sách mentor cho chương trình.");
+        toast.error(cleanErrorMessage(err?.response?.data?.message) || "Không thể tải danh sách mentor cho chương trình.");
         setProgramMentors([]);
       }
     };
@@ -60,7 +65,7 @@ const handleViewTeams = async (program) => {
     setSelectedTeam(null);
   } catch (err) {
     console.error("Error fetching teams:", err);
-    toast.error("Không thể tải danh sách nhóm cho chương trình.");
+    toast.error(cleanErrorMessage(err?.response?.data?.message) || "Không thể tải danh sách nhóm cho chương trình.");
   }
 };
 
@@ -130,7 +135,7 @@ const handleDeleteTeam = async (teamId) => {
     toast.success("Xóa team thành công.");
   } catch (err) {
     console.error("Error deleting team:", err);
-    toast.error("Không thể xóa team. Vui lòng thử lại.");
+    toast.error(cleanErrorMessage(err?.response?.data?.message) || "Không thể xóa team. Vui lòng thử lại.");
   }
 };
 
@@ -173,7 +178,7 @@ const handleDeleteTeam = async (teamId) => {
       await fetchProgramMentors(selectedProgram.programId);
     } catch (err) {
       console.error("Error saving team:", err);
-      toast.error("Không thể lưu thông tin team.");
+      toast.error(cleanErrorMessage(err?.response?.data?.message) || "Không thể lưu thông tin team.");
     }
   };
 

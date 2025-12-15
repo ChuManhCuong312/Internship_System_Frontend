@@ -11,11 +11,21 @@ export default function ProgramFormModal({
   allDepartments = [], // Pass this from parent
 }) {
   const [showNameError, setShowNameError] = useState(false);
+  const [showDepartmentError, setShowDepartmentError] = useState(false);
+  const [showStartDateError, setShowStartDateError] = useState(false);
+  const [showEndDateError, setShowEndDateError] = useState(false);
+
+
   const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
 
   // Reset error when modal opens
   useEffect(() => {
-    if (isOpen) setShowNameError(false);
+    if (isOpen) {
+      setShowNameError(false);
+      setShowDepartmentError(false);
+      setShowStartDateError(false);
+      setShowEndDateError(false);
+    }
   }, [isOpen]);
 
   // Calculate min start date (today + 2 weeks)
@@ -69,7 +79,11 @@ export default function ProgramFormModal({
 
   // Max interns validation
   const maxInternsError =
-    formData.maxInterns > 50
+    formData.maxInterns === null ||
+    formData.maxInterns === undefined ||
+    Number.isNaN(formData.maxInterns)
+      ? "Số lượng TTS tối đa là bắt buộc."
+      : formData.maxInterns > 50
       ? "Số lượng TTS tối đa không được vượt quá 50."
       : formData.maxInterns < 1
       ? "Số lượng TTS tối thiểu là 1."
@@ -82,12 +96,36 @@ export default function ProgramFormModal({
       selectedProgram.programStatus === "FINISHED");
 
   const handleSave = () => {
+    let hasError = false;
+
     if (!formData.name?.trim()) {
       setShowNameError(true);
-      return;
+      hasError = true;
     }
-    if (!maxInternsError && !isUpdateDisabled) {
-      setShowNameError(false);
+
+    if (!formData.department?.trim()) {
+      setShowDepartmentError(true);
+      hasError = true;
+    }
+
+    if (!formData.startDate) {
+      setShowStartDateError(true);
+      hasError = true;
+    }
+
+    if (!formData.endDate) {
+      setShowEndDateError(true);
+      hasError = true;
+    }
+
+    // ✅ reuse maxInternsError
+    if (maxInternsError) {
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    if (!isUpdateDisabled) {
       onSave();
     }
   };
@@ -103,6 +141,7 @@ export default function ProgramFormModal({
   // Handle department selection from dropdown
   const handleSelectDepartment = (dept) => {
     setFormData({ ...formData, department: dept });
+    setShowDepartmentError(false);
     setShowDepartmentDropdown(false);
   };
 
@@ -147,7 +186,7 @@ export default function ProgramFormModal({
 
             {/* Department Combobox */}
             <div className="form-group" style={{ position: "relative" }}>
-              <label>Phòng ban</label>
+              <label>Phòng ban <span style={{ color: "red" }}>*</span></label>
               <div style={{ position: "relative" }}>
                 <input
                   type="text"
@@ -156,11 +195,19 @@ export default function ProgramFormModal({
                   onChange={(e) => {
                     setFormData({ ...formData, department: e.target.value });
                     setShowDepartmentDropdown(true);
+                    if (showDepartmentError && e.target.value.trim()) {
+                          setShowDepartmentError(false);
+                    }
                   }}
                   onFocus={() => setShowDepartmentDropdown(true)}
                   className="form-input"
                   style={{ paddingRight: "36px" }}
                 />
+                {showDepartmentError && (
+                  <p style={{ color: "red", fontStyle: "italic", marginTop: "4px" }}>
+                    Phòng ban là bắt buộc.
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={() => setShowDepartmentDropdown(!showDepartmentDropdown)}
@@ -246,13 +293,15 @@ export default function ProgramFormModal({
           {/* Start & End Dates */}
           <div className="form-row">
             <div className="form-group">
-              <label>Ngày bắt đầu</label>
+              <label>Ngày bắt đầu <span style={{ color: "red" }}>*</span></label>
               <input
                 type="date"
                 value={formData.startDate || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, startDate: e.target.value, endDate: "" })
-                }
+                onChange={(e) =>{
+                  setFormData({ ...formData, startDate: e.target.value, endDate: "" });
+                  setShowStartDateError(false);
+                  setShowEndDateError(false);
+                }}
                 className="form-input"
                 min={
                   selectedProgram
@@ -261,18 +310,31 @@ export default function ProgramFormModal({
                 }
                 disabled={isUpdateDisabled}
               />
+              {showStartDateError && (
+                <p style={{ color: "red", fontStyle: "italic", marginTop: "4px" }}>
+                  Ngày bắt đầu là bắt buộc.
+                </p>
+              )}
             </div>
 
             <div className="form-group">
-              <label>Ngày kết thúc</label>
+              <label>Ngày kết thúc <span style={{ color: "red" }}>*</span></label>
               <input
                 type="date"
                 value={formData.endDate || ""}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                onChange={(e) => {
+                   setFormData({ ...formData, endDate: e.target.value });
+                   setShowEndDateError(false);
+                }}
                 className="form-input"
                 min={minEndDateStr}
                 disabled={isUpdateDisabled || !formData.startDate}
               />
+              {showEndDateError && (
+                <p style={{ color: "red", fontStyle: "italic", marginTop: "4px" }}>
+                  Ngày kết thúc là bắt buộc.
+                </p>
+              )}
             </div>
           </div>
 
@@ -290,13 +352,17 @@ export default function ProgramFormModal({
 
           {/* Max Interns */}
           <div className="form-group">
-            <label>Số lượng TTS tối đa</label>
+            <label>Số lượng TTS tối đa <span style={{ color: "red" }}>*</span></label>
             <input
               type="number"
               value={formData.maxInterns || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, maxInterns: Number.parseInt(e.target.value) })
-              }
+              onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({
+                    ...formData,
+                    maxInterns: value === "" ? null : Number.parseInt(value),
+                  });
+              }}
               className="form-input"
               max={50}
               min={1}
