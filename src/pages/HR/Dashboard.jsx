@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import HRSidebar from "../../components/Layout/HRSidebar";
 import "../../styles/dashBoard.css";
 import { Pie, Bar } from "react-chartjs-2";
@@ -15,6 +16,7 @@ const MAJOR_COLORS = ["#00acc1", "#26a69a", "#66bb6a"]; // reused for chart and 
 
 const HRDashboard = () => {
   const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [pendingInterns, setPendingInterns] = useState(0);
   const [pendingLeaves, setPendingLeaves] = useState(0);
   const [programCount, setProgramCount] = useState(0);
@@ -189,7 +191,10 @@ const HRDashboard = () => {
 
         {/* Top Cards */}
         <div className="stats-row">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate("/hr/leave-requests")}
+          >
             <div className="stat-icon intern">
               <FileClock />
             </div>
@@ -203,7 +208,10 @@ const HRDashboard = () => {
               </span>
             </div>
           </div>
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate("/hr/approve-interns")}
+          >
             <div className="stat-icon mentor">
               <UserCheck />
             </div>
@@ -217,7 +225,10 @@ const HRDashboard = () => {
               </span>
             </div>
           </div>
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => navigate("/hr/program")}
+          >
             <div className="stat-icon mentor">
               <Layers3 />
             </div>
