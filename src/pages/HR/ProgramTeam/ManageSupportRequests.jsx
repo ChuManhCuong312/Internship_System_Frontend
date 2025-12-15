@@ -217,7 +217,7 @@ const ManageSupportRequests = () => {
 
                     {/* Table Section */}
                     {loading ? (
-                        <div className="loading-spinner">Đang tải...</div>
+                        <div className="loading-table">Đang tải...</div>
                     ) : (
                         <div>
                             <div className="table-container">

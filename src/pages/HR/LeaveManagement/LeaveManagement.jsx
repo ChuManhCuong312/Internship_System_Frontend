@@ -246,7 +246,7 @@ const [isRejecting, setIsRejecting] = useState(false);
           </div>
 
           {loading && (
-            <div className="loading-spinner">Đang tải dữ liệu đơn nghỉ phép...</div>
+            <div className="loading-table">Đang tải dữ liệu đơn nghỉ phép...</div>
           )}
 
           {error && !loading && (

@@ -80,7 +80,7 @@ const Allowances = () => {
       <div className="allowance-layout">
         <HRSidebar />
         <div className="allowance-content">
-          <div className="loading-spinner">Đang tải...</div>
+          <div className="loading-table">Đang tải...</div>
         </div>
       </div>
     );

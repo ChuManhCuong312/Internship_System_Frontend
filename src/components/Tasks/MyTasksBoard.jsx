@@ -356,7 +356,7 @@ const MyTasksBoard = ({
   if (loading) {
     return (
       <div className="jira-board-loading">
-        <div className="loading-spinner"></div>
+        <div className="loading-table"></div>
         <p>Đang tải nhiệm vụ...</p>
       </div>
     );

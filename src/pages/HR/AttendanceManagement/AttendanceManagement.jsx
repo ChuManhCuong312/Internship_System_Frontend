@@ -439,7 +439,7 @@ const AttendanceManagement = () => {
           </div>
 
           {loading && (
-            <div className="loading-spinner">Đang tải dữ liệu chấm công...</div>
+            <div className="loading-table">Đang tải dữ liệu chấm công...</div>
           )}
 
           {error && !loading && (

@@ -410,16 +410,6 @@
   transform: translateY(0);
 }
 
-/* Loading Spinner */
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 18px;
-  color: #999;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .allowance-content {
