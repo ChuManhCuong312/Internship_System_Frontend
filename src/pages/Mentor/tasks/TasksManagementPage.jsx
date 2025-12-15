@@ -1055,12 +1055,12 @@ const TasksManagementPage = ({ programId, onBack }) => {
                   <h3 className={styles.sectionTitle}>Nhóm được giao ({taskAssignments.length})</h3>
                   {taskAssignments.length > 0 ? (
                     <div className={styles.assignedTeamsList}>
-                      {taskAssignments.map(assignment => {
+                      {taskAssignments.map((assignment, index) => {
                         const team = teams.find(t => t.teamId === assignment.teamId);
                         return (
                           <div key={assignment.id} className={styles.assignedTeamCard}>
                             <div className={styles.assignedTeamHeader}>
-                              <span className={styles.assignedTeamName}>Group {assignment.teamId}</span>
+                              <span className={styles.assignedTeamName}>Nhóm {index + 1}</span>
                               {team && <span className={styles.assignedTeamMentor}>👤 {team.mentorName}</span>}
                             </div>
                             {team && team.interns && team.interns.length > 0 && (
