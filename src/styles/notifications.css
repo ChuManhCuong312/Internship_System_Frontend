@@ -120,7 +120,7 @@
 .notification-title h4 {
   margin: 0;
   color: #1f2937;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 600;
 }
 
@@ -128,7 +128,7 @@
   padding: 4px 10px;
   border-radius: 6px;
   color: white;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -137,7 +137,7 @@
   white-space: pre-wrap !important;
   margin: 0 0 8px 0;
   color: #6b7280;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.5;
   word-break: break-word;
   overflow: visible !important;
@@ -147,7 +147,7 @@
 }
 
 .notification-time {
-  font-size: 12px;
+  font-size: 16px;
   color: #9ca3af;
 }
 

@@ -1,20 +1,15 @@
+
 import styles from "./calendar-view.module.css"
 
-export default function CalendarView({   currentDate,
-                                         events,
-                                         onEventHover,
-                                         onEventClick,
-                                         onDateClick, }) {
-  if (!events || events.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <div className={styles.emptyStateContent}>
-          <p className={styles.emptyStateTitle}>Chưa có sự kiện</p>
-          <p className={styles.emptyStateSubtitle}>Vui lòng chọn chương trình để xem lịch</p>
-        </div>
-      </div>
-    )
-  }
+export default function CalendarView({
+  currentDate,
+  events,
+  onEventHover,
+  onEventClick,
+  onDateClick,
+}) {
+  // Bảo vệ: luôn là mảng
+  const safeEvents = Array.isArray(events) ? events : []
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -29,9 +24,13 @@ export default function CalendarView({   currentDate,
   for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i))
 
   const getEventsForDate = (date) =>
-    events.filter(
-      (event) => event.date.toDateString() === date.toDateString()
-    )
+    safeEvents.filter((event) => {
+      // Bảo vệ: event.date là Date hoặc string parsable
+      const d =
+        event?.date instanceof Date ? event.date : new Date(event?.date)
+      return d.toDateString() === date.toDateString()
+    })
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -55,13 +54,13 @@ export default function CalendarView({   currentDate,
         {days.map((date, i) => (
           <div
             key={i}
-              className={`${styles.calendarDay} ${
-                date && isPastDay(date) ? styles.dayDisabled : ""
-              }`}
-              onClick={() => {
-                if (!date || isPastDay(date)) return
-                onDateClick(date)
-              }}
+            className={`${styles.calendarDay} ${
+              date && isPastDay(date) ? styles.dayDisabled : ""
+            }`}
+            onClick={() => {
+              if (!date || isPastDay(date)) return
+              onDateClick?.(date)
+            }}
           >
             {date && (
               <>
@@ -72,12 +71,15 @@ export default function CalendarView({   currentDate,
                       key={event.id}
                       className={`${styles.eventBadge} ${styles.eventTask}`}
                       onMouseEnter={(e) => {
-                        onEventHover(event, { x: e.clientX, y: e.clientY })
+                        onEventHover?.(event, {
+                          x: e.clientX,
+                          y: e.clientY,
+                        })
                       }}
-                      onMouseLeave={() => onEventHover(null)}
+                      onMouseLeave={() => onEventHover?.(null)}
                       onClick={(e) => {
                         e.stopPropagation()
-                        onEventClick(event)
+                        onEventClick?.(event)
                       }}
                     >
                       {event.title}
