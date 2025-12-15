@@ -258,45 +258,87 @@ export default function EvaluationPage({ teamId, display_name, onBack }) {
     setEditEval({ ...evaluation })
     setOpenEditModal(true)
   }
-const handleSendEvaluation = async () => {
-  try {
-    // 🔍 KIỂM TRA xem có thực tập sinh nào chưa được đánh giá không
-    const internsWithoutEval = teamData.interns.filter(
-      (intern) => !intern.evaluations || intern.evaluations.length === 0
-    );
+    const handleSendEvaluation = async () => {
+      try {
+        // 🔍 KIỂM TRA xem có thực tập sinh nào chưa được đánh giá không
+        const internsWithoutEval = teamData.interns.filter(
+          (intern) => !intern.evaluations || intern.evaluations.length === 0
+        );
 
-    if (internsWithoutEval.length > 0) {
-      // Lấy danh sách tên những người chưa đánh giá
-      const names = internsWithoutEval.map((i) => i.intern_name).join(", ");
-      toast.error(`Thực tập sinh ${names} chưa được đánh giá. Hãy đánh giá tất cả thực tập sinh trước khi gửi.`);
-      return; // ⛔ Không tiếp tục gửi API
-    }
+        if (internsWithoutEval.length > 0) {
+          // Lấy danh sách tên những người chưa đánh giá
+          const names = internsWithoutEval.map((i) => i.intern_name).join(", ");
+          toast.error(`Thực tập sinh ${names} chưa được đánh giá. Hãy đánh giá tất cả thực tập sinh trước khi gửi.`);
+          return; // ⛔ Không tiếp tục gửi API
+        }
 
-    // 🔥 Nếu tất cả đều đã được đánh giá → gửi API
-    const res = await fetch("http://localhost:8080/api/notifications/evaluation-summary", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(teamData),
-    });
+        // 🔥 Nếu tất cả đều đã được đánh giá → gửi API
+        const res = await fetch("http://localhost:8080/api/notifications/evaluation-summary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(teamData),
+        });
 
-    const responseText = await res.text();
+        const responseText = await res.text();
 
-    if (!res.ok) {
-      toast.error(responseText || "Gửi đánh giá thất bại");
-      return;
-    }
+        if (!res.ok) {
+          toast.error(responseText || "Gửi đánh giá thất bại");
+          return;
+        }
 
-    toast.success("Gửi đánh giá thành công!");
-    console.log("Response Body:", responseText);
+        toast.success("Gửi đánh giá thành công!");
+        console.log("Response Body:", responseText);
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Lỗi kết nối đến server");
-  }
-};
+      } catch (err) {
+        console.error(err);
+        toast.error("Lỗi kết nối đến server");
+      }
+    };
+    const handleSendIndividualEvaluation = async () => {
+      try {
+        if (!selectedIntern) {
+          toast.error("Chưa chọn thực tập sinh");
+          return;
+        }
+
+        if (!selectedIntern.evaluations || selectedIntern.evaluations.length === 0) {
+          toast.error(`Thực tập sinh ${selectedIntern.intern_name} chưa có đánh giá`);
+          return;
+        }
+
+        const payload = {
+          teamId: teamData.team_id,
+          teamName: teamData.display_name || display_name,
+          interns: [selectedIntern], // 🔥 chỉ 1 intern
+        };
+
+        const res = await fetch(
+          "http://localhost:8080/api/notifications/evaluation-summary",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        const text = await res.text();
+        if (!res.ok) {
+          toast.error(text || "Gửi đánh giá cá nhân thất bại");
+          return;
+        }
+
+        toast.success(`Đã gửi đánh giá cho ${selectedIntern.intern_name}`);
+      } catch (err) {
+        console.error(err);
+        toast.error("Lỗi kết nối server");
+      }
+    };
   return (
     <div className={styles.container}>
       <div className={styles.container}>
@@ -371,10 +413,31 @@ const handleSendEvaluation = async () => {
 
                     <div className={styles.evaluationSection}>
                       <div className={styles.evalHeader}>
-                        <h3 className={styles.evalTitle}>Đánh giá ({selectedInternEvals.length})</h3>
-                        <button className={styles.addButton} onClick={() => setOpenAddModal(true)}>
-                          + Thêm đánh giá
-                        </button>
+                        <h3 className={styles.evalTitle}>
+                          Đánh giá ({selectedInternEvals.length})
+                        </h3>
+
+                        <div style={{ display: "flex", gap: "10px" }}>
+                          <button
+                            className={styles.addButton}
+                            onClick={() => setOpenAddModal(true)}
+                          >
+                            + Thêm đánh giá
+                          </button>
+
+                          <button
+                            className={styles.sendButton}
+                            onClick={handleSendIndividualEvaluation}
+                            disabled={selectedInternEvals.length === 0}
+                            title={
+                              selectedInternEvals.length === 0
+                                ? "Thực tập sinh chưa có đánh giá"
+                                : "Gửi đánh giá cá nhân"
+                            }
+                          >
+                            📤 Gửi đánh giá cá nhân
+                          </button>
+                        </div>
                       </div>
 
                       {openAddModal && (

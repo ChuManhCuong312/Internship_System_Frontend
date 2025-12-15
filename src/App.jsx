@@ -37,11 +37,15 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { HrProvider } from "./context/HrContext.jsx";
 import LeaveRequest from "./pages/Intern/LeaveRequest";
-import ManageContracts from "./pages/HR/ManageContracts";
+import ManageContracts from "./pages/HR/ManageContracts"
+// import ManageSupportRequests from "./pages/HR/ProgramTeam/ManageSupportRequests";
+
+// import ManageContracts from "./pages/HR/ManageContracts";
 import AttendanceManagement from "./pages/HR/AttendanceManagement/AttendanceManagement";
 import LeaveManagement from "./pages/HR/LeaveManagement/LeaveManagement";
 import ContractPage from "./pages/Intern/ContractPage.jsx";
 import HRReports from "./pages/HR/Reports";
+import EventCalendar from "./pages/HR/Event/EventCalendar";
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
 
@@ -191,7 +195,14 @@ function App() {
                     </PrivateRoute>
                   }
                 />
-
+                <Route
+                  path="/hr/eventcalendar"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <EventCalendar />
+                    </PrivateRoute>
+                  }
+                />
 
                 {/* Mentor routes */}
                 <Route

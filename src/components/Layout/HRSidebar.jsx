@@ -84,11 +84,7 @@ const HRSidebar = () => {
       setOpenProgramMenu(true);
     }
 
-    if (path.includes('/hr/attendance') || path.includes('/hr/leave-requests')) {
-      setOpenTaskMenu(true);
-    }
-
-    if (path.includes('/hr/allowances') || path.includes('/hr/contracts')) {
+    if (path.includes('/hr/allowances') || path.includes('/hr/contracts') || path.includes('/hr/support-requests')) {
       setOpenBenefitsMenu(true);
     }
   }, [location.pathname]);
@@ -226,7 +222,7 @@ const HRSidebar = () => {
               <Link to="/hr/contracts">Quản lý hợp đồng</Link>
             </li>
             <li className={isActive('/hr/support-requests') ? 'active' : ''}>
-              <Link to="/hr/support-requests">Quản lý hỗ trợ</Link>
+              <Link to="/hr/support-requests">Yêu cầu hỗ trợ</Link>
             </li>
           </ul>
         )}
@@ -237,10 +233,10 @@ const HRSidebar = () => {
           </Link>
         </li>
         <li
-          onClick={() => navigate("/Admin/InternProfile")}
-          className={isActive('/Admin/InternProfile') ? 'active' : ''}
+          onClick={() => navigate("/hr/eventcalendar")}
+          className={isActive('/hr/eventcalendar') ? 'active' : ''}
         >
-          <FaRegUser /> {expanded && <span>Tìm kiếm profile intern</span>}
+          <FaRegUser /> {expanded && <span>Quản lý sự kiện</span>}
         </li>
       </ul>
 

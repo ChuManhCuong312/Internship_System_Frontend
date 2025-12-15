@@ -51,7 +51,10 @@ const ProgramList = ({
                 >
                   Tự động tạo teams
                 </button>
-                <button className="dropdown-item" onClick={() => onAssignMentor(program)}>
+                <button className="dropdown-item"
+                        onClick={() => onAssignMentor(program)}
+                        disabled={program.programStatus == "FINISHED"}
+                >
                   Phân công Mentor
                 </button>
                 <button
@@ -103,7 +106,7 @@ const ProgramList = ({
               <p className="stat-value">{programOverview[program.programId]?.totalMentors || 0}</p>
             </div>
             <div className="stat-item">
-              <p className="stat-label">Số lượng interns</p>
+              <p className="stat-label">Số lượng TTS</p>
               <p className="stat-value">{programOverview[program.programId]?.totalInterns || 0}</p>
             </div>
             <div className="stat-item">

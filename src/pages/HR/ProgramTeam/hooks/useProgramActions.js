@@ -14,6 +14,12 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
   const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
   const [programToFinish, setProgramToFinish] = useState(null);
 
+  const cleanErrorMessage = (message) => {
+    if (!message) return "Đã xảy ra lỗi. Vui lòng thử lại.";
+
+    return message.replace(/^An unexpected error occurred:\s*/i, "");
+  };
+
   const formatDateTime = (dateStr) => {
     if (!dateStr) return null;
     const date = new Date(dateStr);
@@ -45,7 +51,7 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
       setProgramToDelete(null);
     } catch (err) {
       console.error("Error deleting program:", err);
-      toast.error(err?.response?.data?.message || "Xóa chương trình thất bại!");
+      toast.error(cleanErrorMessage(err?.response?.data?.message) || "Xóa chương trình thất bại!");
     }
   };
 
@@ -75,7 +81,7 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
       setFormData({});
     } catch (err) {
       console.error("Error saving program:", err);
-      toast.error(err?.response?.data?.message || "Lưu chương trình thất bại!");
+      toast.error(cleanErrorMessage(err?.response?.data?.message) || "Lưu chương trình thất bại!");
     }
   };
 
@@ -97,7 +103,7 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
       setIsAddProgramOpen(true);
     } catch (err) {
       console.error("Cannot clone program:", err);
-      toast.error(err?.response?.data?.message || "Không thể nhân bản chương trình!");
+      toast.error(cleanErrorMessage(err?.response?.data?.message) || "Không thể nhân bản chương trình!");
     }
   };
 
@@ -131,7 +137,7 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
       toast.success("Phân công mentor thành công!");
     } catch (err) {
       console.error("Error refreshing program mentors:", err);
-      toast.error(err?.response?.data?.message || "Phân công mentor thất bại!");
+      toast.error(cleanErrorMessage(err?.response?.data?.message) || "Phân công mentor thất bại!");
     }
   };
 
@@ -170,7 +176,7 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
     } catch (err) {
       console.error("Error finishing program:", err);
       toast.error(
-        err?.response?.data?.message || "Không thể kết thúc chương trình. Vui lòng thử lại.",
+        cleanErrorMessage(err?.response?.data?.message) || "Không thể kết thúc chương trình. Vui lòng thử lại.",
         {
           position: "top-right",
           autoClose: 5000,

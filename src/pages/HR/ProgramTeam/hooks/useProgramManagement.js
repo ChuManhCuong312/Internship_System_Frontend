@@ -23,6 +23,12 @@ export const useProgramManagement = () => {
   const [filterDepartment, setFilterDepartment] = useState("all-departments");
   const [filterMentor, setFilterMentor] = useState("all-mentors");
 
+  const cleanErrorMessage = (message) => {
+    if (!message) return "Đã xảy ra lỗi. Vui lòng thử lại.";
+
+    return message.replace(/^An unexpected error occurred:\s*/i, "");
+  };
+
   // Load departments and mentors
   useEffect(() => {
     if (!token) return;
@@ -36,7 +42,7 @@ export const useProgramManagement = () => {
         setAssignedMentors(mentors);
       } catch (err) {
         console.error("Error loading filter lists:", err);
-        toast.error("Lỗi lấy danh sách lọc");
+        toast.error(cleanErrorMessage(err?.response?.data?.message) || "Lỗi lấy danh sách lọc");
       }
     };
 
@@ -73,7 +79,7 @@ export const useProgramManagement = () => {
         setProgramOverview(overviewData);
       } catch (err) {
         console.error("Error fetching programs:", err);
-        toast.error("Lỗi lấy danh sách chương trình")
+        toast.error(cleanErrorMessage(err?.response?.data?.message)|| "Lỗi lấy danh sách chương trình")
       }
     };
 
