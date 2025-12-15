@@ -16,7 +16,6 @@ const MentorDashboard = () => {
       if (!token || !user?.userId) return;
 
       try {
-        // Lấy mentorId từ userId
         const mentorData = await mentorApi.getMentorByUserId(token, user.userId);
 
         if (!mentorData || !mentorData.mentorId) {
@@ -26,7 +25,6 @@ const MentorDashboard = () => {
 
         const mentorId = mentorData.mentorId;
 
-        // Lấy tất cả chương trình mà mentor này tham gia
         const programsRes = await hrApi.filterProgramsByMentor(token, mentorId);
 
         let programs = [];
@@ -45,7 +43,6 @@ const MentorDashboard = () => {
 
         const uniqueInternIds = new Set();
 
-        // Với mỗi chương trình, lấy danh sách team và interns trong từng team
         await Promise.all(
           programs.map(async (program) => {
             if (!program || !program.programId) return;
@@ -119,16 +116,7 @@ const MentorDashboard = () => {
               <p className="stat-value">{internCount}</p>
             </div>
           </div>
-          <div style={{ flex: 1 }}>
-            <TaskStats />
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon mentor">📝</div>
-            <div>
-              <h4>Báo cáo đã phản hồi</h4>
-              <p className="stat-value">8</p>
-            </div>
-          </div>
+          <TaskStats />
         </div>
 
         {/* Nội dung chính */}
