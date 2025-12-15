@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import hrApi from "../../../../api/hrApi";
 import { AuthContext } from "../../../../context/AuthContext";
 import RejectModal from "../modals/RejectModal";
-import { LoadingButton } from "../../../../components/common/LoadingSpinner";
+import { LoadingButton } from "../../../../components/Common/LoadingSpinner";
 import { toast } from "react-toastify";
 import "../../../../styles/buttons.css";
 import "../../../../styles/badges.css";

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../Layout/Modal';
-// import { LoadingButton } from '../Common/LoadingSpinner';
+import { LoadingButton } from '../Common/LoadingSpinner';
 import { getSupportRequestHistory } from '../../api/supportApi';
 import '../../styles/modal.css';
 import '../../styles/supportRequest.css';

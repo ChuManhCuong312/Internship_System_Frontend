@@ -82,6 +82,8 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
             await onSubmit();
             console.log("onSubmit completed successfully");
             setIsSubmitting(false);
+            // Refresh the page after successful submission
+            window.location.reload();
         } catch (error) {
             console.error("Error submitting form:", error);
             setIsSubmitting(false);
