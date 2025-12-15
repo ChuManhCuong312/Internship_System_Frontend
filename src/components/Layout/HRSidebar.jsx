@@ -237,10 +237,10 @@ const HRSidebar = () => {
           </Link>
         </li>
         <li
-          onClick={() => navigate("/Admin/InternProfile")}
-          className={isActive('/Admin/InternProfile') ? 'active' : ''}
+          onClick={() => navigate("/hr/eventcalendar")}
+          className={isActive('/hr/eventcalendar') ? 'active' : ''}
         >
-          <FaRegUser /> {expanded && <span>Tìm kiếm profile intern</span>}
+          <FaRegUser /> {expanded && <span>Quản lý sự kiện</span>}
         </li>
       </ul>
 

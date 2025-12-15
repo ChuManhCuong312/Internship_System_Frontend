@@ -42,6 +42,7 @@ import AttendanceManagement from "./pages/HR/AttendanceManagement/AttendanceMana
 import LeaveManagement from "./pages/HR/LeaveManagement/LeaveManagement";
 import ContractPage from "./pages/Intern/ContractPage.jsx";
 import HRReports from "./pages/HR/Reports";
+import EventCalendar from "./pages/HR/Event/EventCalendar";
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useContext(AuthContext);
 
@@ -191,7 +192,14 @@ function App() {
                     </PrivateRoute>
                   }
                 />
-
+                <Route
+                  path="/hr/eventcalendar"
+                  element={
+                    <PrivateRoute allowedRoles={["HR"]}>
+                      <EventCalendar />
+                    </PrivateRoute>
+                  }
+                />
 
                 {/* Mentor routes */}
                 <Route
