@@ -349,14 +349,18 @@ const MyTasksBoard = ({
   };
 
   useEffect(() => {
-    if (!openToStatus) return;
-    const first = tasks.find(t => t.status === openToStatus);
-    if (first) {
-      setExpandedTask(first.taskId);
-      setTimeout(() => {
-        const el = document.querySelector(`[data-taskid="${first.taskId}"]`);
-        if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+    // Disabled: auto-expand task functionality
+    // if (!openToStatus) return;
+    // const first = tasks.find(t => t.status === openToStatus);
+    // if (first) {
+    //   setExpandedTask(first.taskId);
+    //   setTimeout(() => {
+    //     const el = document.querySelector(`[data-taskid="${first.taskId}"]`);
+    //     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    //   }, 100);
+    //   try { onOpenedStatus(openToStatus); } catch (e) {}
+    // }
+    if (openToStatus) {
       try { onOpenedStatus(openToStatus); } catch (e) {}
     }
   }, [openToStatus, tasks]);
@@ -413,7 +417,7 @@ const MyTasksBoard = ({
 
         <div 
           className="task-card-title"
-          onClick={() => setExpandedTask(isExpanded ? null : task.taskId)}
+          style={{ cursor: 'default', pointerEvents: 'none' }}
         >
           {task.title}
         </div>
@@ -465,7 +469,7 @@ const MyTasksBoard = ({
           )}
         </div>
 
-        {isExpanded && (
+        {false && isExpanded && (
           <div className="task-card-expanded">
             <div className="expanded-section">
               <h4>Mô tả</h4>

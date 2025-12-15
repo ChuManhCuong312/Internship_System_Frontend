@@ -200,7 +200,7 @@ const MyTasksTable = () => {
             const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleString() : '--';
             return (
               <tr key={task.taskId}>
-                <td>{task.title}</td>
+                <td style={{ cursor: 'default', userSelect: 'none' }}>{task.title}</td>
                 <td style={{ color: isDueSoon ? '#b91c1c' : 'inherit', fontWeight: isDueSoon ? '700' : '400' }}>
                   {deadlineStr}
                   {isDueSoon && <div style={{ fontSize: 12, color: '#b91c1c' }}>Sắp hết hạn</div>}
