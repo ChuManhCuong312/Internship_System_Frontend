@@ -15,6 +15,7 @@ const HRDashboard = () => {
   const { token } = useContext(AuthContext);
   const [pendingInterns, setPendingInterns] = useState(0);
   const [pendingLeaves, setPendingLeaves] = useState(0);
+  const [programCount, setProgramCount] = useState(0);
   const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
@@ -24,13 +25,15 @@ const HRDashboard = () => {
       try {
         setLoadingStats(true);
 
-        const [internRes, leaveRes] = await Promise.all([
+        const [internRes, leaveRes, programRes] = await Promise.all([
           hrApi.searchInterns(token, {
             status: "PENDING",
             page: 0,
             size: 1000,
           }),
           getAllLeaveRequestsForHR(token, "PENDING"),
+          // Backend expects page index to start from 1, so use page: 1 (same as hrApi default)
+          hrApi.getAllPrograms(token, { page: 1, size: 1 }),
         ]);
 
         let internPendingCount = 0;
@@ -46,8 +49,20 @@ const HRDashboard = () => {
 
         const leavePendingCount = Array.isArray(leaveRes) ? leaveRes.length : 0;
 
+        let totalPrograms = 0;
+        if (programRes) {
+          if (typeof programRes.totalItems === "number") {
+            totalPrograms = programRes.totalItems;
+          } else if (typeof programRes.totalElements === "number") {
+            totalPrograms = programRes.totalElements;
+          } else if (Array.isArray(programRes.data)) {
+            totalPrograms = programRes.data.length;
+          }
+        }
+
         setPendingInterns(internPendingCount);
         setPendingLeaves(leavePendingCount);
+        setProgramCount(totalPrograms);
       } catch (err) {
         console.error("Error loading HR dashboard stats:", err);
         toast.error("Không thể tải thống kê dashboard HR");
@@ -102,8 +117,7 @@ const HRDashboard = () => {
             </div>
             <div>
               <h4>Chương trình</h4>
-              <p className="stat-value">3</p>
-              <span>Kỹ thuật, Marketing, Thiết kế</span>
+              <p className="stat-value">{programCount}</p>
             </div>
           </div>
           <div className="stat-card">
