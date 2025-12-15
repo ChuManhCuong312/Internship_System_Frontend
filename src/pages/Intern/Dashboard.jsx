@@ -7,6 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { getInternByUserId } from '../../api/internApi';
 import { getTodayAttendance, checkIn, checkOut } from '../../api/attendanceApi';
 import allowanceApi from '../../api/allowanceApi';
+import axiosClient from '../../api/axiosClient';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
@@ -20,6 +21,15 @@ const Dashboard = () => {
   const [attendanceError, setAttendanceError] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [monthlyAllowance, setMonthlyAllowance] = useState(0);
+  const [taskStats, setTaskStats] = useState({
+    inProgress: 0,
+    todo: 0,
+    done: 0,
+    total: 0,
+  });
+  const [taskStatsLoading, setTaskStatsLoading] = useState(true);
+  const [recentTasks, setRecentTasks] = useState([]);
+  const [recentTasksLoading, setRecentTasksLoading] = useState(true);
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -65,6 +75,8 @@ const Dashboard = () => {
     if (!token || !internId) return;
     loadTodayAttendance();
     fetchMonthlyAllowance();
+    fetchTaskStats();
+    fetchRecentTasks();
   }, [token, internId]);
 
   // Fetch monthly allowance
@@ -96,6 +108,73 @@ const Dashboard = () => {
       setMonthlyAllowance(monthlyTotal);
     } catch (error) {
       console.error('Error fetching monthly allowance:', error);
+    }
+  };
+  
+  const fetchTaskStats = async () => {
+    try {
+      if (!internId || !token) {
+        setTaskStats({
+          inProgress: 0,
+          todo: 0,
+          done: 0,
+          total: 0,
+        });
+        setTaskStatsLoading(false);
+        return;
+      }
+
+      setTaskStatsLoading(true);
+      const res = await axiosClient.get(`/tasks/intern/${internId}/statistics`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = res.data || {};
+      setTaskStats({
+        inProgress: data.inProgress || 0,
+        todo: data.todo || 0,
+        done: data.done || 0,
+        total: data.total || 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch task statistics:', error);
+      setTaskStats({
+        inProgress: 0,
+        todo: 0,
+        done: 0,
+        total: 0,
+      });
+    } finally {
+      setTaskStatsLoading(false);
+    }
+  };
+
+  const fetchRecentTasks = async () => {
+    try {
+      if (!internId || !token) {
+        setRecentTasks([]);
+        setRecentTasksLoading(false);
+        return;
+      }
+
+      setRecentTasksLoading(true);
+      const res = await axiosClient.get(`/tasks/intern/${internId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.data)
+          ? res.data.data
+          : [];
+
+      // Lấy tối đa 3 nhiệm vụ gần đây
+      const limited = data.slice(0, 3);
+      setRecentTasks(limited);
+    } catch (error) {
+      console.error('Failed to fetch recent tasks:', error);
+      setRecentTasks([]);
+    } finally {
+      setRecentTasksLoading(false);
     }
   };
   
@@ -180,6 +259,38 @@ const Dashboard = () => {
     });
   };
 
+  const getTaskStatusLabel = (status) => {
+    const map = {
+      TODO: 'Chưa bắt đầu',
+      IN_PROGRESS: 'Đang thực hiện',
+      REVIEWED: 'Đã xem xét',
+      DONE: 'Hoàn thành',
+    };
+    return map[status] || status || 'Không rõ';
+  };
+
+  const getTaskStatusClass = (status) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'status doing';
+      case 'DONE':
+        return 'status done';
+      case 'TODO':
+      case 'REVIEWED':
+      default:
+        return 'status pending';
+    }
+  };
+
+  const formatTaskDeadline = (deadline) => {
+    if (!deadline) return '--';
+    try {
+      return new Date(deadline).toLocaleDateString('vi-VN');
+    } catch (e) {
+      return '--';
+    }
+  };
+
   const checkInStatusText = attendanceLoading
     ? 'Đang tải...'
     : hasCheckedIn
@@ -197,19 +308,16 @@ const Dashboard = () => {
           <div className="stat-card">
             <div className="stat-icon intern">📋</div>
             <div>
-              <h4>Nhiệm vụ đang làm</h4>
-              <p className="stat-value">3/5</p>
+              <h4>Nhiệm vụ</h4>
+              <p className="stat-value">
+                {taskStatsLoading
+                  ? 'Đang tải...'
+                  : taskStats.inProgress + taskStats.todo}
+              </p>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon intern">📝</div>
-            <div>
-              <h4>Báo cáo tuần</h4>
-              <p className="stat-value">Đã nộp</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon intern">💰</div>
+            <div className="stat-icon intern"></div>
             <div>
               <h4>Phụ cấp tháng</h4>
               <p className="stat-value">{formatCurrency(monthlyAllowance)}</p>
@@ -278,21 +386,25 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Nhiệm vụ 1</td>
-                  <td className="status doing">Đang làm</td>
-                  <td>03/03</td>
-                </tr>
-                <tr>
-                  <td>Nhiệm vụ 2</td>
-                  <td className="status pending">Chưa làm</td>
-                  <td>09/03</td>
-                </tr>
-                <tr>
-                  <td>Nhiệm vụ 3</td>
-                  <td className="status done">Đã làm</td>
-                  <td>08/03</td>
-                </tr>
+                {recentTasksLoading ? (
+                  <tr>
+                    <td colSpan="3">Đang tải...</td>
+                  </tr>
+                ) : recentTasks.length === 0 ? (
+                  <tr>
+                    <td colSpan="3">Không có nhiệm vụ nào gần đây</td>
+                  </tr>
+                ) : (
+                  recentTasks.map((task) => (
+                    <tr key={task.taskId}>
+                      <td>{task.title || `Nhiệm vụ #${task.taskId}`}</td>
+                      <td className={getTaskStatusClass(task.status)}>
+                        {getTaskStatusLabel(task.status)}
+                      </td>
+                      <td>{formatTaskDeadline(task.deadline)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
