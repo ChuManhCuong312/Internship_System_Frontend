@@ -47,7 +47,9 @@ const CandidatesModal = ({ onClose, onSuccess }) => {
       address: "",
       dob: "",
       school: "",
-      photo_path: null
+      photo_path: null,
+      universityConfirm: null,
+      avatar: null
     });
     setErrors({});
   };
