@@ -227,6 +227,12 @@ body, html {
   padding: 0 0 0 6px;
 }
 
+.chart-title {
+  margin-top: 4px;
+  margin-bottom: 20px;
+  padding-left: 8px;
+}
+
 .bottom-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
