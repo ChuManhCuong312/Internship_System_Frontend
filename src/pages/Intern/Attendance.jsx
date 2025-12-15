@@ -240,7 +240,7 @@ const Attendance = () => {
       <div className="dashboard-layout">
         <InternSidebar />
         <div className="dashboard-content">
-          <div className="loading-spinner">
+          <div className="loading-table">
             Đang tải dữ liệu chấm công...
             <br />
             <small className="loading-intern-id">

@@ -403,14 +403,6 @@
   font-size: 16px;
 }
 
-/* Loading */
-.loading-spinner {
-  text-align: center;
-  padding: 40px;
-  color: #999;
-  font-size: 16px;
-}
-
 /* Error Message */
 .error-message {
   background: #ffebee;

@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import hrApi from "../../api/hrApi";
-import { LoadingSpinner } from "../../components/Common/LoadingSpinner";
+import { LoadingTable } from "../../components/Common/LoadingSpinner";
 import UploadContractModal from "./ManageContracts/UploadContractModal";
 import ContractTable from "./ManageContracts/ContractTable";
 import "../../styles/manageContracts.css";
@@ -226,7 +226,7 @@ const ManageContracts = () => {
         <HRSidebar />
         <div className="dashboard-content">
           <div className="loading-card">
-            <LoadingSpinner size="large" />
+            <LoadingTable/>
             <p className="loading-text">Đang tải danh sách hợp đồng...</p>
           </div>
         </div>

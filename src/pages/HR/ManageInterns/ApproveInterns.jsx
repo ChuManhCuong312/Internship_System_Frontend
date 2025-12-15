@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import hrApi from "../../../api/hrApi";
 import HRSidebar from "../../../components/Layout/HRSidebar";
 import { AuthContext } from "../../../context/AuthContext";
-import { LoadingSpinner, LoadingTable, LoadingButton } from "../../../components/Common/LoadingSpinner";
+import { LoadingTable, LoadingButton } from "../../../components/Common/LoadingSpinner";
 import { toast } from "react-toastify";
 
 import HRInternTable from "../ManageInterns/component/HRInternTable";
@@ -348,7 +348,7 @@ const ApproveInterns = () => {
         <HRSidebar />
         <div className="dashboard-content">
           <div className="loading-card">
-            <LoadingSpinner size="large" />
+            <LoadingTable/>
             <p className="loading-text">Đang tải danh sách hồ sơ...</p>
           </div>
           <LoadingTable />
@@ -362,7 +362,7 @@ const ApproveInterns = () => {
       <HRSidebar />
       <div className="dashboard-content">
         {(isApproving || isQuickApproving) && (
-          <LoadingSpinner size="large" fullScreen={true} />
+          <LoadingTable/>
         )}
         <HRInternHeader
           title="Duyệt hồ sơ thực tập sinh"
