@@ -12,6 +12,11 @@ export const AuthProvider = ({ children }) => {
     const cookieToken = Cookies.get("token");
     return cookieToken;
   });
+
+  const [userStatus,setUserStatus] = useState(null);
+  const [internStatus,setInternStatus] = useState(null);
+  const [internConfirmStatus,setInternConfirmStatus] = useState(null);
+
   const [loading, setLoading] = useState(true);
 
   // Cookie configuration for secure storage
@@ -26,6 +31,10 @@ export const AuthProvider = ({ children }) => {
     // Check cookies for token and user data
     const cookieToken = Cookies.get("token");
     const storedUser = Cookies.get("user");
+
+    const storedUserStatus = Cookies.get("userStatus");
+    const storedInternStatus = Cookies.get("internStatus");
+    const storedInternConfirmStatus = Cookies.get("internConfirmStatus");
 
     console.log("Checking for stored credentials:", {
       hasToken: !!cookieToken,
@@ -43,11 +52,19 @@ export const AuthProvider = ({ children }) => {
           Cookies.remove("userId");
           Cookies.remove("role");
           Cookies.remove("internId");
+          Cookies.remove("userStatus");
+          Cookies.remove("internStatus");
+          Cookies.remove("internConfirmStatus");
         } else {
           // Parse stored user data from cookie
           const userData = JSON.parse(storedUser);
           setUser(userData);
           setToken(cookieToken);
+
+          setUserStatus(storedUserStatus);
+          setInternStatus(storedInternStatus);
+          setInternConfirmStatus(storedInternConfirmStatus);
+
           console.log("Credentials restored from cookies:", {
             email: userData.email,
             userId: userData.userId,
@@ -62,6 +79,10 @@ export const AuthProvider = ({ children }) => {
         Cookies.remove("userId");
         Cookies.remove("role");
         Cookies.remove("internId");
+
+        Cookies.remove("userStatus");
+        Cookies.remove("internStatus");
+        Cookies.remove("internConfirmStatus");
       }
     } else {
       console.log("No stored credentials found");
@@ -153,6 +174,11 @@ export const AuthProvider = ({ children }) => {
       Cookies.remove("userId");
       Cookies.remove("role");
       Cookies.remove("internId");
+
+      Cookies.remove("userStatus");
+      Cookies.remove("internStatus");
+      Cookies.remove("internConfirmStatus");
+
       throw err;
     }
   };
@@ -173,6 +199,9 @@ export const AuthProvider = ({ children }) => {
     
     setUser(null);
     setToken(null);
+    setUserStatus(null);
+    setInternStatus(null);
+    setInternConfirmStatus(null);
     console.log("User logged out, all credentials cleared");
   };
 
@@ -193,7 +222,7 @@ export const AuthProvider = ({ children }) => {
     return () => axios.interceptors.response.eject(interceptor);
   }, []);
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, setUser, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, setUser, setUserStatus, setInternStatus, setInternConfirmStatus, loading }}>
       {children}
     </AuthContext.Provider>
   );
