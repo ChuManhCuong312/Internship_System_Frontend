@@ -451,7 +451,7 @@ const TasksManagementPage = ({ programId, onBack }) => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedTask(null);
+    // Don't reset selectedTask here to keep the task selected when closing the modal
   };
 
   const handleSubmitTask = async (formData) => {
@@ -484,6 +484,25 @@ const TasksManagementPage = ({ programId, onBack }) => {
       } catch (error) {
         console.error('Error deleting task:', error);
       }
+    }
+  };
+
+  // Mark task as complete
+  const handleCompleteTask = async (taskId) => {
+    try {
+      await taskApi.updateTaskStatus(token, taskId, 'DONE');
+      toast.success('Đánh dấu nhiệm vụ hoàn thành!');
+      // Update the selected task status
+      setSelectedTask(prev => prev ? { ...prev, status: 'DONE' } : null);
+      // Refresh the task list
+      if (activeFilters) {
+        fetchFilteredTasks(activeFilters);
+      } else {
+        fetchTasks();
+      }
+    } catch (error) {
+      console.error('Error completing task:', error);
+      toast.error('Lỗi khi đánh dấu hoàn thành');
     }
   };
 
@@ -1030,6 +1049,15 @@ const TasksManagementPage = ({ programId, onBack }) => {
               </div>
 
               <div className={styles.actionSection}>
+                {selectedTask.status !== 'DONE' && (
+                  <button
+                    className={styles.completeButton}
+                    onClick={() => handleCompleteTask(selectedTask.taskId)}
+                    title="Đánh dấu hoàn thành"
+                  >
+                    ✓
+                  </button>
+                )}
                 <button
                   className={styles.editButton}
                   onClick={() => handleOpenModal(selectedTask)}

@@ -6,6 +6,7 @@ import avatar from "../../assets/avatar.png";
 import { AuthContext } from '../../context/AuthContext';
 import { getInternByUserId } from '../../api/internApi';
 import { getTodayAttendance, checkIn, checkOut } from '../../api/attendanceApi';
+import allowanceApi from '../../api/allowanceApi';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
@@ -18,6 +19,7 @@ const Dashboard = () => {
   const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [attendanceError, setAttendanceError] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [monthlyAllowance, setMonthlyAllowance] = useState(0);
 
   useEffect(() => {
     const fetchInternId = async () => {
@@ -62,7 +64,48 @@ const Dashboard = () => {
   useEffect(() => {
     if (!token || !internId) return;
     loadTodayAttendance();
+    fetchMonthlyAllowance();
   }, [token, internId]);
+
+  // Fetch monthly allowance
+  const fetchMonthlyAllowance = async () => {
+    try {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      // Get all allowances for the current intern
+      const response = await allowanceApi.getAllowancesByInternId(token, internId, 0, 100);
+      
+      // Handle different response formats
+      const allowances = Array.isArray(response) ? response : 
+                       (response?.data || response?.content || []);
+      
+      // Filter allowances for current month and year, and sum them up
+      const monthlyTotal = allowances
+        .filter(allowance => {
+          if (!allowance.dateApplied) return false;
+          const allowanceDate = new Date(allowance.dateApplied);
+          return (
+            allowanceDate.getMonth() + 1 === currentMonth && 
+            allowanceDate.getFullYear() === currentYear
+          );
+        })
+        .reduce((sum, allowance) => sum + (allowance.amount || 0), 0);
+      
+      setMonthlyAllowance(monthlyTotal);
+    } catch (error) {
+      console.error('Error fetching monthly allowance:', error);
+    }
+  };
+  
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -169,7 +212,7 @@ const Dashboard = () => {
             <div className="stat-icon intern">💰</div>
             <div>
               <h4>Phụ cấp tháng</h4>
-              <p className="stat-value">1.000.000</p>
+              <p className="stat-value">{formatCurrency(monthlyAllowance)}</p>
             </div>
           </div>
         </div>

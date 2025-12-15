@@ -4,6 +4,7 @@ import axiosClient from '../../api/axiosClient';
 import taskApi from '../../api/taskApi';
 import taskManagementApi from '../../api/taskManagementApi';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 import { getStatusStyle, getPriorityStyle, getStatusLabel, getPriorityLabel } from '../../utils/taskColors';
 
 const STATUS_OPTIONS = ['TODO', 'IN_PROGRESS', 'REVIEWED', 'DONE'];
@@ -96,10 +97,47 @@ const MyTasksTable = () => {
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
+      // Show confirmation dialog when marking as DONE
+      if (newStatus === 'DONE') {
+        const result = await Swal.fire({
+          title: 'Xác nhận hoàn thành nhiệm vụ',
+          text: 'Bạn có chắc chắn muốn đánh dấu nhiệm vụ này là đã hoàn thành?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Hủy',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+        });
+
+        if (!result.isConfirmed) {
+          // If user cancels, revert the select value back to previous state
+          const task = tasks.find(t => t.taskId === taskId);
+          if (task) {
+            const select = document.querySelector(`select[data-task-id="${taskId}"]`);
+            if (select) select.value = task.status || 'TODO';
+          }
+          return;
+        }
+      }
+
       await taskApi.updateTaskStatus(token, taskId, newStatus);
       setTasks(prev => prev.map(t => t.taskId === taskId ? { ...t, status: newStatus } : t));
+      
+      if (newStatus === 'DONE') {
+        Swal.fire(
+          'Thành công!',
+          'Nhiệm vụ đã được đánh dấu là hoàn thành.',
+          'success'
+        );
+      }
     } catch (err) {
       console.error('Failed to update status', err);
+      Swal.fire(
+        'Lỗi!',
+        'Có lỗi xảy ra khi cập nhật trạng thái nhiệm vụ.',
+        'error'
+      );
     }
   };
 
@@ -170,8 +208,9 @@ const MyTasksTable = () => {
                 <td>
                   <select 
                     value={task.status || 'TODO'} 
-                    onChange={(e)=>handleStatusChange(task.taskId, e.target.value)}
+                    onChange={(e) => handleStatusChange(task.taskId, e.target.value)}
                     style={getStatusStyle(task.status || 'TODO')}
+                    data-task-id={task.taskId}
                   >
                     {STATUS_OPTIONS.map(s => <option key={s} value={s}>{getStatusLabel(s)}</option>)}
                   </select>
