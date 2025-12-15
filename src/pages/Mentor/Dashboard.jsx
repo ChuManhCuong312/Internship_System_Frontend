@@ -10,6 +10,7 @@ import hrApi from "../../api/hrApi";
 const MentorDashboard = () => {
   const { token, user } = useContext(AuthContext);
   const [internCount, setInternCount] = useState(0);
+  const [interns, setInterns] = useState([]);
 
   useEffect(() => {
     const fetchInternCountForMentor = async () => {
@@ -42,6 +43,7 @@ const MentorDashboard = () => {
         }
 
         const uniqueInternIds = new Set();
+        const internMap = new Map();
 
         await Promise.all(
           programs.map(async (program) => {
@@ -78,6 +80,10 @@ const MentorDashboard = () => {
                     interns.forEach((intern) => {
                       if (intern && intern.internId != null) {
                         uniqueInternIds.add(intern.internId);
+
+                        if (!internMap.has(intern.internId)) {
+                          internMap.set(intern.internId, intern);
+                        }
                       }
                     });
                   } catch (err) {
@@ -90,11 +96,12 @@ const MentorDashboard = () => {
             }
           })
         );
-
         setInternCount(uniqueInternIds.size);
+        setInterns(Array.from(internMap.values()));
       } catch (error) {
         console.error("Error fetching mentor intern count:", error);
         setInternCount(0);
+        setInterns([]);
       }
     };
 
@@ -121,32 +128,28 @@ const MentorDashboard = () => {
 
         {/* Nội dung chính */}
         <div className="main-grid">
-          <div className="card col-span-2">
+          <div className="card col-span-2 intern-list-card">
             <h4>Danh sách thực tập sinh</h4>
             <table className="task-table">
               <thead>
                 <tr>
                   <th>Họ tên</th>
                   <th>Ngành</th>
-                  <th>Tiến độ</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Nguyễn Văn A</td>
-                  <td>Kỹ thuật</td>
-                  <td className="status done">80%</td>
-                </tr>
-                <tr>
-                  <td>Trần Thị B</td>
-                  <td>Marketing</td>
-                  <td className="status pending">65%</td>
-                </tr>
-                <tr>
-                  <td>Lê Văn C</td>
-                  <td>Thiết kế</td>
-                  <td className="status pending">70%</td>
-                </tr>
+                {interns.length === 0 ? (
+                  <tr>
+                    <td colSpan={2}>Không có thực tập sinh nào</td>
+                  </tr>
+                ) : (
+                  interns.map((intern) => (
+                    <tr key={intern.internId ?? intern.id}>
+                      <td>{intern.fullName || intern.name || "-"}</td>
+                      <td>{intern.major || intern.majorName || "-"}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

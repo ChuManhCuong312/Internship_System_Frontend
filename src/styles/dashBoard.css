@@ -266,6 +266,12 @@ body, html {
   padding-left: 8px;
 }
 
+.intern-list-card > h4 {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  padding-left: 8px;
+}
+
 .card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
