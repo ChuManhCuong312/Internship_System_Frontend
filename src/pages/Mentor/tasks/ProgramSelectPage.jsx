@@ -11,7 +11,7 @@ export default function ProgramSelectPage({ onSelectProgram }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch programs on mount
+  // Fetch active programs on mount
   useEffect(() => {
     const fetchPrograms = async () => {
       if (!token || !user?.userId) return;
@@ -23,17 +23,25 @@ export default function ProgramSelectPage({ onSelectProgram }) {
         // First, get mentorId from userId
         const mentorData = await mentorApi.getMentorByUserId(token, user.userId);
         
+        let allPrograms = [];
         if (mentorData?.mentorId) {
           // Filter programs by mentor ID
           const response = await programApi.filterByMentor(token, mentorData.mentorId);
           console.log("Programs response:", response);
-          setPrograms(Array.isArray(response) ? response : []);
+          allPrograms = Array.isArray(response) ? response : [];
         } else {
           // Fallback: Get all programs
           const response = await programApi.getAllPrograms(token, 1, 100);
           console.log("All programs response:", response);
-          setPrograms(response.data || []);
+          allPrograms = Array.isArray(response) ? response : (response.data || []);
         }
+        
+        // Filter to only show active programs (ON_GOING)
+        const activePrograms = allPrograms.filter(
+          program => program.programStatus === 'ON_GOING'
+        );
+        
+        setPrograms(activePrograms);
       } catch (err) {
         console.error("Error fetching programs:", err);
         setError("Không thể tải danh sách chương trình");
@@ -69,7 +77,8 @@ export default function ProgramSelectPage({ onSelectProgram }) {
       <div className={styles.container}>
         <div className={styles.header}>
           <h1 className={styles.title}>📋 Quản lý Nhiệm vụ</h1>
-          <p className={styles.subtitle}>Chọn chương trình để quản lý nhiệm vụ</p>
+          <p className={styles.subtitle}>Chọn chương trình đang diễn ra để quản lý nhiệm vụ</p>
+          <p className={styles.note}>(Chỉ hiển thị các chương trình đang diễn ra)</p>
         </div>
         <div className={styles.loadingState}>
           <p>Đang tải chương trình...</p>
@@ -83,7 +92,8 @@ export default function ProgramSelectPage({ onSelectProgram }) {
       <div className={styles.container}>
         <div className={styles.header}>
           <h1 className={styles.title}>📋 Quản lý Nhiệm vụ</h1>
-          <p className={styles.subtitle}>Chọn chương trình để quản lý nhiệm vụ</p>
+          <p className={styles.subtitle}>Chọn chương trình đang diễn ra để quản lý nhiệm vụ</p>
+          <p className={styles.note}>(Chỉ hiển thị các chương trình đang diễn ra)</p>
         </div>
         <div className={styles.errorState}>
           <p>{error}</p>
@@ -96,12 +106,14 @@ export default function ProgramSelectPage({ onSelectProgram }) {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>📋 Quản lý Nhiệm vụ</h1>
-        <p className={styles.subtitle}>Chọn chương trình để quản lý nhiệm vụ</p>
+        <p className={styles.subtitle}>Chọn chương trình đang diễn ra để quản lý nhiệm vụ</p>
+        <p className={styles.note}>(Chỉ hiển thị các chương trình đang diễn ra)</p>
       </div>
 
       {programs.length === 0 ? (
         <div className={styles.emptyState}>
-          <p>Không có chương trình nào được gán cho bạn</p>
+          <p>Không có chương trình đang diễn ra nào được gán cho bạn</p>
+          <p>Vui lòng kiểm tra lại hoặc liên hệ quản trị viên nếu cần hỗ trợ.</p>
         </div>
       ) : (
         <div className={styles.gridContainer}>

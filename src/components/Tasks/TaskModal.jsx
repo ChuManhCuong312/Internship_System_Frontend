@@ -296,7 +296,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
             <div className="form-group">
               <label>Giao cho nhóm ({teams.length} nhóm)</label>
               <div className="teams-list">
-                {teams.map(team => (
+                {teams.map((team, index) => (
                   <div key={team.teamId} className={`team-card ${formData.teamIds.includes(team.teamId) ? 'selected' : ''}`}>
                     <label className="team-header">
                       <input
@@ -305,7 +305,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, teams = [], program
                         onChange={() => handleTeamToggle(team.teamId)}
                       />
                       <div className="team-info">
-                        <span className="team-name">Nhóm #{team.teamId}</span>
+                        <span className="team-name">Nhóm {index + 1}</span>
                         <span className="team-mentor">👤 {team.mentorName || 'Chưa có mentor'}</span>
                       </div>
                     </label>
