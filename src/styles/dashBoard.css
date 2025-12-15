@@ -258,6 +258,14 @@ body, html {
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
+/* Title alignment for HR dashboard cards (match Intern layout) */
+.intern-majors-card > h4,
+.program-table-card > h4 {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  padding-left: 8px;
+}
+
 .card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
@@ -288,6 +296,69 @@ body, html {
   height: 220px;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+/* Larger chart container for key charts like the intern Pie chart */
+.chart-container-large {
+  height: 300px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Layout chart and legend side by side for the intern Pie chart */
+.intern-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.intern-chart-canvas {
+  flex: 0 0 auto;
+  max-width: 260px;
+}
+
+.intern-chart-canvas canvas {
+  max-width: 100% !important;
+  max-height: 260px !important;
+}
+
+.intern-chart-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.intern-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intern-chart-legend-color {
+  width: 24px;
+  height: 8px;
+  border-radius: 9999px;
+}
+
+.intern-chart-legend-label {
+  font-size: 13px;
+  color: #374151;
+}
+
+/* Arrange Chart.js legend items in a neat grid under the chart */
+.chartjs-legend ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  justify-items: flex-start;
+  gap: 6px 16px;
+  padding: 0;
+  margin-top: 12px;
+}
+
+.chartjs-legend li {
+  display: flex;
   align-items: center;
 }
 

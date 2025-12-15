@@ -11,12 +11,17 @@ import { FileClock, UserCheck, Layers3, BarChart3, Users } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
+const MAJOR_COLORS = ["#00acc1", "#26a69a", "#66bb6a"]; // reused for chart and legend
+
 const HRDashboard = () => {
   const { token } = useContext(AuthContext);
   const [pendingInterns, setPendingInterns] = useState(0);
   const [pendingLeaves, setPendingLeaves] = useState(0);
   const [programCount, setProgramCount] = useState(0);
   const [activeMentors, setActiveMentors] = useState(0);
+  const [majorLabels, setMajorLabels] = useState([]);
+  const [internMajorStats, setInternMajorStats] = useState([]);
+  const [programOverview, setProgramOverview] = useState([]);
   const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
@@ -34,7 +39,7 @@ const HRDashboard = () => {
           }),
           getAllLeaveRequestsForHR(token, "PENDING"),
           // Backend expects page index to start from 1, so use page: 1 (same as hrApi default)
-          hrApi.getAllPrograms(token, { page: 1, size: 1 }),
+          hrApi.getAllPrograms(token, { page: 1, size: 5 }),
           hrApi.getAllMentors(token),
         ]);
 
@@ -52,13 +57,19 @@ const HRDashboard = () => {
         const leavePendingCount = Array.isArray(leaveRes) ? leaveRes.length : 0;
 
         let totalPrograms = 0;
+        let programsData = [];
         if (programRes) {
           if (typeof programRes.totalItems === "number") {
             totalPrograms = programRes.totalItems;
           } else if (typeof programRes.totalElements === "number") {
             totalPrograms = programRes.totalElements;
-          } else if (Array.isArray(programRes.data)) {
-            totalPrograms = programRes.data.length;
+          }
+
+          if (Array.isArray(programRes.data)) {
+            programsData = programRes.data;
+            if (!totalPrograms) {
+              totalPrograms = programRes.data.length;
+            }
           }
         }
 
@@ -75,10 +86,89 @@ const HRDashboard = () => {
           }
         }
 
+        let majors = [];
+        try {
+          const majorsRes = await hrApi.getAllMajors(token);
+          if (Array.isArray(majorsRes)) {
+            majors = majorsRes;
+          }
+        } catch (e) {
+          majors = [];
+        }
+
+        const majorResponses = await Promise.all(
+          majors.map((major) =>
+            hrApi
+              .searchInterns(token, {
+                major,
+                page: 0,
+                size: 1,
+              })
+              .catch(() => null)
+          )
+        );
+
+        const majorCounts = majorResponses.map((res) => {
+          if (!res) return 0;
+
+          if (typeof res.totalItems === "number") {
+            return res.totalItems;
+          }
+          if (typeof res.totalElements === "number") {
+            return res.totalElements;
+          }
+          if (Array.isArray(res.content)) {
+            return res.content.length;
+          }
+          if (Array.isArray(res.data)) {
+            return res.data.length;
+          }
+
+          return 0;
+        });
+
+        // Build per-program overview rows using getProgramOverview
+        const overviewResponses = await Promise.all(
+          programsData.map((program) =>
+            hrApi
+              .getProgramOverview(token, program.programId)
+              .catch(() => null)
+          )
+        );
+
+        const programRows = programsData.map((program, index) => {
+          const ov = overviewResponses[index] || {};
+          let internTotal = 0;
+          let mentorTotal = 0;
+
+          if (typeof ov.totalInterns === "number") {
+            internTotal = ov.totalInterns;
+          }
+          if (typeof ov.totalMentors === "number") {
+            mentorTotal = ov.totalMentors;
+          }
+
+          const name =
+            program.programName ||
+            program.name ||
+            program.title ||
+            `Chương trình #${program.programId || index + 1}`;
+
+          return {
+            id: program.programId || program.id || index,
+            name,
+            internTotal,
+            mentorTotal,
+          };
+        });
+
         setPendingInterns(internPendingCount);
         setPendingLeaves(leavePendingCount);
         setProgramCount(totalPrograms);
         setActiveMentors(totalMentors);
+        setMajorLabels(majors);
+        setInternMajorStats(majorCounts);
+        setProgramOverview(programRows);
       } catch (err) {
         console.error("Error loading HR dashboard stats:", err);
         toast.error("Không thể tải thống kê dashboard HR");
@@ -149,96 +239,67 @@ const HRDashboard = () => {
 
         {/* Middle Section */}
         <div className="main-grid">
-          <div className="card chart-card">
-            <h4>Phản hồi thực tập sinh</h4>
-            <div className="chart-container">
-              <Pie
-                data={{
-                  labels: ["CNTT", "Kinh tế số", "Thiết kế đồ họa"],
-                  datasets: [
-                    {
-                      data: [50, 40, 25],
-                      backgroundColor: ["#00acc1", "#26a69a", "#66bb6a"],
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: "bottom" },
-                  },
-                }}
-              />
+          <div className="card chart-card intern-majors-card">
+            <h4>Thực tập sinh theo ngành</h4>
+            <div className="chart-container chart-container-large">
+              <div className="intern-chart-row">
+                <div className="intern-chart-canvas">
+                  <Pie
+                    data={{
+                      labels: majorLabels,
+                      datasets: [
+                        {
+                          data: internMajorStats,
+                          backgroundColor: MAJOR_COLORS,
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: { display: false },
+                      },
+                    }}
+                  />
+                </div>
+                <div className="intern-chart-legend">
+                  {majorLabels.map((label, index) => (
+                    <div className="intern-chart-legend-item" key={label || index}>
+                      <span
+                        className="intern-chart-legend-color"
+                        style={{
+                          backgroundColor: MAJOR_COLORS[index % MAJOR_COLORS.length],
+                        }}
+                      />
+                      <span className="intern-chart-legend-label">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="card">
-            <h4>Tiến độ chương trình</h4>
-            <div className="chart-container">
-              <Bar
-                data={{
-                  labels: ["CNTT", "Kinh tế số", "Thiết kế đồ họa"],
-                  datasets: [
-                    {
-                      label: "% hoàn thành",
-                      data: [78, 72, 66],
-                      backgroundColor: ["#00acc1", "#26a69a", "#66bb6a"],
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { display: false },
-                  },
-                  scales: {
-                    y: { beginAtZero: true, max: 100 },
-                  },
-                }}
-              />
-            </div>
-          </div>
-          <div className="card notifications-card">
-            <h4>Thông báo nội bộ</h4>
-            <ul className="activity-list">
-              <li>Mentor Nguyễn An đã đánh giá 3 TTS tuần này</li>
-              <li>TTS Trinh Minh gửi yêu cầu hỗ trợ</li>
-              <li>Chương trình Marketing đạt 77% hoàn thành</li>
-            </ul>
           </div>
         </div>
 
         {/* Bottom Section */}
         <div className="bottom-grid">
-          <div className="card">
-            <h4>Tiến độ theo phòng ban</h4>
+          <div className="card program-table-card">
+            <h4>Chương trình</h4>
             <table className="task-table">
-            	<thead>
+              <thead>
                 <tr>
-                  <th>Phòng ban</th>
+                  <th>Chương trình</th>
                   <th>Số TTS</th>
-                  <th>Mentor</th>
-                  <th>% Hoàn thành</th>
+                  <th>Số mentor phụ trách</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>IT</td>
-                  <td>10</td>
-                  <td>2</td>
-                  <td className="status done">58%</td>
-                </tr>
-                <tr>
-                  <td>Marketing</td>
-                  <td>15</td>
-                  <td>1</td>
-                  <td className="status pending">72%</td>
-                </tr>
-                <tr>
-                  <td>Thiết kế</td>
-                  <td>5</td>
-                  <td>1</td>
-                  <td className="status pending">66%</td>
-                </tr>
+                {programOverview.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.name}</td>
+                    <td>{row.internTotal}</td>
+                    <td>{row.mentorTotal}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
