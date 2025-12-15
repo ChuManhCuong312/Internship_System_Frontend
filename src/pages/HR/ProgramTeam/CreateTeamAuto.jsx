@@ -366,7 +366,7 @@ export default function CreateTeamAuto() {
               <ul>
                 {createdTeams.map((team, idx) => (
                   <li key={idx}>
-                    Team ID: {team.teamId} (Số lượng TTS: {team.internIds.length})
+                    Team: {idx+1} (Số lượng TTS: {team.internIds.length})
                   </li>
                 ))}
               </ul>
