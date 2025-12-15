@@ -31,7 +31,7 @@ const ProgramList = ({
         <div key={program.programId} className="card program-card">
           <div className="program-header">
             <div className="program-title-section">
-              <h2 className="program-title">{program.name}</h2>
+              <p className="program-title">{program.name}</p>
               <span className={`status-badge ${getStatusColor(program.programStatus)}`}>
                 {program.programStatus}
               </span>

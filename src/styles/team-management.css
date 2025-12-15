@@ -335,6 +335,7 @@
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
+  gap: 8px;
 }
 
 .mentor-option:hover {
@@ -355,8 +356,9 @@
 }
 
 .mentor-detail {
-  font-size: 13px;
+  font-size: 14px;
   color: #6b7280;
+  margin-bottom: 4px;
 }
 
 /* Search Input */
