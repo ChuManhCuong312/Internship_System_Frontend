@@ -100,6 +100,7 @@ const AllowancesModal = ({
             <input
               type="date"
               value={formData.dateApplied}
+              min={new Date().toISOString().split("T")[0]}
               onChange={(e) => onFormChange("dateApplied", e.target.value)}
               className={errors.dateApplied ? "input-error" : ""}
             />
