@@ -50,7 +50,13 @@ const InternSidebar = () => {
     null;
   // LIMITED only if user is NOT ACTIVE and NOT REJECTED
   const isUserBlocked =
-    userStatus === "INACTIVE" || userStatus === "PENDING_APPROVAL";
+    userStatus === "INACTIVE" ||
+    userStatus === "PENDING_APPROVAL" ||
+      (
+        userStatus === "REJECTED" &&
+        !internStatus &&
+        !internConfirmStatus
+      );;
 
   // Defaults
   let canSeeProfile = false;

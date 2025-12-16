@@ -20,17 +20,23 @@ const translateStatus = (status) => {
   }
 };
 
-const ProfileHeader = ({ internData, user, initials, avatarPreview, onAvatarClick, onEditClick }) => (
+const ProfileHeader = ({ internData, user, initials, avatarPreview, onAvatarClick, onEditClick, isProfileLocked }) => (
     <div className="profile-header-card">
-        <div className="profile-avatar-large" onClick={onAvatarClick}>
+        <div
+              className={`profile-avatar-large ${isProfileLocked ? 'disabled' : ''}`}
+              onClick={!isProfileLocked ? onAvatarClick : undefined}
+              title={isProfileLocked ? "Hồ sơ đã bị khóa" : ""}
+        >
             {avatarPreview || internData?.avatar ? (
                 <img src={avatarPreview || internData.avatar} alt="Avatar" />
             ) : (
                 <div className="avatar-placeholder">{initials}</div>
             )}
+            {!isProfileLocked && (
             <div className="avatar-edit-overlay">
                 <MdEdit size={24} />
             </div>
+            )}
         </div>
 
         <div className="profile-header-info">
@@ -48,7 +54,12 @@ const ProfileHeader = ({ internData, user, initials, avatarPreview, onAvatarClic
             </div>
         </div>
 
-        <button className="btn-edit-profile" onClick={onEditClick}>
+        <button
+              className="btn-edit-profile"
+              onClick={onEditClick}
+              disabled={isProfileLocked}
+              title={isProfileLocked ? "Hồ sơ đã bị khóa" : ""}
+            >
             <MdEdit /> Chỉnh sửa hồ sơ
         </button>
     </div>
