@@ -50,7 +50,7 @@ export const useAllowancesLogic = (token) => {
 
       const currentPage = resetPage ? 0 : page;
       console.log("Fetching allowances - page:", currentPage, "size:", size, "sortBy:", sortBy, "direction:", direction);
-      
+
       const response = await allowanceApi.getAllowances(
         token,
         currentPage,
@@ -95,7 +95,7 @@ export const useAllowancesLogic = (token) => {
     try {
       setLoading(true);
       console.log("Fetching filtered allowances - filters:", filters, "page:", currentPage, "size:", size);
-      
+
       const response = await allowanceApi.filterAllowances(token, filters, currentPage, size);
 
       console.log("Filtered allowances response:", response);
@@ -148,7 +148,18 @@ export const useAllowancesLogic = (token) => {
     if (!formData.amount || formData.amount <= 0)
       newErrors.amount = "Số tiền phải lớn hơn 0";
     if (!formData.dateApplied) newErrors.dateApplied = "Ngày áp dụng bắt buộc";
+    else {
+      const appliedDate = new Date(formData.dateApplied);
+      const today = new Date();
 
+      // Reset time để chỉ so sánh ngày
+      appliedDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (appliedDate < today) {
+        newErrors.dateApplied = "Ngày áp dụng không được nhỏ hơn ngày hiện tại";
+      }
+    }
     return newErrors;
   };
 
