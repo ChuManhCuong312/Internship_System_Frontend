@@ -139,7 +139,7 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
             <label>Trường *</label>
             <input
                 className="form-input"
-                value={profileData?.school || "CMC University"}
+                value={profileData?.school || ""}
                 readOnly
             />
         </div>

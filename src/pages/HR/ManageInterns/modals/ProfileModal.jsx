@@ -119,21 +119,13 @@ const ProfileModal = ({
     {/* Trường */}
     <div className="form-group">
       <label>Trường *</label>
-      <Autocomplete
-        freeSolo
-        options={schoolOptions}
-        value={profileData?.school || ""}
-        onChange={(event, newValue) => {
-          setProfileData({ ...profileData, school: newValue });
-        }}
-        onInputChange={(event, newInputValue) => {
-          setProfileData({ ...profileData, school: newInputValue });
-        }}
-        renderInput={(params) => (
-          <TextField {...params} variant="outlined" className="form-input" />
-        )}
-        disabled={isLoading}
-      />
+       <input
+              className="form-input"
+              value={profileData?.school || ""}
+              onChange={e => setProfileData({ ...profileData, school: e.target.value })}
+              placeholder="Nhập tên trường"
+              disabled={isLoading}
+            />
       {errors?.school && <p className="field-error">{errors.school}</p>}
       </div>
 
