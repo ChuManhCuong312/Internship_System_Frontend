@@ -324,14 +324,6 @@ const InternSidebar = () => {
         </li>
 
         <li
-          onClick={() => navigate("/intern/program")}
-          className={isActiveRoute("/intern/program") ? "active" : ""}
-        >
-          <FaTasks />
-          {expanded && <span>Chương trình</span>}
-        </li>
-
-        <li
           onClick={() => setAttendanceSubmenuOpen(!attendanceSubmenuOpen)}
           className={`menu-item ${isAttendanceParentActive() ? 'active' : ''}`}
         >

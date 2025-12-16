@@ -24,7 +24,7 @@ const hrApi = {
   },
 
     // --------- PROGRAM METHODS ---------
-    getAllPrograms: async (token, { page = 1, size = 10, sortBy = "programId", sortDir = "asc" } = {}) => {
+    getAllPrograms: async (token, { page = 1, size = 10, sortBy = "programId", sortDir = "desc" } = {}) => {
       const res = await axios.get(API_URL_PROGRAM, {
         headers: { Authorization: `Bearer ${token}` },
         params: { page, size, sortBy, sortDir },

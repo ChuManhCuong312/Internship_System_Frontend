@@ -23,7 +23,8 @@ export default function ProgramManagement() {
     programData.token,
     programData.programs,
     programData.setPrograms,
-    programData.setProgramOverview
+    programData.setProgramOverview,
+    programData.triggerRefresh
   );
   const teamActions = useTeamActions(
     programData.token,

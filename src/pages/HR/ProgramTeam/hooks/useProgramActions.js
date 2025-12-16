@@ -2,7 +2,7 @@ import { useState } from "react";
 import hrApi from "../../../../api/hrApi";
 import { toast } from "react-toastify";
 
-export const useProgramActions = (token, programs, setPrograms, setProgramOverview) => {
+export const useProgramActions = (token, programs, setPrograms, setProgramOverview, triggerRefresh) => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [formData, setFormData] = useState({});
   const [isAddProgramOpen, setIsAddProgramOpen] = useState(false);
@@ -45,13 +45,17 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
 
     try {
       await hrApi.deleteProgram(token, programToDelete.programId);
-      setPrograms(programs.filter((p) => p.programId !== programToDelete.programId));
       toast.success("Xóa chương trình thành công!");
       setIsDeleteModalOpen(false);
       setProgramToDelete(null);
+
+      // Trigger refresh immediately to update pagination
+      if (triggerRefresh) {
+        triggerRefresh();
+      }
     } catch (err) {
       console.error("Error deleting program:", err);
-      toast.error(cleanErrorMessage(err?.response?.data?.message) || "Xóa chương trình thất bại!");
+      toast.error("Không thể xoá chương trình vì vẫn còn thông tin trong nhóm và nhiệm vụ");
     }
   };
 
@@ -64,21 +68,24 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
       };
 
       if (selectedProgram) {
-        const updatedProgram = await hrApi.updateProgram(token, selectedProgram.programId, payload);
-        setPrograms((prevPrograms) => {
-          const others = prevPrograms.filter((p) => p.programId !== updatedProgram.programId);
-          return [updatedProgram, ...others];
-        });
+        await hrApi.updateProgram(token, selectedProgram.programId, payload);
         toast.success("Cập nhật chương trình thành công!");
         setIsEditProgramOpen(false);
       } else {
-        const newProgram = await hrApi.createProgram(token, payload);
-        setPrograms((prevPrograms) => [newProgram, ...prevPrograms]);
+        await hrApi.createProgram(token, payload);
         toast.success("Thêm chương trình thành công!");
         setIsAddProgramOpen(false);
       }
 
       setFormData({});
+
+      // Trigger refresh immediately to refetch with proper pagination
+      if (triggerRefresh) {
+        // Small delay to ensure backend has processed the request
+        setTimeout(() => {
+          triggerRefresh();
+        }, 100);
+      }
     } catch (err) {
       console.error("Error saving program:", err);
       toast.error(cleanErrorMessage(err?.response?.data?.message) || "Lưu chương trình thất bại!");
@@ -141,10 +148,10 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
     }
   };
 
-   const handleFinishProgramClick = (program) => {
-      setProgramToFinish(program);
-      setIsFinishModalOpen(true);
-    };
+  const handleFinishProgramClick = (program) => {
+    setProgramToFinish(program);
+    setIsFinishModalOpen(true);
+  };
 
   const handleConfirmFinishProgram = async () => {
     if (!programToFinish) return;
@@ -152,16 +159,6 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
     try {
       const response = await hrApi.finishProgram(token, programToFinish.programId);
 
-      // Update the program status in the UI
-      setPrograms((prevPrograms) =>
-        prevPrograms.map((p) =>
-          p.programId === programToFinish.programId
-            ? { ...p, programStatus: "FINISHED" }
-            : p
-        )
-      );
-
-      // Show success toast with details
       toast.success(
         `Chương trình "${programToFinish.name}" đã được kết thúc. ${response.updatedInterns} tài khoản thực tập sinh đã bị vô hiệu hóa.`,
         {
@@ -173,6 +170,11 @@ export const useProgramActions = (token, programs, setPrograms, setProgramOvervi
       // Close modal and reset
       setIsFinishModalOpen(false);
       setProgramToFinish(null);
+
+      // Trigger refresh to update the list
+      if (triggerRefresh) {
+        triggerRefresh();
+      }
     } catch (err) {
       console.error("Error finishing program:", err);
       toast.error(
