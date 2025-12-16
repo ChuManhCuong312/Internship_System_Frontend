@@ -214,8 +214,17 @@ const ManageContracts = () => {
       const link = document.createElement("a");
       link.href = url;
       
-      // Extract filename from file_path or use default
-      const fileName = filePath.split("/").pop() || `hop-dong-${contract.fullName}.pdf`;
+      // Generate a cleaner download filename based on intern name and keep original extension
+      const originalName = (filePath && filePath.split("/").pop()) || "";
+      const originalExt = originalName.includes(".") ? originalName.split(".").pop() : "pdf";
+      const rawName = contract.fullName || "Thuc_tap_sinh";
+      const safeName = rawName
+        .trim()
+        .replace(/\s+/g, "_")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9_]/g, "");
+      const fileName = `Hop_dong_thuc_tap_${safeName || "Thuc_tap_sinh"}.${originalExt}`;
       link.download = fileName;
       
       document.body.appendChild(link);
