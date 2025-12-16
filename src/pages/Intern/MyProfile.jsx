@@ -20,6 +20,15 @@ const SWAL_DELAY_MS = 300;
 // ====================== MAIN COMPONENT ======================
 export default function ProfilePage() {
     const { user, token, loading: authLoading } = useContext(AuthContext);
+    const userStatus = user?.userStatus || null;
+    const internStatus = user?.internStatus || null;
+    const internConfirmStatus = user?.internConfirmStatus || null;
+
+    const isProfileLocked =
+      userStatus === "REJECTED" &&
+      internStatus === "APPROVED" &&
+      internConfirmStatus === "Approved";
+
     const [internData, setInternData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
@@ -171,19 +180,21 @@ export default function ProfilePage() {
                 <InternSidebar />
                 <div className="profile-main">
                     <ProfileHeader
-                        internData={internData}
-                        user={user}
-                        initials={initials}
-                        avatarPreview={avatarPreview}
-                        onAvatarClick={handleAvatarClick}
-                        onEditClick={() => setIsEditing(true)}
+                      internData={internData}
+                      user={user}
+                      initials={initials}
+                      avatarPreview={avatarPreview}
+                      onAvatarClick={handleAvatarClick}
+                      onEditClick={() => setIsEditing(true)}
+                      isProfileLocked={isProfileLocked}
                     />
 
                     <ProfileGrid
-                        internData={internData}
-                        onCvFileChange={handleCvFileChange}
-                        onPermissionFileChange={handlePermissionFileChange}
-                        onUniversityConfirmChange={handleUniversityConfirmChange}
+                      internData={internData}
+                      onCvFileChange={handleCvFileChange}
+                      onPermissionFileChange={handlePermissionFileChange}
+                      onUniversityConfirmChange={handleUniversityConfirmChange}
+                      isProfileLocked={isProfileLocked}
                     />
                 </div>
             </div>
