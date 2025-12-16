@@ -53,9 +53,13 @@ export default function AddEditTeamModal({
             <select
               className="form-input"
               value={teamFormData.mentorId || ""}
-              onChange={(e) =>
-                setTeamFormData({ ...teamFormData, mentorId: Number(e.target.value) })
-              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setTeamFormData({
+                  ...teamFormData,
+                  mentorId: value === "" ? "" : Number(value),
+                });
+              }}
             >
               <option value="">-- Chọn mentor --</option>
               {programMentors.map((mentor) => (

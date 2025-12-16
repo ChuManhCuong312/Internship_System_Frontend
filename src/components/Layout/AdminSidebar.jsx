@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import "../../styles/sideBar.css";
+import Swal from "sweetalert2";
 
 const AdminSidebar = () => {
   const [expanded, setExpanded] = useState(true);
@@ -38,6 +39,24 @@ const AdminSidebar = () => {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Đăng xuất",
+      text: "Bạn có chắc chắn muốn đăng xuất?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Có, đăng xuất",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        navigate("/login");
+      }
+    });
+  };
 
   return (
     <animated.div
@@ -78,10 +97,7 @@ const AdminSidebar = () => {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        <button onClick={() => {
-          logout();
-          navigate("/login");
-        }}>
+        <button onClick={handleLogout}>
           <FaSignOutAlt /> {expanded && <span>Đăng xuất</span>}
         </button>
       </div>

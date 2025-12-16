@@ -93,7 +93,18 @@ export const useProfileHandlers = (internData, setInternData, formData, setFormD
             }
         } catch (err) {
             console.error(`Upload ${fieldName} failed:`, err);
-            showToast(`Tải lên ${fieldName} thất bại: ${err.message || 'Lỗi không xác định'}`, "error");
+
+            const res = err.response;
+            const backendMsg =
+                res?.data?.error ||
+                res?.data?.message ||
+                null;
+
+            const msg = backendMsg
+                ? `Tải lên ${fieldName} thất bại: ${backendMsg}`
+                : `Tải lên ${fieldName} thất bại: ${err.message || 'Lỗi không xác định'}`;
+
+            showToast(msg, "error");
         }
     };
 

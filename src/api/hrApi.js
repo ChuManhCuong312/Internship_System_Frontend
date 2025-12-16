@@ -340,6 +340,15 @@ const hrApi = {
     return res.data;
   },
 
+  // Download contract file as blob
+  downloadContract: async (token, documentId) => {
+    const res = await axios.get(`${API_URL_CONTRACTS}/${documentId}/download`, {
+      headers: { Authorization: `Bearer ${token}` },
+      responseType: "blob",
+    });
+    return res.data; // Blob for file download
+  },
+
   searchInterns: async (token, { searchTerm, major, school, status, page = 0, size = 10 }) => {
     const params = { page, size };
     if (searchTerm) params.searchTerm = searchTerm;
