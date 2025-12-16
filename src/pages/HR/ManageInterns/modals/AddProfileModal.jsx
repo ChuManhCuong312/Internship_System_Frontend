@@ -134,13 +134,13 @@ const AddProfileModal = ({ isOpen, onClose, isCreating, intern, profileData, set
             {errors?.dob && <p className="field-error">{errors.dob}</p>}
         </div>
 
-        {/* Trường (mặc định CMC University) */}
+        {/* Trường*/}
         <div className="form-group">
             <label>Trường *</label>
             <input
                 className="form-input"
                 value={profileData?.school || ""}
-                readOnly
+                 onChange={e => setProfileData({ ...profileData, school: e.target.value })}
             />
         </div>
 
