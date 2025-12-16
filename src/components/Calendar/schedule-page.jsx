@@ -48,7 +48,6 @@ export default function SchedulePage() {
   }, [user, token])
 
   if (loading) return <p>Đang tải dữ liệu...</p>
-  if (error) return <p>Lỗi: {error}</p>
 
   return (
     <ScheduleLayout
