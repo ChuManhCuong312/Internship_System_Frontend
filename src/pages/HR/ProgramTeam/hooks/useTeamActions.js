@@ -143,6 +143,11 @@ const handleDeleteTeam = async (teamId) => {
   const handleSaveTeam = async () => {
     if (!selectedProgram) return;
 
+    if (!selectedTeam && (!teamFormData.mentorId && teamFormData.mentorId !== 0)) {
+      toast.error("Vui lòng chọn mentor cho team trước khi lưu.");
+      return;
+    }
+
     try {
       let updatedProgram;
 
