@@ -193,7 +193,7 @@ const SupportRequest = () => {
               marginTop: "1rem"
             }}>
               <thead>
-                <tr><th>Ngày tạo</th><th>Chủ đề</th><th>Loại hỗ trợ</th><th>Trạng thái</th><th>Ngày cật nhật</th></tr>
+                <tr><th>Ngày tạo</th><th>Chủ đề</th><th>Loại hỗ trợ</th><th>Trạng thái</th><th>Phản hồi</th><th>Ngày cật nhật</th></tr>
               </thead>
               <tbody>
                 {requests.length === 0 ? (
@@ -205,6 +205,7 @@ const SupportRequest = () => {
                       <td>{req.title}</td>
                       <td>{getTypeLabel(req.supportType)}</td>
                       <td>{getStatusLabel(req.status)}</td>
+                      <td>{req.response}</td>
                       <td>{req.processedDate ? new Date(req.processedDate).toLocaleDateString('vi-VN') : ''}</td>
                     </tr>
                   ))
