@@ -79,7 +79,7 @@ export default function ProgramManagement() {
   return (
     <div className="dashboard-layout">
       <HRSidebar />
-      <div className="dashboard-content">
+      <div className="program-dashboard-content">
         {/* PROGRAM LIST VIEW */}
         {!teamActions.viewingProgramTeams && (
           <div className="max-width-container">

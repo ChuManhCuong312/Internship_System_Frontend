@@ -11,6 +11,18 @@
   margin: 0 auto;
 }
 
+.program-dashboard-content {
+  background: #f3f4f6 !important;
+  padding: 24px;
+  overflow-y: auto;
+  font-family: "Inter", sans-serif;
+  flex:1;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
 /* Header Section */
 .header-section {
   margin-bottom: 2rem;
