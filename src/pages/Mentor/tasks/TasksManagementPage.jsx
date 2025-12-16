@@ -359,6 +359,9 @@ const TasksManagementPage = ({ programId, onBack }) => {
 
   // Delete tag
   const handleDeleteTag = async (tagId) => {
+    // Temporarily close the tag manager dialog to show the confirmation modal on top
+    setShowTagManager(false);
+    
     const result = await Swal.fire({
       title: 'Xóa tag',
       text: 'Bạn có chắc chắn muốn xóa tag này? Tag sẽ bị xóa khỏi tất cả nhiệm vụ.',
@@ -367,7 +370,9 @@ const TasksManagementPage = ({ programId, onBack }) => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Xóa',
-      cancelButtonText: 'Hủy'
+      cancelButtonText: 'Hủy',
+      allowOutsideClick: false,
+      allowEscapeKey: false
     });
 
     if (result.isConfirmed) {
@@ -386,6 +391,9 @@ const TasksManagementPage = ({ programId, onBack }) => {
       } finally {
         setTagLoading(false);
       }
+    } else {
+      // Reopen the tag manager dialog if user cancels
+      setShowTagManager(true);
     }
   };
 
@@ -489,20 +497,35 @@ const TasksManagementPage = ({ programId, onBack }) => {
 
   // Mark task as complete
   const handleCompleteTask = async (taskId) => {
-    try {
-      await taskApi.updateTaskStatus(token, taskId, 'DONE');
-      toast.success('Đánh dấu nhiệm vụ hoàn thành!');
-      // Update the selected task status
-      setSelectedTask(prev => prev ? { ...prev, status: 'DONE' } : null);
-      // Refresh the task list
-      if (activeFilters) {
-        fetchFilteredTasks(activeFilters);
-      } else {
-        fetchTasks();
+    const result = await Swal.fire({
+      title: 'Xác nhận hoàn thành',
+      text: 'Bạn có chắc chắn muốn đánh dấu nhiệm vụ này là hoàn thành?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Có, hoàn thành',
+      cancelButtonText: 'Hủy',
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await taskApi.updateTaskStatus(token, taskId, 'DONE');
+        toast.success('Đánh dấu nhiệm vụ hoàn thành!');
+        // Update the selected task status
+        setSelectedTask(prev => prev ? { ...prev, status: 'DONE' } : null);
+        // Refresh the task list
+        if (activeFilters) {
+          fetchFilteredTasks(activeFilters);
+        } else {
+          fetchTasks();
+        }
+      } catch (error) {
+        console.error('Error completing task:', error);
+        toast.error('Lỗi khi đánh dấu hoàn thành');
       }
-    } catch (error) {
-      console.error('Error completing task:', error);
-      toast.error('Lỗi khi đánh dấu hoàn thành');
     }
   };
 
@@ -1090,18 +1113,22 @@ const TasksManagementPage = ({ programId, onBack }) => {
                     Hoàn thành
                   </button>
                 )}
-                <button
-                  className={styles.editButton}
-                  onClick={() => handleOpenModal(selectedTask)}
-                >
-                  Chỉnh sửa
-                </button>
-                <button
-                  className={styles.deleteButton}
-                  onClick={() => handleDeleteTask(selectedTask.taskId)}
-                >
-                  Xóa
-                </button>
+                {selectedTask.status !== 'DONE' && (
+                  <>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleOpenModal(selectedTask)}
+                    >
+                      Chỉnh sửa
+                    </button>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteTask(selectedTask.taskId)}
+                    >
+                      Xóa
+                    </button>
+                  </>
+                )}
               </div>
             </>
           ) : (

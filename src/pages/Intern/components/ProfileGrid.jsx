@@ -3,7 +3,7 @@ import { MdSchool, MdTrendingUp, MdLocationOn, MdCalendarToday, MdPerson } from 
 import InfoCard from './InfoCard';
 import FileUploadCard from './FileUploadCard';
 
-const ProfileGrid = ({ internData, onCvFileChange, onPermissionFileChange, onUniversityConfirmChange }) => (
+const ProfileGrid = ({ internData, onCvFileChange, onPermissionFileChange, onUniversityConfirmChange, isProfileLocked }) => (
     <div className="profile-grid">
         <InfoCard icon={MdSchool} label="Trường" value={internData?.school} />
         <InfoCard icon={MdTrendingUp} label="Ngành học" value={internData?.major} />
@@ -24,6 +24,7 @@ const ProfileGrid = ({ internData, onCvFileChange, onPermissionFileChange, onUni
             fileUrl={internData?.cvFile}
             downloadText="Tải xuống CV"
             onFileChange={onCvFileChange}
+            disabled={isProfileLocked}
         />
 
         <FileUploadCard
@@ -31,6 +32,7 @@ const ProfileGrid = ({ internData, onCvFileChange, onPermissionFileChange, onUni
             fileUrl={internData?.permissionFile}
             downloadText="Tải xuống giấy xin phép thực tập"
             onFileChange={onPermissionFileChange}
+            disabled={isProfileLocked}
         />
 
         <FileUploadCard
@@ -38,6 +40,7 @@ const ProfileGrid = ({ internData, onCvFileChange, onPermissionFileChange, onUni
             fileUrl={internData?.universityConfirm}
             downloadText="Tải xuống giấy xác nhận của trường"
             onFileChange={onUniversityConfirmChange}
+            disabled={isProfileLocked}
         />
     </div>
 );
