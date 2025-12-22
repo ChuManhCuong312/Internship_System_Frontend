@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/interns";
-const CLOUDINARY_URL = "http://localhost:8080/api/cloudinary";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/interns`;
+const CLOUDINARY_URL = `${import.meta.env.VITE_API_BASE_URL}/api/cloudinary`;
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },

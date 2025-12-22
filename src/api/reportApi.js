@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL_REPORTS = "http://localhost:8080/api/reports";
+const API_URL_REPORTS = `${import.meta.env.VITE_API_BASE_URL}/api/reports`;
 
 const reportApi = {
   getFinalEvaluationReportByProgram: async (token, programId, teamId) => {

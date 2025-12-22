@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
       if (userData.role === "INTERN" && !userData.internId) {
         try {
           const internResponse = await axios.get(
-            `http://localhost:8080/api/interns/user/${userData.userId}`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/interns/user/${userData.userId}`,
             { headers: { Authorization: `Bearer ${jwt}` } }
           );
           // Handle different response structures

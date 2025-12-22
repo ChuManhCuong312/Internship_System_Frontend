@@ -41,7 +41,7 @@ const OAuthSuccess = () => {
         if (userData.role === "INTERN") {
           try {
             const internResponse = await axios.get(
-              `http://localhost:8080/api/interns/user/${userData.userId}`,
+              `${import.meta.env.VITE_API_BASE_URL}/api/interns/user/${userData.userId}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/attendances";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/attendances`;
 
 const authHeader = (token) => ({
   headers: { Authorization: `Bearer ${token}` },

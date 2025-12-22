@@ -29,7 +29,7 @@ export default function TeamListPage({ programId, onSelectTeam, onBack }) {
           throw new Error("Thiếu programId để tải danh sách team.");
         }
         const res = await axios.get(
-          `http://localhost:8080/api/teams/by-program/${programId}`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/teams/by-program/${programId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         // API trả về:

@@ -2,8 +2,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL_ADMIN = "http://localhost:8080/api/admin/users";
-const BASE_URL_AUTH = "http://localhost:8080/api/auth";
+const BASE_URL_ADMIN = `${import.meta.env.VITE_API_BASE_URL}/api/admin/users`;
+const BASE_URL_AUTH = `${import.meta.env.VITE_API_BASE_URL}/api/auth`;
 
 export const authService = {
   // 🔹 Admin: create user manually (with token)

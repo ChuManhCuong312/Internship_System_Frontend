@@ -1,6 +1,6 @@
 import React from "react";
 import "../../styles/auth.css";
-const API_URL = "http://localhost:8080";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}`;
 
 const SocialLoginButtons = () => {
   const handleSocialLogin = (provider) => {

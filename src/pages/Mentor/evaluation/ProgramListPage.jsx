@@ -26,7 +26,7 @@ export default function ProgramListPage({ onSelectProgram }) {
         }
 
         const res = await axios.get(
-          `http://localhost:8080/api/programs/mentor/${userId}/ongoing`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/programs/mentor/${userId}/ongoing`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

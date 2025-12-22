@@ -59,7 +59,7 @@ export default function SchedulePage() {
     const fetchPrograms = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/api/programs?page=1&size=5&sortBy=name&sortDir=asc",
+          `${import.meta.env.VITE_API_BASE_URL}/api/programs?page=1&size=5&sortBy=name&sortDir=asc`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -78,7 +78,7 @@ export default function SchedulePage() {
     try {
       setLoading(true)
       const res = await axios.get(
-        `http://localhost:8080/api/program-events/program/${selectedProgramId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/program-events/program/${selectedProgramId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
@@ -111,7 +111,7 @@ export default function SchedulePage() {
   const handleCreateEvent = async (data) => {
     try {
       await axios.post(
-        "http://localhost:8080/api/program-events",
+        `${import.meta.env.VITE_API_BASE_URL}/api/program-events`,
         {
           programId: selectedProgramId,
           ...data,
@@ -141,7 +141,7 @@ export default function SchedulePage() {
   const handleUpdateEvent = async (id, data) => {
     try {
       await axios.put(
-        `http://localhost:8080/api/program-events/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/program-events/${id}`,
         {
           programId: selectedProgramId,
           ...data,
@@ -159,7 +159,7 @@ export default function SchedulePage() {
   const handleDeleteEvent = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:8080/api/program-events/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/program-events/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
 

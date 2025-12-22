@@ -25,7 +25,7 @@ export default function SchedulePage() {
       try {
         const internId = user.internId
         const res = await axios.get(
-          `http://localhost:8080/api/programs/intern/${internId}`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/programs/intern/${internId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
